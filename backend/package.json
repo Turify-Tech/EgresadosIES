@@ -26,7 +26,7 @@
         "helmet": "^7.0.0",
         "morgan": "^1.10.0",
         "dotenv": "^16.3.1",
-        "bcrypt": "^5.1.0",
+        "bcryptjs": "latest",
         "jsonwebtoken": "^9.0.2",
         "@libsql/client": "^0.4.0",
         "multer": "^1.4.5-lts.1",
