@@ -1,0 +1,139 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Inicio">
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                    Red de Egresados del IES
+                </h1>
+                <p class="text-xl md:text-2xl mb-8 text-blue-100">
+                    Conecta con otros profesionales, encuentra oportunidades y
+                    comparte tu experiencia
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a
+                        href="/perfiles"
+                        class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                        Explorar Perfiles
+                    </a>
+                    <a
+                        href="/acceso"
+                        class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
+                        Unirse a la Red
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    ¿Qué puedes hacer en nuestra plataforma?
+                </h2>
+                <p class="text-xl text-gray-600">
+                    Herramientas diseñadas para potenciar tu carrera profesional
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="text-center p-6">
+                    <div
+                        class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg
+                            class="w-8 h-8 text-blue-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                            ></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">
+                        Perfil Profesional
+                    </h3>
+                    <p class="text-gray-600">
+                        Crea tu perfil completo con experiencia, formación y
+                        habilidades para que las empresas te encuentren.
+                    </p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="text-center p-6">
+                    <div
+                        class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg
+                            class="w-8 h-8 text-green-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                            ></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Red Social</h3>
+                    <p class="text-gray-600">
+                        Interactúa con otros egresados, comparte experiencias y
+                        mantente al día con las novedades del sector.
+                    </p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="text-center p-6">
+                    <div
+                        class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg
+                            class="w-8 h-8 text-purple-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2V6"
+                            ></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Oportunidades</h3>
+                    <p class="text-gray-600">
+                        Las empresas pueden contactarte directamente para
+                        oportunidades laborales que coincidan con tu perfil.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="bg-gray-100 py-20">
+        <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                ¿Eres egresado del IES?
+            </h2>
+            <p class="text-xl text-gray-600 mb-8">
+                Únete a nuestra comunidad y potencia tu carrera profesional
+            </p>
+            <a
+                href="/acceso"
+                class="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors inline-block">
+                Crear mi perfil gratuito
+            </a>
+        </div>
+    </section>
+</BaseLayout>
