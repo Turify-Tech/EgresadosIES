@@ -6,6 +6,10 @@ export interface Props {
 
 const { title, description = "Sistema de Gestión de Egresados del IES" } =
     Astro.props;
+
+// Importar estilos CSS
+import "../styles/global.css";
+import "../styles/components.css";
 ---
 
 <!doctype html>
@@ -17,7 +21,7 @@ const { title, description = "Sistema de Gestión de Egresados del IES" } =
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <title>{title} | IES Egresados</title>
 
-        <!-- Fuentes y estilos adicionales -->
+        <!-- Fuentes y estilos -->
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
@@ -25,161 +29,91 @@ const { title, description = "Sistema de Gestión de Egresados del IES" } =
             rel="stylesheet"
         />
     </head>
-    <body class="min-h-screen bg-gray-50 font-sans">
+    <body>
         <!-- Header -->
-        <header class="bg-white shadow-sm border-b border-gray-200">
-            <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-16">
-                    <!-- Logo -->
-                    <div class="flex items-center">
-                        <a href="/" class="flex items-center space-x-2">
-                            <div
-                                class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                                <span class="text-white font-bold text-sm"
-                                    >IES</span
-                                >
-                            </div>
-                            <span class="text-xl font-semibold text-gray-900"
-                                >Egresados</span
-                            >
-                        </a>
-                    </div>
-
-                    <!-- Navegación -->
-                    <div class="hidden md:flex items-center space-x-8">
-                        <a
-                            href="/"
-                            class="text-gray-700 hover:text-blue-600 font-medium"
-                            >Inicio</a
+        <header class="header">
+            <nav class="container nav flex justify-between items-center">
+                <!-- Logo -->
+                <div>
+                    <a href="/" class="flex items-center gap-sm">
+                        <div class="logo flex items-center justify-center">
+                            <span>IES</span>
+                        </div>
+                        <span class="text-xl font-semibold text-gray-900"
+                            >Egresados</span
                         >
-                        <a
-                            href="/perfiles"
-                            class="text-gray-700 hover:text-blue-600 font-medium"
-                            >Perfiles</a
-                        >
-                        <a
-                            href="/feed"
-                            class="text-gray-700 hover:text-blue-600 font-medium"
-                            >Feed</a
-                        >
-                        <a
-                            href="/acceso"
-                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                            Ingresar
-                        </a>
-                    </div>
-
-                    <!-- Menú móvil -->
-                    <div class="md:hidden">
-                        <button
-                            id="mobile-menu-button"
-                            class="text-gray-700 hover:text-blue-600">
-                            <svg
-                                class="w-6 h-6"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M4 6h16M4 12h16M4 18h16"></path>
-                            </svg>
-                        </button>
-                    </div>
+                    </a>
                 </div>
 
-                <!-- Menú móvil desplegable -->
-                <div id="mobile-menu" class="hidden md:hidden pb-4">
-                    <div class="flex flex-col space-y-2">
-                        <a
-                            href="/"
-                            class="text-gray-700 hover:text-blue-600 font-medium py-2"
-                            >Inicio</a
-                        >
-                        <a
-                            href="/perfiles"
-                            class="text-gray-700 hover:text-blue-600 font-medium py-2"
-                            >Perfiles</a
-                        >
-                        <a
-                            href="/feed"
-                            class="text-gray-700 hover:text-blue-600 font-medium py-2"
-                            >Feed</a
-                        >
-                        <a
-                            href="/acceso"
-                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-center">
-                            Ingresar
-                        </a>
-                    </div>
+                <!-- Navegación Desktop -->
+                <div class="md-flex items-center gap-lg md-hidden">
+                    <a href="/" class="nav-link">Inicio</a>
+                    <a href="/acceso" class="btn btn-primary">Ingresar</a>
+                </div>
+
+                <!-- Menú móvil -->
+                <div class="mobile-menu">
+                    <button id="mobile-menu-button" class="nav-link">
+                        <svg
+                            width="24"
+                            height="24"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
                 </div>
             </nav>
-        </header>
 
-        <!-- Contenido principal -->
-        <main class="flex-1">
-            <slot />
-        </main>
-
-        <!-- Footer -->
-        <footer class="bg-gray-900 text-white mt-auto">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div>
-                        <h3 class="text-lg font-semibold mb-4">
-                            Instituto de Educación Superior
-                        </h3>
-                        <p class="text-gray-300">
-                            Conectando egresados con oportunidades y
-                            fortaleciendo nuestra comunidad educativa.
-                        </p>
-                    </div>
-                    <div>
-                        <h4 class="text-md font-semibold mb-4">Enlaces</h4>
-                        <ul class="space-y-2 text-gray-300">
-                            <li>
-                                <a href="/perfiles" class="hover:text-white"
-                                    >Ver Perfiles</a>
-                            </li>
-                            <li>
-                                <a href="/feed" class="hover:text-white"
-                                    >Feed Social</a>
-                            </li>
-                            <li>
-                                <a href="/acceso" class="hover:text-white"
-                                    >Acceso</a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h4 class="text-md font-semibold mb-4">Contacto</h4>
-                        <ul class="space-y-2 text-gray-300">
-                            <li>Email: info@ies.edu.ar</li>
-                            <li>Teléfono: +54 xxx xxx-xxxx</li>
-                            <li>Dirección: Ciudad, Provincia</li>
-                        </ul>
-                    </div>
-                </div>
-                <div
-                    class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-                    <p>
-                        &copy; 2025 Instituto de Educación Superior. Todos los
-                        derechos reservados.
-                    </p>
+            <!-- Menú móvil desplegable -->
+            <div id="mobile-menu" class="hidden container">
+                <div class="flex flex-col gap-sm p-md">
+                    <a href="/" class="nav-link">Inicio</a>
+                    <a href="/acceso" class="btn btn-primary">Ingresar</a>
                 </div>
             </div>
-        </footer>
-
-        <!-- Scripts -->
-        <script>
-            // Toggle menú móvil
-            document
-                .getElementById("mobile-menu-button")
-                ?.addEventListener("click", () => {
-                    const menu = document.getElementById("mobile-menu");
-                    menu?.classList.toggle("hidden");
-                });
-        </script>
+        </header>
     </body>
+
+    <!-- Contenido principal -->
+    <main class="flex-1">
+        <slot />
+    </main>
+
+    <!-- Footer -->
+    <footer
+        style="background-color: var(--color-gray-900); color: var(--color-white); margin-top: auto;">
+        <div class="container p-xl">
+            <div class="text-center">
+                <h3 class="text-lg font-semibold mb-md">
+                    Instituto de Educación Superior
+                </h3>
+                <p
+                    style="color: var(--color-gray-300); margin-bottom: var(--spacing-lg);">
+                    Sistema de Egresados - Conectando nuestra comunidad
+                    educativa
+                </p>
+                <p style="color: var(--color-gray-400);">
+                    &copy; 2025 Instituto de Educación Superior. Todos los
+                    derechos reservados.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Toggle menú móvil
+        document
+            .getElementById("mobile-menu-button")
+            ?.addEventListener("click", () => {
+                const menu = document.getElementById("mobile-menu");
+                menu?.classList.toggle("hidden");
+            });
+    </script>
 </html>
