@@ -141,3 +141,6 @@ vite.config.ts.timestamp-*
 .vite/
 issues/
 bun.lock
+types.d.ts
+env.d.ts
+settings.json
