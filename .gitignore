@@ -140,6 +140,7 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
 issues/
+design/
 bun.lock
 types.d.ts
 env.d.ts
