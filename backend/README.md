@@ -20,8 +20,7 @@ npm install
 2. **Configurar variables de entorno**
 
 ```bash
-cp .env.example .env
-# Editar .env con tus configuraciones
+# verificar la existencia del .env
 ```
 
 3. **Ejecutar migraciones de base de datos**
@@ -64,7 +63,7 @@ backend/
 │   └── app.js          # Aplicación Express principal
 ├── scripts/            # Scripts de utilidad
 ├── package.json
-└── .env.example
+└── .env
 ```
 
 ## 🔧 Comandos Disponibles
@@ -77,7 +76,7 @@ backend/
 
 ## 📝 Variables de Entorno
 
-Ver `.env.example` para todas las variables requeridas.
+Ver `.env` para todas las variables requeridas.
 
 Principales:
 
