@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import readline from "readline";
 import database from "../src/config/database.js";
 
@@ -246,8 +246,8 @@ async function main() {
 }
 
 // Ejecutar si es llamado directamente
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     main().catch(console.error);
 }
 
-module.exports = { createAdmin, listAdmins };
+export { createAdmin, listAdmins };
