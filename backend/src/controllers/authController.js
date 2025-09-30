@@ -17,14 +17,20 @@ export async function login(req, res) {
 
     // Validaciones básicas
     if (!dni || !password) {
+        console.warn(`[SECURITY] Login sin credenciales - IP: ${req.ip}, User-Agent: ${req.get('User-Agent')}`);
         return res.status(400).json({
             success: false,
             message: "DNI y contraseña son requeridos",
         });
     }
 
+    // Sanitización de inputs
+    const sanitizedDni = dni.toString().trim().replace(/[^0-9]/g, '');
+    const sanitizedPassword = password.toString().trim();
+
     // Validar formato de DNI (8 dígitos)
-    if (!/^\d{8}$/.test(dni)) {
+    if (!/^\d{8}$/.test(sanitizedDni)) {
+        console.warn(`[SECURITY] DNI inválido - DNI: ${sanitizedDni}, IP: ${req.ip}, User-Agent: ${req.get('User-Agent')}`);
         return res.status(400).json({
             success: false,
             message: "El DNI debe tener exactamente 8 dígitos",
@@ -35,15 +41,15 @@ export async function login(req, res) {
 
     try {
         // 1. Buscar usuario existente por DNI
-        const existingUser = await findExistingUser(client, dni);
+        const existingUser = await findExistingUser(client, sanitizedDni);
 
         if (existingUser) {
             // Usuario existe, validar password y hacer login
-            return await handleExistingUserLogin(res, existingUser, password);
+            return await handleExistingUserLogin(res, existingUser, sanitizedPassword, req);
         }
 
         // 2. Usuario no existe, intentar registro automático para egresados
-        return await handleNewUserRegistration(res, client, dni, password);
+        return await handleNewUserRegistration(res, client, sanitizedDni, sanitizedPassword, req);
     } catch (error) {
         console.error("Error en login:", error);
         return res.status(500).json({
@@ -109,11 +115,12 @@ async function findExistingUser(client, dni) {
 /**
  * Maneja el login de un usuario existente
  */
-async function handleExistingUserLogin(res, user, password) {
+async function handleExistingUserLogin(res, user, password, req) {
     // Verificar contraseña
     const isValidPassword = await verifyPassword(password, user.password);
 
     if (!isValidPassword) {
+        console.warn(`[SECURITY] Login fallido - DNI: ${user.dni}, IP: ${req.ip}, User-Agent: ${req.get('User-Agent')}`);
         return res.status(401).json({
             success: false,
             message: "DNI o contraseña incorrectos",
@@ -127,6 +134,9 @@ async function handleExistingUserLogin(res, user, password) {
         tipoUsuario: user.source === "egresado" ? "Egresado" : "Administrador",
         email: user.email,
     });
+
+    // Log de login exitoso
+    console.info(`[AUTH] Login exitoso - Usuario: ${user.id}, Tipo: ${user.source === "egresado" ? "Egresado" : "Administrador"}, IP: ${req.ip}`);
 
     // Respuesta exitosa
     return res.status(200).json({
@@ -145,7 +155,7 @@ async function handleExistingUserLogin(res, user, password) {
 /**
  * Maneja el registro automático de un nuevo egresado
  */
-async function handleNewUserRegistration(res, client, dni, password) {
+async function handleNewUserRegistration(res, client, dni, password, req) {
     // 1. Validar DNI en tabla DniValido
     const dniValidoQuery = `
         SELECT dni, carrera 
@@ -159,6 +169,7 @@ async function handleNewUserRegistration(res, client, dni, password) {
     });
 
     if (dniValidoResult.rows.length === 0) {
+        console.warn(`[SECURITY] Intento de registro con DNI no autorizado - DNI: ${dni}, IP: ${req.ip}, User-Agent: ${req.get('User-Agent')}`);
         return res.status(400).json({
             success: false,
             message: "DNI no está autorizado para registrarse como egresado",
@@ -244,6 +255,9 @@ async function handleNewUserRegistration(res, client, dni, password) {
             tipoUsuario: "Egresado",
             email: tempEmail,
         });
+
+        // Log de registro exitoso
+        console.info(`[AUTH] Registro automático exitoso - Usuario: ${usuarioId}, DNI: ${dni}, IP: ${req.ip}`);
 
         // Respuesta exitosa
         return res.status(201).json({
