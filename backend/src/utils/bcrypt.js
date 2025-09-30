@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 /**
  * Utilidades para hashing y verificación de contraseñas usando bcrypt

@@ -3,6 +3,8 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import dotenv from "dotenv";
+import database from "./config/database.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 
@@ -30,17 +32,30 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 // Health check endpoint
-app.get("/api/health", (req, res) => {
-    res.status(200).json({
-        status: "OK",
-        message: "Sistema de Gestión de Egresados IES - API funcionando",
-        timestamp: new Date().toISOString(),
-        version: "1.0.0",
-    });
+app.get("/api/health", async (req, res) => {
+    try {
+        // Verificar conexión a la base de datos
+        const dbHealth = await database.healthCheck();
+        
+        res.status(200).json({
+            status: "OK",
+            message: "Sistema de Gestión de Egresados IES - API funcionando",
+            timestamp: new Date().toISOString(),
+            version: "1.0.0",
+            database: dbHealth ? "Connected" : "Disconnected",
+        });
+    } catch (error) {
+        res.status(503).json({
+            status: "Error",
+            message: "Error en el servicio",
+            timestamp: new Date().toISOString(),
+            database: "Error",
+        });
+    }
 });
 
-// Rutas principales (se agregarán en siguientes issues)
-// app.use('/api/auth', require('./routes/authRoutes'));
+// Rutas principales
+app.use("/api/auth", authRoutes);
 // app.use('/api/perfil', require('./routes/perfilRoutes'));
 // app.use('/api/perfiles', require('./routes/perfilesRoutes'));
 
@@ -77,11 +92,20 @@ app.use("*", (req, res) => {
 
 // Iniciar servidor solo si no está en testing
 if (process.env.NODE_ENV !== "test") {
-    app.listen(PORT, () => {
-        console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-        console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
-        console.log(`🌍 Entorno: ${process.env.NODE_ENV || "development"}`);
-    });
+    // Conectar a la base de datos primero
+    database.connect()
+        .then(() => {
+            app.listen(PORT, () => {
+                console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+                console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+                console.log(`🔐 Auth login: http://localhost:${PORT}/api/auth/login`);
+                console.log(`🌍 Entorno: ${process.env.NODE_ENV || "development"}`);
+            });
+        })
+        .catch((error) => {
+            console.error("❌ Error al iniciar la aplicación:", error);
+            process.exit(1);
+        });
 }
 
 export default app;
