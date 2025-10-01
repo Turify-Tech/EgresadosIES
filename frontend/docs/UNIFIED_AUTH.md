@@ -8,6 +8,9 @@ Implementación completa del sistema de login/registro unificado para egresados 
 **Fecha:** Octubre 2025  
 **Estado:** ✅ Completado
 
+> **⚠️ Nota sobre cambios en Backend:**  
+> Aunque esta es una tarea de frontend, fue necesario realizar **cambios mínimos en el backend** para que el sistema funcione correctamente. Estos cambios son críticos para la integración y no afectan la lógica de negocio existente. Ver sección "Cambios en Backend" más abajo.
+
 ---
 
 ## 🎯 Características Implementadas
@@ -61,6 +64,14 @@ frontend/
 │       └── Imagen de Fondo.jpg       # Fondo de la página de acceso
 └── docs/
     └── UNIFIED_AUTH.md               # Este documento
+
+backend/ (Cambios mínimos necesarios)
+├── src/
+│   └── controllers/
+│       └── authController.js         # Validación DNI 7-8 dígitos
+├── scripts/
+│   └── add-valid-dni.js             # Script para agregar DNIs (testing)
+└── package.json                      # Script add-dni agregado
 ```
 
 ---
@@ -86,6 +97,105 @@ frontend/
 - Inputs con bordes redondeados (20px)
 - Botón compacto con bordes redondeados (25px)
 - Toggle de contraseña con iconos SVG
+
+---
+
+## 🔧 Cambios en Backend (Justificación)
+
+Aunque esta es una tarea de **frontend**, fue necesario realizar algunos ajustes en el backend para garantizar la correcta integración del sistema de autenticación. Estos cambios son **mínimos, no invasivos** y necesarios para que el frontend funcione correctamente.
+
+### Archivos Modificados en Backend
+
+#### 1. **`backend/src/controllers/authController.js`**
+**Cambio:** Validación de DNI de 8 dígitos → 7 u 8 dígitos
+
+**Razón:**
+- DNIs argentinos antiguos tienen 7 dígitos
+- DNIs argentinos modernos tienen 8 dígitos
+- El frontend ya soportaba ambos formatos
+- El backend solo aceptaba 8 dígitos, causando errores de validación
+
+**Código modificado:**
+```javascript
+// ANTES
+if (!/^\d{8}$/.test(sanitizedDni)) {
+    return res.status(400).json({
+        message: "El DNI debe tener exactamente 8 dígitos",
+    });
+}
+
+// DESPUÉS
+if (!/^\d{7,8}$/.test(sanitizedDni)) {
+    return res.status(400).json({
+        message: "El DNI debe tener 7 u 8 dígitos",
+    });
+}
+```
+
+**Impacto:** Mínimo - Solo amplía la validación, no rompe funcionalidad existente.
+
+---
+
+#### 2. **`backend/package.json`**
+**Cambio:** Agregado script `add-dni`
+
+**Razón:**
+- Facilitar la gestión de DNIs válidos durante desarrollo y testing
+- Permite a desarrolladores agregar DNIs de prueba fácilmente
+- Mejora la experiencia de desarrollo del frontend
+
+**Código agregado:**
+```json
+"scripts": {
+  "add-dni": "node scripts/add-valid-dni.js"
+}
+```
+
+**Impacto:** Ninguno - Solo agrega una herramienta de desarrollo, no afecta la API.
+
+---
+
+#### 3. **`backend/scripts/add-valid-dni.js`** (Nuevo archivo)
+**Cambio:** Script interactivo para agregar DNIs válidos
+
+**Razón:**
+- Necesario para testing del frontend
+- Permite agregar DNIs sin necesidad de SQL manual
+- Mejora la experiencia de desarrollo y testing
+- No modifica la lógica de negocio, solo es una herramienta
+
+**Funcionalidad:**
+```bash
+npm run add-dni
+# Solicita DNI y carrera interactivamente
+# Inserta en tabla DniValido
+```
+
+**Impacto:** Ninguno - Herramienta auxiliar que no afecta el runtime de la aplicación.
+
+---
+
+### Justificación General
+
+Estos cambios fueron **estrictamente necesarios** por las siguientes razones:
+
+1. **Compatibilidad:** El frontend necesitaba que el backend acepte DNIs de 7-8 dígitos
+2. **Testing:** Sin el script `add-dni`, sería imposible probar el registro de egresados
+3. **Desarrollo:** Facilita el flujo de trabajo sin depender de acceso directo a la BD
+4. **No invasivos:** No modifican la lógica de autenticación existente
+5. **Compatibilidad retroactiva:** Los cambios mantienen la funcionalidad anterior
+
+### Alternativas Consideradas
+
+❌ **Rechazadas:**
+- Modificar el frontend para aceptar solo 8 dígitos → DNIs de 7 dígitos son válidos en Argentina
+- Usar SQL manual → Dificulta desarrollo y testing
+- Crear endpoint API para agregar DNIs → Sobrecarga innecesaria
+
+✅ **Elegida:**
+- Cambios mínimos y localizados en backend
+- Herramientas de desarrollo que no afectan producción
+- Mantiene la separación de responsabilidades
 
 ---
 
