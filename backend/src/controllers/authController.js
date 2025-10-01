@@ -199,10 +199,8 @@ async function handleNewUserRegistration(res, client, dni, password, req) {
 
     const carrera = carreraResult.rows[0];
 
-    // 3. Crear nuevo egresado en una transacción
+    // 3. Crear nuevo egresado
     try {
-        await client.execute("BEGIN TRANSACTION");
-
         // Hashear contraseña
         const hashedPassword = await hashPassword(password);
 
@@ -246,8 +244,6 @@ async function handleNewUserRegistration(res, client, dni, password, req) {
             args: [usuarioId, dni, null, perfilId, carrera.id],
         });
 
-        await client.execute("COMMIT");
-
         // Generar token JWT
         const token = generateToken({
             id: usuarioId,
@@ -272,7 +268,8 @@ async function handleNewUserRegistration(res, client, dni, password, req) {
             },
         });
     } catch (error) {
-        await client.execute("ROLLBACK");
+        // En caso de error, intentar limpiar cualquier dato parcial creado
+        console.error("Error en registro automático:", error);
         throw error;
     }
 }

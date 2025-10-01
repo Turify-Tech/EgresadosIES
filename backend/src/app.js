@@ -5,6 +5,7 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import database from "./config/database.js";
 import authRoutes from "./routes/authRoutes.js";
+import perfilRoutes from "./routes/perfilRoutes.js";
 
 dotenv.config();
 
@@ -56,7 +57,7 @@ app.get("/api/health", async (req, res) => {
 
 // Rutas principales
 app.use("/api/auth", authRoutes);
-// app.use('/api/perfil', require('./routes/perfilRoutes'));
+app.use("/api/perfil", perfilRoutes);
 // app.use('/api/perfiles', require('./routes/perfilesRoutes'));
 
 // Middleware de manejo de errores globales
@@ -99,6 +100,7 @@ if (process.env.NODE_ENV !== "test") {
                 console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
                 console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
                 console.log(`🔐 Auth login: http://localhost:${PORT}/api/auth/login`);
+                console.log(`👤 Perfil: http://localhost:${PORT}/api/perfil/mi-perfil`);
                 console.log(`🌍 Entorno: ${process.env.NODE_ENV || "development"}`);
             });
         })
