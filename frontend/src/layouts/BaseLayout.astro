@@ -2,9 +2,10 @@
 export interface Props {
     title: string;
     description?: string;
+    hideAccederButton?: boolean;
 }
 
-const { title, description = "Sistema de Gestión de Egresados del IES" } =
+const { title, description = "Sistema de Gestión de Egresados del IES", hideAccederButton = false } =
     Astro.props;
 
 // Importar estilos CSS
@@ -25,57 +26,25 @@ import "../styles/components.css";
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Pontano+Sans:wght@400;700&display=swap"
             rel="stylesheet"
         />
     </head>
     <body>
         <!-- Header -->
-        <header class="header">
-            <nav class="container nav flex justify-between items-center">
-                <!-- Logo -->
-                <div>
-                    <a href="/" class="flex items-center gap-sm">
-                        <div class="logo flex items-center justify-center">
-                            <span>IES</span>
-                        </div>
-                        <span class="text-xl font-semibold text-gray-900"
-                            >Egresados</span
-                        >
+        <header style="background-color: #E6E6E6; padding: 1rem 2rem;">
+            <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <img src="/images/logo.png" alt="Logo" style="width: 50px; height: auto;" />
+                    <h1 style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 2rem; color: #1a1a1a;">
+                        EgresadosIES
+                    </h1>
+                </div>
+                {!hideAccederButton && (
+                    <a href="/acceso" id="acceder-btn" style="background: #5284e0; color: white; padding: 0.625rem 1.75rem; border-radius: 25px; text-decoration: none; font-family: 'Pontano Sans', sans-serif; font-weight: 700; font-size: 0.95rem; transition: background 0.3s ease;">
+                        Acceder
                     </a>
-                </div>
-
-                <!-- Navegación Desktop -->
-                <div class="md-flex items-center gap-lg md-hidden">
-                    <a href="/" class="nav-link">Inicio</a>
-                    <a href="/acceso" class="btn btn-primary">Ingresar</a>
-                </div>
-
-                <!-- Menú móvil -->
-                <div class="mobile-menu">
-                    <button id="mobile-menu-button" class="nav-link">
-                        <svg
-                            width="24"
-                            height="24"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M4 6h16M4 12h16M4 18h16"></path>
-                        </svg>
-                    </button>
-                </div>
-            </nav>
-
-            <!-- Menú móvil desplegable -->
-            <div id="mobile-menu" class="hidden container">
-                <div class="flex flex-col gap-sm p-md">
-                    <a href="/" class="nav-link">Inicio</a>
-                    <a href="/acceso" class="btn btn-primary">Ingresar</a>
-                </div>
+                )}
             </div>
         </header>
     </body>
@@ -108,12 +77,24 @@ import "../styles/components.css";
 
     <!-- Scripts -->
     <script>
-        // Toggle menú móvil
-        document
-            .getElementById("mobile-menu-button")
-            ?.addEventListener("click", () => {
-                const menu = document.getElementById("mobile-menu");
-                menu?.classList.toggle("hidden");
+        // Check if user is authenticated and hide "Acceder" button
+        const accederBtn = document.getElementById('acceder-btn') as HTMLElement;
+        const token = localStorage.getItem('token');
+        
+        if (token && accederBtn) {
+            accederBtn.style.display = 'none';
+        }
+        
+        // Hover effect for acceder button (only if visible)
+        if (accederBtn && !token) {
+            accederBtn.addEventListener('mouseenter', () => {
+                accederBtn.style.background = '#3d6fc7';
+                accederBtn.style.boxShadow = '0 4px 12px rgba(82, 132, 224, 0.3)';
             });
+            accederBtn.addEventListener('mouseleave', () => {
+                accederBtn.style.background = '#5284e0';
+                accederBtn.style.boxShadow = 'none';
+            });
+        }
     </script>
 </html>

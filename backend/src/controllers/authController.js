@@ -28,12 +28,12 @@ export async function login(req, res) {
     const sanitizedDni = dni.toString().trim().replace(/[^0-9]/g, '');
     const sanitizedPassword = password.toString().trim();
 
-    // Validar formato de DNI (8 dígitos)
-    if (!/^\d{8}$/.test(sanitizedDni)) {
+    // Validar formato de DNI (7 u 8 dígitos)
+    if (!/^\d{7,8}$/.test(sanitizedDni)) {
         console.warn(`[SECURITY] DNI inválido - DNI: ${sanitizedDni}, IP: ${req.ip}, User-Agent: ${req.get('User-Agent')}`);
         return res.status(400).json({
             success: false,
-            message: "El DNI debe tener exactamente 8 dígitos",
+            message: "El DNI debe tener 7 u 8 dígitos",
         });
     }
 
