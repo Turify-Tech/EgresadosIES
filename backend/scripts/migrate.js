@@ -67,8 +67,8 @@ async function runMigrations() {
 }
 
 // Ejecutar si es llamado directamente
-if (require.main === module) {
-    runMigrations();
+if (import.meta.url === `file://${process.argv[1]}`) {
+    runMigrations().catch(console.error);
 }
 
-module.exports = runMigrations;
+export default runMigrations;
