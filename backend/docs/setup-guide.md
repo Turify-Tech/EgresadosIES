@@ -117,10 +117,24 @@ curl -X PUT http://localhost:3000/api/perfil/mi-perfil \
 
 - ✅ **Autenticación JWT**: Tokens seguros para todas las rutas protegidas
 - ✅ **Autorización por Roles**: Separación entre Administradores y Egresados
-- ✅ **Rate Limiting**: Protección contra ataques de fuerza bruta
+- ✅ **Rate Limiting Global**: Protección contra ataques de fuerza bruta (login)
+- ✅ **Rate Limiting por Usuario**: 50 requests por usuario cada 15 minutos (rutas de perfil)
 - ✅ **Validación de Inputs**: Sanitización automática de datos
 - ✅ **Hash de Contraseñas**: bcryptjs con salt rounds seguros
 - ✅ **Middleware de Seguridad**: Helmet, CORS configurado
+
+### **🔒 Configuración de Rate Limiting**
+
+**Rutas de Autenticación (`/api/auth/login`):**
+- **Límite**: 5 intentos por IP cada 15 minutos
+- **Propósito**: Prevenir ataques de fuerza bruta
+- **Scope**: Por dirección IP
+
+**Rutas de Perfil (`/api/perfil/*`):**
+- **Límite**: 50 requests por usuario cada 15 minutos
+- **Propósito**: Prevenir abuso de API por usuarios autenticados
+- **Scope**: Por usuario autenticado (JWT)
+- **Error**: HTTP 429 "Too Many Requests"
 
 ---
 
@@ -137,11 +151,11 @@ backend/
 │   │   └── cursosController.js        # ✅ CRUD cursos
 │   ├── routes/
 │   │   ├── authRoutes.js             # ✅ Rutas de autenticación
-│   │   └── perfilRoutes.js           # ✅ Rutas de perfil completo
+│   │   └── perfilRoutes.js           # ✅ Rutas de perfil completo + Rate limiting
 │   ├── validators/
 │   │   └── perfilValidators.js       # ✅ Validaciones completas
 │   └── middleware/
-│       ├── auth.js                   # ✅ Autenticación y autorización
+│       ├── auth.js                   # ✅ Autenticación, autorización y rate limiting
 │       └── roles.js                  # ✅ Control de roles
 ├── scripts/
 │   ├── migrate.js                    # ✅ Migración de base de datos
@@ -163,6 +177,7 @@ backend/
 - ✅ CRUD completo de formación académica
 - ✅ CRUD completo de cursos
 - ✅ Sistema de seguridad y validaciones robusto
+- ✅ **Rate limiting por usuario en rutas de perfil** (50 req/15min)
 - ✅ Base de datos con Turso funcionando perfectamente
 - ✅ Documentación y testing completo
 

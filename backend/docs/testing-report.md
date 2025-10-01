@@ -5,7 +5,8 @@
 - ✅ **Registro Automático de Egresado**: Funciona perfectamente (DNI: 12345678, password: test123)
 - ✅ **Login de Egresado Existente**: Funciona correctamente 
 - ✅ **Validación de DNI No Autorizado**: Rechaza correctamente DNIs no válidos
-- ✅ **Rate Limiting**: Protege contra ataques de fuerza bruta (15 min de bloqueo)
+- ✅ **Rate Limiting Global**: Protege contra ataques de fuerza bruta (15 min de bloqueo)
+- ✅ **Rate Limiting por Usuario**: 50 requests por usuario cada 15 minutos en rutas de perfil
 - ✅ **Generación de JWT**: Tokens válidos con información correcta
 
 ### 🛡️ **Seguridad y Autorización**

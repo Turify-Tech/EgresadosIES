@@ -1,6 +1,5 @@
 import express from "express";
-import { authenticateToken } from "../middleware/auth.js";
-import { requireUserType } from "../middleware/auth.js";
+import { authenticateToken, requireUserType, userRateLimit } from "../middleware/auth.js";
 import { 
     validatePerfil, 
     validateExperienciaLaboral, 
@@ -34,6 +33,7 @@ const router = express.Router();
 // Middleware global para todas las rutas del perfil
 router.use(authenticateToken); // Todas las rutas requieren autenticación
 router.use(requireUserType('Egresado')); // Solo egresados pueden gestionar perfiles
+router.use(userRateLimit(50, 15 * 60 * 1000)); // 50 requests por usuario cada 15 minutos
 router.use(sanitizeStrings); // Sanitizar strings automáticamente
 
 // ===============================================
