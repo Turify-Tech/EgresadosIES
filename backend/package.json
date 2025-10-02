@@ -7,6 +7,8 @@
     "scripts": {
         "start": "node src/app.js",
         "dev": "nodemon src/app.js",
+        "create-admin": "node scripts/create-admin.js",
+        "add-dni": "node scripts/add-valid-dni.js",
         "migrate": "node scripts/migrate.js",
         "test": "jest",
         "test:watch": "jest --watch"
