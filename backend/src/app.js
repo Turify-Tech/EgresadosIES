@@ -5,6 +5,9 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import database from "./config/database.js";
 import authRoutes from "./routes/authRoutes.js";
+import perfilRoutes from "./routes/perfilRoutes.js";
+import perfilesRoutes from "./routes/perfilesRoutes.js";
+import carrerasRoutes from "./routes/carrerasRoutes.js";
 
 dotenv.config();
 
@@ -56,8 +59,9 @@ app.get("/api/health", async (req, res) => {
 
 // Rutas principales
 app.use("/api/auth", authRoutes);
-// app.use('/api/perfil', require('./routes/perfilRoutes'));
-// app.use('/api/perfiles', require('./routes/perfilesRoutes'));
+app.use("/api/perfil", perfilRoutes);
+app.use("/api/perfiles", perfilesRoutes);
+app.use("/api/carreras", carrerasRoutes);
 
 // Middleware de manejo de errores globales
 app.use((err, req, res, next) => {
@@ -99,6 +103,9 @@ if (process.env.NODE_ENV !== "test") {
                 console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
                 console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
                 console.log(`🔐 Auth login: http://localhost:${PORT}/api/auth/login`);
+                console.log(`👤 Perfil: http://localhost:${PORT}/api/perfil/mi-perfil`);
+                console.log(`👥 Perfiles públicos: http://localhost:${PORT}/api/perfiles`);
+                console.log(`🎓 Carreras: http://localhost:${PORT}/api/carreras`);
                 console.log(`🌍 Entorno: ${process.env.NODE_ENV || "development"}`);
             });
         })

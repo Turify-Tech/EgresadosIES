@@ -143,3 +143,4 @@ bun.lock
 types.d.ts
 env.d.ts
 settings.json
+package-lock.json
