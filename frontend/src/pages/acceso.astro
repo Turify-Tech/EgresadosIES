@@ -5,39 +5,38 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 <BaseLayout title="Acceso - EgresadosIES" hideAccederButton={true}>
   <div class="acceso-container">
     <div class="acceso-card">
-      <div class="card-header">
-        <div class="card-bg"></div>
-      </div>
+      <div class="card-header"></div>
 
       <div class="card-body">
         <h2 class="acceso-title">Acceder</h2>
         
-        <form id="acceso-form">
-          <div class="form-group">
-            <label for="dni">DNI</label>
-            <input 
-              type="text" 
-              id="dni"
-              name="dni" 
-              required 
-              inputmode="numeric"
-              maxlength="8"
-              placeholder="" 
-              autocomplete="username"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="password">Contraseña</label>
-            <div class="password-input-wrapper">
+        <div class="form-container">
+          <form id="acceso-form">
+            <div class="form-group">
+              <label for="dni">DNI</label>
               <input 
-                type="password" 
-                id="password"
-                name="password" 
+                type="text" 
+                id="dni"
+                name="dni" 
                 required 
-                placeholder=""
-                autocomplete="current-password"
+                inputmode="numeric"
+                maxlength="8"
+                placeholder="" 
+                autocomplete="username"
               />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Contraseña</label>
+              <div class="password-input-wrapper">
+                <input 
+                  type="password" 
+                  id="password"
+                  name="password" 
+                  required 
+                  placeholder=""
+                  autocomplete="current-password"
+                />
               <button type="button" id="toggle-password" class="toggle-password-btn" aria-label="Mostrar contraseña">
                 <svg id="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -52,7 +51,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
 
           <button type="submit" id="acceso-btn" class="btn-iniciar">
-            Iniciar
+            Ingresar
           </button>
 
           <div id="acceso-loading" class="loading-msg" style="display:none;">
@@ -60,6 +59,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
           <div id="acceso-error" class="error-msg" style="display:none;"></div>
         </form>
+        </div>
       </div>
     </div>
   </div>
@@ -67,121 +67,76 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <style>
   .acceso-container {
-    min-height: auto;
-    height: calc(100vh - 82px);
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    padding: 75px 1rem 1rem;
+    justify-content: center;
+    padding: 1.5rem 1rem;
     background-image: url('/images/Imagen de Fondo.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    background-attachment: fixed;
-    overflow: auto;
   }
 
   .acceso-card {
     background: white;
-    border-radius: 12px;
+    border-radius: 10px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
     width: 100%;
-    max-width: 440px;
+    max-width: 480px;
     overflow: hidden;
-    margin: 0 auto;
+
   }
 
   .card-header {
     position: relative;
-    height: 70px;
-    background: linear-gradient(135deg, #2196F3 0%, #1976D2 50%, #0D47A1 100%);
+    height: 75px;
+    background-image: url('/images/Fondo Azul card.jpg');
+    background-size: cover;
+    background-position: bottom;
+    background-repeat: no-repeat;
     overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .card-bg {
-    position: absolute;
-    top: -100%;
-    right: -30%;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(100, 181, 246, 0.4) 0%, transparent 60%);
-    border-radius: 50%;
-  }
-
-  .card-bg::before {
-    content: '';
-    position: absolute;
-    top: 80%;
-    left: -50%;
-    width: 300px;
-    height: 300px;
-    background: rgba(33, 150, 243, 0.3);
-    border-radius: 50%;
-  }
-
-  .card-bg::after {
-    content: '';
-    position: absolute;
-    top: 20%;
-    right: 40%;
-    width: 150px;
-    height: 150px;
-    background: repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 10px,
-      rgba(255, 255, 255, 0.03) 10px,
-      rgba(255, 255, 255, 0.03) 20px
-    );
-  }
-
-  .sistema-text {
-    position: relative;
-    z-index: 10;
-    margin: 0;
-    color: rgba(255,255,255,0.9);
-    font-size: 1.125rem;
-    font-weight: 400;
-    letter-spacing: 0.5px;
   }
 
   .card-body {
-    padding: 2rem 2rem 1.75rem;
+    padding: 1.5rem 3rem 3rem;
   }
 
   .acceso-title {
     text-align: center;
-    color: #1565c0;
+    color: #1437C3;
     font-family: 'Inter', sans-serif;
     font-weight: bold;
-    font-size: 2rem;
-    font-weight: 600;
-    margin: 0 0 1rem 0;
+    font-size: 36px;
+    margin: 0 0 0.3rem 0;
+  }
+
+  .form-container {
+    max-width: 340px;
+    margin: 0 auto;
   }
 
   .form-group {
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
   }
 
   .form-group label {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
     color: #333;
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     font-family: 'Pontano Sans', sans-serif;
   }
 
   .form-group input {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.65rem 0.9rem;
     border: 1.5px solid #000000;
-    border-radius: 20px;
-    font-size: 1rem;
+    border-radius: 13px;
+    font-size: 0.95rem;
+    background-color: #f5f3f3;
     transition: all 0.3s ease;
     box-sizing: border-box;
   }
@@ -189,6 +144,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .form-group input:focus {
     outline: none;
     border-color: #1565c0;
+    background-color: #D9D9D9;
     box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
   }
 
@@ -229,14 +185,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   .btn-iniciar {
     width: auto;
-    min-width: 180px;
-    padding: 0.75rem 3rem;
+    min-width: 160px;
+    padding: 0.65rem 2.5rem;
     background: #5284e0;
     color: white;
     border: none;
     border-radius: 25px;
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: 1.1rem;
+    font-weight: 800;
     font-family: 'Pontano Sans', sans-serif;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -262,16 +218,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .loading-msg {
     text-align: center;
     color: #1565c0;
-    margin-top: 0.75rem;
-    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
   }
 
   .error-msg {
     text-align: center;
     color: #d32f2f;
-    margin-top: 0.75rem;
-    font-size: 0.85rem;
-    padding: 0.6rem;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    padding: 0.5rem;
     background: #ffebee;
     border-radius: 6px;
   }
@@ -279,31 +235,51 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   @media (max-width: 480px) {
     .acceso-container {
       padding: 1rem;
+      min-height: calc(100vh - 82px - 150px);
     }
 
-    .acceso-header {
-      margin-bottom: 1.5rem;
+    .acceso-card {
+      max-width: 100%;
     }
 
-    .logo {
-      width: 50px;
-    }
-
-    .header-text h1 {
-      font-size: 1.5rem;
+    .card-header {
+      height: 50px;
     }
 
     .card-body {
-      padding: 2rem 1.5rem 1.5rem;
+      padding: 1.25rem 2.5rem 2.5rem;
     }
 
     .acceso-title {
       font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .form-group {
+      margin-bottom: 0.85rem;
+    }
+
+    .form-group label {
+      font-size: 0.9rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .form-group input {
+      padding: 0.6rem 0.85rem;
+      font-size: 0.9rem;
+    }
+
+    .btn-iniciar {
+      min-width: 140px;
+      padding: 0.6rem 2rem;
+      font-size: 0.9rem;
     }
   }
 </style>
 
 <script>
+  import { authService } from '../utils/api.js';
+
   const form = document.getElementById('acceso-form') as HTMLFormElement;
   const btn = document.getElementById('acceso-btn') as HTMLButtonElement;
   const loading = document.getElementById('acceso-loading') as HTMLElement;
@@ -347,13 +323,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     btn.disabled = true;
 
     try {
-      const res = await fetch('http://localhost:3000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ dni, password })
-      });
-
-      const data = await res.json();
+      const data = await authService.login(dni, password);
 
       if (data.success && data.token) {
         localStorage.setItem('token', data.token);
@@ -375,8 +345,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         errorMsg.textContent = data.message || 'Credenciales incorrectas';
         errorMsg.style.display = 'block';
       }
-    } catch (err) {
-      errorMsg.textContent = 'Error de conexión con el servidor';
+    } catch (err: any) {
+      errorMsg.textContent = err.message || 'Error de conexión con el servidor';
       errorMsg.style.display = 'block';
     } finally {
       loading.style.display = 'none';

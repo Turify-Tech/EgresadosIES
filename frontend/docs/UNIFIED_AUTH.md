@@ -79,24 +79,47 @@ backend/ (Cambios mínimos necesarios)
 ## 🎨 Diseño y Estilo
 
 ### Tipografía
-- **Header y títulos:** Inter (Bold, 56px)
-- **Labels y botones:** Pontano Sans (Bold)
-- **Inputs:** Sans-serif estándar
+- **Título "Acceder":** Inter Bold, 36px, color #1437C3
+- **Labels (DNI, Contraseña):** Pontano Sans Bold, 0.95rem
+- **Botón "Ingresar":** Pontano Sans Bold, 1.1rem, font-weight 800
+- **Inputs:** Sans-serif estándar, 0.95rem
 
 ### Colores
-- **Fondo principal:** #E6E6E6
-- **Card header:** Gradiente azul (#2196F3 → #1976D2 → #0D47A1)
+- **Fondo principal:** #E6E6E6 (imagen de fondo)
+- **Card header:** Imagen "Fondo Azul card.jpg" (75px altura)
+- **Card body:** Blanco (#FFFFFF) con border-radius 10px
+- **Inputs fondo:** #D9D9D9 (gris claro)
+- **Inputs border:** #000000 (1.5px solid)
+- **Inputs border (focus):** #1565c0
 - **Botón principal:** #5284e0
 - **Botón hover:** #3d6fc7
-- **Bordes inputs:** #000000
-- **Título:** #1565c0
+- **Título "Acceder":** #1437C3
 
-### Componentes
-- Card blanca con sombra y bordes redondeados
-- Header azul con efectos decorativos
-- Inputs con bordes redondeados (20px)
-- Botón compacto con bordes redondeados (25px)
-- Toggle de contraseña con iconos SVG
+### Dimensiones y Espaciado
+- **Card:**
+  - Max-width: 480px
+  - Border-radius: 10px
+  - Shadow: 0 6px 20px rgba(0,0,0,0.15)
+- **Card Body:**
+  - Padding: 1.5rem 3rem 3rem (top, horizontal, bottom)
+  - Form container: max-width 340px (centrado)
+- **Card Header:**
+  - Height: 75px
+  - Background: Imagen "Fondo Azul card.jpg"
+  - Position: bottom
+- **Inputs:**
+  - Border-radius: 13px
+  - Padding: 0.65rem 0.9rem
+- **Botón:**
+  - Border-radius: 25px
+  - Padding: 0.65rem 2.5rem
+  - Min-width: 160px
+
+### Layout
+- **Sin scroll:** Página adaptada a 100vh sin necesidad de scroll vertical/horizontal
+- **Responsive:** Diseño optimizado para desktop, tablet y móvil
+- **Header compacto:** Padding 0.75rem, logo 45px, título 1.75rem
+- **Footer compacto:** Padding 1.5rem, textos reducidos (0.875rem, 0.8rem)
 
 ---
 
@@ -228,6 +251,47 @@ INSERT INTO DniValido (dni, carrera) VALUES ('12345678', 'Desarrollo de Software
 
 ---
 
+## ✨ Mejoras de UI/UX Implementadas
+
+### Optimización del Layout
+- **Eliminación de scroll:** Página adaptada para ocupar exactamente 100vh sin necesidad de scroll vertical/horizontal
+- **Header compacto:** Reducido padding (0.75rem), logo (45px) y título (1.75rem) para optimizar espacio
+- **Footer compacto:** Padding reducido a 1.5rem con textos más pequeños (0.875rem y 0.8rem)
+- **Card responsiva:** Layout que se adapta perfectamente a cualquier tamaño de pantalla
+
+### Mejoras Visuales de la Card
+- **Card más ancha:** Max-width aumentado a 480px para mejor balance visual
+- **Form container:** Campos limitados a 340px y centrados, creando espacios blancos laterales armoniosos
+- **Border-radius optimizado:** 10px para un look más moderno y definido
+- **Padding balanceado:** 
+  - Superior: 1.5rem
+  - Horizontal: 3rem (más espacio en los lados)
+  - Inferior: 3rem (más espacio debajo del botón)
+
+### Inputs Mejorados
+- **Fondo gris claro:** #D9D9D9 para mejor contraste con el fondo blanco de la card
+- **Border-radius:** 13px para bordes redondeados consistentes
+- **Tamaño óptimo:** Padding 0.65rem y font-size 0.95rem para mejor legibilidad
+
+### Card Header con Imagen Real
+- **Imagen de fondo:** Reemplazado gradiente CSS por imagen real "Fondo Azul card.jpg"
+- **Altura:** 75px para mostrar más contenido de la imagen
+- **Posición:** background-position: bottom para mejor encuadre
+- **Código simplificado:** Eliminado CSS complejo (.card-bg, pseudo-elementos)
+
+### Botón de Acción Principal
+- **Texto más grande:** Font-size aumentado a 1.1rem para mejor legibilidad
+- **Font-weight:** 800 (Extra Bold) para mayor énfasis
+- **Padding balanceado:** 0.65rem vertical y 2.5rem horizontal
+
+### Accesibilidad
+- **Focus states:** Indicadores visuales claros en inputs (border azul + shadow)
+- **Toggle de contraseña:** Iconos SVG con aria-labels descriptivos
+- **Validación de DNI:** Solo permite números, maxlength 8, pattern 7-8 dígitos
+- **Mensajes de error:** Visibles, centrados, con fondo de contraste
+
+---
+
 ## 🔐 Flujo de Autenticación
 
 ### 1. Usuario No Registrado (Egresado)
@@ -280,7 +344,7 @@ Content-Type: application/json
 
 // Request
 {
-  "dni": "12345678",
+  "dni": "12345678",    // 7-8 dígitos
   "password": "miContraseña123"
 }
 
@@ -290,8 +354,8 @@ Content-Type: application/json
   "token": "eyJhbGciOiJIUzI1NiIs...",
   "dni": "12345678",
   "email": "usuario@email.com",
-  "tipoUsuario": "egresado",
-  "isNewUser": false
+  "tipoUsuario": "egresado",  // o "administrador"
+  "isNewUser": false           // true si es registro automático
 }
 
 // Response Error
@@ -301,22 +365,38 @@ Content-Type: application/json
 }
 ```
 
-### Frontend API Function
+### Frontend API Integration (Centralizada)
 ```javascript
 // frontend/src/utils/api.js
-export async function apiLogin(dni, password) {
-  try {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dni, password })
-    });
-    return await res.json();
-  } catch (err) {
-    return { message: 'No se pudo conectar al servidor' };
-  }
-}
+import { authService } from '../utils/api.js';
+
+// Uso en componentes
+const data = await authService.login(dni, password);
+
+// Configuración base en api.js
+const API_CONFIG = {
+  baseURL: import.meta.env.PUBLIC_API_URL || "http://localhost:3000",
+  timeout: 10000,
+  headers: { "Content-Type": "application/json" }
+};
+
+// Servicio de autenticación
+export const authService = {
+  async login(dni, password) {
+    return apiClient.post("/auth/login", { dni, password });
+  },
+  async logout() { ... },
+  async verifyToken() { ... },
+  async refreshToken() { ... }
+};
 ```
+
+**✅ Mejora implementada:** Centralización de llamadas API
+- ✅ Eliminadas URLs hardcodeadas (`http://localhost:3000/api/auth/login`)
+- ✅ Uso de `authService.login()` de `api.js`
+- ✅ Configuración centralizada con variables de entorno
+- ✅ Manejo consistente de errores y timeouts
+- ✅ Aplicado en `acceso.astro` y `AccesoForm.astro`
 
 ---
 

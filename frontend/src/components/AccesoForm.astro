@@ -12,6 +12,8 @@
         id="dni"
         name="dni" 
         required 
+        inputmode="numeric"
+        maxlength="8"
         pattern="\d{7,8}" 
         placeholder="" 
         autocomplete="username"
@@ -173,14 +175,25 @@
 </style>
 
 <script>
+  import { authService } from '../utils/api.js';
+
   const form = document.getElementById('acceso-form') as HTMLFormElement;
   const btn = document.getElementById('acceso-btn-submit') as HTMLButtonElement;
   const loading = document.getElementById('acceso-loading') as HTMLElement;
   const errorMsg = document.getElementById('acceso-error') as HTMLElement;
   const togglePasswordBtn = document.getElementById('toggle-password') as HTMLButtonElement;
   const passwordInput = document.getElementById('password') as HTMLInputElement;
+  const dniInput = document.getElementById('dni') as HTMLInputElement;
   const eyeIcon = document.getElementById('eye-icon') as HTMLElement;
   const eyeOffIcon = document.getElementById('eye-off-icon') as HTMLElement;
+
+  // Validar que solo se ingresen números en el DNI
+  if (dniInput) {
+    dniInput.addEventListener('input', (e) => {
+      const target = e.target as HTMLInputElement;
+      target.value = target.value.replace(/[^0-9]/g, '');
+    });
+  }
 
   // Toggle password visibility
   if (togglePasswordBtn && passwordInput && eyeIcon && eyeOffIcon) {
@@ -201,20 +214,23 @@
       loading.style.display = 'block';
       btn.disabled = true;
 
-      const dniInput = form.querySelector('#dni') as HTMLInputElement;
+      const dniInputForm = form.querySelector('#dni') as HTMLInputElement;
       const passwordInputForm = form.querySelector('#password') as HTMLInputElement;
       
-      const dni = dniInput.value.trim();
+      const dni = dniInputForm.value.trim();
       const password = passwordInputForm.value;
 
-      try {
-        const res = await fetch('http://localhost:3000/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ dni, password })
-        });
+      // Validación del DNI
+      if (dni.length < 7 || dni.length > 8 || !/^\d+$/.test(dni)) {
+        errorMsg.textContent = 'El DNI debe tener 7 u 8 dígitos numéricos';
+        errorMsg.style.display = 'block';
+        loading.style.display = 'none';
+        btn.disabled = false;
+        return;
+      }
 
-        const data = await res.json();
+      try {
+        const data = await authService.login(dni, password);
 
         if (data.success && data.token) {
           localStorage.setItem('token', data.token);
@@ -236,8 +252,8 @@
           errorMsg.textContent = data.message || 'Credenciales incorrectas';
           errorMsg.style.display = 'block';
         }
-      } catch (err) {
-        errorMsg.textContent = 'Error de conexión con el servidor';
+      } catch (err: any) {
+        errorMsg.textContent = err.message || 'Error de conexión con el servidor';
         errorMsg.style.display = 'block';
       } finally {
         loading.style.display = 'none';
