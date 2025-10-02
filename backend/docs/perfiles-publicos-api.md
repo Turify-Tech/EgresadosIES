@@ -141,6 +141,25 @@ GET /api/carreras
 
 ## 🛡️ Seguridad y Privacidad
 
+### Rate Limiting Implementado
+Todos los endpoints públicos están protegidos con rate limiting para prevenir:
+- **Ataques DDoS**: Límite de requests por IP
+- **Scraping masivo**: Protección contra extracción automatizada de datos
+- **Abuso de recursos**: Control del uso del servidor
+
+**Configuración actual:**
+- **Ventana de tiempo**: 15 minutos
+- **Límite por IP**: 100 requests
+- **Headers de respuesta**: `RateLimit-Policy`, `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset`
+
+**Mensaje de error cuando se excede el límite:**
+```json
+{
+  "success": false,
+  "message": "Demasiadas solicitudes, intenta más tarde"
+}
+```
+
 ### Datos Excluidos
 Por seguridad y privacidad, los siguientes datos **NO** están disponibles en la API pública:
 - Email del egresado
@@ -190,6 +209,14 @@ GET /api/perfiles?carrera=Desarrollo%20Web
 
 ### Errores Comunes
 
+**Rate Limit Excedido (429)**:
+```json
+{
+  "success": false,
+  "message": "Demasiadas solicitudes, intenta más tarde"
+}
+```
+
 **Perfil no encontrado (404)**:
 ```json
 {
@@ -235,7 +262,34 @@ curl -X GET "http://localhost:3000/api/perfiles/1"
 
 # Obtener carreras
 curl -X GET "http://localhost:3000/api/carreras"
+
+# Verificar headers de rate limiting
+curl -I "http://localhost:3000/api/perfiles"
 ```
+
+## 🚨 Rate Limiting
+
+### Monitoreo de Límites
+Los headers de respuesta incluyen información sobre el rate limiting:
+
+```bash
+# Ejemplo de headers de respuesta
+RateLimit-Policy: 100;w=900
+RateLimit-Limit: 100
+RateLimit-Remaining: 98
+RateLimit-Reset: 884
+```
+
+**Descripción de headers:**
+- `RateLimit-Policy`: Política aplicada (100 requests en 900 segundos)
+- `RateLimit-Limit`: Límite total de requests por ventana
+- `RateLimit-Remaining`: Requests restantes en la ventana actual
+- `RateLimit-Reset`: Segundos hasta el reset de la ventana
+
+### Recomendaciones para Clientes
+- **Monitorear headers**: Verificar `RateLimit-Remaining` antes de hacer requests
+- **Implementar retry logic**: Esperar según `RateLimit-Reset` si se excede el límite
+- **Caché inteligente**: Almacenar respuestas para reducir requests innecesarios
 
 ## 🔄 Estados de la Aplicación
 
@@ -281,10 +335,12 @@ Si un egresado no tiene experiencias, formación o cursos:
 - **Límite de resultados**: Máximo 50 por página
 - **Consultas optimizadas**: JOINs eficientes con índices
 - **Datos mínimos**: Solo información necesaria
+- **Rate limiting**: Protección contra abuso y sobrecarga del servidor
 
 ### Recomendaciones de Uso
 - Usa paginación para listas grandes
 - Implementa caché en el frontend para perfiles visitados
+- Monitorea headers de rate limiting para optimizar requests
 - Considera implementar búsqueda por texto en el futuro
 
 ---
@@ -293,4 +349,4 @@ Si un egresado no tiene experiencias, formación o cursos:
 - Todos los endpoints son públicos (no requieren autenticación)
 - Respuestas siempre en formato JSON
 - Soporte para CORS configurado
-- Rate limiting podría implementarse en el futuro
+- **Rate limiting implementado**: 100 requests por 15 minutos por IP
