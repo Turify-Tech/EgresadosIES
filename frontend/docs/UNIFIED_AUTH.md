@@ -373,6 +373,32 @@ El diseño es completamente responsive:
    - Causa: Backend no disponible
    - Solución: Verificar que el backend esté corriendo
 
+### Problema de Parpadeo del Botón (RESUELTO)
+
+**Problema:** El botón "Acceder" aparecía y desaparecía (flickering) en el index.
+
+**Causa:** El script JavaScript se ejecutaba después del renderizado, causando un flash visual cuando ocultaba el botón para usuarios autenticados.
+
+**Solución implementada:**
+```css
+/* CSS - Ocultar inicialmente el botón */
+#acceder-btn {
+    visibility: hidden;
+}
+#acceder-btn.show {
+    visibility: visible;
+}
+```
+
+```javascript
+// JavaScript - Mostrar solo si no hay token
+if (!token) {
+    accederBtn.classList.add('show');
+}
+```
+
+Esto previene el **FOUC (Flash of Unstyled Content)** y garantiza que el botón se muestre de forma estable.
+
 ---
 
 ## 🚀 Mejoras Futuras
@@ -452,7 +478,12 @@ Para reportar problemas o sugerencias:
 - ✅ Navegación inteligente con detección de autenticación
 - ✅ Diseño responsive y accesible
 - ✅ Toggle de visibilidad de contraseña
+- ✅ Prevención de FOUC (Flash of Unstyled Content) en botón "Acceder"
 - ✅ Documentación completa
+
+### Version 1.0.1 (Octubre 2025)
+- 🐛 Fix: Parpadeo del botón "Acceder" resuelto con visibility CSS
+- 📝 Documentación actualizada con solución de problemas
 
 ---
 

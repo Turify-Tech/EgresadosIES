@@ -29,6 +29,15 @@ import "../styles/components.css";
             href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Pontano+Sans:wght@400;700&display=swap"
             rel="stylesheet"
         />
+        <style>
+            /* Prevent flash of unauthenticated content */
+            #acceder-btn {
+                visibility: hidden;
+            }
+            #acceder-btn.show {
+                visibility: visible;
+            }
+        </style>
     </head>
     <body>
         <!-- Header -->
@@ -77,24 +86,26 @@ import "../styles/components.css";
 
     <!-- Scripts -->
     <script>
-        // Check if user is authenticated and hide "Acceder" button
+        // Check if user is authenticated and show/hide "Acceder" button
         const accederBtn = document.getElementById('acceder-btn') as HTMLElement;
         const token = localStorage.getItem('token');
         
-        if (token && accederBtn) {
-            accederBtn.style.display = 'none';
-        }
-        
-        // Hover effect for acceder button (only if visible)
-        if (accederBtn && !token) {
-            accederBtn.addEventListener('mouseenter', () => {
-                accederBtn.style.background = '#3d6fc7';
-                accederBtn.style.boxShadow = '0 4px 12px rgba(82, 132, 224, 0.3)';
-            });
-            accederBtn.addEventListener('mouseleave', () => {
-                accederBtn.style.background = '#5284e0';
-                accederBtn.style.boxShadow = 'none';
-            });
+        if (accederBtn) {
+            if (!token) {
+                // No hay token, mostrar botón
+                accederBtn.classList.add('show');
+                
+                // Hover effect for acceder button
+                accederBtn.addEventListener('mouseenter', () => {
+                    accederBtn.style.background = '#3d6fc7';
+                    accederBtn.style.boxShadow = '0 4px 12px rgba(82, 132, 224, 0.3)';
+                });
+                accederBtn.addEventListener('mouseleave', () => {
+                    accederBtn.style.background = '#5284e0';
+                    accederBtn.style.boxShadow = 'none';
+                });
+            }
+            // Si hay token, el botón se mantiene oculto por el CSS
         }
     </script>
 </html>
