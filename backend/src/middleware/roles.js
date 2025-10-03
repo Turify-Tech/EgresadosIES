@@ -273,6 +273,50 @@ export function logPermissionAction(action) {
 }
 
 /**
+ * Middleware específico para requerir que el usuario sea un egresado
+ * @returns {Function} Middleware function
+ */
+export function requireEgresado(req, res, next) {
+    if (!req.user) {
+        return res.status(401).json({
+            success: false,
+            message: "Usuario no autenticado",
+        });
+    }
+
+    if (req.user.tipoUsuario !== "Egresado") {
+        return res.status(403).json({
+            success: false,
+            message: "Solo los egresados pueden acceder a esta funcionalidad",
+        });
+    }
+
+    next();
+}
+
+/**
+ * Middleware específico para requerir que el usuario sea un administrador
+ * @returns {Function} Middleware function
+ */
+export function requireAdministrador(req, res, next) {
+    if (!req.user) {
+        return res.status(401).json({
+            success: false,
+            message: "Usuario no autenticado",
+        });
+    }
+
+    if (req.user.tipoUsuario !== "Administrador") {
+        return res.status(403).json({
+            success: false,
+            message: "Solo los administradores pueden acceder a esta funcionalidad",
+        });
+    }
+
+    next();
+}
+
+/**
  * Obtener información completa de permisos de un usuario
  * @param {Object} user - Objeto usuario
  * @returns {Object} Información de permisos
