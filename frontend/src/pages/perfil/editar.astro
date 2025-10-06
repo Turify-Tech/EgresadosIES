@@ -128,7 +128,10 @@ import CursoForm from "../../components/perfil/CursoForm.astro";
                     <button class="btn-secondary" id="cancel-btn"
                         >Cancelar</button
                     >
-                    <button class="btn-primary" id="save-profile-btn">
+                    <button
+                        class="btn-primary"
+                        id="save-profile-btn"
+                        style="display: none;">
                         <span class="btn-text">Guardar Perfil</span>
                         <div class="loading-spinner" style="display: none;">
                             <svg
@@ -541,6 +544,10 @@ import CursoForm from "../../components/perfil/CursoForm.astro";
                 min-height: 100vh;
             }
 
+            .main-layout {
+                flex-direction: column;
+            }
+
             .sidebar-navigation {
                 width: 100%;
                 padding: 0;
@@ -548,30 +555,41 @@ import CursoForm from "../../components/perfil/CursoForm.astro";
                 border-bottom: 1px solid #e5e7eb;
             }
 
-            .profile-hero {
-                margin-bottom: 1rem;
+            .main-content {
+                padding: 1rem;
+            }
+
+            .profile-hero-banner {
+                margin: 0;
             }
 
             .hero-background {
                 border-radius: 0;
-                padding: 1rem;
+                padding: 1.5rem 1rem;
             }
 
             .hero-content {
                 flex-direction: column;
+                align-items: center;
                 text-align: center;
                 gap: 1rem;
-                padding: 1rem;
             }
 
             .profile-avatar {
                 width: 80px;
                 height: 80px;
-                align-self: center;
             }
 
             .profile-info {
                 text-align: center;
+            }
+
+            .profile-name {
+                font-size: 1.25rem;
+            }
+
+            .profile-subtitle {
+                font-size: 0.875rem;
             }
 
             .section-navigation {
@@ -618,28 +636,75 @@ import CursoForm from "../../components/perfil/CursoForm.astro";
             }
         }
 
-        @media (max-width: 480px) {
+        /* Media query para tablets */
+        @media (min-width: 769px) and (max-width: 1024px) {
             .hero-background {
-                padding: 0.75rem;
+                padding: 1.5rem;
             }
 
             .profile-avatar {
-                width: 45px;
-                height: 45px;
+                width: 90px;
+                height: 90px;
             }
 
             .profile-name {
-                font-size: 1rem;
+                font-size: 1.375rem;
+            }
+
+            .sidebar-navigation {
+                width: 200px;
+            }
+
+            .main-content {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-background {
+                padding: 1rem 0.75rem;
+            }
+
+            .hero-content {
+                gap: 0.75rem;
+            }
+
+            .profile-avatar {
+                width: 70px;
+                height: 70px;
+            }
+
+            .profile-name {
+                font-size: 1.125rem;
             }
 
             .profile-subtitle {
+                font-size: 0.875rem;
+            }
+
+            .profile-email {
                 font-size: 0.8rem;
             }
 
             .nav-btn {
-                padding: 0.5rem;
-                min-width: 70px;
+                padding: 0.75rem 0.5rem;
+                min-width: 75px;
                 font-size: 0.7rem;
+                min-height: 44px; /* Touch target iOS guidelines */
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                min-height: 48px;
+                font-size: 1rem;
+                padding: 0.875rem 1rem;
+            }
+
+            .change-photo-btn {
+                width: 32px;
+                height: 32px;
+                min-height: 44px;
+                min-width: 44px;
             }
 
             .content-header {
@@ -678,6 +743,9 @@ import CursoForm from "../../components/perfil/CursoForm.astro";
                 this.bindEvents();
                 await this.loadUserProfile();
                 this.setupAutoSave();
+
+                // Hacer disponible globalmente para los componentes
+                window.profileEditor = this;
             }
 
             bindEvents() {
@@ -752,6 +820,9 @@ import CursoForm from "../../components/perfil/CursoForm.astro";
                 // Actualizar título de sección
                 this.updateSectionTitle(sectionId);
 
+                // Actualizar botón de guardar según la sección
+                this.updateSaveButton(sectionId);
+
                 this.currentSection = sectionId;
             }
 
@@ -787,6 +858,22 @@ import CursoForm from "../../components/perfil/CursoForm.astro";
                 if (titles[sectionId] && titleEl && subtitleEl) {
                     titleEl.textContent = titles[sectionId].title;
                     subtitleEl.textContent = titles[sectionId].subtitle;
+                }
+            }
+
+            /**
+             * Actualizar botón de guardar según la sección actual
+             */
+            updateSaveButton(sectionId) {
+                const saveBtn = document.getElementById("save-profile-btn");
+                const isLastSection = sectionId === "habilidades";
+
+                if (saveBtn) {
+                    if (isLastSection) {
+                        saveBtn.style.display = "flex";
+                    } else {
+                        saveBtn.style.display = "none";
+                    }
                 }
             }
 

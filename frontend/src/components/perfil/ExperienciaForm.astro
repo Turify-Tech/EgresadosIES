@@ -27,6 +27,13 @@
         Agregar Experiencia
     </button>
 
+    <!-- Botón para continuar a la siguiente sección -->
+    <div class="form-actions">
+        <button type="button" class="btn-primary" id="next-section-btn">
+            Siguiente
+        </button>
+    </div>
+
     <!-- Modal/Formulario para editar experiencia -->
     <div class="modal-overlay" id="experiencia-modal" style="display: none;">
         <div class="modal-content">
@@ -140,7 +147,7 @@
                         type="submit"
                         class="btn-primary"
                         id="save-experiencia-btn">
-                        Guardar Experiencia
+                        Siguiente
                     </button>
                 </div>
             </form>
@@ -502,6 +509,20 @@
             width: 100%;
         }
     }
+
+    .form-actions {
+        display: flex;
+        justify-content: center;
+        padding: 2rem 0;
+        border-top: 1px solid #e5e7eb;
+        margin-top: 2rem;
+    }
+
+    .form-actions .btn-primary {
+        min-width: 200px;
+        padding: 0.875rem 2rem;
+        font-weight: 600;
+    }
 </style>
 
 <script>
@@ -847,7 +868,7 @@
             } finally {
                 const btn = document.getElementById("save-experiencia-btn");
                 btn.disabled = false;
-                btn.textContent = "Guardar Experiencia";
+                btn.textContent = "Siguiente";
             }
         }
 
@@ -867,5 +888,16 @@
     // Inicializar cuando el DOM esté listo
     document.addEventListener("DOMContentLoaded", () => {
         window.experienciasManager = new ExperienciasManager();
+
+        // Event listener para el botón "Siguiente"
+        const nextBtn = document.getElementById("next-section-btn");
+        if (nextBtn) {
+            nextBtn.addEventListener("click", () => {
+                const profileEditor = window.profileEditor;
+                if (profileEditor) {
+                    profileEditor.switchSection("formaciones");
+                }
+            });
+        }
     });
 </script>

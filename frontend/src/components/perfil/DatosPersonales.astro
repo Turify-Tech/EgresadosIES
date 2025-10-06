@@ -140,7 +140,7 @@
                 type="button"
                 class="btn-save-section"
                 id="save-datos-personales">
-                Guardar Sección
+                Siguiente
             </button>
         </div>
     </form>
@@ -609,13 +609,21 @@
                 );
 
                 this.showNotification("Datos personales guardados", "success");
+
+                // Navegar a la siguiente sección después de guardar
+                setTimeout(() => {
+                    const profileEditor = window.profileEditor;
+                    if (profileEditor) {
+                        profileEditor.switchSection("experiencias");
+                    }
+                }, 500);
             } catch (error) {
                 console.error("Error guardando datos personales:", error);
                 this.showNotification("Error al guardar los datos", "error");
             } finally {
                 const btn = document.getElementById("save-datos-personales");
                 btn.disabled = false;
-                btn.textContent = "Guardar Sección";
+                btn.textContent = "Siguiente";
             }
         }
 
