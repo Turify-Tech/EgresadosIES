@@ -5,6 +5,25 @@ import database from "../config/database.js";
  * Maneja envío, recepción, listado y estado de mensajes
  */
 
+// CONSTANTES DE SEGURIDAD - Límites máximos para prevenir memory leaks y DoS
+const SECURITY_LIMITS = {
+    CONVERSATIONS: {
+        MAX_PER_PAGE: 25,        // Máximo absoluto de conversaciones por página
+        DEFAULT_LIMIT: 20,       // Límite por defecto
+        MAX_PAGES: 1000,         // Máximo número de páginas permitidas
+    },
+    MESSAGES: {
+        MAX_PER_PAGE: 50,        // Máximo absoluto de mensajes por página
+        DEFAULT_LIMIT: 30,       // Límite por defecto
+        MAX_PAGES: 10000,        // Máximo número de páginas permitidas
+        MAX_CONTENT_LENGTH: 1000 // Máximo caracteres en mensaje
+    },
+    DATABASE: {
+        QUERY_TIMEOUT: 10000,    // Timeout de 10 segundos para consultas complejas
+        MAX_MEMORY_USAGE: 50     // Máximo 50MB estimado por consulta
+    }
+};
+
 /**
  * Convierte BigInt a Number en objetos recursivamente
  */
@@ -49,11 +68,11 @@ export async function enviarMensaje(req, res) {
         });
     }
 
-    // Validar longitud del contenido
-    if (contenidoLimpio.length > 1000) {
+    // Validar longitud del contenido usando límites de seguridad
+    if (contenidoLimpio.length > SECURITY_LIMITS.MESSAGES.MAX_CONTENT_LENGTH) {
         return res.status(400).json({
             success: false,
-            message: "El mensaje no puede exceder 1000 caracteres",
+            message: `El mensaje no puede exceder ${SECURITY_LIMITS.MESSAGES.MAX_CONTENT_LENGTH} caracteres`,
         });
     }
 
@@ -193,10 +212,18 @@ export async function listarConversaciones(req, res) {
     const usuarioId = req.user.id;
     const { page = 1, limit = 20 } = req.query;
 
-    // Validar parámetros de paginación
-    const pageNum = Math.max(1, parseInt(page));
-    const limitNum = Math.max(1, Math.min(50, parseInt(limit))); // Máximo 50 por página
+    // SEGURIDAD: Aplicar límites máximos estrictos para prevenir memory leaks y DoS
+    const pageNum = Math.max(1, Math.min(SECURITY_LIMITS.CONVERSATIONS.MAX_PAGES, parseInt(page) || 1));
+    const requestedLimit = parseInt(limit) || SECURITY_LIMITS.CONVERSATIONS.DEFAULT_LIMIT;
+    
+    // CRÍTICO: Aplicar límite máximo absoluto
+    const limitNum = Math.max(1, Math.min(SECURITY_LIMITS.CONVERSATIONS.MAX_PER_PAGE, requestedLimit));
     const offset = (pageNum - 1) * limitNum;
+
+    // Log de seguridad si se intentó exceder límites
+    if (requestedLimit > SECURITY_LIMITS.CONVERSATIONS.MAX_PER_PAGE) {
+        console.warn(`[SECURITY] Usuario ${usuarioId} intentó exceder límite de conversaciones: ${requestedLimit} > ${SECURITY_LIMITS.CONVERSATIONS.MAX_PER_PAGE}`);
+    }
 
     const client = database.getClient();
 
@@ -316,6 +343,9 @@ export async function listarConversaciones(req, res) {
             noLeidos: row.mensajes_no_leidos,
         }));
 
+        // Información de límites de seguridad aplicados
+        const limitWasApplied = requestedLimit > SECURITY_LIMITS.CONVERSATIONS.MAX_PER_PAGE;
+        
         res.status(200).json({
             success: true,
             data: {
@@ -328,6 +358,13 @@ export async function listarConversaciones(req, res) {
                     hasNextPage: pageNum < totalPages,
                     hasPrevPage: pageNum > 1,
                 },
+                security: {
+                    maxLimitPerPage: SECURITY_LIMITS.CONVERSATIONS.MAX_PER_PAGE,
+                    limitWasApplied,
+                    ...(limitWasApplied && {
+                        message: `Límite de seguridad aplicado: máximo ${SECURITY_LIMITS.CONVERSATIONS.MAX_PER_PAGE} conversaciones por página`
+                    })
+                }
             },
         });
     } catch (error) {
@@ -367,9 +404,18 @@ export async function verConversacion(req, res) {
         });
     }
 
-    const pageNum = Math.max(1, parseInt(page));
-    const limitNum = Math.max(1, Math.min(100, parseInt(limit)));
+    // SEGURIDAD: Aplicar límites máximos estrictos para prevenir memory leaks y DoS
+    const pageNum = Math.max(1, Math.min(SECURITY_LIMITS.MESSAGES.MAX_PAGES, parseInt(page) || 1));
+    const requestedLimit = parseInt(limit) || SECURITY_LIMITS.MESSAGES.DEFAULT_LIMIT;
+    
+    // CRÍTICO: Aplicar límite máximo absoluto
+    const limitNum = Math.max(1, Math.min(SECURITY_LIMITS.MESSAGES.MAX_PER_PAGE, requestedLimit));
     const offset = (pageNum - 1) * limitNum;
+
+    // Log de seguridad si se intentó exceder límites
+    if (requestedLimit > SECURITY_LIMITS.MESSAGES.MAX_PER_PAGE) {
+        console.warn(`[SECURITY] Usuario ${usuarioActualId} intentó exceder límite de mensajes: ${requestedLimit} > ${SECURITY_LIMITS.MESSAGES.MAX_PER_PAGE}`);
+    }
 
     const client = database.getClient();
 

@@ -52,33 +52,56 @@ export function validateMensajeData(data) {
 }
 
 /**
- * Validar parámetros de paginación
+ * Validar parámetros de paginación con límites de seguridad estrictos
  * @param {Object} query - Query parameters
+ * @param {string} type - Tipo de paginación ('conversations' o 'messages')
  * @returns {Object} Parámetros validados
  */
-export function validatePaginationParams(query) {
+export function validatePaginationParams(query, type = 'conversations') {
     const { page = 1, limit = 20 } = query;
 
-    // Validar y normalizar page
+    // SEGURIDAD: Límites máximos absolutos para prevenir memory leaks
+    const LIMITS = {
+        conversations: {
+            max: 25,           // Máximo 25 conversaciones por página
+            default: 20,       // Default 20 conversaciones
+            maxPages: 1000     // Máximo 1000 páginas
+        },
+        messages: {
+            max: 50,           // Máximo 50 mensajes por página
+            default: 30,       // Default 30 mensajes
+            maxPages: 10000    // Máximo 10,000 páginas
+        }
+    };
+
+    const config = LIMITS[type] || LIMITS.conversations;
+
+    // Validar y normalizar page con límite máximo
     let pageNum = parseInt(page);
     if (isNaN(pageNum) || pageNum < 1) {
         pageNum = 1;
     }
+    // CRÍTICO: Limitar número máximo de páginas
+    if (pageNum > config.maxPages) {
+        pageNum = config.maxPages;
+    }
 
-    // Validar y normalizar limit
+    // Validar y normalizar limit con límite máximo de seguridad
     let limitNum = parseInt(limit);
     if (isNaN(limitNum) || limitNum < 1) {
-        limitNum = 20;
+        limitNum = config.default;
     }
-    // Máximo límite para prevenir sobrecarga
-    if (limitNum > 100) {
-        limitNum = 100;
+    // CRÍTICO: Aplicar límite máximo absoluto
+    if (limitNum > config.max) {
+        limitNum = config.max;
     }
 
     return {
         page: pageNum,
         limit: limitNum,
-        offset: (pageNum - 1) * limitNum
+        offset: (pageNum - 1) * limitNum,
+        maxAllowed: config.max,
+        wasLimited: parseInt(limit) > config.max || pageNum > config.maxPages
     };
 }
 
