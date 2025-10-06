@@ -1,0 +1,976 @@
+---
+// Componente para gestionar formación académica
+---
+
+<div class="formaciones-form">
+    <div class="form-header">
+        <h2>Formación Académica</h2>
+        <p>Agrega tu educación formal, certificaciones y cursos relevantes</p>
+    </div>
+
+    <!-- Lista de formaciones existentes -->
+    <div class="formaciones-list" id="formaciones-list">
+        <!-- Las formaciones se cargarán dinámicamente -->
+    </div>
+
+    <!-- Botón para agregar nueva formación -->
+    <button class="btn-add-item" id="add-formacion-btn">
+        <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Agregar Formación
+    </button>
+
+    <!-- Modal/Formulario para editar formación -->
+    <div class="modal-overlay" id="formacion-modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Agregar Formación</h3>
+                <button class="modal-close" id="close-modal-btn">
+                    <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <form class="formacion-form" id="formacion-form">
+                <input type="hidden" id="formacion-id" name="id" />
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tipo-formacion">Tipo de Formación *</label>
+                        <select
+                            id="tipo-formacion"
+                            name="tipoFormacion"
+                            required
+                            class="form-select">
+                            <option value="">Selecciona el tipo</option>
+                            <option value="Secundaria"
+                                >Educación Secundaria</option
+                            >
+                            <option value="Terciaria"
+                                >Educación Terciaria</option
+                            >
+                            <option value="Universitaria"
+                                >Educación Universitaria</option
+                            >
+                            <option value="Posgrado"
+                                >Posgrado/Especialización</option
+                            >
+                            <option value="Maestria">Maestría</option>
+                            <option value="Doctorado">Doctorado</option>
+                            <option value="Curso">Curso/Certificación</option>
+                            <option value="Diplomatura">Diplomatura</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="titulo">Título/Certificación *</label>
+                        <input
+                            type="text"
+                            id="titulo"
+                            name="titulo"
+                            required
+                            placeholder="Ej: Licenciatura en Sistemas"
+                            class="form-input"
+                        />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="institucion">Institución *</label>
+                        <input
+                            type="text"
+                            id="institucion"
+                            name="institucion"
+                            required
+                            placeholder="Ej: Universidad Nacional"
+                            class="form-input"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="estado-formacion">Estado</label>
+                        <select
+                            id="estado-formacion"
+                            name="estado"
+                            class="form-select">
+                            <option value="Completo">Completo</option>
+                            <option value="En curso">En curso</option>
+                            <option value="Incompleto">Incompleto</option>
+                            <option value="Abandonado">Abandonado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fecha-inicio-formacion"
+                            >Fecha de Inicio</label
+                        >
+                        <input
+                            type="date"
+                            id="fecha-inicio-formacion"
+                            name="fechaInicio"
+                            class="form-input"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fecha-fin-formacion"
+                            >Fecha de Finalización</label
+                        >
+                        <input
+                            type="date"
+                            id="fecha-fin-formacion"
+                            name="fechaFin"
+                            class="form-input"
+                        />
+                        <div class="checkbox-container">
+                            <input
+                                type="checkbox"
+                                id="en-curso"
+                                name="enCurso"
+                                class="form-checkbox"
+                            />
+                            <label for="en-curso" class="checkbox-label"
+                                >Actualmente cursando</label
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="descripcion-formacion">Descripción</label>
+                    <textarea
+                        id="descripcion-formacion"
+                        name="descripcion"
+                        rows="3"
+                        placeholder="Describe el programa, menciona especializaciones, proyectos destacados o logros académicos..."
+                        class="form-textarea"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="promedio">Promedio/Calificación</label>
+                        <input
+                            type="text"
+                            id="promedio"
+                            name="promedio"
+                            placeholder="Ej: 8.5/10, Excelente, etc."
+                            class="form-input"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="creditos">Créditos/Horas</label>
+                        <input
+                            type="text"
+                            id="creditos"
+                            name="creditos"
+                            placeholder="Ej: 240 créditos, 1200 horas"
+                            class="form-input"
+                        />
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button
+                        type="button"
+                        class="btn-secondary"
+                        id="cancel-formacion-btn">
+                        Cancelar
+                    </button>
+                    <button
+                        type="submit"
+                        class="btn-primary"
+                        id="save-formacion-btn">
+                        Guardar Formación
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .formaciones-form {
+        background: white;
+        border-radius: 8px;
+    }
+
+    .form-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .form-header h2 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .form-header p {
+        margin: 0;
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+
+    /* Lista de formaciones */
+    .formaciones-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .formacion-item {
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 1.5rem;
+        background: #fafafa;
+        position: relative;
+        transition: all 0.2s;
+    }
+
+    .formacion-item:hover {
+        border-color: #10b981;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1);
+    }
+
+    .formacion-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .formacion-info h4 {
+        margin: 0 0 0.25rem 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .formacion-info .institucion {
+        font-weight: 500;
+        color: #10b981;
+        margin-bottom: 0.25rem;
+    }
+
+    .formacion-info .tipo {
+        display: inline-block;
+        background: #dcfce7;
+        color: #166534;
+        padding: 0.125rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+
+    .formacion-info .periodo {
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    .formacion-estado {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-top: 0.5rem;
+    }
+
+    .formacion-estado.completo {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .formacion-estado.en-curso {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .formacion-estado.incompleto {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .formacion-estado.abandonado {
+        background: #fecaca;
+        color: #991b1b;
+    }
+
+    .formacion-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        border: 1px solid #d1d5db;
+        background: white;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        color: #6b7280;
+    }
+
+    .btn-icon:hover {
+        background: #f3f4f6;
+        border-color: #9ca3af;
+        color: #374151;
+    }
+
+    .btn-icon.delete:hover {
+        background: #fef2f2;
+        border-color: #fca5a5;
+        color: #ef4444;
+    }
+
+    .formacion-description {
+        color: #374151;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        margin-bottom: 0.5rem;
+    }
+
+    .formacion-detalles {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.75rem;
+        color: #6b7280;
+    }
+
+    .formacion-detalles span {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    /* Botón agregar */
+    .btn-add-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        border: 2px dashed #d1d5db;
+        background: transparent;
+        color: #6b7280;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn-add-item:hover {
+        border-color: #10b981;
+        color: #10b981;
+        background: #f0fdf4;
+    }
+
+    /* Modal y formularios - reutilizando estilos anteriores */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 600px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .modal-close {
+        width: 32px;
+        height: 32px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6b7280;
+        transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    .formacion-form {
+        padding: 1.5rem;
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #374151;
+        font-size: 0.875rem;
+    }
+
+    .form-input,
+    .form-textarea,
+    .form-select {
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        transition:
+            border-color 0.2s,
+            box-shadow 0.2s;
+        background: white;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 80px;
+        font-family: inherit;
+    }
+
+    .checkbox-container {
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-checkbox {
+        width: 16px;
+        height: 16px;
+        accent-color: #10b981;
+    }
+
+    .checkbox-label {
+        font-size: 0.875rem;
+        color: #374151;
+        cursor: pointer;
+    }
+
+    .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .btn-secondary,
+    .btn-primary {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.875rem;
+    }
+
+    .btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    .btn-secondary:hover {
+        background: #e5e7eb;
+    }
+
+    .btn-primary {
+        background: #10b981;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #059669;
+    }
+
+    .btn-primary:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+    }
+
+    /* Estado vacío */
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: #6b7280;
+    }
+
+    .empty-state svg {
+        width: 48px;
+        height: 48px;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .modal-overlay {
+            padding: 1rem;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .formacion-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .modal-actions {
+            flex-direction: column;
+        }
+
+        .btn-secondary,
+        .btn-primary {
+            width: 100%;
+        }
+
+        .formacion-detalles {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    }
+</style>
+
+<script>
+    class FormacionesManager {
+        constructor() {
+            this.formaciones = [];
+            this.currentEditingId = null;
+            this.isInitialized = false;
+
+            this.init();
+        }
+
+        init() {
+            this.bindEvents();
+
+            // Escuchar cuando se cargan los datos del perfil
+            window.addEventListener("profile-data-loaded", (e) => {
+                this.loadFormaciones(e.detail);
+            });
+        }
+
+        bindEvents() {
+            // Botón agregar formación
+            document
+                .getElementById("add-formacion-btn")
+                .addEventListener("click", () => {
+                    this.openModal();
+                });
+
+            // Cerrar modal
+            document
+                .getElementById("close-modal-btn")
+                .addEventListener("click", () => {
+                    this.closeModal();
+                });
+
+            document
+                .getElementById("cancel-formacion-btn")
+                .addEventListener("click", () => {
+                    this.closeModal();
+                });
+
+            // Cerrar modal al hacer clic fuera
+            document
+                .getElementById("formacion-modal")
+                .addEventListener("click", (e) => {
+                    if (e.target.id === "formacion-modal") {
+                        this.closeModal();
+                    }
+                });
+
+            // Checkbox en curso
+            document
+                .getElementById("en-curso")
+                .addEventListener("change", (e) => {
+                    const fechaFinInput = document.getElementById(
+                        "fecha-fin-formacion"
+                    );
+                    if (e.target.checked) {
+                        fechaFinInput.value = "";
+                        fechaFinInput.disabled = true;
+                    } else {
+                        fechaFinInput.disabled = false;
+                    }
+                });
+
+            // Guardar formación
+            document
+                .getElementById("formacion-form")
+                .addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    this.saveFormacion();
+                });
+        }
+
+        loadFormaciones(profileData) {
+            if (!profileData || this.isInitialized) return;
+
+            this.formaciones = profileData.formacionAcademica || [];
+            this.renderFormaciones();
+            this.isInitialized = true;
+
+            console.log("Formaciones cargadas:", this.formaciones);
+        }
+
+        renderFormaciones() {
+            const container = document.getElementById("formaciones-list");
+
+            if (this.formaciones.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                        </svg>
+                        <p>No tienes formaciones académicas registradas</p>
+                        <small>Agrega tu educación formal para completar tu perfil profesional</small>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = this.formaciones
+                .map((formacion) => this.renderFormacionItem(formacion))
+                .join("");
+
+            // Agregar event listeners
+            container.querySelectorAll(".btn-edit").forEach((btn) => {
+                btn.addEventListener("click", (e) => {
+                    const id = e.target.closest(".btn-edit").dataset.id;
+                    this.editFormacion(id);
+                });
+            });
+
+            container.querySelectorAll(".btn-delete").forEach((btn) => {
+                btn.addEventListener("click", (e) => {
+                    const id = e.target.closest(".btn-delete").dataset.id;
+                    this.deleteFormacion(id);
+                });
+            });
+        }
+
+        renderFormacionItem(formacion) {
+            const fechaInicio = formacion.fechaInicio
+                ? new Date(formacion.fechaInicio).getFullYear()
+                : "";
+
+            const fechaFin = formacion.fechaFin
+                ? new Date(formacion.fechaFin).getFullYear()
+                : formacion.enCurso
+                  ? "Presente"
+                  : "";
+
+            const periodo =
+                fechaInicio && fechaFin
+                    ? `${fechaInicio} - ${fechaFin}`
+                    : fechaInicio || fechaFin || "";
+
+            return `
+                <div class="formacion-item">
+                    <div class="formacion-header">
+                        <div class="formacion-info">
+                            <h4>${formacion.titulo}</h4>
+                            <div class="institucion">${formacion.institucion}</div>
+                            ${formacion.tipoFormacion ? `<span class="tipo">${formacion.tipoFormacion}</span>` : ""}
+                            ${periodo ? `<div class="periodo">${periodo}</div>` : ""}
+                        </div>
+                        <div class="formacion-actions">
+                            <button class="btn-icon btn-edit" data-id="${formacion.id}" title="Editar">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="m18 2 4 4-16 16H2v-4L18 2z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon btn-delete delete" data-id="${formacion.id}" title="Eliminar">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <polyline points="3,6 5,6 21,6"/>
+                                    <path d="m19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    ${formacion.descripcion ? `<div class="formacion-description">${formacion.descripcion}</div>` : ""}
+                    
+                    <div class="formacion-detalles">
+                        ${formacion.estado ? `<span class="formacion-estado ${formacion.estado.toLowerCase().replace(" ", "-")}">${formacion.estado}</span>` : ""}
+                        ${formacion.promedio ? `<span>📊 ${formacion.promedio}</span>` : ""}
+                        ${formacion.creditos ? `<span>⏱️ ${formacion.creditos}</span>` : ""}
+                    </div>
+                </div>
+            `;
+        }
+
+        openModal(formacion = null) {
+            this.currentEditingId = formacion ? formacion.id : null;
+
+            const modal = document.getElementById("formacion-modal");
+            const title = document.getElementById("modal-title");
+            const form = document.getElementById("formacion-form");
+
+            title.textContent = formacion
+                ? "Editar Formación"
+                : "Agregar Formación";
+
+            if (formacion) {
+                this.populateForm(formacion);
+            } else {
+                form.reset();
+                document.getElementById("fecha-fin-formacion").disabled = false;
+            }
+
+            modal.style.display = "flex";
+            document.body.style.overflow = "hidden";
+
+            // Enfocar el primer campo
+            setTimeout(() => {
+                document.getElementById("tipo-formacion").focus();
+            }, 100);
+        }
+
+        closeModal() {
+            const modal = document.getElementById("formacion-modal");
+            modal.style.display = "none";
+            document.body.style.overflow = "auto";
+
+            this.currentEditingId = null;
+        }
+
+        populateForm(formacion) {
+            document.getElementById("formacion-id").value = formacion.id || "";
+            document.getElementById("tipo-formacion").value =
+                formacion.tipoFormacion || "";
+            document.getElementById("titulo").value = formacion.titulo || "";
+            document.getElementById("institucion").value =
+                formacion.institucion || "";
+            document.getElementById("estado-formacion").value =
+                formacion.estado || "Completo";
+            document.getElementById("fecha-inicio-formacion").value =
+                formacion.fechaInicio || "";
+            document.getElementById("fecha-fin-formacion").value =
+                formacion.fechaFin || "";
+            document.getElementById("descripcion-formacion").value =
+                formacion.descripcion || "";
+            document.getElementById("promedio").value =
+                formacion.promedio || "";
+            document.getElementById("creditos").value =
+                formacion.creditos || "";
+
+            const enCurso = formacion.enCurso || !formacion.fechaFin;
+            document.getElementById("en-curso").checked = enCurso;
+            document.getElementById("fecha-fin-formacion").disabled = enCurso;
+        }
+
+        editFormacion(id) {
+            const formacion = this.formaciones.find((f) => f.id == id);
+            if (formacion) {
+                this.openModal(formacion);
+            }
+        }
+
+        async deleteFormacion(id) {
+            if (
+                !confirm(
+                    "¿Estás seguro de que quieres eliminar esta formación?"
+                )
+            ) {
+                return;
+            }
+
+            try {
+                this.formaciones = this.formaciones.filter((f) => f.id != id);
+                this.renderFormaciones();
+
+                window.dispatchEvent(
+                    new CustomEvent("formacion-deleted", {
+                        detail: { id },
+                    })
+                );
+
+                this.showNotification(
+                    "Formación eliminada correctamente",
+                    "success"
+                );
+            } catch (error) {
+                console.error("Error eliminando formación:", error);
+                this.showNotification(
+                    "Error al eliminar la formación",
+                    "error"
+                );
+            }
+        }
+
+        async saveFormacion() {
+            const form = document.getElementById("formacion-form");
+            const formData = new FormData(form);
+
+            // Validar campos requeridos
+            if (
+                !formData.get("tipoFormacion") ||
+                !formData.get("titulo") ||
+                !formData.get("institucion")
+            ) {
+                this.showNotification(
+                    "Por favor completa todos los campos obligatorios",
+                    "error"
+                );
+                return;
+            }
+
+            try {
+                const btn = document.getElementById("save-formacion-btn");
+                btn.disabled = true;
+                btn.textContent = "Guardando...";
+
+                const formacionData = {
+                    id: this.currentEditingId || Date.now(),
+                    tipoFormacion: formData.get("tipoFormacion"),
+                    titulo: formData.get("titulo"),
+                    institucion: formData.get("institucion"),
+                    estado: formData.get("estado") || "Completo",
+                    fechaInicio: formData.get("fechaInicio"),
+                    fechaFin: formData.get("enCurso")
+                        ? null
+                        : formData.get("fechaFin"),
+                    enCurso: formData.get("enCurso") === "on",
+                    descripcion: formData.get("descripcion"),
+                    promedio: formData.get("promedio"),
+                    creditos: formData.get("creditos"),
+                };
+
+                // Actualizar lista local
+                if (this.currentEditingId) {
+                    const index = this.formaciones.findIndex(
+                        (f) => f.id == this.currentEditingId
+                    );
+                    if (index !== -1) {
+                        this.formaciones[index] = formacionData;
+                    }
+                } else {
+                    this.formaciones.push(formacionData);
+                }
+
+                this.renderFormaciones();
+
+                window.dispatchEvent(
+                    new CustomEvent("formacion-saved", {
+                        detail: formacionData,
+                    })
+                );
+
+                this.showNotification(
+                    "Formación guardada correctamente",
+                    "success"
+                );
+                this.closeModal();
+            } catch (error) {
+                console.error("Error guardando formación:", error);
+                this.showNotification("Error al guardar la formación", "error");
+            } finally {
+                const btn = document.getElementById("save-formacion-btn");
+                btn.disabled = false;
+                btn.textContent = "Guardar Formación";
+            }
+        }
+
+        getFormacionesData() {
+            return this.formaciones;
+        }
+
+        showNotification(message, type) {
+            window.dispatchEvent(
+                new CustomEvent("show-notification", {
+                    detail: { message, type },
+                })
+            );
+        }
+    }
+
+    // Inicializar cuando el DOM esté listo
+    document.addEventListener("DOMContentLoaded", () => {
+        window.formacionesManager = new FormacionesManager();
+    });
+</script>

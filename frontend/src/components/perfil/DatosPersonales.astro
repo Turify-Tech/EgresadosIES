@@ -1,0 +1,649 @@
+---
+// Componente para editar datos personales del perfil
+---
+
+<div class="datos-personales-form">
+    <div class="form-header">
+        <h2>Información Personal</h2>
+        <p>Completa tu información básica y profesional</p>
+    </div>
+
+    <form class="profile-form" id="datos-personales-form">
+        <!-- Campo DNI (solo lectura) -->
+        <div class="form-group">
+            <label for="dni">DNI</label>
+            <input
+                type="text"
+                id="dni"
+                name="dni"
+                readonly
+                placeholder="12345678"
+                class="form-input readonly"
+            />
+        </div>
+
+        <!-- Campo Teléfono -->
+        <div class="form-group">
+            <label for="telefono">Teléfono</label>
+            <input
+                type="tel"
+                id="telefono"
+                name="telefono"
+                placeholder="Ej: +54 11 1234-5678"
+                class="form-input"
+            />
+        </div>
+
+        <!-- Campo Resumen Profesional -->
+        <div class="form-group full-width">
+            <label for="resumen-profesional">Resumen Profesional</label>
+            <textarea
+                id="resumen-profesional"
+                name="resumenProfesional"
+                rows="4"
+                placeholder="Describe brevemente tu perfil profesional, experiencia y objetivos..."
+                class="form-textarea"></textarea>
+            <small class="form-help"
+                >Máximo 500 caracteres. Este resumen aparecerá en tu perfil
+                público.</small
+            >
+        </div>
+
+        <!-- Campo URL Portfolio -->
+        <div class="form-group">
+            <label for="url-portfolio">URL Portfolio</label>
+            <input
+                type="url"
+                id="url-portfolio"
+                name="urlPortfolio"
+                placeholder="https://miportfolio.com"
+                class="form-input"
+            />
+        </div>
+
+        <!-- Campo Situación Laboral -->
+        <div class="form-group">
+            <label for="situacion-laboral">Situación Laboral</label>
+            <select
+                id="situacion-laboral"
+                name="situacionLaboral"
+                class="form-select">
+                <option value="">Selecciona tu situación</option>
+                <option value="Empleado">Empleado</option>
+                <option value="Desempleado">Buscando empleo</option>
+                <option value="Freelancer">Freelancer</option>
+                <option value="Emprendedor">Emprendedor</option>
+                <option value="Estudiante">Estudiante</option>
+                <option value="Jubilado">Jubilado</option>
+            </select>
+        </div>
+
+        <!-- Configuración de Privacidad -->
+        <div class="form-section">
+            <h3>Privacidad del Perfil</h3>
+
+            <div class="privacy-options">
+                <div class="privacy-item">
+                    <input
+                        type="checkbox"
+                        id="perfil-publico"
+                        name="perfilPublico"
+                        class="form-checkbox"
+                    />
+                    <label for="perfil-publico" class="checkbox-label">
+                        <span class="checkbox-title">Perfil público</span>
+                        <span class="checkbox-desc"
+                            >Permite que otros usuarios vean tu perfil completo</span
+                        >
+                    </label>
+                </div>
+
+                <div class="privacy-item">
+                    <input
+                        type="checkbox"
+                        id="mostrar-contacto"
+                        name="mostrarContacto"
+                        class="form-checkbox"
+                    />
+                    <label for="mostrar-contacto" class="checkbox-label">
+                        <span class="checkbox-title"
+                            >Mostrar información de contacto</span
+                        >
+                        <span class="checkbox-desc"
+                            >Permite que otros usuarios vean tu email y teléfono</span
+                        >
+                    </label>
+                </div>
+
+                <div class="privacy-item">
+                    <input
+                        type="checkbox"
+                        id="disponible-ofertas"
+                        name="disponibleOfertas"
+                        class="form-checkbox"
+                    />
+                    <label for="disponible-ofertas" class="checkbox-label">
+                        <span class="checkbox-title"
+                            >Disponible para ofertas laborales</span
+                        >
+                        <span class="checkbox-desc"
+                            >Permite que empresas te contacten con oportunidades</span
+                        >
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botón de guardado rápido -->
+        <div class="form-actions">
+            <button
+                type="button"
+                class="btn-save-section"
+                id="save-datos-personales">
+                Guardar Sección
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .datos-personales-form {
+        background: white;
+        border-radius: 8px;
+    }
+
+    .form-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .form-header h2 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .form-header p {
+        margin: 0;
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+
+    .profile-form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #374151;
+        font-size: 0.875rem;
+    }
+
+    .form-input,
+    .form-textarea,
+    .form-select {
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        transition:
+            border-color 0.2s,
+            box-shadow 0.2s;
+        background: white;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-input.readonly {
+        background: #f9fafb;
+        color: #6b7280;
+        cursor: not-allowed;
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 100px;
+        font-family: inherit;
+    }
+
+    .form-help {
+        margin-top: 0.25rem;
+        font-size: 0.75rem;
+        color: #6b7280;
+    }
+
+    .form-section {
+        grid-column: 1 / -1;
+        margin-top: 1rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .form-section h3 {
+        margin: 0 0 1rem 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .privacy-options {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .privacy-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .form-checkbox {
+        width: 18px;
+        height: 18px;
+        margin-top: 2px;
+        accent-color: #3b82f6;
+    }
+
+    .checkbox-label {
+        flex: 1;
+        cursor: pointer;
+    }
+
+    .checkbox-title {
+        display: block;
+        font-weight: 500;
+        color: #374151;
+        font-size: 0.875rem;
+    }
+
+    .checkbox-desc {
+        display: block;
+        color: #6b7280;
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+    }
+
+    .form-actions {
+        grid-column: 1 / -1;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .btn-save-section {
+        padding: 0.5rem 1rem;
+        background: #10b981;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        font-size: 0.875rem;
+        transition: background-color 0.2s;
+    }
+
+    .btn-save-section:hover {
+        background: #059669;
+    }
+
+    .btn-save-section:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+    }
+
+    /* Estados de validación */
+    .form-input.error,
+    .form-textarea.error,
+    .form-select.error {
+        border-color: #ef4444;
+    }
+
+    .form-input.success,
+    .form-textarea.success,
+    .form-select.success {
+        border-color: #10b981;
+    }
+
+    .error-message {
+        margin-top: 0.25rem;
+        font-size: 0.75rem;
+        color: #ef4444;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .profile-form {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .form-group.full-width {
+            grid-column: 1;
+        }
+
+        .form-section {
+            grid-column: 1;
+        }
+
+        .privacy-item {
+            align-items: flex-start;
+        }
+
+        .form-actions {
+            grid-column: 1;
+        }
+
+        .btn-save-section {
+            width: 100%;
+        }
+    }
+</style>
+
+<script>
+    class DatosPersonalesManager {
+        constructor() {
+            this.form = document.getElementById("datos-personales-form");
+            this.isInitialized = false;
+            this.validationRules = {
+                telefono: /^(\+54)?\s?\d{2,4}[-\s]?\d{4,8}$/,
+                urlPortfolio:
+                    /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/,
+            };
+
+            this.init();
+        }
+
+        init() {
+            this.bindEvents();
+            this.setupValidation();
+
+            // Escuchar cuando se cargan los datos del perfil
+            window.addEventListener("profile-data-loaded", (e) => {
+                this.populateForm(e.detail);
+            });
+        }
+
+        bindEvents() {
+            // Validación en tiempo real
+            this.form.addEventListener("input", (e) => {
+                this.validateField(e.target);
+            });
+
+            // Guardado de sección
+            document
+                .getElementById("save-datos-personales")
+                .addEventListener("click", () => {
+                    this.saveSection();
+                });
+
+            // Auto-guardado después de cambios
+            this.form.addEventListener("change", () => {
+                setTimeout(() => {
+                    if (this.validateForm()) {
+                        this.autoSave();
+                    }
+                }, 1000);
+            });
+        }
+
+        populateForm(profileData) {
+            if (!profileData || this.isInitialized) return;
+
+            // Poblar campos básicos
+            this.setFieldValue("dni", profileData.dni);
+            this.setFieldValue("telefono", profileData.telefono);
+            this.setFieldValue(
+                "resumen-profesional",
+                profileData.resumenProfesional
+            );
+            this.setFieldValue("url-portfolio", profileData.urlPortfolio);
+            this.setFieldValue(
+                "situacion-laboral",
+                profileData.situacionLaboral
+            );
+
+            // Poblar checkboxes de privacidad
+            this.setCheckboxValue("perfil-publico", profileData.perfilPublico);
+            this.setCheckboxValue(
+                "mostrar-contacto",
+                profileData.mostrarContacto
+            );
+            this.setCheckboxValue(
+                "disponible-ofertas",
+                profileData.disponibleOfertas
+            );
+
+            this.isInitialized = true;
+            console.log("Datos personales inicializados");
+        }
+
+        setFieldValue(fieldId, value) {
+            const field = document.getElementById(fieldId);
+            if (field && value !== null && value !== undefined) {
+                field.value = value;
+            }
+        }
+
+        setCheckboxValue(fieldId, value) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.checked = Boolean(value);
+            }
+        }
+
+        setupValidation() {
+            // Configurar validación de caracteres en textarea
+            const resumenField = document.getElementById("resumen-profesional");
+            if (resumenField) {
+                resumenField.addEventListener("input", () => {
+                    const maxLength = 500;
+                    const currentLength = resumenField.value.length;
+
+                    // Actualizar contador si existe
+                    let counter =
+                        resumenField.parentNode.querySelector(".char-counter");
+                    if (!counter) {
+                        counter = document.createElement("small");
+                        counter.className = "char-counter form-help";
+                        resumenField.parentNode.appendChild(counter);
+                    }
+
+                    counter.textContent = `${currentLength}/${maxLength} caracteres`;
+                    counter.style.color =
+                        currentLength > maxLength ? "#ef4444" : "#6b7280";
+
+                    if (currentLength > maxLength) {
+                        resumenField.classList.add("error");
+                    } else {
+                        resumenField.classList.remove("error");
+                    }
+                });
+            }
+        }
+
+        validateField(field) {
+            const fieldName = field.name || field.id;
+            let isValid = true;
+            let errorMessage = "";
+
+            // Limpiar estados previos
+            field.classList.remove("error", "success");
+            this.removeErrorMessage(field);
+
+            // Validaciones específicas
+            switch (fieldName) {
+                case "telefono":
+                    if (
+                        field.value &&
+                        !this.validationRules.telefono.test(field.value)
+                    ) {
+                        isValid = false;
+                        errorMessage = "Formato de teléfono inválido";
+                    }
+                    break;
+
+                case "urlPortfolio":
+                    if (
+                        field.value &&
+                        !this.validationRules.urlPortfolio.test(field.value)
+                    ) {
+                        isValid = false;
+                        errorMessage = "URL inválida";
+                    }
+                    break;
+
+                case "resumenProfesional":
+                    if (field.value.length > 500) {
+                        isValid = false;
+                        errorMessage =
+                            "El resumen no puede superar los 500 caracteres";
+                    }
+                    break;
+            }
+
+            // Aplicar estados visuales
+            if (field.value) {
+                field.classList.add(isValid ? "success" : "error");
+
+                if (!isValid) {
+                    this.showErrorMessage(field, errorMessage);
+                }
+            }
+
+            return isValid;
+        }
+
+        validateForm() {
+            const fields = this.form.querySelectorAll(
+                "input, textarea, select"
+            );
+            let isValid = true;
+
+            fields.forEach((field) => {
+                if (!this.validateField(field)) {
+                    isValid = false;
+                }
+            });
+
+            return isValid;
+        }
+
+        showErrorMessage(field, message) {
+            const errorEl = document.createElement("div");
+            errorEl.className = "error-message";
+            errorEl.textContent = message;
+            field.parentNode.appendChild(errorEl);
+        }
+
+        removeErrorMessage(field) {
+            const errorEl = field.parentNode.querySelector(".error-message");
+            if (errorEl) {
+                errorEl.remove();
+            }
+        }
+
+        getFormData() {
+            const formData = new FormData(this.form);
+            const data = {};
+
+            // Convertir FormData a objeto
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+
+            // Manejar checkboxes
+            data.perfilPublico =
+                document.getElementById("perfil-publico").checked;
+            data.mostrarContacto =
+                document.getElementById("mostrar-contacto").checked;
+            data.disponibleOfertas =
+                document.getElementById("disponible-ofertas").checked;
+
+            return data;
+        }
+
+        async saveSection() {
+            if (!this.validateForm()) {
+                this.showNotification(
+                    "Por favor corrige los errores antes de guardar",
+                    "error"
+                );
+                return;
+            }
+
+            try {
+                const btn = document.getElementById("save-datos-personales");
+                btn.disabled = true;
+                btn.textContent = "Guardando...";
+
+                const data = this.getFormData();
+
+                // Emitir evento para que el controlador principal maneje el guardado
+                window.dispatchEvent(
+                    new CustomEvent("save-section-data", {
+                        detail: { section: "datos-personales", data },
+                    })
+                );
+
+                this.showNotification("Datos personales guardados", "success");
+            } catch (error) {
+                console.error("Error guardando datos personales:", error);
+                this.showNotification("Error al guardar los datos", "error");
+            } finally {
+                const btn = document.getElementById("save-datos-personales");
+                btn.disabled = false;
+                btn.textContent = "Guardar Sección";
+            }
+        }
+
+        async autoSave() {
+            const data = this.getFormData();
+
+            // Emitir evento para auto-guardado
+            window.dispatchEvent(
+                new CustomEvent("auto-save-data", {
+                    detail: { section: "datos-personales", data },
+                })
+            );
+
+            console.log("Auto-guardando datos personales...");
+        }
+
+        showNotification(message, type) {
+            // Reutilizar el sistema de notificaciones del componente principal
+            window.dispatchEvent(
+                new CustomEvent("show-notification", {
+                    detail: { message, type },
+                })
+            );
+        }
+    }
+
+    // Inicializar cuando el DOM esté listo
+    document.addEventListener("DOMContentLoaded", () => {
+        new DatosPersonalesManager();
+    });
+</script>

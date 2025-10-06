@@ -1,0 +1,1318 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import DatosPersonales from "../../components/perfil/DatosPersonales.astro";
+import ExperienciaForm from "../../components/perfil/ExperienciaForm.astro";
+import FormacionForm from "../../components/perfil/FormacionForm.astro";
+import CursoForm from "../../components/perfil/CursoForm.astro";
+
+// Verificar autenticación del lado del servidor si es necesario
+// En una implementación real, aquí verificarías el token JWT
+---
+
+<BaseLayout title="Editar Perfil" hideAccederButton={true}>
+    <main class="profile-edit-container">
+        <!-- Hero banner en la parte superior -->
+        <div class="profile-hero-banner">
+            <div class="hero-background">
+                <div class="hero-pattern"></div>
+            </div>
+            <div class="hero-content">
+                <div class="profile-avatar">
+                    <img
+                        id="profile-image"
+                        src="/default-avatar.svg"
+                        alt="Foto de perfil"
+                    />
+                    <button class="change-photo-btn" id="change-photo-btn">
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path
+                                d="m12 1-3 6-2 0a4 4 0 0 0-4 4v7a4 4 0 0 0 4 4h10a4 4 0 0 0-4-4h-2l-3-6z"
+                            ></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="profile-info">
+                    <h1 class="profile-name" id="profile-name">
+                        Nombre Usuario
+                    </h1>
+                    <p class="profile-subtitle" id="profile-subtitle">
+                        Desarrollador de Software
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Container principal con sidebar y contenido -->
+        <div class="main-layout">
+            <!-- Sidebar izquierdo con navegación -->
+            <aside class="sidebar-navigation">
+                <!-- Navegación de secciones -->
+                <nav class="section-navigation">
+                    <button
+                        class="nav-btn active"
+                        data-section="datos-personales">
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+                            ></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        Datos Personales
+                    </button>
+                    <button class="nav-btn" data-section="experiencias">
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor">
+                            <rect
+                                x="2"
+                                y="3"
+                                width="20"
+                                height="14"
+                                rx="2"
+                                ry="2"></rect>
+                            <line x1="8" y1="21" x2="16" y2="21"></line>
+                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        </svg>
+                        Experiencias
+                    </button>
+                    <button class="nav-btn" data-section="formaciones">
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor">
+                            <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                            <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                        </svg>
+                        Formaciones
+                    </button>
+                    <button class="nav-btn" data-section="habilidades">
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor">
+                            <path d="M9 12l2 2 4-4"></path>
+                            <path
+                                d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"
+                            ></path>
+                            <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"
+                            ></path>
+                            <path
+                                d="M12 21c0-1-1-3-3-3s-3 2-3 3 1 3 3 3 3-2 3-3"
+                            ></path>
+                            <path d="M12 3c0 1-1 3-3 3s-3-2-3-3 1-3 3-3 3 2 3 3"
+                            ></path>
+                        </svg>
+                        Habilidades
+                    </button>
+                </nav>
+
+                <!-- Acciones globales en sidebar -->
+                <div class="global-actions">
+                    <button class="btn-secondary" id="cancel-btn"
+                        >Cancelar</button
+                    >
+                    <button class="btn-primary" id="save-profile-btn">
+                        <span class="btn-text">Guardar Perfil</span>
+                        <div class="loading-spinner" style="display: none;">
+                            <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor">
+                                <path
+                                    d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.49 8.49l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.49-8.49l2.83-2.83"
+                                ></path>
+                            </svg>
+                        </div>
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Área principal del contenido -->
+            <div class="main-content">
+                <!-- Header de la sección actual -->
+                <header class="content-header">
+                    <h2 class="section-title" id="section-title">
+                        Datos Personales
+                    </h2>
+                    <p class="section-subtitle">
+                        Completa tu información personal básica
+                    </p>
+                </header>
+
+                <!-- Contenido de las secciones -->
+                <div class="sections-container">
+                    <!-- Sección: Datos Personales -->
+                    <section
+                        class="profile-section active"
+                        id="datos-personales">
+                        <DatosPersonales />
+                    </section>
+
+                    <!-- Sección: Experiencias -->
+                    <section class="profile-section" id="experiencias">
+                        <ExperienciaForm />
+                    </section>
+
+                    <!-- Sección: Formaciones -->
+                    <section class="profile-section" id="formaciones">
+                        <FormacionForm />
+                    </section>
+
+                    <!-- Sección: Habilidades -->
+                    <section class="profile-section" id="habilidades">
+                        <CursoForm />
+                    </section>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input oculto para subida de archivos -->
+        <input
+            type="file"
+            id="photo-upload"
+            accept="image/*"
+            style="display: none;"
+        />
+    </main>
+
+    <style>
+        /* Reset para usar todo el viewport */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .profile-edit-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            width: 100vw;
+            margin: 0;
+            background: white;
+            overflow: hidden;
+        }
+
+        /* Hero banner superior */
+        .profile-hero-banner {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        /* Layout principal con sidebar y contenido */
+        .main-layout {
+            display: flex;
+            flex: 1;
+        }
+
+        /* Sidebar izquierdo */
+        .sidebar-navigation {
+            width: 280px;
+            background: #f8fafc;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+        }
+
+        .hero-background {
+            position: relative;
+            background: linear-gradient(
+                135deg,
+                #3b82f6 0%,
+                #1d4ed8 50%,
+                #1e40af 100%
+            );
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero-background::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: radial-gradient(
+                    circle at 20% 20%,
+                    rgba(255, 255, 255, 0.1) 0%,
+                    transparent 50%
+                ),
+                radial-gradient(
+                    circle at 80% 80%,
+                    rgba(255, 255, 255, 0.1) 0%,
+                    transparent 50%
+                ),
+                radial-gradient(
+                    circle at 40% 40%,
+                    rgba(255, 255, 255, 0.05) 0%,
+                    transparent 50%
+                );
+            pointer-events: none;
+        }
+
+        .hero-pattern {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 60%;
+            background-image: repeating-linear-gradient(
+                    45deg,
+                    rgba(255, 255, 255, 0.03) 0px,
+                    rgba(255, 255, 255, 0.03) 1px,
+                    transparent 1px,
+                    transparent 20px
+                ),
+                repeating-linear-gradient(
+                    -45deg,
+                    rgba(255, 255, 255, 0.03) 0px,
+                    rgba(255, 255, 255, 0.03) 1px,
+                    transparent 1px,
+                    transparent 20px
+                );
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 2rem;
+            width: 100%;
+        }
+
+        .profile-avatar {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            flex-shrink: 0;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .change-photo-btn {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #3b82f6;
+            border-radius: 50%;
+            color: #3b82f6;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .change-photo-btn:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+
+        .profile-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            margin: 0 0 0.5rem 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-subtitle {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin: 0 0 0.25rem 0;
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-email {
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+            font-size: 0.875rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Navegación vertical */
+        .section-navigation {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 0 2rem;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            text-align: left;
+            width: 100%;
+        }
+
+        .nav-btn:hover {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .nav-btn.active {
+            color: #3b82f6;
+            background: #eff6ff;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .nav-btn svg {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Área principal */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-header {
+            padding: 2rem 2rem 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .section-subtitle {
+            color: #6b7280;
+            margin: 0;
+        }
+
+        /* Secciones */
+        .sections-container {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .profile-section {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .profile-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Acciones globales - movidas al sidebar */
+        .global-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: auto;
+            padding: 1.5rem 2rem 2rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        /* Botones */
+        .btn-secondary,
+        .btn-primary {
+            padding: 0.875rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            width: 100%;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+            border-color: #9ca3af;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .loading-spinner svg {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar-navigation {
+                width: 250px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .profile-edit-container {
+                flex-direction: column;
+                width: 100vw;
+                min-height: 100vh;
+            }
+
+            .sidebar-navigation {
+                width: 100%;
+                padding: 0;
+                border-right: none;
+                border-bottom: 1px solid #e5e7eb;
+            }
+
+            .profile-hero {
+                margin-bottom: 1rem;
+            }
+
+            .hero-background {
+                border-radius: 0;
+                padding: 1rem;
+            }
+
+            .hero-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .profile-avatar {
+                width: 80px;
+                height: 80px;
+                align-self: center;
+            }
+
+            .profile-info {
+                text-align: center;
+            }
+
+            .section-navigation {
+                flex-direction: row;
+                gap: 0.5rem;
+                overflow-x: auto;
+                padding: 0.5rem 1rem 1rem;
+            }
+
+            .nav-btn {
+                flex-direction: column;
+                gap: 0.25rem;
+                padding: 0.75rem;
+                font-size: 0.75rem;
+                min-width: 80px;
+                text-align: center;
+            }
+
+            .nav-btn svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            .global-actions {
+                flex-direction: row;
+                gap: 0.5rem;
+                padding: 1rem;
+            }
+
+            .main-content {
+                order: -1;
+            }
+
+            .content-header {
+                padding: 1rem;
+            }
+
+            .sections-container {
+                padding: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.25rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-background {
+                padding: 0.75rem;
+            }
+
+            .profile-avatar {
+                width: 45px;
+                height: 45px;
+            }
+
+            .profile-name {
+                font-size: 1rem;
+            }
+
+            .profile-subtitle {
+                font-size: 0.8rem;
+            }
+
+            .nav-btn {
+                padding: 0.5rem;
+                min-width: 70px;
+                font-size: 0.7rem;
+            }
+
+            .content-header {
+                padding: 0.75rem;
+            }
+
+            .sections-container {
+                padding: 0.75rem;
+            }
+
+            .global-actions {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+
+    <script>
+        import {
+            profileService,
+            getUserData,
+            apiRequest,
+        } from "../../utils/api.js";
+        import { imageKitService, ImageUtils } from "../../utils/imagekit.js";
+
+        class ProfileEditor {
+            constructor() {
+                this.currentSection = "datos-personales";
+                this.profileData = null;
+                this.isLoading = false;
+                this.hasUnsavedChanges = false;
+
+                this.init();
+            }
+
+            async init() {
+                this.bindEvents();
+                await this.loadUserProfile();
+                this.setupAutoSave();
+            }
+
+            bindEvents() {
+                // Navegación entre secciones
+                document.querySelectorAll(".nav-btn").forEach((btn) => {
+                    btn.addEventListener("click", (e) => {
+                        const section = e.target.dataset.section;
+                        this.switchSection(section);
+                    });
+                });
+
+                // Cambio de foto de perfil
+                document
+                    .getElementById("change-photo-btn")
+                    .addEventListener("click", () => {
+                        document.getElementById("photo-upload").click();
+                    });
+
+                document
+                    .getElementById("photo-upload")
+                    .addEventListener("change", (e) => {
+                        this.handlePhotoUpload(e);
+                    });
+
+                // Botones globales
+                document
+                    .getElementById("save-profile-btn")
+                    .addEventListener("click", () => {
+                        this.saveProfile();
+                    });
+
+                document
+                    .getElementById("cancel-btn")
+                    .addEventListener("click", () => {
+                        this.cancelEditing();
+                    });
+
+                // Detectar cambios en formularios
+                document.addEventListener("input", () => {
+                    this.hasUnsavedChanges = true;
+                });
+
+                // Advertencia antes de cerrar con cambios no guardados
+                window.addEventListener("beforeunload", (e) => {
+                    if (this.hasUnsavedChanges) {
+                        e.preventDefault();
+                        e.returnValue = "";
+                    }
+                });
+
+                // Escuchar eventos de los componentes para manejar API calls
+                this.bindComponentEvents();
+            }
+
+            switchSection(sectionId) {
+                // Actualizar navegación
+                document.querySelectorAll(".nav-btn").forEach((btn) => {
+                    btn.classList.remove("active");
+                });
+                document
+                    .querySelector(`[data-section="${sectionId}"]`)
+                    .classList.add("active");
+
+                // Mostrar sección correspondiente
+                document
+                    .querySelectorAll(".profile-section")
+                    .forEach((section) => {
+                        section.classList.remove("active");
+                    });
+                document.getElementById(sectionId).classList.add("active");
+
+                // Actualizar título de sección
+                this.updateSectionTitle(sectionId);
+
+                this.currentSection = sectionId;
+            }
+
+            /**
+             * Actualizar título de la sección actual
+             */
+            updateSectionTitle(sectionId) {
+                const titles = {
+                    "datos-personales": {
+                        title: "Datos Personales",
+                        subtitle: "Completa tu información personal básica",
+                    },
+                    experiencias: {
+                        title: "Experiencias Laborales",
+                        subtitle:
+                            "Agrega tu historial profesional y experiencias",
+                    },
+                    formaciones: {
+                        title: "Formación Académica",
+                        subtitle:
+                            "Incluye tu educación formal y certificaciones",
+                    },
+                    habilidades: {
+                        title: "Habilidades y Cursos",
+                        subtitle:
+                            "Destaca tus competencias y formación complementaria",
+                    },
+                };
+
+                const titleEl = document.getElementById("section-title");
+                const subtitleEl = document.querySelector(".section-subtitle");
+
+                if (titles[sectionId] && titleEl && subtitleEl) {
+                    titleEl.textContent = titles[sectionId].title;
+                    subtitleEl.textContent = titles[sectionId].subtitle;
+                }
+            }
+
+            async loadUserProfile() {
+                try {
+                    this.setLoading(true);
+
+                    const response = await apiRequest(() =>
+                        profileService.getMyProfile()
+                    );
+                    this.profileData = response;
+
+                    // Actualizar header
+                    this.updateHeader(response);
+
+                    // Notificar a los componentes que se cargaron los datos
+                    window.dispatchEvent(
+                        new CustomEvent("profile-data-loaded", {
+                            detail: response,
+                        })
+                    );
+
+                    console.log("Perfil cargado:", response);
+                } catch (error) {
+                    console.error("Error cargando perfil:", error);
+                    this.showNotification("Error al cargar el perfil", "error");
+                } finally {
+                    this.setLoading(false);
+                }
+            }
+
+            updateHeader(profileData) {
+                const nameEl = document.getElementById("profile-name");
+                const subtitleEl = document.getElementById("profile-subtitle");
+                const imageEl = document.getElementById("profile-image");
+
+                if (nameEl && profileData.nombre) {
+                    nameEl.textContent = profileData.nombre;
+                }
+
+                // Generar subtítulo dinámico basado en el perfil
+                if (subtitleEl) {
+                    let subtitle = "Desarrollador de Software";
+
+                    if (profileData.titulo_profesional) {
+                        subtitle = profileData.titulo_profesional;
+                    } else if (profileData.area_interes) {
+                        subtitle = `Especialista en ${profileData.area_interes}`;
+                    } else if (profileData.carrera) {
+                        subtitle = `Egresado de ${profileData.carrera}`;
+                    }
+
+                    subtitleEl.textContent = subtitle;
+                }
+
+                // Cargar imagen de perfil (desde ImageKit si está disponible)
+                if (imageEl) {
+                    let imageUrl = "/default-avatar.svg"; // Imagen por defecto
+
+                    if (profileData.foto_perfil) {
+                        // Si tiene foto en ImageKit, generar URL optimizada
+                        if (ImageUtils.isImageKitUrl(profileData.foto_perfil)) {
+                            imageUrl = imageKitService.generateTransformedUrl(
+                                profileData.foto_perfil,
+                                {
+                                    width: 200,
+                                    height: 200,
+                                    crop: "face",
+                                }
+                            );
+                        } else {
+                            // URL legacy o externa
+                            imageUrl = profileData.foto_perfil;
+                        }
+                    } else if (profileData.urlFotoPerfil) {
+                        // Compatibilidad con campo legacy
+                        imageUrl = profileData.urlFotoPerfil;
+                    }
+
+                    imageEl.src = imageUrl;
+                }
+            }
+
+            async handlePhotoUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                try {
+                    this.setLoading(true);
+
+                    // Validar imagen antes de subir
+                    await imageKitService.validateImage(file);
+
+                    // Crear preview inmediato
+                    const previewUrl =
+                        await imageKitService.createPreview(file);
+                    const imageEl = document.getElementById("profile-image");
+                    if (imageEl) {
+                        imageEl.src = previewUrl;
+                    }
+
+                    // Comprimir imagen si es muy grande
+                    let processedFile = file;
+                    if (file.size > 1024 * 1024) {
+                        // Si es mayor a 1MB
+                        processedFile = await ImageUtils.compressImage(file, {
+                            maxWidth: 800,
+                            maxHeight: 800,
+                            quality: 0.8,
+                        });
+                        console.log(
+                            `Imagen comprimida: ${Math.round(file.size / 1024)}KB → ${Math.round(processedFile.size / 1024)}KB`
+                        );
+                    }
+
+                    // Subir a ImageKit
+                    const uploadResult = await imageKitService.uploadImage(
+                        processedFile,
+                        {
+                            folder: "/profiles/",
+                            tags: ["profile", "avatar", "egresado"],
+                        }
+                    );
+
+                    if (uploadResult.success) {
+                        // Actualizar imagen con la URL real de ImageKit
+                        const optimizedUrl =
+                            imageKitService.generateTransformedUrl(
+                                uploadResult.url,
+                                {
+                                    width: 200,
+                                    height: 200,
+                                    crop: "face",
+                                }
+                            );
+
+                        if (imageEl) {
+                            imageEl.src = optimizedUrl;
+                        }
+
+                        // Guardar en los datos del perfil
+                        if (!this.profileData) this.profileData = {};
+                        this.profileData.foto_perfil = uploadResult.url;
+                        this.profileData.foto_perfil_id = uploadResult.fileId;
+
+                        this.hasUnsavedChanges = true;
+                        this.showNotification(
+                            "Foto de perfil actualizada correctamente",
+                            "success"
+                        );
+
+                        console.log("Imagen subida a ImageKit:", {
+                            fileId: uploadResult.fileId,
+                            url: uploadResult.url,
+                            optimizedUrl,
+                        });
+                    } else {
+                        throw new Error("Error en la subida a ImageKit");
+                    }
+                } catch (error) {
+                    console.error("Error subiendo foto:", error);
+
+                    let errorMessage = "Error al subir la foto de perfil";
+                    if (error.message.includes("Tipo de archivo")) {
+                        errorMessage =
+                            "Solo se permiten imágenes JPEG, PNG o WebP";
+                    } else if (error.message.includes("demasiado grande")) {
+                        errorMessage =
+                            "La imagen es demasiado grande (máximo 5MB)";
+                    } else if (error.message.includes("píxeles")) {
+                        errorMessage =
+                            "La imagen debe ser de al menos 100x100 píxeles";
+                    }
+
+                    this.showNotification(errorMessage, "error");
+
+                    // Revertir preview si falló la subida
+                    this.loadProfileImage();
+                } finally {
+                    this.setLoading(false);
+                }
+            }
+
+            /**
+             * Cargar imagen de perfil desde datos actuales
+             */
+            loadProfileImage() {
+                const imageEl = document.getElementById("profile-image");
+                if (!imageEl) return;
+
+                let imageUrl = "/default-avatar.svg"; // Imagen por defecto
+
+                if (this.profileData?.foto_perfil) {
+                    // Si tiene foto en ImageKit, generar URL optimizada
+                    if (
+                        ImageUtils.isImageKitUrl(this.profileData.foto_perfil)
+                    ) {
+                        imageUrl = imageKitService.generateTransformedUrl(
+                            this.profileData.foto_perfil,
+                            {
+                                width: 200,
+                                height: 200,
+                                crop: "face",
+                            }
+                        );
+                    } else {
+                        // URL legacy o externa
+                        imageUrl = this.profileData.foto_perfil;
+                    }
+                } else if (this.profileData?.urlFotoPerfil) {
+                    // Compatibilidad con campo legacy
+                    imageUrl = this.profileData.urlFotoPerfil;
+                }
+
+                imageEl.src = imageUrl;
+            }
+
+            async saveProfile() {
+                try {
+                    this.setLoading(true);
+
+                    // Recopilar datos de todos los componentes
+                    const formData = this.gatherFormData();
+
+                    // Guardar en el backend
+                    await apiRequest(() =>
+                        profileService.updateMyProfile(formData)
+                    );
+
+                    this.hasUnsavedChanges = false;
+                    this.showNotification(
+                        "Perfil guardado exitosamente",
+                        "success"
+                    );
+                } catch (error) {
+                    console.error("Error guardando perfil:", error);
+                    this.showNotification(
+                        "Error al guardar el perfil",
+                        "error"
+                    );
+                } finally {
+                    this.setLoading(false);
+                }
+            }
+
+            bindComponentEvents() {
+                // Eventos de datos personales
+                window.addEventListener("save-section-data", async (e) => {
+                    if (e.detail.section === "datos-personales") {
+                        await this.saveSectionData(e.detail.data);
+                    }
+                });
+
+                // Eventos de experiencias
+                window.addEventListener("experiencia-saved", async (e) => {
+                    await this.handleExperienciaSaved(e.detail);
+                });
+
+                window.addEventListener("experiencia-deleted", async (e) => {
+                    await this.handleExperienciaDeleted(e.detail.id);
+                });
+
+                // Eventos de formaciones
+                window.addEventListener("formacion-saved", async (e) => {
+                    await this.handleFormacionSaved(e.detail);
+                });
+
+                window.addEventListener("formacion-deleted", async (e) => {
+                    await this.handleFormacionDeleted(e.detail.id);
+                });
+
+                // Eventos de cursos y habilidades
+                window.addEventListener("curso-saved", async (e) => {
+                    await this.handleCursoSaved(e.detail);
+                });
+
+                window.addEventListener("curso-deleted", async (e) => {
+                    await this.handleCursoDeleted(e.detail.id);
+                });
+
+                window.addEventListener("habilidad-added", (e) => {
+                    this.hasUnsavedChanges = true;
+                });
+
+                window.addEventListener("habilidad-removed", (e) => {
+                    this.hasUnsavedChanges = true;
+                });
+
+                // Mostrar notificaciones
+                window.addEventListener("show-notification", (e) => {
+                    this.showNotification(e.detail.message, e.detail.type);
+                });
+            }
+
+            async saveSectionData(data) {
+                try {
+                    await apiRequest(() =>
+                        profileService.updateMyProfile(data)
+                    );
+                    this.hasUnsavedChanges = false;
+                    return true;
+                } catch (error) {
+                    console.error("Error guardando sección:", error);
+                    this.showNotification(
+                        "Error al guardar los datos",
+                        "error"
+                    );
+                    return false;
+                }
+            }
+
+            async handleExperienciaSaved(experienciaData) {
+                try {
+                    if (experienciaData.isNew) {
+                        await apiRequest(() =>
+                            profileService.addExperiencia(experienciaData)
+                        );
+                    } else {
+                        await apiRequest(() =>
+                            profileService.updateExperiencia(
+                                experienciaData.id,
+                                experienciaData
+                            )
+                        );
+                    }
+                    this.hasUnsavedChanges = false;
+                } catch (error) {
+                    console.error("Error guardando experiencia:", error);
+                    this.showNotification(
+                        "Error al guardar la experiencia",
+                        "error"
+                    );
+                }
+            }
+
+            async handleExperienciaDeleted(id) {
+                try {
+                    await apiRequest(() =>
+                        profileService.deleteExperiencia(id)
+                    );
+                } catch (error) {
+                    console.error("Error eliminando experiencia:", error);
+                    this.showNotification(
+                        "Error al eliminar la experiencia",
+                        "error"
+                    );
+                }
+            }
+
+            async handleFormacionSaved(formacionData) {
+                try {
+                    if (formacionData.isNew) {
+                        await apiRequest(() =>
+                            profileService.addFormacion(formacionData)
+                        );
+                    } else {
+                        await apiRequest(() =>
+                            profileService.updateFormacion(
+                                formacionData.id,
+                                formacionData
+                            )
+                        );
+                    }
+                    this.hasUnsavedChanges = false;
+                } catch (error) {
+                    console.error("Error guardando formación:", error);
+                    this.showNotification(
+                        "Error al guardar la formación",
+                        "error"
+                    );
+                }
+            }
+
+            async handleFormacionDeleted(id) {
+                try {
+                    await apiRequest(() => profileService.deleteFormacion(id));
+                } catch (error) {
+                    console.error("Error eliminando formación:", error);
+                    this.showNotification(
+                        "Error al eliminar la formación",
+                        "error"
+                    );
+                }
+            }
+
+            async handleCursoSaved(cursoData) {
+                try {
+                    if (cursoData.isNew) {
+                        await apiRequest(() =>
+                            profileService.addCurso(cursoData)
+                        );
+                    } else {
+                        await apiRequest(() =>
+                            profileService.updateCurso(cursoData.id, cursoData)
+                        );
+                    }
+                    this.hasUnsavedChanges = false;
+                } catch (error) {
+                    console.error("Error guardando curso:", error);
+                    this.showNotification("Error al guardar el curso", "error");
+                }
+            }
+
+            async handleCursoDeleted(id) {
+                try {
+                    await apiRequest(() => profileService.deleteCurso(id));
+                } catch (error) {
+                    console.error("Error eliminando curso:", error);
+                    this.showNotification(
+                        "Error al eliminar el curso",
+                        "error"
+                    );
+                }
+            }
+
+            gatherFormData() {
+                // Recopilar datos de todos los componentes
+                const datosPersonales =
+                    window.datosPersonalesManager?.getFormData() || {};
+                const experiencias =
+                    window.experienciasManager?.getExperienciasData() || [];
+                const formaciones =
+                    window.formacionesManager?.getFormacionesData() || [];
+                const habilidades =
+                    window.cursosManager?.getHabilidadesData() || [];
+                const cursos = window.cursosManager?.getCursosData() || [];
+
+                return {
+                    ...datosPersonales,
+                    experienciasLaborales: experiencias,
+                    formacionAcademica: formaciones,
+                    habilidades: habilidades,
+                    cursos: cursos,
+                };
+            }
+
+            cancelEditing() {
+                if (this.hasUnsavedChanges) {
+                    if (
+                        confirm(
+                            "¿Estás seguro de que quieres cancelar? Se perderán los cambios no guardados."
+                        )
+                    ) {
+                        window.location.href = "/";
+                    }
+                } else {
+                    window.location.href = "/";
+                }
+            }
+
+            setupAutoSave() {
+                // Guardado automático cada 5 minutos
+                setInterval(
+                    () => {
+                        if (this.hasUnsavedChanges && !this.isLoading) {
+                            console.log("Auto-guardando perfil...");
+                            // this.saveProfile();
+                        }
+                    },
+                    5 * 60 * 1000
+                );
+            }
+
+            setLoading(loading) {
+                this.isLoading = loading;
+                const btn = document.getElementById("save-profile-btn");
+                const text = btn.querySelector(".btn-text");
+                const spinner = btn.querySelector(".loading-spinner");
+
+                btn.disabled = loading;
+
+                if (loading) {
+                    text.style.display = "none";
+                    spinner.style.display = "block";
+                } else {
+                    text.style.display = "block";
+                    spinner.style.display = "none";
+                }
+            }
+
+            showNotification(message, type = "info") {
+                // Crear elemento de notificación
+                const notification = document.createElement("div");
+                notification.className = `notification notification-${type}`;
+                notification.textContent = message;
+
+                // Estilos básicos
+                Object.assign(notification.style, {
+                    position: "fixed",
+                    top: "20px",
+                    right: "20px",
+                    padding: "1rem 1.5rem",
+                    borderRadius: "8px",
+                    color: "white",
+                    fontWeight: "500",
+                    zIndex: "9999",
+                    transform: "translateX(400px)",
+                    transition: "transform 0.3s ease",
+                    background:
+                        type === "error"
+                            ? "#ef4444"
+                            : type === "success"
+                              ? "#10b981"
+                              : "#3b82f6",
+                });
+
+                document.body.appendChild(notification);
+
+                // Animación de entrada
+                setTimeout(() => {
+                    notification.style.transform = "translateX(0)";
+                }, 100);
+
+                // Remover después de 4 segundos
+                setTimeout(() => {
+                    notification.style.transform = "translateX(400px)";
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 4000);
+            }
+        }
+
+        // Inicializar cuando el DOM esté listo
+        document.addEventListener("DOMContentLoaded", () => {
+            new ProfileEditor();
+        });
+    </script>
+</BaseLayout>

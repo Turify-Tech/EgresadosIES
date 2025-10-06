@@ -9,6 +9,7 @@ import perfilRoutes from "./routes/perfilRoutes.js";
 import perfilesRoutes from "./routes/perfilesRoutes.js";
 import carrerasRoutes from "./routes/carrerasRoutes.js";
 import mensajesRoutes from "./routes/mensajesRoutes.js";
+import imagekitRoutes from "./routes/imagekit.js";
 
 dotenv.config();
 
@@ -40,7 +41,7 @@ app.get("/api/health", async (req, res) => {
     try {
         // Verificar conexión a la base de datos
         const dbHealth = await database.healthCheck();
-        
+
         res.status(200).json({
             status: "OK",
             message: "Sistema de Gestión de Egresados IES - API funcionando",
@@ -64,6 +65,7 @@ app.use("/api/perfil", perfilRoutes);
 app.use("/api/perfiles", perfilesRoutes);
 app.use("/api/carreras", carrerasRoutes);
 app.use("/api/mensajes", mensajesRoutes);
+app.use("/api/imagekit", imagekitRoutes);
 
 // Middleware de manejo de errores globales
 app.use((err, req, res, next) => {
@@ -99,17 +101,34 @@ app.use("*", (req, res) => {
 // Iniciar servidor solo si no está en testing
 if (process.env.NODE_ENV !== "test") {
     // Conectar a la base de datos primero
-    database.connect()
+    database
+        .connect()
         .then(() => {
             app.listen(PORT, () => {
-                console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-                console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
-                console.log(`🔐 Auth login: http://localhost:${PORT}/api/auth/login`);
-                console.log(`👤 Perfil: http://localhost:${PORT}/api/perfil/mi-perfil`);
-                console.log(`👥 Perfiles públicos: http://localhost:${PORT}/api/perfiles`);
-                console.log(`🎓 Carreras: http://localhost:${PORT}/api/carreras`);
-                console.log(`💬 Mensajes: http://localhost:${PORT}/api/mensajes`);
-                console.log(`🌍 Entorno: ${process.env.NODE_ENV || "development"}`);
+                console.log(
+                    `🚀 Servidor corriendo en http://localhost:${PORT}`
+                );
+                console.log(
+                    `📊 Health check: http://localhost:${PORT}/api/health`
+                );
+                console.log(
+                    `🔐 Auth login: http://localhost:${PORT}/api/auth/login`
+                );
+                console.log(
+                    `👤 Perfil: http://localhost:${PORT}/api/perfil/mi-perfil`
+                );
+                console.log(
+                    `👥 Perfiles públicos: http://localhost:${PORT}/api/perfiles`
+                );
+                console.log(
+                    `🎓 Carreras: http://localhost:${PORT}/api/carreras`
+                );
+                console.log(
+                    `💬 Mensajes: http://localhost:${PORT}/api/mensajes`
+                );
+                console.log(
+                    `🌍 Entorno: ${process.env.NODE_ENV || "development"}`
+                );
             });
         })
         .catch((error) => {

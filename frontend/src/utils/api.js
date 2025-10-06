@@ -243,7 +243,14 @@ export const profileService = {
      * Obtener perfil del usuario logueado
      */
     async getMyProfile() {
-        return apiClient.get("/profile/me");
+        return apiClient.get("/api/perfil/mi-perfil");
+    },
+
+    /**
+     * Actualizar perfil del usuario logueado
+     */
+    async updateMyProfile(data) {
+        return apiClient.put("/api/perfil/mi-perfil", data);
     },
 
     /**
@@ -258,6 +265,69 @@ export const profileService = {
      */
     async updateProfile(id, data) {
         return apiClient.put(`/profile/${id}`, data);
+    },
+
+    /**
+     * Agregar experiencia laboral
+     */
+    async addExperiencia(data) {
+        return apiClient.post("/api/perfil/experiencia", data);
+    },
+
+    /**
+     * Actualizar experiencia laboral
+     */
+    async updateExperiencia(id, data) {
+        return apiClient.put(`/api/perfil/experiencia/${id}`, data);
+    },
+
+    /**
+     * Eliminar experiencia laboral
+     */
+    async deleteExperiencia(id) {
+        return apiClient.delete(`/api/perfil/experiencia/${id}`);
+    },
+
+    /**
+     * Agregar formación académica
+     */
+    async addFormacion(data) {
+        return apiClient.post("/api/perfil/formacion", data);
+    },
+
+    /**
+     * Actualizar formación académica
+     */
+    async updateFormacion(id, data) {
+        return apiClient.put(`/api/perfil/formacion/${id}`, data);
+    },
+
+    /**
+     * Eliminar formación académica
+     */
+    async deleteFormacion(id) {
+        return apiClient.delete(`/api/perfil/formacion/${id}`);
+    },
+
+    /**
+     * Agregar curso
+     */
+    async addCurso(data) {
+        return apiClient.post("/api/perfil/curso", data);
+    },
+
+    /**
+     * Actualizar curso
+     */
+    async updateCurso(id, data) {
+        return apiClient.put(`/api/perfil/curso/${id}`, data);
+    },
+
+    /**
+     * Eliminar curso
+     */
+    async deleteCurso(id) {
+        return apiClient.delete(`/api/perfil/curso/${id}`);
     },
 
     /**
