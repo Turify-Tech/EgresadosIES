@@ -8,6 +8,7 @@ import authRoutes from "./routes/authRoutes.js";
 import perfilRoutes from "./routes/perfilRoutes.js";
 import perfilesRoutes from "./routes/perfilesRoutes.js";
 import carrerasRoutes from "./routes/carrerasRoutes.js";
+import mensajesRoutes from "./routes/mensajesRoutes.js";
 
 dotenv.config();
 
@@ -62,6 +63,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/perfil", perfilRoutes);
 app.use("/api/perfiles", perfilesRoutes);
 app.use("/api/carreras", carrerasRoutes);
+app.use("/api/mensajes", mensajesRoutes);
 
 // Middleware de manejo de errores globales
 app.use((err, req, res, next) => {
@@ -106,6 +108,7 @@ if (process.env.NODE_ENV !== "test") {
                 console.log(`👤 Perfil: http://localhost:${PORT}/api/perfil/mi-perfil`);
                 console.log(`👥 Perfiles públicos: http://localhost:${PORT}/api/perfiles`);
                 console.log(`🎓 Carreras: http://localhost:${PORT}/api/carreras`);
+                console.log(`💬 Mensajes: http://localhost:${PORT}/api/mensajes`);
                 console.log(`🌍 Entorno: ${process.env.NODE_ENV || "development"}`);
             });
         })
