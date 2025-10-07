@@ -38,7 +38,7 @@ export async function addCurso(req, res) {
         // Validar horas de duración si se proporciona
         if (horasDuracion !== undefined && horasDuracion !== null) {
             const horas = parseInt(horasDuracion);
-            
+
             if (isNaN(horas) || horas <= 0 || horas > 10000) {
                 return res.status(400).json({
                     success: false,
@@ -70,12 +70,15 @@ export async function addCurso(req, res) {
             WHERE id = ?
         `;
 
+        const cursoId = Number(result.lastInsertRowid);
         const cursoResult = await client.execute({
             sql: cursoQuery,
-            args: [result.lastInsertRowid],
+            args: [cursoId],
         });
 
-        console.info(`[CURSO] Usuario ${usuarioId} agregó curso - ID: ${result.lastInsertRowid}`);
+        console.info(
+            `[CURSO] Usuario ${usuarioId} agregó curso - ID: ${cursoId}`
+        );
 
         return res.status(201).json({
             success: true,
@@ -144,7 +147,7 @@ export async function updateCurso(req, res) {
         // Validar horas de duración si se proporciona
         if (horasDuracion !== undefined && horasDuracion !== null) {
             const horas = parseInt(horasDuracion);
-            
+
             if (isNaN(horas) || horas <= 0 || horas > 10000) {
                 return res.status(400).json({
                     success: false,
@@ -182,7 +185,9 @@ export async function updateCurso(req, res) {
             args: [cursoId],
         });
 
-        console.info(`[CURSO] Usuario ${usuarioId} actualizó curso - ID: ${cursoId}`);
+        console.info(
+            `[CURSO] Usuario ${usuarioId} actualizó curso - ID: ${cursoId}`
+        );
 
         return res.status(200).json({
             success: true,
@@ -248,7 +253,9 @@ export async function deleteCurso(req, res) {
             args: [cursoId],
         });
 
-        console.info(`[CURSO] Usuario ${usuarioId} eliminó curso - ID: ${cursoId} (${curso.nombre} en ${curso.institucion})`);
+        console.info(
+            `[CURSO] Usuario ${usuarioId} eliminó curso - ID: ${cursoId} (${curso.nombre} en ${curso.institucion})`
+        );
 
         return res.status(200).json({
             success: true,

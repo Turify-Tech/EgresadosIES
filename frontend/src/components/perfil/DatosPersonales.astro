@@ -4,141 +4,125 @@
 
 <div class="datos-personales-form">
     <div class="form-header">
-        <h2>Información Personal</h2>
-        <p>Completa tu información básica y profesional</p>
+        <h2>DATOS PERSONALES</h2>
     </div>
 
     <form class="profile-form" id="datos-personales-form">
-        <!-- Campo DNI (solo lectura) -->
-        <div class="form-group">
-            <label for="dni">DNI</label>
-            <input
-                type="text"
-                id="dni"
-                name="dni"
-                readonly
-                placeholder="12345678"
-                class="form-input readonly"
-            />
-        </div>
-
-        <!-- Campo Teléfono -->
-        <div class="form-group">
-            <label for="telefono">Teléfono</label>
-            <input
-                type="tel"
-                id="telefono"
-                name="telefono"
-                placeholder="Ej: +54 11 1234-5678"
-                class="form-input"
-            />
-        </div>
-
-        <!-- Campo Resumen Profesional -->
-        <div class="form-group full-width">
-            <label for="resumen-profesional">Resumen Profesional</label>
-            <textarea
-                id="resumen-profesional"
-                name="resumenProfesional"
-                rows="4"
-                placeholder="Describe brevemente tu perfil profesional, experiencia y objetivos..."
-                class="form-textarea"></textarea>
-            <small class="form-help"
-                >Máximo 500 caracteres. Este resumen aparecerá en tu perfil
-                público.</small
-            >
-        </div>
-
-        <!-- Campo URL Portfolio -->
-        <div class="form-group">
-            <label for="url-portfolio">URL Portfolio</label>
-            <input
-                type="url"
-                id="url-portfolio"
-                name="urlPortfolio"
-                placeholder="https://miportfolio.com"
-                class="form-input"
-            />
-        </div>
-
-        <!-- Campo Situación Laboral -->
-        <div class="form-group">
-            <label for="situacion-laboral">Situación Laboral</label>
-            <select
-                id="situacion-laboral"
-                name="situacionLaboral"
-                class="form-select">
-                <option value="">Selecciona tu situación</option>
-                <option value="Empleado">Empleado</option>
-                <option value="Desempleado">Buscando empleo</option>
-                <option value="Freelancer">Freelancer</option>
-                <option value="Emprendedor">Emprendedor</option>
-                <option value="Estudiante">Estudiante</option>
-                <option value="Jubilado">Jubilado</option>
-            </select>
-        </div>
-
-        <!-- Configuración de Privacidad -->
-        <div class="form-section">
-            <h3>Privacidad del Perfil</h3>
-
-            <div class="privacy-options">
-                <div class="privacy-item">
+        <!-- Sección superior: Imagen y Descripción -->
+        <div class="profile-top-section">
+            <!-- Imagen de perfil -->
+            <div class="profile-image-section">
+                <div class="image-upload-area">
+                    <div class="image-preview" id="image-preview">
+                        <div class="default-avatar">
+                            <svg
+                                width="40"
+                                height="40"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor">
+                                <path
+                                    d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+                                ></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                    </div>
                     <input
-                        type="checkbox"
-                        id="perfil-publico"
-                        name="perfilPublico"
-                        class="form-checkbox"
+                        type="file"
+                        id="profile-image-input"
+                        accept="image/*"
+                        style="display: none;"
                     />
-                    <label for="perfil-publico" class="checkbox-label">
-                        <span class="checkbox-title">Perfil público</span>
-                        <span class="checkbox-desc"
-                            >Permite que otros usuarios vean tu perfil completo</span
-                        >
-                    </label>
+                    <button
+                        type="button"
+                        class="upload-btn"
+                        id="upload-image-btn">
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor">
+                            <path
+                                d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5"
+                            ></path>
+                            <path d="M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
+                            ></path>
+                        </svg>
+                    </button>
                 </div>
+                <p class="image-label">Imagen</p>
+            </div>
 
-                <div class="privacy-item">
+            <!-- Descripción -->
+            <div class="description-section">
+                <label for="descripcion">Descripción</label>
+                <textarea
+                    id="descripcion"
+                    name="descripcion"
+                    rows="6"
+                    placeholder="Descripción detallada"
+                    class="form-textarea"></textarea>
+            </div>
+        </div>
+
+        <!-- Campos de información personal -->
+        <div class="personal-fields">
+            <div class="field-row">
+                <div class="form-group">
+                    <label for="nombre">Nombre *</label>
                     <input
-                        type="checkbox"
-                        id="mostrar-contacto"
-                        name="mostrarContacto"
-                        class="form-checkbox"
+                        type="text"
+                        id="nombre"
+                        name="nombre"
+                        required
+                        class="form-input"
                     />
-                    <label for="mostrar-contacto" class="checkbox-label">
-                        <span class="checkbox-title"
-                            >Mostrar información de contacto</span
-                        >
-                        <span class="checkbox-desc"
-                            >Permite que otros usuarios vean tu email y teléfono</span
-                        >
-                    </label>
                 </div>
-
-                <div class="privacy-item">
+                <div class="form-group">
+                    <label for="apellido">Apellido *</label>
                     <input
-                        type="checkbox"
-                        id="disponible-ofertas"
-                        name="disponibleOfertas"
-                        class="form-checkbox"
+                        type="text"
+                        id="apellido"
+                        name="apellido"
+                        required
+                        class="form-input"
                     />
-                    <label for="disponible-ofertas" class="checkbox-label">
-                        <span class="checkbox-title"
-                            >Disponible para ofertas laborales</span
-                        >
-                        <span class="checkbox-desc"
-                            >Permite que empresas te contacten con oportunidades</span
-                        >
-                    </label>
+                </div>
+            </div>
+
+            <div class="field-row">
+                <div class="form-group">
+                    <label for="correo">Correo *</label>
+                    <input
+                        type="email"
+                        id="correo"
+                        name="correo"
+                        required
+                        placeholder="ejemplo@correo.com"
+                        class="form-input"
+                    />
+                </div>
+                <div class="form-group">
+                    <label for="contacto">Contacto *</label>
+                    <input
+                        type="tel"
+                        id="contacto"
+                        name="contacto"
+                        required
+                        placeholder="2604561871"
+                        class="form-input"
+                    />
                 </div>
             </div>
         </div>
 
-        <!-- Botón de guardado rápido -->
+        <!-- Botón Siguiente -->
         <div class="form-actions">
             <button
                 type="button"
-                class="btn-save-section"
+                class="btn-siguiente"
                 id="save-datos-personales">
                 Siguiente
             </button>
@@ -150,31 +134,123 @@
     .datos-personales-form {
         background: white;
         border-radius: 8px;
+        padding: 2rem;
+        max-width: 800px;
+        margin: 0 auto;
     }
 
     .form-header {
+        text-align: center;
         margin-bottom: 2rem;
+        border-bottom: 2px solid #3b82f6;
         padding-bottom: 1rem;
-        border-bottom: 1px solid #e5e7eb;
     }
 
     .form-header h2 {
-        margin: 0 0 0.5rem 0;
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #1f2937;
-    }
-
-    .form-header p {
         margin: 0;
-        color: #6b7280;
-        font-size: 0.875rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #3b82f6;
+        letter-spacing: 0.05em;
     }
 
     .profile-form {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    /* Sección superior: Imagen + Descripción */
+    .profile-top-section {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 2rem;
+        align-items: start;
+    }
+
+    /* Sección de imagen */
+    .profile-image-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .image-upload-area {
+        position: relative;
+        margin-bottom: 0.5rem;
+    }
+
+    .image-preview {
+        width: 150px;
+        height: 150px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f9fafb;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .default-avatar {
+        color: #9ca3af;
+    }
+
+    .upload-btn {
+        position: absolute;
+        bottom: -8px;
+        right: -8px;
+        width: 32px;
+        height: 32px;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: background 0.2s;
+        font-size: 0.875rem;
+    }
+
+    .upload-btn:hover {
+        background: #2563eb;
+    }
+
+    .image-label {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin: 0;
+        text-align: center;
+    }
+
+    /* Sección de descripción */
+    .description-section {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .description-section label {
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.875rem;
+    }
+
+    /* Campos de información personal */
+    .personal-fields {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .field-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
+        gap: 1rem;
     }
 
     .form-group {
@@ -182,20 +258,15 @@
         flex-direction: column;
     }
 
-    .form-group.full-width {
-        grid-column: 1 / -1;
-    }
-
     .form-group label {
         margin-bottom: 0.5rem;
-        font-weight: 500;
+        font-weight: 600;
         color: #374151;
         font-size: 0.875rem;
     }
 
     .form-input,
-    .form-textarea,
-    .form-select {
+    .form-textarea {
         padding: 0.75rem;
         border: 1px solid #d1d5db;
         border-radius: 6px;
@@ -204,126 +275,63 @@
             border-color 0.2s,
             box-shadow 0.2s;
         background: white;
+        font-family: inherit;
     }
 
     .form-input:focus,
-    .form-textarea:focus,
-    .form-select:focus {
+    .form-textarea:focus {
         outline: none;
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
-    .form-input.readonly {
-        background: #f9fafb;
-        color: #6b7280;
-        cursor: not-allowed;
-    }
-
     .form-textarea {
         resize: vertical;
         min-height: 100px;
-        font-family: inherit;
     }
 
-    .form-help {
-        margin-top: 0.25rem;
-        font-size: 0.75rem;
-        color: #6b7280;
-    }
-
-    .form-section {
-        grid-column: 1 / -1;
-        margin-top: 1rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid #e5e7eb;
-    }
-
-    .form-section h3 {
-        margin: 0 0 1rem 0;
-        font-size: 1rem;
-        font-weight: 600;
-        color: #1f2937;
-    }
-
-    .privacy-options {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .privacy-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.75rem;
-    }
-
-    .form-checkbox {
-        width: 18px;
-        height: 18px;
-        margin-top: 2px;
-        accent-color: #3b82f6;
-    }
-
-    .checkbox-label {
-        flex: 1;
-        cursor: pointer;
-    }
-
-    .checkbox-title {
-        display: block;
-        font-weight: 500;
-        color: #374151;
-        font-size: 0.875rem;
-    }
-
-    .checkbox-desc {
-        display: block;
-        color: #6b7280;
-        font-size: 0.75rem;
-        margin-top: 0.25rem;
-    }
-
+    /* Botón Siguiente */
     .form-actions {
-        grid-column: 1 / -1;
-        margin-top: 1rem;
-        padding-top: 1rem;
-        border-top: 1px solid #e5e7eb;
         display: flex;
-        justify-content: flex-end;
+        justify-content: center;
+        padding-top: 2rem;
+        border-top: 1px solid #e5e7eb;
     }
 
-    .btn-save-section {
-        padding: 0.5rem 1rem;
-        background: #10b981;
+    .btn-siguiente {
+        padding: 0.75rem 2rem;
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
         color: white;
         border: none;
-        border-radius: 6px;
-        font-weight: 500;
+        border-radius: 8px;
+        font-weight: 600;
         cursor: pointer;
         font-size: 0.875rem;
-        transition: background-color 0.2s;
+        transition: all 0.2s;
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
     }
 
-    .btn-save-section:hover {
-        background: #059669;
+    .btn-siguiente:hover {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        transform: translateY(-1px);
     }
 
-    .btn-save-section:disabled {
+    .btn-siguiente:disabled {
         background: #9ca3af;
         cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
     }
 
     /* Estados de validación */
     .form-input.error,
-    .form-textarea.error,
-    .form-select.error {
+    .form-textarea.error {
         border-color: #ef4444;
     }
 
     .form-input.success,
-    .form-textarea.success,
-    .form-select.success {
+    .form-textarea.success {
         border-color: #10b981;
     }
 
@@ -333,30 +341,35 @@
         color: #ef4444;
     }
 
+    .form-help {
+        margin-top: 0.25rem;
+        font-size: 0.75rem;
+        color: #6b7280;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
-        .profile-form {
+        .datos-personales-form {
+            padding: 1rem;
+        }
+
+        .profile-top-section {
+            grid-template-columns: 1fr;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .image-preview {
+            width: 120px;
+            height: 120px;
+        }
+
+        .field-row {
             grid-template-columns: 1fr;
             gap: 1rem;
         }
 
-        .form-group.full-width {
-            grid-column: 1;
-        }
-
-        .form-section {
-            grid-column: 1;
-        }
-
-        .privacy-item {
-            align-items: flex-start;
-        }
-
-        .form-actions {
-            grid-column: 1;
-        }
-
-        .btn-save-section {
+        .btn-siguiente {
             width: 100%;
         }
     }
@@ -614,7 +627,7 @@
                 setTimeout(() => {
                     const profileEditor = window.profileEditor;
                     if (profileEditor) {
-                        profileEditor.switchSection("experiencias");
+                        profileEditor.switchSection("formaciones");
                     }
                 }, 500);
             } catch (error) {

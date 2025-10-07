@@ -243,14 +243,14 @@ export const profileService = {
      * Obtener perfil del usuario logueado
      */
     async getMyProfile() {
-        return apiClient.get("/api/perfil/mi-perfil");
+        return apiClient.get("/perfil/mi-perfil");
     },
 
     /**
      * Actualizar perfil del usuario logueado
      */
     async updateMyProfile(data) {
-        return apiClient.put("/api/perfil/mi-perfil", data);
+        return apiClient.put("/perfil/mi-perfil", data);
     },
 
     /**
@@ -271,7 +271,7 @@ export const profileService = {
      * Agregar experiencia laboral
      */
     async addExperiencia(data) {
-        return apiClient.post("/api/perfil/experiencia", data);
+        return apiClient.post("/perfil/experiencia", data);
     },
 
     /**
@@ -292,7 +292,7 @@ export const profileService = {
      * Agregar formación académica
      */
     async addFormacion(data) {
-        return apiClient.post("/api/perfil/formacion", data);
+        return apiClient.post("/perfil/formacion", data);
     },
 
     /**
@@ -313,7 +313,7 @@ export const profileService = {
      * Agregar curso
      */
     async addCurso(data) {
-        return apiClient.post("/api/perfil/curso", data);
+        return apiClient.post("/perfil/curso", data);
     },
 
     /**
@@ -458,7 +458,7 @@ export function setAuthToken(token) {
 export function clearAuth() {
     if (typeof window !== "undefined") {
         localStorage.removeItem("auth_token");
-        localStorage.removeItem("user_data");
+        localStorage.removeItem("user");
         apiClient.clearAuthToken();
     }
 }
@@ -489,9 +489,9 @@ export function setUserData(userData) {
 export function handleAuthError(error) {
     if (error.status === 401) {
         clearAuth();
-        // Redirigir a login
+        // Redirigir a acceso
         if (typeof window !== "undefined") {
-            window.location.href = "/login";
+            window.location.href = "/acceso";
         }
     }
     throw error;

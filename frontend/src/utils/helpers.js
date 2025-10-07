@@ -379,7 +379,7 @@ export const CONSTANTS = {
 
     ROUTES: {
         HOME: "/",
-        LOGIN: "/login",
+        LOGIN: "/acceso",
         PROFILE: "/profile",
         ADMIN: "/admin",
         NOT_FOUND: "/404",

@@ -4,368 +4,151 @@
 
 <div class="experiencias-form">
     <div class="form-header">
-        <h2>Experiencias Profesionales</h2>
-        <p>Agrega tu experiencia laboral y proyectos relevantes</p>
+        <h2>EXPERIENCIAS</h2>
     </div>
 
-    <!-- Lista de experiencias existentes -->
-    <div class="experiencias-list" id="experiencias-list">
-        <!-- Las experiencias se cargarán dinámicamente -->
-    </div>
-
-    <!-- Botón para agregar nueva experiencia -->
-    <button class="btn-add-item" id="add-experiencia-btn">
-        <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
-        Agregar Experiencia
-    </button>
-
-    <!-- Botón para continuar a la siguiente sección -->
-    <div class="form-actions">
-        <button type="button" class="btn-primary" id="next-section-btn">
-            Siguiente
-        </button>
-    </div>
-
-    <!-- Modal/Formulario para editar experiencia -->
-    <div class="modal-overlay" id="experiencia-modal" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-title">Agregar Experiencia</h3>
-                <button class="modal-close" id="close-modal-btn">
-                    <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
+    <form class="experiencias-content" id="experiencias-form">
+        <!-- Sección: Laborales -->
+        <div class="experiencias-section">
+            <div class="section-header">
+                <h3>Laborales:</h3>
             </div>
-
-            <form class="experiencia-form" id="experiencia-form">
-                <input type="hidden" id="experiencia-id" name="id" />
-
-                <div class="form-row">
+            
+            <div class="experiencia-item">
+                <div class="field-row">
                     <div class="form-group">
-                        <label for="puesto">Puesto de Trabajo *</label>
-                        <input
-                            type="text"
-                            id="puesto"
-                            name="puesto"
-                            required
-                            placeholder="Ej: Desarrollador Full Stack"
-                            class="form-input"
-                        />
-                    </div>
-
-                    <div class="form-group">
-                        <label for="empresa">Empresa *</label>
-                        <input
-                            type="text"
+                        <label for="empresa">Empresa:</label>
+                        <input 
+                            type="text" 
                             id="empresa"
                             name="empresa"
-                            required
-                            placeholder="Ej: Tech Company SA"
                             class="form-input"
+                            placeholder=""
                         />
+                    </div>
+                    <div class="form-group icon-field">
+                        <button type="button" class="add-item-btn" id="add-experiencia-btn">
+                            <span>⚙</span>
+                        </button>
                     </div>
                 </div>
 
-                <div class="form-row">
+                <div class="field-row">
                     <div class="form-group">
-                        <label for="fecha-inicio">Fecha de Inicio *</label>
-                        <input
-                            type="date"
-                            id="fecha-inicio"
-                            name="fechaInicio"
-                            required
+                        <label for="descripcion">Descripción:</label>
+                        <input 
+                            type="text" 
+                            id="descripcion"
+                            name="descripcion"
                             class="form-input"
+                            placeholder=""
                         />
                     </div>
+                    <div class="form-group icon-field">
+                        <button type="button" class="add-item-btn">
+                            <span>⚙</span>
+                        </button>
+                    </div>
+                </div>
 
+                <div class="field-row">
                     <div class="form-group">
-                        <label for="fecha-fin">Fecha de Fin</label>
-                        <input
-                            type="date"
-                            id="fecha-fin"
-                            name="fechaFin"
+                        <label for="duracion-laboral">Duración laboral:</label>
+                        <input 
+                            type="text" 
+                            id="duracion-laboral"
+                            name="duracionLaboral"
                             class="form-input"
+                            placeholder=""
                         />
-                        <div class="checkbox-container">
-                            <input
-                                type="checkbox"
-                                id="trabajo-actual"
-                                name="trabajoActual"
-                                class="form-checkbox"
-                            />
-                            <label for="trabajo-actual" class="checkbox-label"
-                                >Trabajo actual</label
-                            >
-                        </div>
+                    </div>
+                    <div class="form-group icon-field">
+                        <button type="button" class="add-item-btn">
+                            <span>⚙</span>
+                        </button>
                     </div>
                 </div>
 
-                <div class="form-group full-width">
-                    <label for="descripcion">Descripción del Trabajo</label>
-                    <textarea
-                        id="descripcion"
-                        name="descripcion"
-                        rows="4"
-                        placeholder="Describe tus responsabilidades, logros y tecnologías utilizadas..."
-                        class="form-textarea"></textarea>
+                <div class="field-row">
+                    <div class="form-group">
+                        <label for="agregar-mas">Agregar más:</label>
+                        <button type="button" class="info-btn" title="Agregar más experiencias">
+                            <span>i</span>
+                        </button>
+                    </div>
                 </div>
-
-                <div class="form-group">
-                    <label for="ubicacion">Ubicación</label>
-                    <input
-                        type="text"
-                        id="ubicacion"
-                        name="ubicacion"
-                        placeholder="Ej: Buenos Aires, Argentina"
-                        class="form-input"
-                    />
-                </div>
-
-                <div class="modal-actions">
-                    <button
-                        type="button"
-                        class="btn-secondary"
-                        id="cancel-experiencia-btn">
-                        Cancelar
-                    </button>
-                    <button
-                        type="submit"
-                        class="btn-primary"
-                        id="save-experiencia-btn">
-                        Siguiente
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
-    </div>
+
+        <!-- Botón Siguiente -->
+        <div class="form-actions">
+            <button 
+                type="button" 
+                class="btn-siguiente"
+                id="save-experiencias">
+                Siguiente
+            </button>
+        </div>
+    </form>
 </div>
 
 <style>
     .experiencias-form {
         background: white;
         border-radius: 8px;
+        padding: 2rem;
+        max-width: 800px;
+        margin: 0 auto;
     }
 
     .form-header {
+        text-align: center;
         margin-bottom: 2rem;
+        border-bottom: 2px solid #3b82f6;
         padding-bottom: 1rem;
-        border-bottom: 1px solid #e5e7eb;
     }
 
     .form-header h2 {
-        margin: 0 0 0.5rem 0;
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #1f2937;
-    }
-
-    .form-header p {
         margin: 0;
-        color: #6b7280;
-        font-size: 0.875rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #3b82f6;
+        letter-spacing: 0.05em;
     }
 
-    /* Lista de experiencias */
-    .experiencias-list {
+    .experiencias-content {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
-        margin-bottom: 2rem;
+        gap: 2rem;
     }
 
-    .experiencia-item {
-        border: 1px solid #e5e7eb;
+    /* Secciones */
+    .experiencias-section {
+        background: #f9fafb;
         border-radius: 8px;
         padding: 1.5rem;
-        background: #fafafa;
-        position: relative;
-        transition: all 0.2s;
     }
 
-    .experiencia-item:hover {
-        border-color: #3b82f6;
-        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
-    }
-
-    .experiencia-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
+    .section-header {
         margin-bottom: 1rem;
-    }
-
-    .experiencia-info h4 {
-        margin: 0 0 0.25rem 0;
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #1f2937;
-    }
-
-    .experiencia-info .empresa {
-        font-weight: 500;
-        color: #3b82f6;
-        margin-bottom: 0.25rem;
-    }
-
-    .experiencia-info .periodo {
-        font-size: 0.875rem;
-        color: #6b7280;
-    }
-
-    .experiencia-actions {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .btn-icon {
-        width: 32px;
-        height: 32px;
-        border: 1px solid #d1d5db;
-        background: white;
-        border-radius: 6px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
-        color: #6b7280;
-    }
-
-    .btn-icon:hover {
-        background: #f3f4f6;
-        border-color: #9ca3af;
-        color: #374151;
-    }
-
-    .btn-icon.delete:hover {
-        background: #fef2f2;
-        border-color: #fca5a5;
-        color: #ef4444;
-    }
-
-    .experiencia-description {
-        color: #374151;
-        font-size: 0.875rem;
-        line-height: 1.5;
-        margin-bottom: 0.5rem;
-    }
-
-    .experiencia-ubicacion {
-        font-size: 0.75rem;
-        color: #6b7280;
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-    }
-
-    /* Botón agregar */
-    .btn-add-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 1rem;
-        border: 2px dashed #d1d5db;
-        background: transparent;
-        color: #6b7280;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 500;
-        transition: all 0.2s;
-        width: 100%;
-        justify-content: center;
-    }
-
-    .btn-add-item:hover {
-        border-color: #3b82f6;
-        color: #3b82f6;
-        background: #eff6ff;
-    }
-
-    /* Modal */
-    .modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem;
-    }
-
-    .modal-content {
-        background: white;
-        border-radius: 12px;
-        width: 100%;
-        max-width: 600px;
-        max-height: 90vh;
-        overflow-y: auto;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-    }
-
-    .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1.5rem;
+        padding-bottom: 0.5rem;
         border-bottom: 1px solid #e5e7eb;
     }
 
-    .modal-header h3 {
+    .section-header h3 {
         margin: 0;
-        font-size: 1.25rem;
+        font-size: 1rem;
         font-weight: 600;
-        color: #1f2937;
-    }
-
-    .modal-close {
-        width: 32px;
-        height: 32px;
-        border: none;
-        background: none;
-        cursor: pointer;
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #6b7280;
-        transition: all 0.2s;
-    }
-
-    .modal-close:hover {
-        background: #f3f4f6;
         color: #374151;
     }
 
-    /* Formulario del modal */
-    .experiencia-form {
-        padding: 1.5rem;
+    /* Campos de formulario */
+    .field-row {
         display: grid;
-        gap: 1.5rem;
-    }
-
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr auto;
         gap: 1rem;
+        align-items: end;
+        margin-bottom: 1rem;
     }
 
     .form-group {
@@ -373,510 +156,247 @@
         flex-direction: column;
     }
 
-    .form-group.full-width {
-        grid-column: 1 / -1;
+    .form-group.icon-field {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
     }
 
     .form-group label {
         margin-bottom: 0.5rem;
-        font-weight: 500;
+        font-weight: 600;
         color: #374151;
         font-size: 0.875rem;
     }
 
-    .form-input,
-    .form-textarea {
+    .form-input {
         padding: 0.75rem;
         border: 1px solid #d1d5db;
         border-radius: 6px;
         font-size: 0.875rem;
-        transition:
-            border-color 0.2s,
-            box-shadow 0.2s;
+        transition: border-color 0.2s, box-shadow 0.2s;
         background: white;
+        font-family: inherit;
+        width: 100%;
     }
 
-    .form-input:focus,
-    .form-textarea:focus {
+    .form-input:focus {
         outline: none;
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
-    .form-textarea {
-        resize: vertical;
-        min-height: 100px;
-        font-family: inherit;
-    }
-
-    .checkbox-container {
-        margin-top: 0.5rem;
+    /* Botones */
+    .add-item-btn {
+        width: 32px;
+        height: 32px;
+        background: #6b7280;
+        color: white;
+        border: none;
+        border-radius: 6px;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-    }
-
-    .form-checkbox {
-        width: 16px;
-        height: 16px;
-        accent-color: #3b82f6;
-    }
-
-    .checkbox-label {
-        font-size: 0.875rem;
-        color: #374151;
+        justify-content: center;
         cursor: pointer;
+        font-size: 1rem;
+        transition: background 0.2s;
     }
 
-    .modal-actions {
+    .add-item-btn:hover {
+        background: #4b5563;
+    }
+
+    .info-btn {
+        width: 24px;
+        height: 24px;
+        background: #6b7280;
+        color: white;
+        border: none;
+        border-radius: 50%;
         display: flex;
-        justify-content: flex-end;
-        gap: 1rem;
-        padding-top: 1rem;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 0.75rem;
+        font-weight: bold;
+        transition: background 0.2s;
+    }
+
+    .info-btn:hover {
+        background: #4b5563;
+    }
+
+    /* Botón Siguiente */
+    .form-actions {
+        display: flex;
+        justify-content: center;
+        padding-top: 2rem;
         border-top: 1px solid #e5e7eb;
     }
 
-    .btn-secondary,
-    .btn-primary {
-        padding: 0.75rem 1.5rem;
-        border: none;
-        border-radius: 6px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
-        font-size: 0.875rem;
-    }
-
-    .btn-secondary {
-        background: #f3f4f6;
-        color: #374151;
-    }
-
-    .btn-secondary:hover {
-        background: #e5e7eb;
-    }
-
-    .btn-primary {
-        background: #3b82f6;
+    .btn-siguiente {
+        padding: 0.75rem 2rem;
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
         color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
     }
 
-    .btn-primary:hover {
-        background: #2563eb;
+    .btn-siguiente:hover {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        transform: translateY(-1px);
     }
 
-    .btn-primary:disabled {
+    .btn-siguiente:disabled {
         background: #9ca3af;
         cursor: not-allowed;
-    }
-
-    /* Estados vacío */
-    .empty-state {
-        text-align: center;
-        padding: 2rem;
-        color: #6b7280;
-    }
-
-    .empty-state svg {
-        width: 48px;
-        height: 48px;
-        margin-bottom: 1rem;
-        opacity: 0.5;
+        transform: none;
+        box-shadow: none;
     }
 
     /* Responsive */
     @media (max-width: 768px) {
-        .modal-overlay {
+        .experiencias-form {
             padding: 1rem;
         }
 
-        .form-row {
+        .field-row {
             grid-template-columns: 1fr;
+            gap: 0.5rem;
         }
 
-        .experiencia-header {
-            flex-direction: column;
-            gap: 1rem;
-            align-items: flex-start;
+        .form-group.icon-field {
+            justify-content: flex-start;
+            margin-top: 0.5rem;
         }
 
-        .modal-actions {
-            flex-direction: column;
-        }
-
-        .btn-secondary,
-        .btn-primary {
+        .btn-siguiente {
             width: 100%;
         }
-    }
-
-    .form-actions {
-        display: flex;
-        justify-content: center;
-        padding: 2rem 0;
-        border-top: 1px solid #e5e7eb;
-        margin-top: 2rem;
-    }
-
-    .form-actions .btn-primary {
-        min-width: 200px;
-        padding: 0.875rem 2rem;
-        font-weight: 600;
     }
 </style>
 
 <script>
     class ExperienciasManager {
         constructor() {
-            this.experiencias = [];
-            this.currentEditingId = null;
+            this.form = document.getElementById("experiencias-form");
             this.isInitialized = false;
-
             this.init();
         }
 
         init() {
             this.bindEvents();
-
+            
             // Escuchar cuando se cargan los datos del perfil
             window.addEventListener("profile-data-loaded", (e) => {
-                this.loadExperiencias(e.detail);
+                this.populateForm(e.detail);
             });
         }
 
         bindEvents() {
-            // Botón agregar experiencia
-            document
-                .getElementById("add-experiencia-btn")
-                .addEventListener("click", () => {
-                    this.openModal();
-                });
+            // Botones agregar
+            document.getElementById("add-experiencia-btn")?.addEventListener("click", () => {
+                this.addExperienciaItem();
+            });
 
-            // Cerrar modal
-            document
-                .getElementById("close-modal-btn")
-                .addEventListener("click", () => {
-                    this.closeModal();
-                });
+            // Botón siguiente
+            document.getElementById("save-experiencias")?.addEventListener("click", () => {
+                this.saveSection();
+            });
 
-            document
-                .getElementById("cancel-experiencia-btn")
-                .addEventListener("click", () => {
-                    this.closeModal();
-                });
-
-            // Cerrar modal al hacer clic fuera
-            document
-                .getElementById("experiencia-modal")
-                .addEventListener("click", (e) => {
-                    if (e.target.id === "experiencia-modal") {
-                        this.closeModal();
-                    }
-                });
-
-            // Checkbox trabajo actual
-            document
-                .getElementById("trabajo-actual")
-                .addEventListener("change", (e) => {
-                    const fechaFinInput = document.getElementById("fecha-fin");
-                    if (e.target.checked) {
-                        fechaFinInput.value = "";
-                        fechaFinInput.disabled = true;
-                    } else {
-                        fechaFinInput.disabled = false;
-                    }
-                });
-
-            // Guardar experiencia
-            document
-                .getElementById("experiencia-form")
-                .addEventListener("submit", (e) => {
-                    e.preventDefault();
-                    this.saveExperiencia();
-                });
+            // Auto-guardado después de cambios
+            this.form?.addEventListener("change", () => {
+                setTimeout(() => {
+                    this.autoSave();
+                }, 1000);
+            });
         }
 
-        loadExperiencias(profileData) {
+        addExperienciaItem() {
+            // TODO: Agregar nueva experiencia
+            console.log("Agregando nueva experiencia");
+        }
+
+        populateForm(profileData) {
             if (!profileData || this.isInitialized) return;
-
-            this.experiencias = profileData.experienciasLaborales || [];
-            this.renderExperiencias();
+            
+            // TODO: Poblar campos con datos del perfil
+            console.log("Poblando experiencias", profileData);
             this.isInitialized = true;
-
-            console.log("Experiencias cargadas:", this.experiencias);
         }
 
-        renderExperiencias() {
-            const container = document.getElementById("experiencias-list");
+        getFormData() {
+            const formData = new FormData(this.form);
+            const data = {};
 
-            if (this.experiencias.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-                            <line x1="8" y1="21" x2="16" y2="21"/>
-                            <line x1="12" y1="17" x2="12" y2="21"/>
-                        </svg>
-                        <p>No tienes experiencias laborales registradas</p>
-                        <small>Agrega tu primera experiencia para que otros puedan conocer tu trayectoria profesional</small>
-                    </div>
-                `;
-                return;
+            // Convertir FormData a objeto
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
             }
 
-            container.innerHTML = this.experiencias
-                .map((exp) => this.renderExperienciaItem(exp))
-                .join("");
-
-            // Agregar event listeners a los botones
-            container.querySelectorAll(".btn-edit").forEach((btn) => {
-                btn.addEventListener("click", (e) => {
-                    const id = e.target.closest(".btn-edit").dataset.id;
-                    this.editExperiencia(id);
-                });
-            });
-
-            container.querySelectorAll(".btn-delete").forEach((btn) => {
-                btn.addEventListener("click", (e) => {
-                    const id = e.target.closest(".btn-delete").dataset.id;
-                    this.deleteExperiencia(id);
-                });
-            });
+            return data;
         }
 
-        renderExperienciaItem(experiencia) {
-            const fechaInicio = new Date(
-                experiencia.fechaInicio
-            ).toLocaleDateString("es-AR", {
-                month: "short",
-                year: "numeric",
-            });
-
-            const fechaFin = experiencia.fechaFin
-                ? new Date(experiencia.fechaFin).toLocaleDateString("es-AR", {
-                      month: "short",
-                      year: "numeric",
-                  })
-                : "Presente";
-
-            return `
-                <div class="experiencia-item">
-                    <div class="experiencia-header">
-                        <div class="experiencia-info">
-                            <h4>${experiencia.puesto}</h4>
-                            <div class="empresa">${experiencia.empresa}</div>
-                            <div class="periodo">${fechaInicio} - ${fechaFin}</div>
-                        </div>
-                        <div class="experiencia-actions">
-                            <button class="btn-icon btn-edit" data-id="${experiencia.id}" title="Editar">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <path d="m18 2 4 4-16 16H2v-4L18 2z"/>
-                                </svg>
-                            </button>
-                            <button class="btn-icon btn-delete delete" data-id="${experiencia.id}" title="Eliminar">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="3,6 5,6 21,6"/>
-                                    <path d="m19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    ${experiencia.descripcion ? `<div class="experiencia-description">${experiencia.descripcion}</div>` : ""}
-                    ${
-                        experiencia.ubicacion
-                            ? `
-                        <div class="experiencia-ubicacion">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                                <circle cx="12" cy="10" r="3"/>
-                            </svg>
-                            ${experiencia.ubicacion}
-                        </div>
-                    `
-                            : ""
-                    }
-                </div>
-            `;
-        }
-
-        openModal(experiencia = null) {
-            this.currentEditingId = experiencia ? experiencia.id : null;
-
-            const modal = document.getElementById("experiencia-modal");
-            const title = document.getElementById("modal-title");
-            const form = document.getElementById("experiencia-form");
-
-            title.textContent = experiencia
-                ? "Editar Experiencia"
-                : "Agregar Experiencia";
-
-            if (experiencia) {
-                this.populateForm(experiencia);
-            } else {
-                form.reset();
-                document.getElementById("fecha-fin").disabled = false;
-            }
-
-            modal.style.display = "flex";
-            document.body.style.overflow = "hidden";
-
-            // Enfocar el primer campo
-            setTimeout(() => {
-                document.getElementById("puesto").focus();
-            }, 100);
-        }
-
-        closeModal() {
-            const modal = document.getElementById("experiencia-modal");
-            modal.style.display = "none";
-            document.body.style.overflow = "auto";
-
-            this.currentEditingId = null;
-        }
-
-        populateForm(experiencia) {
-            document.getElementById("experiencia-id").value =
-                experiencia.id || "";
-            document.getElementById("puesto").value = experiencia.puesto || "";
-            document.getElementById("empresa").value =
-                experiencia.empresa || "";
-            document.getElementById("fecha-inicio").value =
-                experiencia.fechaInicio || "";
-            document.getElementById("fecha-fin").value =
-                experiencia.fechaFin || "";
-            document.getElementById("descripcion").value =
-                experiencia.descripcion || "";
-            document.getElementById("ubicacion").value =
-                experiencia.ubicacion || "";
-
-            const trabajoActual = !experiencia.fechaFin;
-            document.getElementById("trabajo-actual").checked = trabajoActual;
-            document.getElementById("fecha-fin").disabled = trabajoActual;
-        }
-
-        editExperiencia(id) {
-            const experiencia = this.experiencias.find((exp) => exp.id == id);
-            if (experiencia) {
-                this.openModal(experiencia);
-            }
-        }
-
-        async deleteExperiencia(id) {
-            if (
-                !confirm(
-                    "¿Estás seguro de que quieres eliminar esta experiencia?"
-                )
-            ) {
-                return;
-            }
-
+        async saveSection() {
             try {
-                // Eliminar de la lista local
-                this.experiencias = this.experiencias.filter(
-                    (exp) => exp.id != id
-                );
-                this.renderExperiencias();
-
-                // Emitir evento para sincronizar con el backend
-                window.dispatchEvent(
-                    new CustomEvent("experiencia-deleted", {
-                        detail: { id },
-                    })
-                );
-
-                this.showNotification(
-                    "Experiencia eliminada correctamente",
-                    "success"
-                );
-            } catch (error) {
-                console.error("Error eliminando experiencia:", error);
-                this.showNotification(
-                    "Error al eliminar la experiencia",
-                    "error"
-                );
-            }
-        }
-
-        async saveExperiencia() {
-            const form = document.getElementById("experiencia-form");
-            const formData = new FormData(form);
-
-            // Validar campos requeridos
-            if (
-                !formData.get("puesto") ||
-                !formData.get("empresa") ||
-                !formData.get("fechaInicio")
-            ) {
-                this.showNotification(
-                    "Por favor completa todos los campos obligatorios",
-                    "error"
-                );
-                return;
-            }
-
-            try {
-                const btn = document.getElementById("save-experiencia-btn");
-                btn.disabled = true;
-                btn.textContent = "Guardando...";
-
-                // Crear objeto de experiencia
-                const experienciaData = {
-                    id: this.currentEditingId || Date.now(),
-                    puesto: formData.get("puesto"),
-                    empresa: formData.get("empresa"),
-                    fechaInicio: formData.get("fechaInicio"),
-                    fechaFin: formData.get("trabajoActual")
-                        ? null
-                        : formData.get("fechaFin"),
-                    descripcion: formData.get("descripcion"),
-                    ubicacion: formData.get("ubicacion"),
-                };
-
-                // Actualizar o agregar en la lista local
-                if (this.currentEditingId) {
-                    const index = this.experiencias.findIndex(
-                        (exp) => exp.id == this.currentEditingId
-                    );
-                    if (index !== -1) {
-                        this.experiencias[index] = experienciaData;
-                    }
-                } else {
-                    this.experiencias.push(experienciaData);
+                const btn = document.getElementById("save-experiencias");
+                if (btn) {
+                    btn.disabled = true;
+                    btn.textContent = "Guardando...";
                 }
 
-                // Re-renderizar lista
-                this.renderExperiencias();
+                const data = this.getFormData();
 
-                // Emitir evento para sincronizar con el backend
+                // Emitir evento para que el controlador principal maneje el guardado
                 window.dispatchEvent(
-                    new CustomEvent("experiencia-saved", {
-                        detail: experienciaData,
+                    new CustomEvent("save-section-data", {
+                        detail: { section: "experiencias", data },
                     })
                 );
 
-                this.showNotification(
-                    "Experiencia guardada correctamente",
-                    "success"
-                );
-                this.closeModal();
+                this.showNotification("Experiencias guardadas", "success");
+
+                // Navegar a la siguiente sección después de guardar
+                setTimeout(() => {
+                    const profileEditor = (window as any).profileEditor;
+                    if (profileEditor) {
+                        profileEditor.switchSection("habilidades");
+                    }
+                }, 500);
             } catch (error) {
-                console.error("Error guardando experiencia:", error);
-                this.showNotification(
-                    "Error al guardar la experiencia",
-                    "error"
-                );
+                console.error("Error guardando experiencias:", error);
+                this.showNotification("Error al guardar las experiencias", "error");
             } finally {
-                const btn = document.getElementById("save-experiencia-btn");
-                btn.disabled = false;
-                btn.textContent = "Siguiente";
+                const btn = document.getElementById("save-experiencias");
+                if (btn) {
+                    (btn as HTMLButtonElement).disabled = false;
+                    btn.textContent = "Siguiente";
+                }
             }
         }
 
-        getExperienciasData() {
-            return this.experiencias;
+        async autoSave() {
+            const data = this.getFormData();
+
+            // Emitir evento para auto-guardado
+            window.dispatchEvent(
+                new CustomEvent("auto-save-data", {
+                    detail: { section: "experiencias", data },
+                })
+            );
+
+            console.log("Auto-guardando experiencias...");
         }
 
-        showNotification(message, type) {
+        showNotification(message: string, type: string) {
+            // Reutilizar el sistema de notificaciones del componente principal
             window.dispatchEvent(
                 new CustomEvent("show-notification", {
                     detail: { message, type },
@@ -887,17 +407,6 @@
 
     // Inicializar cuando el DOM esté listo
     document.addEventListener("DOMContentLoaded", () => {
-        window.experienciasManager = new ExperienciasManager();
-
-        // Event listener para el botón "Siguiente"
-        const nextBtn = document.getElementById("next-section-btn");
-        if (nextBtn) {
-            nextBtn.addEventListener("click", () => {
-                const profileEditor = window.profileEditor;
-                if (profileEditor) {
-                    profileEditor.switchSection("formaciones");
-                }
-            });
-        }
+        (window as any).experienciasManager = new ExperienciasManager();
     });
 </script>

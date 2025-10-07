@@ -1,592 +1,176 @@
 ---
-// Componente para gestionar habilidades y cursos
+// Componente para gestionar habilidades
 ---
 
-<div class="cursos-form">
+<div class="habilidades-form">
     <div class="form-header">
-        <h2>Habilidades y Cursos</h2>
-        <p>
-            Agrega tus habilidades técnicas, cursos completados y
-            certificaciones
-        </p>
+        <h2>HABILIDADES</h2>
     </div>
 
-    <!-- Sección de Habilidades -->
-    <div class="section-container">
-        <div class="section-header">
-            <h3>Habilidades Técnicas</h3>
-            <button class="btn-add-skill" id="add-habilidad-btn">
-                <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                Agregar Habilidad
-            </button>
-        </div>
-
-        <div class="habilidades-container" id="habilidades-container">
-            <!-- Las habilidades se cargarán dinámicamente -->
-        </div>
-
-        <!-- Input para nueva habilidad -->
-        <div
-            class="add-skill-input"
-            id="add-skill-input"
-            style="display: none;">
-            <div class="skill-input-group">
-                <input
-                    type="text"
-                    id="nueva-habilidad"
-                    placeholder="Ej: JavaScript, Photoshop, Gestión de equipos..."
-                    class="form-input"
-                />
-                <select id="nivel-habilidad" class="form-select">
-                    <option value="Básico">Básico</option>
-                    <option value="Intermedio">Intermedio</option>
-                    <option value="Avanzado" selected>Avanzado</option>
-                    <option value="Experto">Experto</option>
-                </select>
-                <button class="btn-confirm" id="confirm-habilidad">✓</button>
-                <button class="btn-cancel" id="cancel-habilidad">✕</button>
+    <form class="habilidades-content" id="habilidades-form">
+        <!-- Sección: Técnicas -->
+        <div class="habilidades-section">
+            <div class="section-header">
+                <h3>Técnicas:</h3>
             </div>
-        </div>
-    </div>
-
-    <!-- Sección de Cursos -->
-    <div class="section-container">
-        <div class="section-header">
-            <h3>Cursos y Certificaciones</h3>
-            <button class="btn-add-item" id="add-curso-btn">
-                <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                Agregar Curso
-            </button>
-        </div>
-
-        <div class="cursos-list" id="cursos-list">
-            <!-- Los cursos se cargarán dinámicamente -->
-        </div>
-    </div>
-
-    <!-- Modal para editar curso -->
-    <div class="modal-overlay" id="curso-modal" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-title">Agregar Curso</h3>
-                <button class="modal-close" id="close-modal-btn">
-                    <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
+            
+            <div class="field-row">
+                <div class="form-group">
+                    <label for="lenguajes">Lenguajes:</label>
+                    <select 
+                        id="lenguajes"
+                        name="lenguajes"
+                        class="form-select"
+                    >
+                        <option value="">Python, Java...</option>
+                        <option value="Python">Python</option>
+                        <option value="Java">Java</option>
+                        <option value="JavaScript">JavaScript</option>
+                        <option value="TypeScript">TypeScript</option>
+                        <option value="C++">C++</option>
+                        <option value="C#">C#</option>
+                        <option value="PHP">PHP</option>
+                        <option value="Go">Go</option>
+                        <option value="Rust">Rust</option>
+                        <option value="Swift">Swift</option>
+                    </select>
+                </div>
+                <div class="form-group icon-field">
+                    <button type="button" class="add-item-btn">
+                        <span>⚙</span>
+                    </button>
+                </div>
             </div>
 
-            <form class="curso-form" id="curso-form">
-                <input type="hidden" id="curso-id" name="id" />
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="nombre-curso">Nombre del Curso *</label>
-                        <input
-                            type="text"
-                            id="nombre-curso"
-                            name="nombreCurso"
-                            required
-                            placeholder="Ej: Desarrollo Web Full Stack"
-                            class="form-input"
-                        />
-                    </div>
-
-                    <div class="form-group">
-                        <label for="proveedor">Institución/Plataforma *</label>
-                        <input
-                            type="text"
-                            id="proveedor"
-                            name="proveedor"
-                            required
-                            placeholder="Ej: Coursera, Udemy, Universidad..."
-                            class="form-input"
-                        />
-                    </div>
+            <div class="field-row">
+                <div class="form-group">
+                    <label for="herramientas">Herramientas:</label>
+                    <select 
+                        id="herramientas"
+                        name="herramientas"
+                        class="form-select"
+                    >
+                        <option value="">Figma, AutoCad...</option>
+                        <option value="Figma">Figma</option>
+                        <option value="AutoCAD">AutoCAD</option>
+                        <option value="Photoshop">Photoshop</option>
+                        <option value="Illustrator">Illustrator</option>
+                        <option value="InDesign">InDesign</option>
+                        <option value="Sketch">Sketch</option>
+                        <option value="XD">Adobe XD</option>
+                        <option value="Blender">Blender</option>
+                        <option value="Unity">Unity</option>
+                        <option value="Git">Git</option>
+                        <option value="Docker">Docker</option>
+                        <option value="Kubernetes">Kubernetes</option>
+                    </select>
                 </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="fecha-completado"
-                            >Fecha de Finalización</label
-                        >
-                        <input
-                            type="date"
-                            id="fecha-completado"
-                            name="fechaCompletado"
-                            class="form-input"
-                        />
-                    </div>
-
-                    <div class="form-group">
-                        <label for="duracion">Duración</label>
-                        <input
-                            type="text"
-                            id="duracion"
-                            name="duracion"
-                            placeholder="Ej: 40 horas, 6 semanas..."
-                            class="form-input"
-                        />
-                    </div>
+                <div class="form-group icon-field">
+                    <button type="button" class="add-item-btn">
+                        <span>⚙</span>
+                    </button>
                 </div>
+            </div>
+        </div>
 
+        <!-- Sección: Blandas -->
+        <div class="blandas-section">
+            <div class="section-header">
+                <h3>Blandas:</h3>
+            </div>
+            
+            <div class="field-row">
                 <div class="form-group full-width">
-                    <label for="descripcion-curso">Descripción del Curso</label>
-                    <textarea
-                        id="descripcion-curso"
-                        name="descripcion"
-                        rows="3"
-                        placeholder="Describe lo que aprendiste, tecnologías utilizadas, proyectos realizados..."
-                        class="form-textarea"></textarea>
+                    <textarea 
+                        id="habilidades-blandas"
+                        name="habilidadesBlandas"
+                        class="form-textarea"
+                        placeholder="Buen desempeño en equipo..."
+                        rows="4"
+                    ></textarea>
                 </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="url-certificado">URL del Certificado</label>
-                        <input
-                            type="url"
-                            id="url-certificado"
-                            name="urlCertificado"
-                            placeholder="https://certificado.com/verify/123"
-                            class="form-input"
-                        />
-                    </div>
-
-                    <div class="form-group">
-                        <label for="calificacion">Calificación</label>
-                        <input
-                            type="text"
-                            id="calificacion"
-                            name="calificacion"
-                            placeholder="Ej: 95/100, Excelente, A+"
-                            class="form-input"
-                        />
-                    </div>
-                </div>
-
-                <div class="modal-actions">
-                    <button
-                        type="button"
-                        class="btn-secondary"
-                        id="cancel-curso-btn">
-                        Cancelar
-                    </button>
-                    <button
-                        type="submit"
-                        class="btn-primary"
-                        id="save-curso-btn">
-                        Siguiente
+                <div class="form-group icon-field">
+                    <button type="button" class="add-item-btn">
+                        <span>⚙</span>
                     </button>
                 </div>
-            </form>
+            </div>
         </div>
-    </div>
+
+        <!-- Botón Siguiente -->
+        <div class="form-actions">
+            <button 
+                type="button" 
+                class="btn-siguiente"
+                id="save-habilidades">
+                Siguiente
+            </button>
+        </div>
+    </form>
 </div>
 
 <style>
-    .cursos-form {
+    .habilidades-form {
         background: white;
         border-radius: 8px;
+        padding: 2rem;
+        max-width: 800px;
+        margin: 0 auto;
     }
 
     .form-header {
+        text-align: center;
         margin-bottom: 2rem;
+        border-bottom: 2px solid #3b82f6;
         padding-bottom: 1rem;
-        border-bottom: 1px solid #e5e7eb;
     }
 
     .form-header h2 {
-        margin: 0 0 0.5rem 0;
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #1f2937;
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #3b82f6;
+        letter-spacing: 0.05em;
     }
 
-    .form-header p {
-        margin: 0;
-        color: #6b7280;
-        font-size: 0.875rem;
+    .habilidades-content {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
     }
 
     /* Secciones */
-    .section-container {
-        margin-bottom: 2rem;
-        padding: 1.5rem;
-        border: 1px solid #e5e7eb;
+    .habilidades-section,
+    .blandas-section {
+        background: #f9fafb;
         border-radius: 8px;
-        background: #fafafa;
+        padding: 1.5rem;
     }
 
     .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #e5e7eb;
     }
 
     .section-header h3 {
         margin: 0;
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 600;
-        color: #1f2937;
+        color: #374151;
     }
 
-    /* Habilidades */
-    .habilidades-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
+    /* Campos de formulario */
+    .field-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 1rem;
+        align-items: end;
         margin-bottom: 1rem;
     }
 
-    .habilidad-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 0.75rem;
-        background: white;
-        border: 1px solid #d1d5db;
-        border-radius: 20px;
-        font-size: 0.875rem;
-        transition: all 0.2s;
-    }
-
-    .habilidad-item:hover {
-        border-color: #f59e0b;
-        box-shadow: 0 2px 4px rgba(245, 158, 11, 0.1);
-    }
-
-    .habilidad-nombre {
-        font-weight: 500;
-        color: #1f2937;
-    }
-
-    .habilidad-nivel {
-        font-size: 0.75rem;
-        padding: 0.125rem 0.5rem;
-        border-radius: 10px;
-        font-weight: 500;
-    }
-
-    .habilidad-nivel.basico {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .habilidad-nivel.intermedio {
-        background: #dbeafe;
-        color: #1e40af;
-    }
-
-    .habilidad-nivel.avanzado {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .habilidad-nivel.experto {
-        background: #fde2e8;
-        color: #be185d;
-    }
-
-    .btn-remove-skill {
-        width: 16px;
-        height: 16px;
-        border: none;
-        background: #ef4444;
-        color: white;
-        border-radius: 50%;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-        transition: all 0.2s;
-    }
-
-    .btn-remove-skill:hover {
-        background: #dc2626;
-        transform: scale(1.1);
-    }
-
-    /* Añadir habilidad */
-    .btn-add-skill {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        background: #f59e0b;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-size: 0.875rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .btn-add-skill:hover {
-        background: #d97706;
-    }
-
-    .add-skill-input {
-        margin-top: 1rem;
-    }
-
-    .skill-input-group {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-    }
-
-    .skill-input-group .form-input {
-        flex: 1;
-    }
-
-    .skill-input-group .form-select {
-        width: auto;
-        min-width: 120px;
-    }
-
-    .btn-confirm,
-    .btn-cancel {
-        width: 32px;
-        height: 32px;
-        border: none;
-        border-radius: 50%;
-        cursor: pointer;
-        font-weight: bold;
-        transition: all 0.2s;
-    }
-
-    .btn-confirm {
-        background: #10b981;
-        color: white;
-    }
-
-    .btn-confirm:hover {
-        background: #059669;
-    }
-
-    .btn-cancel {
-        background: #ef4444;
-        color: white;
-    }
-
-    .btn-cancel:hover {
-        background: #dc2626;
-    }
-
-    /* Cursos */
-    .cursos-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .curso-item {
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        padding: 1.5rem;
-        background: white;
-        transition: all 0.2s;
-    }
-
-    .curso-item:hover {
-        border-color: #f59e0b;
-        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.1);
-    }
-
-    .curso-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 1rem;
-    }
-
-    .curso-info h4 {
-        margin: 0 0 0.25rem 0;
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #1f2937;
-    }
-
-    .curso-info .proveedor {
-        font-weight: 500;
-        color: #f59e0b;
-        margin-bottom: 0.25rem;
-    }
-
-    .curso-info .fecha {
-        font-size: 0.875rem;
-        color: #6b7280;
-    }
-
-    .curso-actions {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .btn-icon {
-        width: 32px;
-        height: 32px;
-        border: 1px solid #d1d5db;
-        background: white;
-        border-radius: 6px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
-        color: #6b7280;
-    }
-
-    .btn-icon:hover {
-        background: #f3f4f6;
-        border-color: #9ca3af;
-        color: #374151;
-    }
-
-    .btn-icon.delete:hover {
-        background: #fef2f2;
-        border-color: #fca5a5;
-        color: #ef4444;
-    }
-
-    .curso-description {
-        color: #374151;
-        font-size: 0.875rem;
-        line-height: 1.5;
-        margin-bottom: 0.5rem;
-    }
-
-    .curso-detalles {
-        display: flex;
-        gap: 1rem;
-        font-size: 0.75rem;
-        color: #6b7280;
-        flex-wrap: wrap;
-    }
-
-    .curso-detalles span {
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-    }
-
-    /* Botón agregar item */
-    .btn-add-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 1rem;
-        border: 2px dashed #d1d5db;
-        background: transparent;
-        color: #6b7280;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 500;
-        transition: all 0.2s;
-        width: 100%;
-        justify-content: center;
-    }
-
-    .btn-add-item:hover {
-        border-color: #f59e0b;
-        color: #f59e0b;
-        background: #fffbeb;
-    }
-
-    /* Modal - reutilizando estilos anteriores */
-    .modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem;
-    }
-
-    .modal-content {
-        background: white;
-        border-radius: 12px;
-        width: 100%;
-        max-width: 600px;
-        max-height: 90vh;
-        overflow-y: auto;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-    }
-
-    .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1.5rem;
-        border-bottom: 1px solid #e5e7eb;
-    }
-
-    .modal-header h3 {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #1f2937;
-    }
-
-    .modal-close {
-        width: 32px;
-        height: 32px;
-        border: none;
-        background: none;
-        cursor: pointer;
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #6b7280;
-        transition: all 0.2s;
-    }
-
-    .modal-close:hover {
-        background: #f3f4f6;
-        color: #374151;
-    }
-
-    .curso-form {
-        padding: 1.5rem;
-        display: grid;
-        gap: 1.5rem;
-    }
-
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
+    .field-row:last-child {
+        margin-bottom: 0;
     }
 
     .form-group {
@@ -595,590 +179,227 @@
     }
 
     .form-group.full-width {
-        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    .form-group.icon-field {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
     }
 
     .form-group label {
         margin-bottom: 0.5rem;
-        font-weight: 500;
+        font-weight: 600;
         color: #374151;
         font-size: 0.875rem;
     }
 
-    .form-input,
-    .form-textarea,
-    .form-select {
+    .form-select,
+    .form-textarea {
         padding: 0.75rem;
         border: 1px solid #d1d5db;
         border-radius: 6px;
         font-size: 0.875rem;
-        transition:
-            border-color 0.2s,
-            box-shadow 0.2s;
+        transition: border-color 0.2s, box-shadow 0.2s;
         background: white;
+        font-family: inherit;
+        width: 100%;
     }
 
-    .form-input:focus,
-    .form-textarea:focus,
-    .form-select:focus {
+    .form-select:focus,
+    .form-textarea:focus {
         outline: none;
-        border-color: #f59e0b;
-        box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
     .form-textarea {
         resize: vertical;
-        min-height: 80px;
-        font-family: inherit;
+        min-height: 100px;
     }
 
-    .modal-actions {
+    /* Botones */
+    .add-item-btn {
+        width: 32px;
+        height: 32px;
+        background: #6b7280;
+        color: white;
+        border: none;
+        border-radius: 6px;
         display: flex;
-        justify-content: flex-end;
-        gap: 1rem;
-        padding-top: 1rem;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background 0.2s;
+    }
+
+    .add-item-btn:hover {
+        background: #4b5563;
+    }
+
+    /* Botón Siguiente */
+    .form-actions {
+        display: flex;
+        justify-content: center;
+        padding-top: 2rem;
         border-top: 1px solid #e5e7eb;
     }
 
-    .btn-secondary,
-    .btn-primary {
-        padding: 0.75rem 1.5rem;
-        border: none;
-        border-radius: 6px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
-        font-size: 0.875rem;
-    }
-
-    .btn-secondary {
-        background: #f3f4f6;
-        color: #374151;
-    }
-
-    .btn-secondary:hover {
-        background: #e5e7eb;
-    }
-
-    .btn-primary {
-        background: #f59e0b;
+    .btn-siguiente {
+        padding: 0.75rem 2rem;
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
         color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
     }
 
-    .btn-primary:hover {
-        background: #d97706;
+    .btn-siguiente:hover {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        transform: translateY(-1px);
     }
 
-    .btn-primary:disabled {
+    .btn-siguiente:disabled {
         background: #9ca3af;
         cursor: not-allowed;
-    }
-
-    /* Estados vacío */
-    .empty-state {
-        text-align: center;
-        padding: 2rem;
-        color: #6b7280;
-    }
-
-    .empty-state svg {
-        width: 48px;
-        height: 48px;
-        margin-bottom: 1rem;
-        opacity: 0.5;
+        transform: none;
+        box-shadow: none;
     }
 
     /* Responsive */
     @media (max-width: 768px) {
-        .modal-overlay {
+        .habilidades-form {
             padding: 1rem;
         }
 
-        .form-row {
+        .field-row {
             grid-template-columns: 1fr;
-        }
-
-        .curso-header {
-            flex-direction: column;
-            gap: 1rem;
-            align-items: flex-start;
-        }
-
-        .modal-actions {
-            flex-direction: column;
-        }
-
-        .btn-secondary,
-        .btn-primary {
-            width: 100%;
-        }
-
-        .skill-input-group {
-            flex-direction: column;
-        }
-
-        .skill-input-group .form-input,
-        .skill-input-group .form-select {
-            width: 100%;
-        }
-
-        .curso-detalles {
-            flex-direction: column;
             gap: 0.5rem;
         }
 
-        .habilidades-container {
-            gap: 0.75rem;
+        .form-group.icon-field {
+            justify-content: flex-start;
+            margin-top: 0.5rem;
+        }
+
+        .btn-siguiente {
+            width: 100%;
         }
     }
 </style>
 
 <script>
-    class CursosManager {
+    class HabilidadesManager {
         constructor() {
-            this.habilidades = [];
-            this.cursos = [];
-            this.currentEditingId = null;
+            this.form = document.getElementById("habilidades-form");
             this.isInitialized = false;
-
             this.init();
         }
 
         init() {
             this.bindEvents();
-
+            
             // Escuchar cuando se cargan los datos del perfil
             window.addEventListener("profile-data-loaded", (e) => {
-                this.loadData(e.detail);
+                this.populateForm(e.detail);
             });
         }
 
         bindEvents() {
-            // Botones de habilidades
-            document
-                .getElementById("add-habilidad-btn")
-                .addEventListener("click", () => {
-                    this.showAddHabilidadInput();
-                });
+            // Botón siguiente
+            document.getElementById("save-habilidades")?.addEventListener("click", () => {
+                this.saveSection();
+            });
 
-            document
-                .getElementById("confirm-habilidad")
-                .addEventListener("click", () => {
-                    this.addHabilidad();
-                });
-
-            document
-                .getElementById("cancel-habilidad")
-                .addEventListener("click", () => {
-                    this.hideAddHabilidadInput();
-                });
-
-            // Enter para confirmar habilidad
-            document
-                .getElementById("nueva-habilidad")
-                .addEventListener("keypress", (e) => {
-                    if (e.key === "Enter") {
-                        this.addHabilidad();
-                    }
-                });
-
-            // Botones de cursos
-            document
-                .getElementById("add-curso-btn")
-                .addEventListener("click", () => {
-                    this.openModal();
-                });
-
-            // Modal
-            document
-                .getElementById("close-modal-btn")
-                .addEventListener("click", () => {
-                    this.closeModal();
-                });
-
-            document
-                .getElementById("cancel-curso-btn")
-                .addEventListener("click", () => {
-                    this.closeModal();
-                });
-
-            document
-                .getElementById("curso-modal")
-                .addEventListener("click", (e) => {
-                    if (e.target.id === "curso-modal") {
-                        this.closeModal();
-                    }
-                });
-
-            // Guardar curso
-            document
-                .getElementById("curso-form")
-                .addEventListener("submit", (e) => {
-                    e.preventDefault();
-                    this.saveCurso();
-                });
+            // Auto-guardado después de cambios
+            this.form?.addEventListener("change", () => {
+                setTimeout(() => {
+                    this.autoSave();
+                }, 1000);
+            });
         }
 
-        loadData(profileData) {
+        populateForm(profileData) {
             if (!profileData || this.isInitialized) return;
-
-            this.habilidades = profileData.habilidades || [];
-            this.cursos = profileData.cursos || [];
-
-            this.renderHabilidades();
-            this.renderCursos();
+            
+            // TODO: Poblar campos con datos del perfil
+            console.log("Poblando habilidades", profileData);
             this.isInitialized = true;
-
-            console.log("Habilidades y cursos cargados:", {
-                habilidades: this.habilidades,
-                cursos: this.cursos,
-            });
         }
 
-        // Gestión de Habilidades
-        showAddHabilidadInput() {
-            document.getElementById("add-skill-input").style.display = "block";
-            document.getElementById("nueva-habilidad").focus();
-        }
+        getFormData() {
+            const formData = new FormData(this.form);
+            const data = {};
 
-        hideAddHabilidadInput() {
-            document.getElementById("add-skill-input").style.display = "none";
-            document.getElementById("nueva-habilidad").value = "";
-        }
-
-        addHabilidad() {
-            const nombre = document
-                .getElementById("nueva-habilidad")
-                .value.trim();
-            const nivel = document.getElementById("nivel-habilidad").value;
-
-            if (!nombre) {
-                this.showNotification(
-                    "Por favor ingresa el nombre de la habilidad",
-                    "error"
-                );
-                return;
+            // Convertir FormData a objeto
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
             }
 
-            // Verificar que no esté duplicada
-            if (
-                this.habilidades.some(
-                    (h) => h.nombre.toLowerCase() === nombre.toLowerCase()
-                )
-            ) {
-                this.showNotification(
-                    "Esta habilidad ya está agregada",
-                    "error"
-                );
-                return;
-            }
-
-            const nuevaHabilidad = {
-                id: Date.now(),
-                nombre,
-                nivel,
-            };
-
-            this.habilidades.push(nuevaHabilidad);
-            this.renderHabilidades();
-            this.hideAddHabilidadInput();
-
-            // Emitir evento
-            window.dispatchEvent(
-                new CustomEvent("habilidad-added", {
-                    detail: nuevaHabilidad,
-                })
-            );
-
-            this.showNotification(
-                "Habilidad agregada correctamente",
-                "success"
-            );
+            return data;
         }
 
-        removeHabilidad(id) {
-            this.habilidades = this.habilidades.filter((h) => h.id != id);
-            this.renderHabilidades();
-
-            window.dispatchEvent(
-                new CustomEvent("habilidad-removed", {
-                    detail: { id },
-                })
-            );
-
-            this.showNotification("Habilidad eliminada", "success");
-        }
-
-        renderHabilidades() {
-            const container = document.getElementById("habilidades-container");
-
-            if (this.habilidades.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state" style="grid-column: 1 / -1;">
-                        <p style="margin: 0; font-size: 0.875rem;">No tienes habilidades agregadas</p>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = this.habilidades
-                .map(
-                    (habilidad) => `
-                <div class="habilidad-item">
-                    <span class="habilidad-nombre">${habilidad.nombre}</span>
-                    <span class="habilidad-nivel ${habilidad.nivel.toLowerCase()}">${habilidad.nivel}</span>
-                    <button class="btn-remove-skill" onclick="window.cursosManager.removeHabilidad(${habilidad.id})">×</button>
-                </div>
-            `
-                )
-                .join("");
-        }
-
-        // Gestión de Cursos
-        renderCursos() {
-            const container = document.getElementById("cursos-list");
-
-            if (this.cursos.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                            <polyline points="9,22 9,12 15,12 15,22"/>
-                        </svg>
-                        <p>No tienes cursos registrados</p>
-                        <small>Agrega tus cursos y certificaciones para mostrar tu formación continua</small>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = this.cursos
-                .map((curso) => this.renderCursoItem(curso))
-                .join("");
-
-            // Agregar event listeners
-            container.querySelectorAll(".btn-edit").forEach((btn) => {
-                btn.addEventListener("click", (e) => {
-                    const id = e.target.closest(".btn-edit").dataset.id;
-                    this.editCurso(id);
-                });
-            });
-
-            container.querySelectorAll(".btn-delete").forEach((btn) => {
-                btn.addEventListener("click", (e) => {
-                    const id = e.target.closest(".btn-delete").dataset.id;
-                    this.deleteCurso(id);
-                });
-            });
-        }
-
-        renderCursoItem(curso) {
-            const fecha = curso.fechaCompletado
-                ? new Date(curso.fechaCompletado).toLocaleDateString("es-AR", {
-                      month: "short",
-                      year: "numeric",
-                  })
-                : "";
-
-            return `
-                <div class="curso-item">
-                    <div class="curso-header">
-                        <div class="curso-info">
-                            <h4>${curso.nombreCurso}</h4>
-                            <div class="proveedor">${curso.proveedor}</div>
-                            ${fecha ? `<div class="fecha">Completado: ${fecha}</div>` : ""}
-                        </div>
-                        <div class="curso-actions">
-                            ${
-                                curso.urlCertificado
-                                    ? `
-                                <a href="${curso.urlCertificado}" target="_blank" class="btn-icon" title="Ver certificado">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                                        <polyline points="15,3 21,3 21,9"/>
-                                        <line x1="10" y1="14" x2="21" y2="3"/>
-                                    </svg>
-                                </a>
-                            `
-                                    : ""
-                            }
-                            <button class="btn-icon btn-edit" data-id="${curso.id}" title="Editar">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <path d="m18 2 4 4-16 16H2v-4L18 2z"/>
-                                </svg>
-                            </button>
-                            <button class="btn-icon btn-delete delete" data-id="${curso.id}" title="Eliminar">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="3,6 5,6 21,6"/>
-                                    <path d="m19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    ${curso.descripcion ? `<div class="curso-description">${curso.descripcion}</div>` : ""}
-                    
-                    <div class="curso-detalles">
-                        ${curso.duracion ? `<span>⏱️ ${curso.duracion}</span>` : ""}
-                        ${curso.calificacion ? `<span>📊 ${curso.calificacion}</span>` : ""}
-                        ${curso.urlCertificado ? `<span>🏆 Certificado disponible</span>` : ""}
-                    </div>
-                </div>
-            `;
-        }
-
-        openModal(curso = null) {
-            this.currentEditingId = curso ? curso.id : null;
-
-            const modal = document.getElementById("curso-modal");
-            const title = document.getElementById("modal-title");
-            const form = document.getElementById("curso-form");
-
-            title.textContent = curso ? "Editar Curso" : "Agregar Curso";
-
-            if (curso) {
-                this.populateForm(curso);
-            } else {
-                form.reset();
-            }
-
-            modal.style.display = "flex";
-            document.body.style.overflow = "hidden";
-
-            setTimeout(() => {
-                document.getElementById("nombre-curso").focus();
-            }, 100);
-        }
-
-        closeModal() {
-            const modal = document.getElementById("curso-modal");
-            modal.style.display = "none";
-            document.body.style.overflow = "auto";
-
-            this.currentEditingId = null;
-        }
-
-        populateForm(curso) {
-            document.getElementById("curso-id").value = curso.id || "";
-            document.getElementById("nombre-curso").value =
-                curso.nombreCurso || "";
-            document.getElementById("proveedor").value = curso.proveedor || "";
-            document.getElementById("fecha-completado").value =
-                curso.fechaCompletado || "";
-            document.getElementById("duracion").value = curso.duracion || "";
-            document.getElementById("descripcion-curso").value =
-                curso.descripcion || "";
-            document.getElementById("url-certificado").value =
-                curso.urlCertificado || "";
-            document.getElementById("calificacion").value =
-                curso.calificacion || "";
-        }
-
-        editCurso(id) {
-            const curso = this.cursos.find((c) => c.id == id);
-            if (curso) {
-                this.openModal(curso);
-            }
-        }
-
-        async deleteCurso(id) {
-            if (!confirm("¿Estás seguro de que quieres eliminar este curso?")) {
-                return;
-            }
-
+        async saveSection() {
             try {
-                this.cursos = this.cursos.filter((c) => c.id != id);
-                this.renderCursos();
-
-                window.dispatchEvent(
-                    new CustomEvent("curso-deleted", {
-                        detail: { id },
-                    })
-                );
-
-                this.showNotification(
-                    "Curso eliminado correctamente",
-                    "success"
-                );
-            } catch (error) {
-                console.error("Error eliminando curso:", error);
-                this.showNotification("Error al eliminar el curso", "error");
-            }
-        }
-
-        async saveCurso() {
-            const form = document.getElementById("curso-form");
-            const formData = new FormData(form);
-
-            // Validar campos requeridos
-            if (!formData.get("nombreCurso") || !formData.get("proveedor")) {
-                this.showNotification(
-                    "Por favor completa todos los campos obligatorios",
-                    "error"
-                );
-                return;
-            }
-
-            try {
-                const btn = document.getElementById("save-curso-btn");
-                btn.disabled = true;
-                btn.textContent = "Guardando...";
-
-                const cursoData = {
-                    id: this.currentEditingId || Date.now(),
-                    nombreCurso: formData.get("nombreCurso"),
-                    proveedor: formData.get("proveedor"),
-                    fechaCompletado: formData.get("fechaCompletado"),
-                    duracion: formData.get("duracion"),
-                    descripcion: formData.get("descripcion"),
-                    urlCertificado: formData.get("urlCertificado"),
-                    calificacion: formData.get("calificacion"),
-                };
-
-                // Actualizar lista local
-                if (this.currentEditingId) {
-                    const index = this.cursos.findIndex(
-                        (c) => c.id == this.currentEditingId
-                    );
-                    if (index !== -1) {
-                        this.cursos[index] = cursoData;
-                    }
-                } else {
-                    this.cursos.push(cursoData);
+                const btn = document.getElementById("save-habilidades");
+                if (btn) {
+                    btn.disabled = true;
+                    btn.textContent = "Guardando...";
                 }
 
-                this.renderCursos();
+                const data = this.getFormData();
 
+                // Emitir evento para que el controlador principal maneje el guardado
                 window.dispatchEvent(
-                    new CustomEvent("curso-saved", {
-                        detail: cursoData,
+                    new CustomEvent("save-section-data", {
+                        detail: { section: "habilidades", data },
                     })
                 );
 
-                this.showNotification(
-                    "Curso guardado correctamente",
-                    "success"
-                );
-                this.closeModal();
+                this.showNotification("Habilidades guardadas", "success");
+
+                // Navegar a la siguiente sección después de guardar
+                setTimeout(() => {
+                    const profileEditor = (window as any).profileEditor;
+                    if (profileEditor) {
+                        profileEditor.switchSection("proyectos");
+                    }
+                }, 500);
             } catch (error) {
-                console.error("Error guardando curso:", error);
-                this.showNotification("Error al guardar el curso", "error");
+                console.error("Error guardando habilidades:", error);
+                this.showNotification("Error al guardar las habilidades", "error");
             } finally {
-                const btn = document.getElementById("save-curso-btn");
-                btn.disabled = false;
-                btn.textContent = "Siguiente";
+                const btn = document.getElementById("save-habilidades");
+                if (btn) {
+                    (btn as HTMLButtonElement).disabled = false;
+                    btn.textContent = "Siguiente";
+                }
             }
         }
 
-        getHabilidadesData() {
-            return this.habilidades;
+        async autoSave() {
+            const data = this.getFormData();
+
+            // Emitir evento para auto-guardado
+            window.dispatchEvent(
+                new CustomEvent("auto-save-data", {
+                    detail: { section: "habilidades", data },
+                })
+            );
+
+            console.log("Auto-guardando habilidades...");
         }
 
-        getCursosData() {
-            return this.cursos;
-        }
-
-        showNotification(message, type) {
+        showNotification(message: string, type: string) {
+            // Reutilizar el sistema de notificaciones del componente principal
             window.dispatchEvent(
                 new CustomEvent("show-notification", {
                     detail: { message, type },
@@ -1189,6 +410,6 @@
 
     // Inicializar cuando el DOM esté listo
     document.addEventListener("DOMContentLoaded", () => {
-        window.cursosManager = new CursosManager();
+        (window as any).cursosManager = new HabilidadesManager();
     });
 </script>

@@ -14,7 +14,8 @@ import { getPerfilIdByUserId } from "./perfilController.js";
 export async function addExperienciaLaboral(req, res) {
     try {
         const usuarioId = req.user.id;
-        const { puesto, empresa, fechaInicio, fechaFin, descripcion } = req.body;
+        const { puesto, empresa, fechaInicio, fechaFin, descripcion } =
+            req.body;
 
         // Validaciones básicas
         if (!puesto || !empresa) {
@@ -39,7 +40,7 @@ export async function addExperienciaLaboral(req, res) {
         if (fechaInicio && fechaFin) {
             const inicio = new Date(fechaInicio);
             const fin = new Date(fechaFin);
-            
+
             if (fin <= inicio) {
                 return res.status(400).json({
                     success: false,
@@ -73,12 +74,15 @@ export async function addExperienciaLaboral(req, res) {
             WHERE id = ?
         `;
 
+        const experienciaId = Number(result.lastInsertRowid);
         const experienciaResult = await client.execute({
             sql: experienciaQuery,
-            args: [result.lastInsertRowid],
+            args: [experienciaId],
         });
 
-        console.info(`[EXPERIENCIA] Usuario ${usuarioId} agregó experiencia laboral - ID: ${result.lastInsertRowid}`);
+        console.info(
+            `[EXPERIENCIA] Usuario ${usuarioId} agregó experiencia laboral - ID: ${experienciaId}`
+        );
 
         return res.status(201).json({
             success: true,
@@ -105,7 +109,8 @@ export async function updateExperienciaLaboral(req, res) {
     try {
         const usuarioId = req.user.id;
         const experienciaId = parseInt(req.params.id);
-        const { puesto, empresa, fechaInicio, fechaFin, descripcion } = req.body;
+        const { puesto, empresa, fechaInicio, fechaFin, descripcion } =
+            req.body;
 
         // Validaciones básicas
         if (!experienciaId || isNaN(experienciaId)) {
@@ -148,7 +153,7 @@ export async function updateExperienciaLaboral(req, res) {
         if (fechaInicio && fechaFin) {
             const inicio = new Date(fechaInicio);
             const fin = new Date(fechaFin);
-            
+
             if (fin <= inicio) {
                 return res.status(400).json({
                     success: false,
@@ -188,7 +193,9 @@ export async function updateExperienciaLaboral(req, res) {
             args: [experienciaId],
         });
 
-        console.info(`[EXPERIENCIA] Usuario ${usuarioId} actualizó experiencia laboral - ID: ${experienciaId}`);
+        console.info(
+            `[EXPERIENCIA] Usuario ${usuarioId} actualizó experiencia laboral - ID: ${experienciaId}`
+        );
 
         return res.status(200).json({
             success: true,
@@ -254,7 +261,9 @@ export async function deleteExperienciaLaboral(req, res) {
             args: [experienciaId],
         });
 
-        console.info(`[EXPERIENCIA] Usuario ${usuarioId} eliminó experiencia laboral - ID: ${experienciaId} (${experiencia.puesto} en ${experiencia.empresa})`);
+        console.info(
+            `[EXPERIENCIA] Usuario ${usuarioId} eliminó experiencia laboral - ID: ${experienciaId} (${experiencia.puesto} en ${experiencia.empresa})`
+        );
 
         return res.status(200).json({
             success: true,

@@ -4,6 +4,7 @@ import DatosPersonales from "../../components/perfil/DatosPersonales.astro";
 import ExperienciaForm from "../../components/perfil/ExperienciaForm.astro";
 import FormacionForm from "../../components/perfil/FormacionForm.astro";
 import CursoForm from "../../components/perfil/CursoForm.astro";
+import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
 
 // Verificar autenticación del lado del servidor si es necesario
 // En una implementación real, aquí verificarías el token JWT
@@ -69,6 +70,18 @@ import CursoForm from "../../components/perfil/CursoForm.astro";
                         </svg>
                         Datos Personales
                     </button>
+                    <button class="nav-btn" data-section="formaciones">
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor">
+                            <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                            <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                        </svg>
+                        Formaciones
+                    </button>
                     <button class="nav-btn" data-section="experiencias">
                         <svg
                             width="20"
@@ -87,18 +100,6 @@ import CursoForm from "../../components/perfil/CursoForm.astro";
                             <line x1="12" y1="17" x2="12" y2="21"></line>
                         </svg>
                         Experiencias
-                    </button>
-                    <button class="nav-btn" data-section="formaciones">
-                        <svg
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor">
-                            <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
-                            <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
-                        </svg>
-                        Formaciones
                     </button>
                     <button class="nav-btn" data-section="habilidades">
                         <svg
@@ -120,6 +121,26 @@ import CursoForm from "../../components/perfil/CursoForm.astro";
                             ></path>
                         </svg>
                         Habilidades
+                    </button>
+                    <button class="nav-btn" data-section="proyectos">
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor">
+                            <rect
+                                x="3"
+                                y="4"
+                                width="18"
+                                height="18"
+                                rx="2"
+                                ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        Proyectos
                     </button>
                 </nav>
 
@@ -170,19 +191,24 @@ import CursoForm from "../../components/perfil/CursoForm.astro";
                         <DatosPersonales />
                     </section>
 
-                    <!-- Sección: Experiencias -->
-                    <section class="profile-section" id="experiencias">
-                        <ExperienciaForm />
-                    </section>
-
                     <!-- Sección: Formaciones -->
                     <section class="profile-section" id="formaciones">
                         <FormacionForm />
                     </section>
 
+                    <!-- Sección: Experiencias -->
+                    <section class="profile-section" id="experiencias">
+                        <ExperienciaForm />
+                    </section>
+
                     <!-- Sección: Habilidades -->
                     <section class="profile-section" id="habilidades">
                         <CursoForm />
+                    </section>
+
+                    <!-- Sección: Proyectos -->
+                    <section class="profile-section" id="proyectos">
+                        <ProyectoForm />
                     </section>
                 </div>
             </div>
@@ -726,6 +752,7 @@ import CursoForm from "../../components/perfil/CursoForm.astro";
             profileService,
             getUserData,
             apiRequest,
+            initializeApiAuth,
         } from "../../utils/api.js";
         import { imageKitService, ImageUtils } from "../../utils/imagekit.js";
 
@@ -735,6 +762,9 @@ import CursoForm from "../../components/perfil/CursoForm.astro";
                 this.profileData = null;
                 this.isLoading = false;
                 this.hasUnsavedChanges = false;
+
+                // Asegurar que la autenticación esté inicializada
+                initializeApiAuth();
 
                 this.init();
             }
@@ -835,20 +865,25 @@ import CursoForm from "../../components/perfil/CursoForm.astro";
                         title: "Datos Personales",
                         subtitle: "Completa tu información personal básica",
                     },
-                    experiencias: {
-                        title: "Experiencias Laborales",
-                        subtitle:
-                            "Agrega tu historial profesional y experiencias",
-                    },
                     formaciones: {
                         title: "Formación Académica",
                         subtitle:
                             "Incluye tu educación formal y certificaciones",
                     },
+                    experiencias: {
+                        title: "Experiencias Laborales",
+                        subtitle:
+                            "Agrega tu historial profesional y experiencias",
+                    },
                     habilidades: {
                         title: "Habilidades y Cursos",
                         subtitle:
                             "Destaca tus competencias y formación complementaria",
+                    },
+                    proyectos: {
+                        title: "Proyectos",
+                        subtitle:
+                            "Muestra tus proyectos personales y profesionales",
                     },
                 };
 

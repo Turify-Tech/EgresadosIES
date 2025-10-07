@@ -65,7 +65,7 @@ export async function getMiPerfil(req, res) {
                 args: [null, null, null, null, null],
             });
 
-            perfilId = createResult.lastInsertRowid;
+            perfilId = Number(createResult.lastInsertRowid);
 
             // Asociar el perfil al egresado
             await client.execute({
@@ -122,10 +122,12 @@ export async function getMiPerfil(req, res) {
                 dni: perfil.dni,
                 telefono: perfil.telefono,
             },
-            carrera: perfil.carreraId ? {
-                id: perfil.carreraId,
-                nombre: perfil.carreraNombre,
-            } : null,
+            carrera: perfil.carreraId
+                ? {
+                      id: perfil.carreraId,
+                      nombre: perfil.carreraNombre,
+                  }
+                : null,
             perfil: {
                 id: perfilId,
                 resumenProfesional: perfil.resumenProfesional,
@@ -210,7 +212,7 @@ export async function updateMiPerfil(req, res) {
                 ],
             });
 
-            perfilId = createResult.lastInsertRowid;
+            perfilId = Number(createResult.lastInsertRowid);
 
             // Asociar el perfil al egresado
             await client.execute({
@@ -251,7 +253,9 @@ export async function updateMiPerfil(req, res) {
             args: [perfilId],
         });
 
-        console.info(`[PERFIL] Usuario ${usuarioId} actualizó su perfil - ID: ${perfilId}`);
+        console.info(
+            `[PERFIL] Usuario ${usuarioId} actualizó su perfil - ID: ${perfilId}`
+        );
 
         return res.status(200).json({
             success: true,
