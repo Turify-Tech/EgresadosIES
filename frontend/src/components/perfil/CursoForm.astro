@@ -13,15 +13,11 @@
             <div class="section-header">
                 <h3>Técnicas:</h3>
             </div>
-            
+
             <div class="field-row">
                 <div class="form-group">
                     <label for="lenguajes">Lenguajes:</label>
-                    <select 
-                        id="lenguajes"
-                        name="lenguajes"
-                        class="form-select"
-                    >
+                    <select id="lenguajes" name="lenguajes" class="form-select">
                         <option value="">Python, Java...</option>
                         <option value="Python">Python</option>
                         <option value="Java">Java</option>
@@ -45,11 +41,10 @@
             <div class="field-row">
                 <div class="form-group">
                     <label for="herramientas">Herramientas:</label>
-                    <select 
+                    <select
                         id="herramientas"
                         name="herramientas"
-                        class="form-select"
-                    >
+                        class="form-select">
                         <option value="">Figma, AutoCad...</option>
                         <option value="Figma">Figma</option>
                         <option value="AutoCAD">AutoCAD</option>
@@ -78,16 +73,15 @@
             <div class="section-header">
                 <h3>Blandas:</h3>
             </div>
-            
+
             <div class="field-row">
                 <div class="form-group full-width">
-                    <textarea 
+                    <textarea
                         id="habilidades-blandas"
                         name="habilidadesBlandas"
                         class="form-textarea"
                         placeholder="Buen desempeño en equipo..."
-                        rows="4"
-                    ></textarea>
+                        rows="4"></textarea>
                 </div>
                 <div class="form-group icon-field">
                     <button type="button" class="add-item-btn">
@@ -99,10 +93,7 @@
 
         <!-- Botón Siguiente -->
         <div class="form-actions">
-            <button 
-                type="button" 
-                class="btn-siguiente"
-                id="save-habilidades">
+            <button type="button" class="btn-siguiente" id="save-habilidades">
                 Siguiente
             </button>
         </div>
@@ -202,7 +193,9 @@
         border: 1px solid #d1d5db;
         border-radius: 6px;
         font-size: 0.875rem;
-        transition: border-color 0.2s, box-shadow 0.2s;
+        transition:
+            border-color 0.2s,
+            box-shadow 0.2s;
         background: white;
         font-family: inherit;
         width: 100%;
@@ -306,7 +299,7 @@
 
         init() {
             this.bindEvents();
-            
+
             // Escuchar cuando se cargan los datos del perfil
             window.addEventListener("profile-data-loaded", (e) => {
                 this.populateForm(e.detail);
@@ -315,9 +308,11 @@
 
         bindEvents() {
             // Botón siguiente
-            document.getElementById("save-habilidades")?.addEventListener("click", () => {
-                this.saveSection();
-            });
+            document
+                .getElementById("save-habilidades")
+                ?.addEventListener("click", () => {
+                    this.saveSection();
+                });
 
             // Auto-guardado después de cambios
             this.form?.addEventListener("change", () => {
@@ -329,7 +324,7 @@
 
         populateForm(profileData) {
             if (!profileData || this.isInitialized) return;
-            
+
             // TODO: Poblar campos con datos del perfil
             console.log("Poblando habilidades", profileData);
             this.isInitialized = true;
@@ -375,7 +370,10 @@
                 }, 500);
             } catch (error) {
                 console.error("Error guardando habilidades:", error);
-                this.showNotification("Error al guardar las habilidades", "error");
+                this.showNotification(
+                    "Error al guardar las habilidades",
+                    "error"
+                );
             } finally {
                 const btn = document.getElementById("save-habilidades");
                 if (btn) {

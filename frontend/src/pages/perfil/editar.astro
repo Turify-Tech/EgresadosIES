@@ -146,9 +146,6 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
 
                 <!-- Acciones globales en sidebar -->
                 <div class="global-actions">
-                    <button class="btn-secondary" id="cancel-btn"
-                        >Cancelar</button
-                    >
                     <button
                         class="btn-primary"
                         id="save-profile-btn"
@@ -172,16 +169,6 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
 
             <!-- Área principal del contenido -->
             <div class="main-content">
-                <!-- Header de la sección actual -->
-                <header class="content-header">
-                    <h2 class="section-title" id="section-title">
-                        Datos Personales
-                    </h2>
-                    <p class="section-subtitle">
-                        Completa tu información personal básica
-                    </p>
-                </header>
-
                 <!-- Contenido de las secciones -->
                 <div class="sections-container">
                     <!-- Sección: Datos Personales -->
@@ -225,20 +212,32 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
 
     <style>
         /* Reset para usar todo el viewport */
+        html {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             padding: 0;
             overflow-x: hidden;
         }
 
+        *,
+        *::before,
+        *::after {
+            box-sizing: inherit;
+        }
+
         .profile-edit-container {
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            width: 100vw;
+            width: 100%;
             margin: 0;
             background: white;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
         /* Hero banner superior */
@@ -566,7 +565,7 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
         @media (max-width: 768px) {
             .profile-edit-container {
                 flex-direction: column;
-                width: 100vw;
+                width: 100%;
                 min-height: 100vh;
             }
 
@@ -901,7 +900,7 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
              */
             updateSaveButton(sectionId) {
                 const saveBtn = document.getElementById("save-profile-btn");
-                const isLastSection = sectionId === "habilidades";
+                const isLastSection = sectionId === "proyectos";
 
                 if (saveBtn) {
                     if (isLastSection) {
