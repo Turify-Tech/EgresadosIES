@@ -5,6 +5,7 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import database from "./config/database.js";
 import authRoutes from "./routes/authRoutes.js";
+import busquedaRoutes from "./routes/busquedaRoutes.js";
 
 dotenv.config();
 
@@ -56,6 +57,7 @@ app.get("/api/health", async (req, res) => {
 
 // Rutas principales
 app.use("/api/auth", authRoutes);
+app.use("/api/buscar", busquedaRoutes);
 // app.use('/api/perfil', require('./routes/perfilRoutes'));
 // app.use('/api/perfiles', require('./routes/perfilesRoutes'));
 
