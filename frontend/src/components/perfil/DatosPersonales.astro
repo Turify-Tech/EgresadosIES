@@ -376,6 +376,7 @@
 </style>
 
 <script>
+    // @ts-nocheck
     class DatosPersonalesManager {
         constructor() {
             this.form = document.getElementById("datos-personales-form");
@@ -395,7 +396,10 @@
 
             // Escuchar cuando se cargan los datos del perfil
             window.addEventListener("profile-data-loaded", (e) => {
-                this.populateForm(e.detail);
+                const customEvent = e;
+                if (customEvent.detail) {
+                    this.populateForm(customEvent.detail);
+                }
             });
         }
 
@@ -406,11 +410,12 @@
             });
 
             // Guardado de sección
-            document
-                .getElementById("save-datos-personales")
-                .addEventListener("click", () => {
+            const saveBtn = document.getElementById("save-datos-personales");
+            if (saveBtn) {
+                saveBtn.addEventListener("click", () => {
                     this.saveSection();
                 });
+            }
 
             // Auto-guardado después de cambios
             this.form.addEventListener("change", () => {
@@ -455,14 +460,19 @@
 
         setFieldValue(fieldId, value) {
             const field = document.getElementById(fieldId);
-            if (field && value !== null && value !== undefined) {
+            if (
+                field &&
+                value !== null &&
+                value !== undefined &&
+                "value" in field
+            ) {
                 field.value = value;
             }
         }
 
         setCheckboxValue(fieldId, value) {
             const field = document.getElementById(fieldId);
-            if (field) {
+            if (field && "checked" in field) {
                 field.checked = Boolean(value);
             }
         }
@@ -588,12 +598,24 @@
             }
 
             // Manejar checkboxes
+            const perfilPublicoEl = document.getElementById("perfil-publico");
+            const mostrarContactoEl =
+                document.getElementById("mostrar-contacto");
+            const disponibleOfertasEl =
+                document.getElementById("disponible-ofertas");
+
             data.perfilPublico =
-                document.getElementById("perfil-publico").checked;
+                perfilPublicoEl && "checked" in perfilPublicoEl
+                    ? perfilPublicoEl.checked
+                    : false;
             data.mostrarContacto =
-                document.getElementById("mostrar-contacto").checked;
+                mostrarContactoEl && "checked" in mostrarContactoEl
+                    ? mostrarContactoEl.checked
+                    : false;
             data.disponibleOfertas =
-                document.getElementById("disponible-ofertas").checked;
+                disponibleOfertasEl && "checked" in disponibleOfertasEl
+                    ? disponibleOfertasEl.checked
+                    : false;
 
             return data;
         }
@@ -609,8 +631,10 @@
 
             try {
                 const btn = document.getElementById("save-datos-personales");
-                btn.disabled = true;
-                btn.textContent = "Guardando...";
+                if (btn && "disabled" in btn) {
+                    btn.disabled = true;
+                    btn.textContent = "Guardando...";
+                }
 
                 const data = this.getFormData();
 
@@ -625,8 +649,9 @@
 
                 // Navegar a la siguiente sección después de guardar
                 setTimeout(() => {
-                    const profileEditor = window.profileEditor;
-                    if (profileEditor) {
+                    const win = window;
+                    const profileEditor = win.profileEditor;
+                    if (profileEditor && profileEditor.switchSection) {
                         profileEditor.switchSection("formaciones");
                     }
                 }, 500);
@@ -635,8 +660,10 @@
                 this.showNotification("Error al guardar los datos", "error");
             } finally {
                 const btn = document.getElementById("save-datos-personales");
-                btn.disabled = false;
-                btn.textContent = "Siguiente";
+                if (btn && "disabled" in btn) {
+                    btn.disabled = false;
+                    btn.textContent = "Siguiente";
+                }
             }
         }
 

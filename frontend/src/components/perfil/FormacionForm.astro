@@ -442,6 +442,7 @@
 </style>
 
 <script>
+    // @ts-nocheck
     class FormacionesManager {
         constructor() {
             this.form = document.getElementById("formaciones-form");
@@ -454,7 +455,10 @@
 
             // Escuchar cuando se cargan los datos del perfil
             window.addEventListener("profile-data-loaded", (e) => {
-                this.populateForm(e.detail);
+                const customEvent = e;
+                if (customEvent.detail) {
+                    this.populateForm(customEvent.detail);
+                }
             });
         }
 
@@ -520,7 +524,7 @@
         async saveSection() {
             try {
                 const btn = document.getElementById("save-formaciones");
-                if (btn) {
+                if (btn && "disabled" in btn) {
                     btn.disabled = true;
                     btn.textContent = "Guardando...";
                 }

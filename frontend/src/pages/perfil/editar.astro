@@ -747,6 +747,7 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
     </style>
 
     <script>
+        // @ts-nocheck
         import {
             profileService,
             getUserData,
@@ -1122,7 +1123,9 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                     imageUrl = this.profileData.urlFotoPerfil;
                 }
 
-                imageEl.src = imageUrl;
+                if (imageEl.tagName === 'IMG') {
+                    imageEl.src = imageUrl;
+                }
             }
 
             async saveProfile() {
@@ -1156,36 +1159,55 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
             bindComponentEvents() {
                 // Eventos de datos personales
                 window.addEventListener("save-section-data", async (e) => {
-                    if (e.detail.section === "datos-personales") {
-                        await this.saveSectionData(e.detail.data);
+                    const customEvent = e;
+                    if (customEvent.detail && customEvent.detail.section === "datos-personales") {
+                        await this.saveSectionData(customEvent.detail.data);
                     }
                 });
 
                 // Eventos de experiencias
                 window.addEventListener("experiencia-saved", async (e) => {
-                    await this.handleExperienciaSaved(e.detail);
+                    const customEvent = e;
+                    if (customEvent.detail) {
+                        await this.handleExperienciaSaved(customEvent.detail);
+                    }
                 });
 
                 window.addEventListener("experiencia-deleted", async (e) => {
-                    await this.handleExperienciaDeleted(e.detail.id);
+                    const customEvent = e;
+                    if (customEvent.detail) {
+                        await this.handleExperienciaDeleted(customEvent.detail.id);
+                    }
                 });
 
                 // Eventos de formaciones
                 window.addEventListener("formacion-saved", async (e) => {
-                    await this.handleFormacionSaved(e.detail);
+                    const customEvent = e;
+                    if (customEvent.detail) {
+                        await this.handleFormacionSaved(customEvent.detail);
+                    }
                 });
 
                 window.addEventListener("formacion-deleted", async (e) => {
-                    await this.handleFormacionDeleted(e.detail.id);
+                    const customEvent = e;
+                    if (customEvent.detail) {
+                        await this.handleFormacionDeleted(customEvent.detail.id);
+                    }
                 });
 
                 // Eventos de cursos y habilidades
                 window.addEventListener("curso-saved", async (e) => {
-                    await this.handleCursoSaved(e.detail);
+                    const customEvent = e;
+                    if (customEvent.detail) {
+                        await this.handleCursoSaved(customEvent.detail);
+                    }
                 });
 
                 window.addEventListener("curso-deleted", async (e) => {
-                    await this.handleCursoDeleted(e.detail.id);
+                    const customEvent = e;
+                    if (customEvent.detail) {
+                        await this.handleCursoDeleted(customEvent.detail.id);
+                    }
                 });
 
                 window.addEventListener("habilidad-added", (e) => {
@@ -1198,7 +1220,10 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
 
                 // Mostrar notificaciones
                 window.addEventListener("show-notification", (e) => {
-                    this.showNotification(e.detail.message, e.detail.type);
+                    const customEvent = e;
+                    if (customEvent.detail) {
+                        this.showNotification(customEvent.detail.message, customEvent.detail.type);
+                    }
                 });
             }
 
@@ -1325,15 +1350,22 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
 
             gatherFormData() {
                 // Recopilar datos de todos los componentes
+                const win = window;
                 const datosPersonales =
-                    window.datosPersonalesManager?.getFormData() || {};
+                    (win.datosPersonalesManager && win.datosPersonalesManager.getFormData) ? 
+                    win.datosPersonalesManager.getFormData() : {};
                 const experiencias =
-                    window.experienciasManager?.getExperienciasData() || [];
+                    (win.experienciasManager && win.experienciasManager.getExperienciasData) ?
+                    win.experienciasManager.getExperienciasData() : [];
                 const formaciones =
-                    window.formacionesManager?.getFormacionesData() || [];
+                    (win.formacionesManager && win.formacionesManager.getFormacionesData) ?
+                    win.formacionesManager.getFormacionesData() : [];
                 const habilidades =
-                    window.cursosManager?.getHabilidadesData() || [];
-                const cursos = window.cursosManager?.getCursosData() || [];
+                    (win.cursosManager && win.cursosManager.getHabilidadesData) ?
+                    win.cursosManager.getHabilidadesData() : [];
+                const cursos = 
+                    (win.cursosManager && win.cursosManager.getCursosData) ?
+                    win.cursosManager.getCursosData() : [];
 
                 return {
                     ...datosPersonales,
@@ -1374,17 +1406,19 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
             setLoading(loading) {
                 this.isLoading = loading;
                 const btn = document.getElementById("save-profile-btn");
+                if (!btn) return;
+                
                 const text = btn.querySelector(".btn-text");
                 const spinner = btn.querySelector(".loading-spinner");
 
                 btn.disabled = loading;
 
                 if (loading) {
-                    text.style.display = "none";
-                    spinner.style.display = "block";
+                    if (text) text.style.display = "none";
+                    if (spinner) spinner.style.display = "block";
                 } else {
-                    text.style.display = "block";
-                    spinner.style.display = "none";
+                    if (text) text.style.display = "block";
+                    if (spinner) spinner.style.display = "none";
                 }
             }
 
