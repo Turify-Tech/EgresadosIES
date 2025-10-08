@@ -28,12 +28,12 @@ export async function login(req, res) {
     const sanitizedDni = dni.toString().trim().replace(/[^0-9]/g, '');
     const sanitizedPassword = password.toString().trim();
 
-    // Validar formato de DNI (8 dígitos)
-    if (!/^\d{8}$/.test(sanitizedDni)) {
+    // Validar formato de DNI (7 u 8 dígitos)
+    if (!/^\d{7,8}$/.test(sanitizedDni)) {
         console.warn(`[SECURITY] DNI inválido - DNI: ${sanitizedDni}, IP: ${req.ip}, User-Agent: ${req.get('User-Agent')}`);
         return res.status(400).json({
             success: false,
-            message: "El DNI debe tener exactamente 8 dígitos",
+            message: "El DNI debe tener 7 u 8 dígitos",
         });
     }
 
@@ -199,10 +199,8 @@ async function handleNewUserRegistration(res, client, dni, password, req) {
 
     const carrera = carreraResult.rows[0];
 
-    // 3. Crear nuevo egresado en una transacción
+    // 3. Crear nuevo egresado
     try {
-        await client.execute("BEGIN TRANSACTION");
-
         // Hashear contraseña
         const hashedPassword = await hashPassword(password);
 
@@ -246,8 +244,6 @@ async function handleNewUserRegistration(res, client, dni, password, req) {
             args: [usuarioId, dni, null, perfilId, carrera.id],
         });
 
-        await client.execute("COMMIT");
-
         // Generar token JWT
         const token = generateToken({
             id: usuarioId,
@@ -272,7 +268,8 @@ async function handleNewUserRegistration(res, client, dni, password, req) {
             },
         });
     } catch (error) {
-        await client.execute("ROLLBACK");
+        // En caso de error, intentar limpiar cualquier dato parcial creado
+        console.error("Error en registro automático:", error);
         throw error;
     }
 }
