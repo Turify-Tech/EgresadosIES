@@ -243,7 +243,14 @@ export const profileService = {
      * Obtener perfil del usuario logueado
      */
     async getMyProfile() {
-        return apiClient.get("/profile/me");
+        return apiClient.get("/perfil/mi-perfil");
+    },
+
+    /**
+     * Actualizar perfil del usuario logueado
+     */
+    async updateMyProfile(data) {
+        return apiClient.put("/perfil/mi-perfil", data);
     },
 
     /**
@@ -258,6 +265,69 @@ export const profileService = {
      */
     async updateProfile(id, data) {
         return apiClient.put(`/profile/${id}`, data);
+    },
+
+    /**
+     * Agregar experiencia laboral
+     */
+    async addExperiencia(data) {
+        return apiClient.post("/perfil/experiencia", data);
+    },
+
+    /**
+     * Actualizar experiencia laboral
+     */
+    async updateExperiencia(id, data) {
+        return apiClient.put(`/api/perfil/experiencia/${id}`, data);
+    },
+
+    /**
+     * Eliminar experiencia laboral
+     */
+    async deleteExperiencia(id) {
+        return apiClient.delete(`/api/perfil/experiencia/${id}`);
+    },
+
+    /**
+     * Agregar formación académica
+     */
+    async addFormacion(data) {
+        return apiClient.post("/perfil/formacion", data);
+    },
+
+    /**
+     * Actualizar formación académica
+     */
+    async updateFormacion(id, data) {
+        return apiClient.put(`/api/perfil/formacion/${id}`, data);
+    },
+
+    /**
+     * Eliminar formación académica
+     */
+    async deleteFormacion(id) {
+        return apiClient.delete(`/api/perfil/formacion/${id}`);
+    },
+
+    /**
+     * Agregar curso
+     */
+    async addCurso(data) {
+        return apiClient.post("/perfil/curso", data);
+    },
+
+    /**
+     * Actualizar curso
+     */
+    async updateCurso(id, data) {
+        return apiClient.put(`/api/perfil/curso/${id}`, data);
+    },
+
+    /**
+     * Eliminar curso
+     */
+    async deleteCurso(id) {
+        return apiClient.delete(`/api/perfil/curso/${id}`);
     },
 
     /**
@@ -388,7 +458,7 @@ export function setAuthToken(token) {
 export function clearAuth() {
     if (typeof window !== "undefined") {
         localStorage.removeItem("auth_token");
-        localStorage.removeItem("user_data");
+        localStorage.removeItem("user");
         apiClient.clearAuthToken();
     }
 }
@@ -419,9 +489,9 @@ export function setUserData(userData) {
 export function handleAuthError(error) {
     if (error.status === 401) {
         clearAuth();
-        // Redirigir a login
+        // Redirigir a acceso
         if (typeof window !== "undefined") {
-            window.location.href = "/login";
+            window.location.href = "/acceso";
         }
     }
     throw error;

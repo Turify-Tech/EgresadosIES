@@ -5,8 +5,11 @@ export interface Props {
     hideAccederButton?: boolean;
 }
 
-const { title, description = "Sistema de Gestión de Egresados del IES", hideAccederButton = false } =
-    Astro.props;
+const {
+    title,
+    description = "Sistema de Gestión de Egresados del IES",
+    hideAccederButton = false,
+} = Astro.props;
 
 // Importar estilos CSS
 import "../styles/global.css";
@@ -39,71 +42,90 @@ import "../styles/components.css";
             }
         </style>
     </head>
-    <body style="margin: 0; padding: 0; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column;">
+    <body
+        style="margin: 0; padding: 0; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column;">
         <!-- Header -->
         <header style="background-color: #E6E6E6; padding: 0.75rem 2rem;">
-            <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+            <div
+                style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
                 <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img src="/images/logo.png" alt="Logo" style="width: 45px; height: auto;" />
-                    <h1 style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.75rem; color: #1a1a1a;">
+                    <img
+                        src="/images/logo.png"
+                        alt="Logo"
+                        style="width: 45px; height: auto;"
+                    />
+                    <h1
+                        style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.75rem; color: #1a1a1a;">
                         EgresadosIES
                     </h1>
                 </div>
-                {!hideAccederButton && (
-                    <a href="/acceso" id="acceder-btn" style="background: #5284e0; color: white; padding: 0.5rem 1.5rem; border-radius: 25px; text-decoration: none; font-family: 'Pontano Sans', sans-serif; font-weight: 700; font-size: 0.9rem; transition: background 0.3s ease;">
-                        Acceder
-                    </a>
-                )}
+                {
+                    !hideAccederButton && (
+                        <a
+                            href="/acceso"
+                            id="acceder-btn"
+                            style="background: #5284e0; color: white; padding: 0.5rem 1.5rem; border-radius: 25px; text-decoration: none; font-family: 'Pontano Sans', sans-serif; font-weight: 700; font-size: 0.9rem; transition: background 0.3s ease;">
+                            Acceder
+                        </a>
+                    )
+                }
             </div>
         </header>
 
-    <!-- Contenido principal -->
-    <main style="flex: 1; overflow-y: auto; display: flex; flex-direction: column;">
-        <slot />
-    </main>
+        <!-- Contenido principal -->
+        <main
+            style="flex: 1; overflow-y: auto; display: flex; flex-direction: column;">
+            <slot />
+        </main>
 
-    <!-- Footer -->
-    <footer
-        style="background-color: var(--color-gray-900); color: var(--color-white); margin-top: auto; padding: 1.5rem 0;">
-        <div class="container" style="padding: 0 2rem;">
-            <div class="text-center">
-                <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem;">
-                    Instituto de Educación Superior
-                </h3>
-                <p style="color: var(--color-gray-300); margin-bottom: 0.5rem; font-size: 0.875rem;">
-                    Sistema de Egresados - Conectando nuestra comunidad
-                    educativa
-                </p>
-                <p style="color: var(--color-gray-400); font-size: 0.8rem;">
-                    &copy; 2025 Instituto de Educación Superior. Todos los
-                    derechos reservados.
-                </p>
+        <!-- Footer -->
+        <footer
+            style="background-color: var(--color-gray-900); color: var(--color-white); margin-top: auto; padding: 1.5rem 0;">
+            <div class="container" style="padding: 0 2rem;">
+                <div class="text-center">
+                    <h3
+                        style="font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem;">
+                        Instituto de Educación Superior
+                    </h3>
+                    <p
+                        style="color: var(--color-gray-300); margin-bottom: 0.5rem; font-size: 0.875rem;">
+                        Sistema de Egresados - Conectando nuestra comunidad
+                        educativa
+                    </p>
+                    <p style="color: var(--color-gray-400); font-size: 0.8rem;">
+                        &copy; 2025 Instituto de Educación Superior. Todos los
+                        derechos reservados.
+                    </p>
+                </div>
             </div>
-        </div>
-    </footer>
+        </footer>
 
-    <!-- Scripts -->
-    <script>
-        // Check if user is authenticated and show/hide "Acceder" button
-        const accederBtn = document.getElementById('acceder-btn') as HTMLElement;
-        const token = localStorage.getItem('token');
-        
-        if (accederBtn) {
-            if (!token) {
-                // No hay token, mostrar botón
-                accederBtn.classList.add('show');
-                
-                // Hover effect for acceder button
-                accederBtn.addEventListener('mouseenter', () => {
-                    accederBtn.style.background = '#3d6fc7';
-                    accederBtn.style.boxShadow = '0 4px 12px rgba(82, 132, 224, 0.3)';
-                });
-                accederBtn.addEventListener('mouseleave', () => {
-                    accederBtn.style.background = '#5284e0';
-                    accederBtn.style.boxShadow = 'none';
-                });
+        <!-- Scripts -->
+        <script>
+            // Check if user is authenticated and show/hide "Acceder" button
+            const accederBtn = document.getElementById(
+                "acceder-btn"
+            ) as HTMLElement;
+            const token = localStorage.getItem("auth_token");
+
+            if (accederBtn) {
+                if (!token) {
+                    // No hay token, mostrar botón
+                    accederBtn.classList.add("show");
+
+                    // Hover effect for acceder button
+                    accederBtn.addEventListener("mouseenter", () => {
+                        accederBtn.style.background = "#3d6fc7";
+                        accederBtn.style.boxShadow =
+                            "0 4px 12px rgba(82, 132, 224, 0.3)";
+                    });
+                    accederBtn.addEventListener("mouseleave", () => {
+                        accederBtn.style.background = "#5284e0";
+                        accederBtn.style.boxShadow = "none";
+                    });
+                }
+                // Si hay token, el botón se mantiene oculto por el CSS
             }
-            // Si hay token, el botón se mantiene oculto por el CSS
-        }
-    </script>
+        </script>
+    </body>
 </html>
