@@ -116,6 +116,70 @@
                     />
                 </div>
             </div>
+
+            <!-- Campos adicionales del perfil -->
+            <div class="field-row">
+                <div class="form-group">
+                    <label for="dni">DNI *</label>
+                    <input
+                        type="text"
+                        id="dni"
+                        name="dni"
+                        required
+                        placeholder="12345678"
+                        class="form-input"
+                    />
+                </div>
+                <div class="form-group">
+                    <label for="telefono">Teléfono</label>
+                    <input
+                        type="tel"
+                        id="telefono"
+                        name="telefono"
+                        placeholder="2604561871"
+                        class="form-input"
+                    />
+                </div>
+            </div>
+
+            <div class="field-row">
+                <div class="form-group full-width">
+                    <label for="resumen-profesional">Resumen Profesional</label>
+                    <textarea
+                        id="resumen-profesional"
+                        name="resumen-profesional"
+                        rows="4"
+                        placeholder="Describe tu experiencia y objetivos profesionales..."
+                        class="form-textarea"></textarea>
+                </div>
+            </div>
+
+            <div class="field-row">
+                <div class="form-group">
+                    <label for="url-portfolio">URL Portfolio</label>
+                    <input
+                        type="url"
+                        id="url-portfolio"
+                        name="url-portfolio"
+                        placeholder="https://mi-portfolio.com"
+                        class="form-input"
+                    />
+                </div>
+                <div class="form-group">
+                    <label for="situacion-laboral">Situación Laboral</label>
+                    <select
+                        id="situacion-laboral"
+                        name="situacion-laboral"
+                        class="form-input">
+                        <option value="">Selecciona una opción</option>
+                        <option value="Empleado">Empleado</option>
+                        <option value="Desempleado">Desempleado</option>
+                        <option value="Emprendedor">Emprendedor</option>
+                        <option value="Freelancer">Freelancer</option>
+                        <option value="Estudiando">Estudiando</option>
+                    </select>
+                </div>
+            </div>
         </div>
 
         <!-- Botón Siguiente -->
@@ -397,6 +461,10 @@
             // Escuchar cuando se cargan los datos del perfil
             window.addEventListener("profile-data-loaded", (e) => {
                 const customEvent = e;
+                console.log(
+                    "DatosPersonales recibió evento profile-data-loaded:",
+                    customEvent.detail
+                );
                 if (customEvent.detail) {
                     this.populateForm(customEvent.detail);
                 }
@@ -430,32 +498,45 @@
         populateForm(profileData) {
             if (!profileData || this.isInitialized) return;
 
-            // Poblar campos básicos
-            this.setFieldValue("dni", profileData.dni);
-            this.setFieldValue("telefono", profileData.telefono);
-            this.setFieldValue(
-                "resumen-profesional",
-                profileData.resumenProfesional
-            );
-            this.setFieldValue("url-portfolio", profileData.urlPortfolio);
-            this.setFieldValue(
-                "situacion-laboral",
-                profileData.situacionLaboral
-            );
+            console.log("Poblando datos personales con:", profileData);
 
-            // Poblar checkboxes de privacidad
-            this.setCheckboxValue("perfil-publico", profileData.perfilPublico);
+            // Extraer datos de la estructura de la API
+            // Los datos pueden venir en diferentes estructuras según el endpoint
+            const data =
+                profileData.data?.perfil ||
+                profileData.perfil ||
+                profileData.data ||
+                profileData;
+
+            // Poblar campos de datos personales
+            this.setFieldValue("nombre", data.nombre);
+            this.setFieldValue("apellido", data.apellido);
+            this.setFieldValue("correo", data.email); // email en BD → correo en form
+            this.setFieldValue("contacto", data.telefono); // telefono en BD → contacto en form
+            this.setFieldValue("dni", data.dni);
+            this.setFieldValue("telefono", data.telefono); // campo adicional
+
+            // Poblar campos del perfil
+            this.setFieldValue("resumen-profesional", data.resumenProfesional);
+            this.setFieldValue("url-portfolio", data.urlPortfolio);
+            this.setFieldValue("situacion-laboral", data.situacionLaboral);
+
+            // Los checkboxes de privacidad (futura funcionalidad)
+            this.setCheckboxValue(
+                "perfil-publico",
+                data.perfilPublico || false
+            );
             this.setCheckboxValue(
                 "mostrar-contacto",
-                profileData.mostrarContacto
+                data.mostrarContacto || false
             );
             this.setCheckboxValue(
                 "disponible-ofertas",
-                profileData.disponibleOfertas
+                data.disponibleOfertas || false
             );
 
             this.isInitialized = true;
-            console.log("Datos personales inicializados");
+            console.log("✅ Datos personales inicializados correctamente");
         }
 
         setFieldValue(fieldId, value) {
@@ -592,32 +673,46 @@
             const formData = new FormData(this.form);
             const data = {};
 
-            // Convertir FormData a objeto
+            // Convertir FormData a objeto básico
             for (let [key, value] of formData.entries()) {
                 data[key] = value;
             }
 
-            // Manejar checkboxes
+            // Mapear nombres de campo del formulario a nombres esperados por el backend
+            const mappedData = {
+                // Campos de datos personales
+                nombre: data.nombre,
+                apellido: data.apellido,
+                correo: data.correo, // se mapea a email en backend
+                contacto: data.contacto, // se mapea a telefono en backend
+                dni: data.dni,
+                telefono: data.telefono, // campo adicional
+
+                // Campos del perfil
+                resumenProfesional: data["resumen-profesional"],
+                urlPortfolio: data["url-portfolio"],
+                situacionLaboral: data["situacion-laboral"],
+            };
+
+            // Manejar checkboxes si existen
             const perfilPublicoEl = document.getElementById("perfil-publico");
             const mostrarContactoEl =
                 document.getElementById("mostrar-contacto");
             const disponibleOfertasEl =
                 document.getElementById("disponible-ofertas");
 
-            data.perfilPublico =
-                perfilPublicoEl && "checked" in perfilPublicoEl
-                    ? perfilPublicoEl.checked
-                    : false;
-            data.mostrarContacto =
-                mostrarContactoEl && "checked" in mostrarContactoEl
-                    ? mostrarContactoEl.checked
-                    : false;
-            data.disponibleOfertas =
-                disponibleOfertasEl && "checked" in disponibleOfertasEl
-                    ? disponibleOfertasEl.checked
-                    : false;
+            if (perfilPublicoEl) {
+                mappedData.perfilPublico = perfilPublicoEl.checked;
+            }
+            if (mostrarContactoEl) {
+                mappedData.mostrarContacto = mostrarContactoEl.checked;
+            }
+            if (disponibleOfertasEl) {
+                mappedData.disponibleOfertas = disponibleOfertasEl.checked;
+            }
 
-            return data;
+            console.log("📋 Datos del formulario mapeados:", mappedData);
+            return mappedData;
         }
 
         async saveSection() {
@@ -692,6 +787,7 @@
 
     // Inicializar cuando el DOM esté listo
     document.addEventListener("DOMContentLoaded", () => {
-        new DatosPersonalesManager();
+        window.datosPersonalesManager = new DatosPersonalesManager();
+        console.log("DatosPersonalesManager inicializado y asignado a window");
     });
 </script>

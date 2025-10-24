@@ -20,6 +20,7 @@ export async function getMiPerfil(req, res) {
             SELECT 
                 u.id as userId,
                 u.nombre,
+                u.apellido,
                 u.email,
                 e.dni,
                 e.telefono,
@@ -29,6 +30,11 @@ export async function getMiPerfil(req, res) {
                 p.situacionLaboral,
                 p.urlFotoPerfil,
                 p.urlBanner,
+                p.fechaNacimiento,
+                p.direccion,
+                p.ciudad,
+                p.provincia,
+                p.pais,
                 c.id as carreraId,
                 c.nombre as carreraNombre
             FROM Usuario u
@@ -163,42 +169,118 @@ export async function updateMiPerfil(req, res) {
     try {
         const usuarioId = req.user.id;
         const {
+            // Campos de datos personales del formulario
+            nombre,
+            apellido,
+            correo, // Se mapea a email
+            contacto, // Se mapea a telefono
+            dni,
+            telefono,
+            // Campos del perfil
             resumenProfesional,
             urlPortfolio,
             situacionLaboral,
             urlFotoPerfil,
             urlBanner,
+            fechaNacimiento,
+            direccion,
+            ciudad,
+            provincia,
+            pais,
         } = req.body;
 
         const client = database.getClient();
 
-        // Obtener el perfil ID del usuario
-        const perfilIdQuery = `
-            SELECT e.perfilId 
+        console.log("📝 Datos recibidos para actualizar perfil:", {
+            nombre,
+            apellido,
+            correo,
+            contacto,
+            dni,
+            resumenProfesional,
+            situacionLaboral,
+        });
+
+        // Obtener información actual del usuario
+        const usuarioQuery = `
+            SELECT u.id, u.nombre, u.apellido, u.email, e.dni, e.telefono, e.perfilId
             FROM Usuario u
             INNER JOIN Egresado e ON u.id = e.id
             WHERE u.id = ?
         `;
 
-        const perfilIdResult = await client.execute({
-            sql: perfilIdQuery,
+        const usuarioResult = await client.execute({
+            sql: usuarioQuery,
             args: [usuarioId],
         });
 
-        if (perfilIdResult.rows.length === 0) {
+        if (usuarioResult.rows.length === 0) {
             return res.status(404).json({
                 success: false,
                 error: "Usuario no encontrado",
             });
         }
 
-        let perfilId = perfilIdResult.rows[0].perfilId;
+        const usuario = usuarioResult.rows[0];
+        let perfilId = usuario.perfilId;
 
-        // Si no tiene perfil, crear uno nuevo
+        // 1. Actualizar datos del Usuario (nombre, apellido, email)
+        if (
+            nombre !== undefined ||
+            apellido !== undefined ||
+            correo !== undefined
+        ) {
+            const updateUsuarioQuery = `
+                UPDATE Usuario 
+                SET nombre = COALESCE(?, nombre), 
+                    apellido = COALESCE(?, apellido), 
+                    email = COALESCE(?, email)
+                WHERE id = ?
+            `;
+
+            await client.execute({
+                sql: updateUsuarioQuery,
+                args: [
+                    nombre || null,
+                    apellido || null,
+                    correo || null, // correo del form → email en BD
+                    usuarioId,
+                ],
+            });
+        }
+
+        // 2. Actualizar datos del Egresado (dni, telefono)
+        if (
+            dni !== undefined ||
+            contacto !== undefined ||
+            telefono !== undefined
+        ) {
+            const updateEgresadoQuery = `
+                UPDATE Egresado 
+                SET dni = COALESCE(?, dni), 
+                    telefono = COALESCE(?, ?, telefono)
+                WHERE id = ?
+            `;
+
+            await client.execute({
+                sql: updateEgresadoQuery,
+                args: [
+                    dni || null,
+                    contacto || null, // contacto del form → telefono en BD
+                    telefono || null, // telefono adicional
+                    usuarioId,
+                ],
+            });
+        }
+
+        // 3. Crear o actualizar Perfil
         if (!perfilId) {
             const createPerfilQuery = `
-                INSERT INTO Perfil (resumenProfesional, urlPortfolio, situacionLaboral, urlFotoPerfil, urlBanner)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO Perfil (
+                    resumenProfesional, urlPortfolio, situacionLaboral, 
+                    urlFotoPerfil, urlBanner, fechaNacimiento, direccion, 
+                    ciudad, provincia, pais
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `;
 
             const createResult = await client.execute({
@@ -209,6 +291,11 @@ export async function updateMiPerfil(req, res) {
                     situacionLaboral || null,
                     urlFotoPerfil || null,
                     urlBanner || null,
+                    fechaNacimiento || null,
+                    direccion || null,
+                    ciudad || null,
+                    provincia || null,
+                    pais || "Argentina",
                 ],
             });
 
@@ -220,41 +307,100 @@ export async function updateMiPerfil(req, res) {
                 args: [perfilId, usuarioId],
             });
         } else {
-            // Actualizar perfil existente
-            const updatePerfilQuery = `
-                UPDATE Perfil 
-                SET resumenProfesional = ?, urlPortfolio = ?, situacionLaboral = ?, 
-                    urlFotoPerfil = ?, urlBanner = ?
-                WHERE id = ?
-            `;
+            // Actualizar perfil existente solo con los campos que se enviaron
+            const updateFields = [];
+            const updateValues = [];
 
-            await client.execute({
-                sql: updatePerfilQuery,
-                args: [
-                    resumenProfesional || null,
-                    urlPortfolio || null,
-                    situacionLaboral || null,
-                    urlFotoPerfil || null,
-                    urlBanner || null,
-                    perfilId,
-                ],
-            });
+            if (resumenProfesional !== undefined) {
+                updateFields.push("resumenProfesional = ?");
+                updateValues.push(resumenProfesional);
+            }
+            if (urlPortfolio !== undefined) {
+                updateFields.push("urlPortfolio = ?");
+                updateValues.push(urlPortfolio);
+            }
+            if (situacionLaboral !== undefined) {
+                updateFields.push("situacionLaboral = ?");
+                updateValues.push(situacionLaboral);
+            }
+            if (urlFotoPerfil !== undefined) {
+                updateFields.push("urlFotoPerfil = ?");
+                updateValues.push(urlFotoPerfil);
+            }
+            if (urlBanner !== undefined) {
+                updateFields.push("urlBanner = ?");
+                updateValues.push(urlBanner);
+            }
+            if (fechaNacimiento !== undefined) {
+                updateFields.push("fechaNacimiento = ?");
+                updateValues.push(fechaNacimiento);
+            }
+            if (direccion !== undefined) {
+                updateFields.push("direccion = ?");
+                updateValues.push(direccion);
+            }
+            if (ciudad !== undefined) {
+                updateFields.push("ciudad = ?");
+                updateValues.push(ciudad);
+            }
+            if (provincia !== undefined) {
+                updateFields.push("provincia = ?");
+                updateValues.push(provincia);
+            }
+            if (pais !== undefined) {
+                updateFields.push("pais = ?");
+                updateValues.push(pais);
+            }
+
+            if (updateFields.length > 0) {
+                const updatePerfilQuery = `
+                    UPDATE Perfil 
+                    SET ${updateFields.join(", ")}
+                    WHERE id = ?
+                `;
+
+                updateValues.push(perfilId);
+
+                await client.execute({
+                    sql: updatePerfilQuery,
+                    args: updateValues,
+                });
+            }
         }
 
-        // Obtener el perfil actualizado
+        // Obtener el perfil completo actualizado
         const perfilActualizadoQuery = `
-            SELECT id, resumenProfesional, urlPortfolio, situacionLaboral, urlFotoPerfil, urlBanner
-            FROM Perfil
-            WHERE id = ?
+            SELECT 
+                u.id as userId,
+                u.nombre,
+                u.apellido,
+                u.email,
+                e.dni,
+                e.telefono,
+                p.id as perfilId,
+                p.resumenProfesional,
+                p.urlPortfolio,
+                p.situacionLaboral,
+                p.urlFotoPerfil,
+                p.urlBanner,
+                p.fechaNacimiento,
+                p.direccion,
+                p.ciudad,
+                p.provincia,
+                p.pais
+            FROM Usuario u
+            INNER JOIN Egresado e ON u.id = e.id
+            LEFT JOIN Perfil p ON e.perfilId = p.id
+            WHERE u.id = ?
         `;
 
         const perfilActualizadoResult = await client.execute({
             sql: perfilActualizadoQuery,
-            args: [perfilId],
+            args: [usuarioId],
         });
 
         console.info(
-            `[PERFIL] Usuario ${usuarioId} actualizó su perfil - ID: ${perfilId}`
+            `[PERFIL] Usuario ${usuarioId} actualizó su perfil completo - ID: ${perfilId}`
         );
 
         return res.status(200).json({

@@ -48,27 +48,123 @@ import "../styles/components.css";
         <header style="background-color: #E6E6E6; padding: 0.75rem 2rem;">
             <div
                 style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img
-                        src="/images/logo.png"
-                        alt="Logo"
-                        style="width: 45px; height: auto;"
-                    />
-                    <h1
-                        style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.75rem; color: #1a1a1a;">
-                        EgresadosIES
-                    </h1>
-                </div>
-                {
-                    !hideAccederButton && (
-                        <a
-                            href="/acceso"
-                            id="acceder-btn"
-                            style="background: #5284e0; color: white; padding: 0.5rem 1.5rem; border-radius: 25px; text-decoration: none; font-family: 'Pontano Sans', sans-serif; font-weight: 700; font-size: 0.9rem; transition: background 0.3s ease;">
-                            Acceder
+                <div style="display: flex; align-items: center; gap: 2rem;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <img
+                            src="/images/logo.png"
+                            alt="Logo"
+                            style="width: 45px; height: auto;"
+                        />
+                        <a href="/" style="text-decoration: none;">
+                            <h1
+                                style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.75rem; color: #1a1a1a;">
+                                EgresadosIES
+                            </h1>
                         </a>
-                    )
-                }
+                    </div>
+
+                    <!-- Navegación -->
+                    <nav
+                        style="display: flex; gap: 1.5rem; align-items: center;">
+                        <a
+                            href="/perfiles"
+                            style="color: #374151; text-decoration: none; font-family: 'Inter', sans-serif; font-weight: 500; transition: color 0.2s ease;"
+                            onmouseover="this.style.color='#3b82f6'"
+                            onmouseout="this.style.color='#374151'">
+                            Perfiles
+                        </a>
+
+                        <!-- Navegación para usuarios autenticados -->
+                        <a
+                            href="/dashboard"
+                            id="dashboard-link"
+                            style="color: #374151; text-decoration: none; font-family: 'Inter', sans-serif; font-weight: 500; transition: color 0.2s ease; display: none;"
+                            onmouseover="this.style.color='#3b82f6'"
+                            onmouseout="this.style.color='#374151'">
+                            Dashboard
+                        </a>
+
+                        <a
+                            href="/perfil/editar"
+                            id="perfil-link"
+                            style="color: #374151; text-decoration: none; font-family: 'Inter', sans-serif; font-weight: 500; transition: color 0.2s ease; display: none;"
+                            onmouseover="this.style.color='#3b82f6'"
+                            onmouseout="this.style.color='#374151'">
+                            Mi Perfil
+                        </a>
+
+                        <a
+                            href="/admin"
+                            id="admin-link"
+                            style="color: #374151; text-decoration: none; font-family: 'Inter', sans-serif; font-weight: 500; transition: color 0.2s ease; display: none;"
+                            onmouseover="this.style.color='#3b82f6'"
+                            onmouseout="this.style.color='#374151'">
+                            Admin
+                        </a>
+                    </nav>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    {
+                        !hideAccederButton && (
+                            <a
+                                href="/acceso"
+                                id="acceder-btn"
+                                style="background: #5284e0; color: white; padding: 0.5rem 1.5rem; border-radius: 25px; text-decoration: none; font-family: 'Pontano Sans', sans-serif; font-weight: 700; font-size: 0.9rem; transition: background 0.3s ease;">
+                                Acceder
+                            </a>
+                        )
+                    }
+
+                    <!-- Perfil de usuario autenticado -->
+                    <div
+                        id="user-profile"
+                        style="display: none; position: relative; cursor: pointer;">
+                        <div
+                            style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 25px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2);">
+                            <img
+                                id="user-avatar"
+                                src="/default-avatar.svg"
+                                alt="Avatar"
+                                style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;"
+                            />
+                            <span
+                                id="user-name-nav"
+                                style="font-family: 'Inter', sans-serif; font-weight: 500; color: #374151; font-size: 0.9rem;">
+                                Usuario
+                            </span>
+                            <svg
+                                width="12"
+                                height="12"
+                                fill="currentColor"
+                                style="color: #6b7280;">
+                                <path d="M6 9l3-3H3l3 3z"></path>
+                            </svg>
+                        </div>
+
+                        <!-- Dropdown menu -->
+                        <div
+                            id="user-dropdown"
+                            style="display: none; position: absolute; top: 100%; right: 0; margin-top: 0.5rem; background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); min-width: 160px; z-index: 1000;">
+                            <a
+                                href="/perfil/editar"
+                                style="display: block; padding: 0.75rem 1rem; color: #374151; text-decoration: none; font-family: 'Inter', sans-serif; font-size: 0.875rem; transition: background 0.2s;"
+                                onmouseover="this.style.background='#f3f4f6'"
+                                onmouseout="this.style.background='transparent'">
+                                Mi Perfil
+                            </a>
+                            <hr
+                                style="margin: 0; border: none; border-top: 1px solid #e5e7eb;"
+                            />
+                            <button
+                                id="logout-btn"
+                                style="display: block; width: 100%; text-align: left; padding: 0.75rem 1rem; color: #dc2626; background: none; border: none; font-family: 'Inter', sans-serif; font-size: 0.875rem; cursor: pointer; transition: background 0.2s;"
+                                onmouseover="this.style.background='#fef2f2'"
+                                onmouseout="this.style.background='transparent'">
+                                Cerrar Sesión
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </header>
 
@@ -102,30 +198,159 @@ import "../styles/components.css";
 
         <!-- Scripts -->
         <script>
-            // Check if user is authenticated and show/hide "Acceder" button
-            const accederBtn = document.getElementById(
-                "acceder-btn"
-            ) as HTMLElement;
-            const token = localStorage.getItem("auth_token");
+            document.addEventListener("DOMContentLoaded", () => {
+                // Referencias a elementos
+                const accederBtn = document.getElementById(
+                    "acceder-btn"
+                ) as HTMLElement;
+                const userProfile = document.getElementById(
+                    "user-profile"
+                ) as HTMLElement;
+                const userAvatar = document.getElementById(
+                    "user-avatar"
+                ) as HTMLImageElement;
+                const userNameNav = document.getElementById(
+                    "user-name-nav"
+                ) as HTMLElement;
+                const userDropdown = document.getElementById(
+                    "user-dropdown"
+                ) as HTMLElement;
+                const logoutBtn = document.getElementById(
+                    "logout-btn"
+                ) as HTMLButtonElement;
 
-            if (accederBtn) {
-                if (!token) {
-                    // No hay token, mostrar botón
-                    accederBtn.classList.add("show");
+                // Enlaces de navegación
+                const dashboardLink = document.getElementById(
+                    "dashboard-link"
+                ) as HTMLElement;
+                const perfilLink = document.getElementById(
+                    "perfil-link"
+                ) as HTMLElement;
+                const adminLink = document.getElementById(
+                    "admin-link"
+                ) as HTMLElement;
 
-                    // Hover effect for acceder button
-                    accederBtn.addEventListener("mouseenter", () => {
-                        accederBtn.style.background = "#3d6fc7";
-                        accederBtn.style.boxShadow =
-                            "0 4px 12px rgba(82, 132, 224, 0.3)";
-                    });
-                    accederBtn.addEventListener("mouseleave", () => {
-                        accederBtn.style.background = "#5284e0";
-                        accederBtn.style.boxShadow = "none";
-                    });
+                // Verificar autenticación
+                const token = localStorage.getItem("auth_token");
+                const userData = localStorage.getItem("user_data");
+
+                if (token && userData) {
+                    try {
+                        const user = JSON.parse(userData);
+                        setupAuthenticatedUI(user);
+                    } catch (error) {
+                        console.error("Error parsing user data:", error);
+                        clearAuth();
+                        setupUnauthenticatedUI();
+                    }
+                } else {
+                    setupUnauthenticatedUI();
                 }
-                // Si hay token, el botón se mantiene oculto por el CSS
-            }
+
+                function setupAuthenticatedUI(user) {
+                    // Ocultar botón de acceder
+                    if (accederBtn) {
+                        accederBtn.style.display = "none";
+                    }
+
+                    // Mostrar perfil de usuario
+                    if (userProfile) {
+                        userProfile.style.display = "block";
+
+                        // Configure user info
+                        if (userNameNav) {
+                            userNameNav.textContent = user.nombre || "Usuario";
+                        }
+
+                        // Configure avatar if available
+                        // You can expand this to load user's actual avatar
+                        if (userAvatar) {
+                            userAvatar.src =
+                                user.avatar || "/default-avatar.svg";
+                        }
+                    }
+
+                    // Mostrar navegación según el tipo de usuario
+                    if (user.tipo_usuario === "Egresado") {
+                        if (dashboardLink)
+                            dashboardLink.style.display = "block";
+                        if (perfilLink) perfilLink.style.display = "block";
+                        if (adminLink) adminLink.style.display = "none";
+                    } else if (user.tipo_usuario === "Administrador") {
+                        if (dashboardLink) dashboardLink.style.display = "none";
+                        if (perfilLink) perfilLink.style.display = "block";
+                        if (adminLink) adminLink.style.display = "block";
+                    }
+
+                    // Setup dropdown functionality
+                    setupDropdown();
+                }
+
+                function setupUnauthenticatedUI() {
+                    // Mostrar botón de acceder
+                    if (accederBtn) {
+                        accederBtn.classList.add("show");
+
+                        // Hover effect for acceder button
+                        accederBtn.addEventListener("mouseenter", () => {
+                            accederBtn.style.background = "#3d6fc7";
+                            accederBtn.style.boxShadow =
+                                "0 4px 12px rgba(82, 132, 224, 0.3)";
+                        });
+                        accederBtn.addEventListener("mouseleave", () => {
+                            accederBtn.style.background = "#5284e0";
+                            accederBtn.style.boxShadow = "none";
+                        });
+                    }
+
+                    // Ocultar perfil de usuario
+                    if (userProfile) {
+                        userProfile.style.display = "none";
+                    }
+
+                    // Ocultar navegación autenticada
+                    if (dashboardLink) dashboardLink.style.display = "none";
+                    if (perfilLink) perfilLink.style.display = "none";
+                    if (adminLink) adminLink.style.display = "none";
+                }
+
+                function setupDropdown() {
+                    if (!userProfile || !userDropdown) return;
+
+                    // Toggle dropdown
+                    userProfile.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                        const isVisible =
+                            userDropdown.style.display === "block";
+                        userDropdown.style.display = isVisible
+                            ? "none"
+                            : "block";
+                    });
+
+                    // Close dropdown when clicking outside
+                    document.addEventListener("click", () => {
+                        userDropdown.style.display = "none";
+                    });
+
+                    // Prevent dropdown from closing when clicking inside
+                    userDropdown.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                    });
+
+                    // Logout functionality
+                    if (logoutBtn) {
+                        logoutBtn.addEventListener("click", () => {
+                            clearAuth();
+                            window.location.href = "/";
+                        });
+                    }
+                }
+
+                function clearAuth() {
+                    localStorage.removeItem("auth_token");
+                    localStorage.removeItem("user_data");
+                }
+            });
         </script>
     </body>
 </html>

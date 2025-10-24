@@ -366,11 +366,12 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             if (data.success && data.token) {
                 localStorage.setItem("auth_token", data.token);
                 localStorage.setItem(
-                    "user",
+                    "user_data",
                     JSON.stringify({
-                        dni: data.dni,
-                        tipoUsuario: data.tipoUsuario,
-                        email: data.email,
+                        id: data.user.id,
+                        tipo_usuario: data.user.tipo_usuario,
+                        email: data.user.email,
+                        nombre: data.user.nombre || `Usuario ${data.user.id}`,
                     })
                 );
 
@@ -378,9 +379,9 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                 setAuthToken(data.token);
 
                 // Redirección según tipo de usuario
-                if (data.tipoUsuario === "administrador") {
+                if (data.user.tipo_usuario === "Administrador") {
                     window.location.href = "/admin";
-                } else if (data.isNewUser) {
+                } else if (data.user.isNewUser) {
                     window.location.href = "/perfil/editar";
                 } else {
                     window.location.href = "/dashboard";

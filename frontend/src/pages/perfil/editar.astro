@@ -144,26 +144,9 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                     </button>
                 </nav>
 
-                <!-- Acciones globales en sidebar -->
+                <!-- Acciones globales en sidebar - eliminado botón Guardar Perfil -->
                 <div class="global-actions">
-                    <button
-                        class="btn-primary"
-                        id="save-profile-btn"
-                        style="display: none;">
-                        <span class="btn-text">Guardar Perfil</span>
-                        <div class="loading-spinner" style="display: none;">
-                            <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor">
-                                <path
-                                    d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.49 8.49l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.49-8.49l2.83-2.83"
-                                ></path>
-                            </svg>
-                        </div>
-                    </button>
+                    <!-- Solo navegación, el guardado se hace desde cada sección -->
                 </div>
             </aside>
 
@@ -493,14 +476,9 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
             }
         }
 
-        /* Acciones globales - movidas al sidebar */
+        /* Acciones globales - simplificado (sin botón Guardar Perfil) */
         .global-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            margin-top: auto;
-            padding: 1.5rem 2rem 2rem;
-            border-top: 1px solid #e5e7eb;
+            display: none; /* Ya no se usa */
         }
 
         /* Botones */
@@ -773,14 +751,44 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
             }
 
             async init() {
+                console.log("ProfileEditor init started");
+
+                // Esperar a que los managers de los componentes estén listos
+                await this.waitForManagers();
+
                 this.bindEvents();
                 await this.loadUserProfile();
                 this.setupAutoSave();
 
                 // Hacer disponible globalmente para los componentes
                 window.profileEditor = this;
+
+                console.log("ProfileEditor init completed");
             }
 
+            async waitForManagers() {
+                console.log("Esperando a que los managers estén listos...");
+
+                // Esperar hasta que el DatosPersonalesManager esté disponible
+                let attempts = 0;
+                const maxAttempts = 50; // 5 segundos máximo
+
+                while (
+                    !window.datosPersonalesManager &&
+                    attempts < maxAttempts
+                ) {
+                    await new Promise((resolve) => setTimeout(resolve, 100));
+                    attempts++;
+                }
+
+                if (window.datosPersonalesManager) {
+                    console.log("✅ DatosPersonalesManager está listo");
+                } else {
+                    console.warn(
+                        "⚠️ DatosPersonalesManager no se inicializó a tiempo"
+                    );
+                }
+            }
             bindEvents() {
                 // Navegación entre secciones
                 document.querySelectorAll(".nav-btn").forEach((btn) => {
@@ -803,18 +811,15 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                         this.handlePhotoUpload(e);
                     });
 
-                // Botones globales
-                document
-                    .getElementById("save-profile-btn")
-                    .addEventListener("click", () => {
-                        this.saveProfile();
-                    });
+                // Botones globales - save-profile-btn eliminado
+                // document
+                //     .getElementById("cancel-btn")
+                //     .addEventListener("click", () => {
+                //         this.cancelEditing();
+                //     });
 
-                document
-                    .getElementById("cancel-btn")
-                    .addEventListener("click", () => {
-                        this.cancelEditing();
-                    });
+                // Botones "Siguiente" de cada sección
+                this.bindSectionButtons();
 
                 // Detectar cambios en formularios
                 document.addEventListener("input", () => {
@@ -833,14 +838,138 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                 this.bindComponentEvents();
             }
 
+            bindSectionButtons() {
+                console.log("Binding section buttons...");
+
+                // Botones "Siguiente" de cada sección
+                const sectionButtons = [
+                    { id: "save-datos-personales", nextSection: "formaciones" },
+                    { id: "save-formaciones", nextSection: "experiencias" },
+                    { id: "save-experiencias", nextSection: "habilidades" },
+                    { id: "save-habilidades", nextSection: "proyectos" },
+                    { id: "save-proyectos", nextSection: null }, // última sección
+                ];
+
+                // Debug: verificar qué botones están disponibles
+                console.log(
+                    "Available buttons:",
+                    sectionButtons.map(({ id }) => {
+                        const btn = document.getElementById(id);
+                        return { id, found: !!btn, element: btn };
+                    })
+                );
+
+                sectionButtons.forEach(({ id, nextSection }) => {
+                    const button = document.getElementById(id);
+                    if (button) {
+                        console.log(`✅ Found button: ${id}`);
+
+                        // Remover event listeners existentes
+                        const newButton = button.cloneNode(true);
+                        button.parentNode.replaceChild(newButton, button);
+
+                        newButton.addEventListener("click", async (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            console.log(
+                                `🔥 Button clicked: ${id}, navigating to: ${nextSection}`
+                            );
+
+                            // Desactivar botón mientras procesa
+                            newButton.disabled = true;
+                            const originalText = newButton.textContent;
+                            newButton.textContent = "Guardando...";
+
+                            try {
+                                // Si es la primera sección (datos personales), guardar los datos
+                                if (id === "save-datos-personales") {
+                                    console.log(
+                                        "💾 Guardando datos personales..."
+                                    );
+                                    await this.saveProfile();
+                                    this.showNotification(
+                                        "Datos personales guardados correctamente",
+                                        "success"
+                                    );
+                                }
+                                // Si es la última sección (proyectos), guardar todo el perfil
+                                else if (
+                                    !nextSection &&
+                                    id === "save-proyectos"
+                                ) {
+                                    console.log(
+                                        "💾 Guardando perfil completo..."
+                                    );
+                                    await this.saveProfile();
+                                    this.showNotification(
+                                        "¡Perfil guardado exitosamente!",
+                                        "success"
+                                    );
+                                } else {
+                                    // Para otras secciones, solo mostrar mensaje por ahora
+                                    this.showNotification(
+                                        "Navegando a la siguiente sección",
+                                        "success"
+                                    );
+                                }
+
+                                // Si hay siguiente sección, navegar
+                                if (nextSection) {
+                                    console.log(
+                                        `Navigating to: ${nextSection}`
+                                    );
+                                    setTimeout(() => {
+                                        this.switchSection(nextSection);
+                                    }, 300);
+                                } else {
+                                    // Última sección - mostrar mensaje final adicional
+                                    setTimeout(() => {
+                                        this.showNotification(
+                                            "¡Perfil completado exitosamente!",
+                                            "success"
+                                        );
+                                    }, 1000);
+                                }
+                            } catch (error) {
+                                console.error("Error:", error);
+                                this.showNotification(
+                                    "Error al guardar la sección",
+                                    "error"
+                                );
+                            } finally {
+                                // Restaurar botón después de un delay
+                                setTimeout(() => {
+                                    newButton.disabled = false;
+                                    newButton.textContent = originalText;
+                                }, 1200);
+                            }
+                        });
+                    } else {
+                        console.warn(`❌ Button with id "${id}" not found`);
+                    }
+                });
+
+                console.log("Section buttons binding completed");
+            }
+
             switchSection(sectionId) {
+                console.log(`🔄 Switching to section: ${sectionId}`);
+
                 // Actualizar navegación
                 document.querySelectorAll(".nav-btn").forEach((btn) => {
                     btn.classList.remove("active");
                 });
-                document
-                    .querySelector(`[data-section="${sectionId}"]`)
-                    .classList.add("active");
+
+                const navBtn = document.querySelector(
+                    `[data-section="${sectionId}"]`
+                );
+                if (navBtn) {
+                    navBtn.classList.add("active");
+                    console.log(`✅ Updated nav button for: ${sectionId}`);
+                } else {
+                    console.warn(`❌ Nav button not found for: ${sectionId}`);
+                }
 
                 // Mostrar sección correspondiente
                 document
@@ -848,15 +977,22 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                     .forEach((section) => {
                         section.classList.remove("active");
                     });
-                document.getElementById(sectionId).classList.add("active");
+
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    targetSection.classList.add("active");
+                    console.log(`✅ Activated section: ${sectionId}`);
+                } else {
+                    console.warn(`❌ Section not found: ${sectionId}`);
+                }
 
                 // Actualizar título de sección
                 this.updateSectionTitle(sectionId);
 
-                // Actualizar botón de guardar según la sección
-                this.updateSaveButton(sectionId);
+                // updateSaveButton eliminado - ya no se usa
 
                 this.currentSection = sectionId;
+                console.log(`✅ Section switch completed: ${sectionId}`);
             }
 
             /**
@@ -899,29 +1035,17 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                 }
             }
 
-            /**
-             * Actualizar botón de guardar según la sección actual
-             */
-            updateSaveButton(sectionId) {
-                const saveBtn = document.getElementById("save-profile-btn");
-                const isLastSection = sectionId === "proyectos";
-
-                if (saveBtn) {
-                    if (isLastSection) {
-                        saveBtn.style.display = "flex";
-                    } else {
-                        saveBtn.style.display = "none";
-                    }
-                }
-            }
+            // updateSaveButton eliminado - ya no se usa el botón Guardar Perfil
 
             async loadUserProfile() {
                 try {
-                    this.setLoading(true);
+                    // this.setLoading(true); // eliminado
 
                     const response = await apiRequest(() =>
                         profileService.getMyProfile()
                     );
+
+                    console.log("Respuesta cruda de la API:", response);
                     this.profileData = response;
 
                     // Actualizar header
@@ -934,12 +1058,12 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                         })
                     );
 
-                    console.log("Perfil cargado:", response);
+                    console.log("Perfil cargado correctamente:", response);
                 } catch (error) {
                     console.error("Error cargando perfil:", error);
                     this.showNotification("Error al cargar el perfil", "error");
                 } finally {
-                    this.setLoading(false);
+                    // this.setLoading(false); // eliminado
                 }
             }
 
@@ -948,34 +1072,42 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                 const subtitleEl = document.getElementById("profile-subtitle");
                 const imageEl = document.getElementById("profile-image");
 
-                if (nameEl && profileData.nombre) {
-                    nameEl.textContent = profileData.nombre;
+                // Usar la estructura de datos de la API real
+                const usuario =
+                    profileData.data?.usuario ||
+                    profileData.usuario ||
+                    profileData;
+                const carrera =
+                    profileData.data?.carrera || profileData.carrera;
+                const perfil =
+                    profileData.data?.perfil || profileData.perfil || {};
+
+                if (nameEl && usuario?.nombre) {
+                    nameEl.textContent = usuario.nombre;
                 }
 
                 // Generar subtítulo dinámico basado en el perfil
                 if (subtitleEl) {
-                    let subtitle = "Desarrollador de Software";
+                    let subtitle = "Egresado IES";
 
-                    if (profileData.titulo_profesional) {
-                        subtitle = profileData.titulo_profesional;
-                    } else if (profileData.area_interes) {
-                        subtitle = `Especialista en ${profileData.area_interes}`;
-                    } else if (profileData.carrera) {
-                        subtitle = `Egresado de ${profileData.carrera}`;
+                    if (carrera?.nombre) {
+                        subtitle = `Egresado de ${carrera.nombre}`;
+                    } else if (perfil.situacionLaboral) {
+                        subtitle = perfil.situacionLaboral;
                     }
 
                     subtitleEl.textContent = subtitle;
                 }
 
-                // Cargar imagen de perfil (desde ImageKit si está disponible)
+                // Cargar imagen de perfil
                 if (imageEl) {
                     let imageUrl = "/default-avatar.svg"; // Imagen por defecto
 
-                    if (profileData.foto_perfil) {
+                    if (perfil.urlFotoPerfil) {
                         // Si tiene foto en ImageKit, generar URL optimizada
-                        if (ImageUtils.isImageKitUrl(profileData.foto_perfil)) {
+                        if (ImageUtils.isImageKitUrl(perfil.urlFotoPerfil)) {
                             imageUrl = imageKitService.generateTransformedUrl(
-                                profileData.foto_perfil,
+                                perfil.urlFotoPerfil,
                                 {
                                     width: 200,
                                     height: 200,
@@ -983,12 +1115,9 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                                 }
                             );
                         } else {
-                            // URL legacy o externa
-                            imageUrl = profileData.foto_perfil;
+                            // URL directa
+                            imageUrl = perfil.urlFotoPerfil;
                         }
-                    } else if (profileData.urlFotoPerfil) {
-                        // Compatibilidad con campo legacy
-                        imageUrl = profileData.urlFotoPerfil;
                     }
 
                     imageEl.src = imageUrl;
@@ -1000,7 +1129,7 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                 if (!file) return;
 
                 try {
-                    this.setLoading(true);
+                    // this.setLoading(true); // eliminado
 
                     // Validar imagen antes de subir
                     await imageKitService.validateImage(file);
@@ -1052,12 +1181,24 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                             imageEl.src = optimizedUrl;
                         }
 
-                        // Guardar en los datos del perfil
-                        if (!this.profileData) this.profileData = {};
-                        this.profileData.foto_perfil = uploadResult.url;
-                        this.profileData.foto_perfil_id = uploadResult.fileId;
+                        // Guardar directamente la foto de perfil en la API
+                        await apiRequest(() =>
+                            profileService.updateMyProfile({
+                                urlFotoPerfil: uploadResult.url,
+                            })
+                        );
 
-                        this.hasUnsavedChanges = true;
+                        // Actualizar datos locales
+                        if (!this.profileData)
+                            this.profileData = { data: { perfil: {} } };
+                        if (!this.profileData.data)
+                            this.profileData.data = { perfil: {} };
+                        if (!this.profileData.data.perfil)
+                            this.profileData.data.perfil = {};
+
+                        this.profileData.data.perfil.urlFotoPerfil =
+                            uploadResult.url;
+
                         this.showNotification(
                             "Foto de perfil actualizada correctamente",
                             "success"
@@ -1091,7 +1232,7 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                     // Revertir preview si falló la subida
                     this.loadProfileImage();
                 } finally {
-                    this.setLoading(false);
+                    // this.setLoading(false); // eliminado
                 }
             }
 
@@ -1102,15 +1243,14 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                 const imageEl = document.getElementById("profile-image");
                 if (!imageEl) return;
 
+                const perfil = this.profileData?.data?.perfil || {};
                 let imageUrl = "/default-avatar.svg"; // Imagen por defecto
 
-                if (this.profileData?.foto_perfil) {
+                if (perfil.urlFotoPerfil) {
                     // Si tiene foto en ImageKit, generar URL optimizada
-                    if (
-                        ImageUtils.isImageKitUrl(this.profileData.foto_perfil)
-                    ) {
+                    if (ImageUtils.isImageKitUrl(perfil.urlFotoPerfil)) {
                         imageUrl = imageKitService.generateTransformedUrl(
-                            this.profileData.foto_perfil,
+                            perfil.urlFotoPerfil,
                             {
                                 width: 200,
                                 height: 200,
@@ -1118,12 +1258,9 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                             }
                         );
                     } else {
-                        // URL legacy o externa
-                        imageUrl = this.profileData.foto_perfil;
+                        // URL directa
+                        imageUrl = perfil.urlFotoPerfil;
                     }
-                } else if (this.profileData?.urlFotoPerfil) {
-                    // Compatibilidad con campo legacy
-                    imageUrl = this.profileData.urlFotoPerfil;
                 }
 
                 if (imageEl.tagName === "IMG") {
@@ -1133,101 +1270,30 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
 
             async saveProfile() {
                 try {
-                    this.setLoading(true);
+                    console.log("💾 Iniciando guardado del perfil...");
 
-                    // Recopilar datos de todos los componentes
+                    // Recopilar datos solo del perfil principal (datos personales)
                     const formData = this.gatherFormData();
 
-                    // Guardar en el backend
-                    await apiRequest(() =>
+                    console.log("Datos a guardar:", formData);
+
+                    // Guardar en el backend usando la API correcta
+                    const response = await apiRequest(() =>
                         profileService.updateMyProfile(formData)
                     );
 
+                    console.log("Respuesta del guardado:", response);
+
                     this.hasUnsavedChanges = false;
-                    this.showNotification(
-                        "Perfil guardado exitosamente",
-                        "success"
-                    );
+
+                    return true; // Indicar éxito
                 } catch (error) {
                     console.error("Error guardando perfil:", error);
-                    this.showNotification(
-                        "Error al guardar el perfil",
-                        "error"
-                    );
-                } finally {
-                    this.setLoading(false);
+                    throw error; // Re-lanzar para que el botón lo maneje
                 }
             }
 
             bindComponentEvents() {
-                // Eventos de datos personales
-                window.addEventListener("save-section-data", async (e) => {
-                    const customEvent = e;
-                    if (
-                        customEvent.detail &&
-                        customEvent.detail.section === "datos-personales"
-                    ) {
-                        await this.saveSectionData(customEvent.detail.data);
-                    }
-                });
-
-                // Eventos de experiencias
-                window.addEventListener("experiencia-saved", async (e) => {
-                    const customEvent = e;
-                    if (customEvent.detail) {
-                        await this.handleExperienciaSaved(customEvent.detail);
-                    }
-                });
-
-                window.addEventListener("experiencia-deleted", async (e) => {
-                    const customEvent = e;
-                    if (customEvent.detail) {
-                        await this.handleExperienciaDeleted(
-                            customEvent.detail.id
-                        );
-                    }
-                });
-
-                // Eventos de formaciones
-                window.addEventListener("formacion-saved", async (e) => {
-                    const customEvent = e;
-                    if (customEvent.detail) {
-                        await this.handleFormacionSaved(customEvent.detail);
-                    }
-                });
-
-                window.addEventListener("formacion-deleted", async (e) => {
-                    const customEvent = e;
-                    if (customEvent.detail) {
-                        await this.handleFormacionDeleted(
-                            customEvent.detail.id
-                        );
-                    }
-                });
-
-                // Eventos de cursos y habilidades
-                window.addEventListener("curso-saved", async (e) => {
-                    const customEvent = e;
-                    if (customEvent.detail) {
-                        await this.handleCursoSaved(customEvent.detail);
-                    }
-                });
-
-                window.addEventListener("curso-deleted", async (e) => {
-                    const customEvent = e;
-                    if (customEvent.detail) {
-                        await this.handleCursoDeleted(customEvent.detail.id);
-                    }
-                });
-
-                window.addEventListener("habilidad-added", (e) => {
-                    this.hasUnsavedChanges = true;
-                });
-
-                window.addEventListener("habilidad-removed", (e) => {
-                    this.hasUnsavedChanges = true;
-                });
-
                 // Mostrar notificaciones
                 window.addEventListener("show-notification", (e) => {
                     const customEvent = e;
@@ -1238,163 +1304,80 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                         );
                     }
                 });
-            }
 
-            async saveSectionData(data) {
-                try {
-                    await apiRequest(() =>
-                        profileService.updateMyProfile(data)
-                    );
-                    this.hasUnsavedChanges = false;
-                    return true;
-                } catch (error) {
-                    console.error("Error guardando sección:", error);
-                    this.showNotification(
-                        "Error al guardar los datos",
-                        "error"
-                    );
-                    return false;
-                }
-            }
+                // Marcar cambios sin guardar
+                window.addEventListener("profile-data-changed", () => {
+                    this.hasUnsavedChanges = true;
+                });
 
-            async handleExperienciaSaved(experienciaData) {
-                try {
-                    if (experienciaData.isNew) {
-                        await apiRequest(() =>
-                            profileService.addExperiencia(experienciaData)
-                        );
-                    } else {
-                        await apiRequest(() =>
-                            profileService.updateExperiencia(
-                                experienciaData.id,
-                                experienciaData
-                            )
-                        );
+                // Escuchar eventos de guardado por sección
+                window.addEventListener("save-section-data", async (e) => {
+                    const customEvent = e;
+                    if (customEvent.detail) {
+                        try {
+                            console.log(
+                                "💾 Guardando sección:",
+                                customEvent.detail.section
+                            );
+                            console.log("📋 Datos:", customEvent.detail.data);
+
+                            // Guardar los datos usando la API
+                            const response = await apiRequest(() =>
+                                profileService.updateMyProfile(
+                                    customEvent.detail.data
+                                )
+                            );
+
+                            console.log(
+                                "✅ Sección guardada exitosamente:",
+                                response
+                            );
+                            this.hasUnsavedChanges = false;
+                        } catch (error) {
+                            console.error("❌ Error guardando sección:", error);
+                            this.showNotification(
+                                "Error al guardar los datos",
+                                "error"
+                            );
+                        }
                     }
-                    this.hasUnsavedChanges = false;
-                } catch (error) {
-                    console.error("Error guardando experiencia:", error);
-                    this.showNotification(
-                        "Error al guardar la experiencia",
-                        "error"
-                    );
-                }
+                });
             }
 
-            async handleExperienciaDeleted(id) {
-                try {
-                    await apiRequest(() =>
-                        profileService.deleteExperiencia(id)
-                    );
-                } catch (error) {
-                    console.error("Error eliminando experiencia:", error);
-                    this.showNotification(
-                        "Error al eliminar la experiencia",
-                        "error"
-                    );
-                }
-            }
-
-            async handleFormacionSaved(formacionData) {
-                try {
-                    if (formacionData.isNew) {
-                        await apiRequest(() =>
-                            profileService.addFormacion(formacionData)
-                        );
-                    } else {
-                        await apiRequest(() =>
-                            profileService.updateFormacion(
-                                formacionData.id,
-                                formacionData
-                            )
-                        );
-                    }
-                    this.hasUnsavedChanges = false;
-                } catch (error) {
-                    console.error("Error guardando formación:", error);
-                    this.showNotification(
-                        "Error al guardar la formación",
-                        "error"
-                    );
-                }
-            }
-
-            async handleFormacionDeleted(id) {
-                try {
-                    await apiRequest(() => profileService.deleteFormacion(id));
-                } catch (error) {
-                    console.error("Error eliminando formación:", error);
-                    this.showNotification(
-                        "Error al eliminar la formación",
-                        "error"
-                    );
-                }
-            }
-
-            async handleCursoSaved(cursoData) {
-                try {
-                    if (cursoData.isNew) {
-                        await apiRequest(() =>
-                            profileService.addCurso(cursoData)
-                        );
-                    } else {
-                        await apiRequest(() =>
-                            profileService.updateCurso(cursoData.id, cursoData)
-                        );
-                    }
-                    this.hasUnsavedChanges = false;
-                } catch (error) {
-                    console.error("Error guardando curso:", error);
-                    this.showNotification("Error al guardar el curso", "error");
-                }
-            }
-
-            async handleCursoDeleted(id) {
-                try {
-                    await apiRequest(() => profileService.deleteCurso(id));
-                } catch (error) {
-                    console.error("Error eliminando curso:", error);
-                    this.showNotification(
-                        "Error al eliminar el curso",
-                        "error"
-                    );
-                }
-            }
+            // Métodos de manejo de eventos eliminados - ahora usamos guardado directo por sección
 
             gatherFormData() {
-                // Recopilar datos de todos los componentes
-                const win = window;
-                const datosPersonales =
-                    win.datosPersonalesManager &&
-                    win.datosPersonalesManager.getFormData
-                        ? win.datosPersonalesManager.getFormData()
-                        : {};
-                const experiencias =
-                    win.experienciasManager &&
-                    win.experienciasManager.getExperienciasData
-                        ? win.experienciasManager.getExperienciasData()
-                        : [];
-                const formaciones =
-                    win.formacionesManager &&
-                    win.formacionesManager.getFormacionesData
-                        ? win.formacionesManager.getFormacionesData()
-                        : [];
-                const habilidades =
-                    win.cursosManager && win.cursosManager.getHabilidadesData
-                        ? win.cursosManager.getHabilidadesData()
-                        : [];
-                const cursos =
-                    win.cursosManager && win.cursosManager.getCursosData
-                        ? win.cursosManager.getCursosData()
-                        : [];
+                console.log("🔍 Recopilando datos del formulario...");
 
-                return {
+                // Verificar que el manager existe
+                const win = window;
+                if (!win.datosPersonalesManager) {
+                    console.error(
+                        "❌ datosPersonalesManager no está disponible"
+                    );
+                    return {};
+                }
+
+                // Recopilar datos del formulario
+                const datosPersonales =
+                    win.datosPersonalesManager.getFormData();
+                console.log("Datos del formulario:", datosPersonales);
+
+                // Los datos ya vienen mapeados correctamente desde getFormData()
+                // Solo necesitamos añadir campos adicionales del perfil existente
+                const mappedData = {
+                    // Datos personales (ya mapeados en DatosPersonales.getFormData())
                     ...datosPersonales,
-                    experienciasLaborales: experiencias,
-                    formacionAcademica: formaciones,
-                    habilidades: habilidades,
-                    cursos: cursos,
+
+                    // Campos adicionales del perfil que no se editan en esta sección
+                    urlFotoPerfil:
+                        this.profileData?.data?.perfil?.urlFotoPerfil || null,
+                    urlBanner:
+                        this.profileData?.data?.perfil?.urlBanner || null,
                 };
+
+                console.log("Datos mapeados para la API:", mappedData);
+                return mappedData;
             }
 
             cancelEditing() {
@@ -1424,24 +1407,7 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                 );
             }
 
-            setLoading(loading) {
-                this.isLoading = loading;
-                const btn = document.getElementById("save-profile-btn");
-                if (!btn) return;
-
-                const text = btn.querySelector(".btn-text");
-                const spinner = btn.querySelector(".loading-spinner");
-
-                btn.disabled = loading;
-
-                if (loading) {
-                    if (text) text.style.display = "none";
-                    if (spinner) spinner.style.display = "block";
-                } else {
-                    if (text) text.style.display = "block";
-                    if (spinner) spinner.style.display = "none";
-                }
-            }
+            // setLoading eliminado - ya no se usa el botón Guardar Perfil
 
             showNotification(message, type = "info") {
                 // Crear elemento de notificación
@@ -1488,7 +1454,11 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
 
         // Inicializar cuando el DOM esté listo
         document.addEventListener("DOMContentLoaded", () => {
-            new ProfileEditor();
+            console.log("Initializing ProfileEditor...");
+            const editor = new ProfileEditor();
+
+            // Hacer disponible globalmente
+            window.profileEditor = editor;
         });
     </script>
 </BaseLayout>

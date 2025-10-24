@@ -35,7 +35,6 @@ CREATE TABLE Carrera (
 CREATE TABLE Usuario (
   id INTEGER PRIMARY KEY,
   nombre TEXT NOT NULL,
-  apellido TEXT, -- Campo agregado para apellido del usuario
   email TEXT NOT NULL UNIQUE,
   password TEXT NOT NULL,
   tipo_usuario TEXT NOT NULL CHECK (tipo_usuario IN ('Egresado', 'Administrador'))
@@ -53,17 +52,7 @@ CREATE TABLE Perfil (
   urlPortfolio TEXT,
   situacionLaboral TEXT,
   urlFotoPerfil TEXT, -- Campo para la foto de perfil
-  urlBanner TEXT, -- Campo para la imagen de banner
-  perfilPublico BOOLEAN DEFAULT 0, -- Indica si el perfil es público
-  mostrarContacto BOOLEAN DEFAULT 0, -- Indica si mostrar información de contacto
-  disponibleOfertas BOOLEAN DEFAULT 0, -- Indica si está disponible para ofertas laborales
-  tituloprofesional TEXT, -- Título profesional del egresado
-  areaInteres TEXT, -- Área de interés profesional
-  fechaNacimiento DATE, -- Fecha de nacimiento
-  direccion TEXT, -- Dirección del egresado
-  ciudad TEXT, -- Ciudad de residencia
-  provincia TEXT, -- Provincia de residencia
-  pais TEXT DEFAULT 'Argentina' -- País de residencia
+  urlBanner TEXT -- Campo para la imagen de banner
 );
 
 -- -----------------------------------------------------------------
