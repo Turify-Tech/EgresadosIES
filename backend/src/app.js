@@ -5,6 +5,11 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import database from "./config/database.js";
 import authRoutes from "./routes/authRoutes.js";
+import busquedaRoutes from "./routes/busquedaRoutes.js";
+import perfilRoutes from "./routes/perfilRoutes.js";
+import perfilesRoutes from "./routes/perfilesRoutes.js";
+import carrerasRoutes from "./routes/carrerasRoutes.js";
+import mensajesRoutes from "./routes/mensajesRoutes.js";
 
 dotenv.config();
 
