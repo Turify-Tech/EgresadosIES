@@ -1,0 +1,308 @@
+---
+/**
+ * Componente PerfilCard - Tarjeta de perfil para listado
+ * Props:
+ * - perfil: objeto con datos del perfil
+ */
+
+export interface Props {
+    perfil: {
+        id: number;
+        nombre: string;
+        carrera: string;
+        resumenProfesional?: string;
+        situacionLaboral?: string;
+        urlPortfolio?: string;
+        urlFotoPerfil?: string;
+        experienciasLaborales?: Array<{
+            puesto: string;
+            empresa: string;
+        }>;
+    };
+}
+
+const { perfil } = Astro.props;
+
+// Procesar datos
+const avatarUrl = perfil.urlFotoPerfil || "/default-avatar.svg";
+const situacionClass = getSituacionClass(perfil.situacionLaboral);
+const resumen = perfil.resumenProfesional
+    ? perfil.resumenProfesional.length > 150
+        ? perfil.resumenProfesional.substring(0, 150) + "..."
+        : perfil.resumenProfesional
+    : "Sin descripción disponible";
+
+function getSituacionClass(situacion?: string): string {
+    switch (situacion) {
+        case "Empleado":
+            return "empleado";
+        case "Desempleado":
+            return "desempleado";
+        case "Independiente":
+            return "independiente";
+        default:
+            return "other";
+    }
+}
+---
+
+<div class="perfil-card">
+    <div class="card-header">
+        <div class="avatar">
+            <img
+                src={avatarUrl}
+                alt={`Foto de ${perfil.nombre}`}
+                onerror="this.src='/default-avatar.svg'"
+            />
+        </div>
+        <div class="card-info">
+            <h3 class="card-name">{perfil.nombre}</h3>
+            <p class="card-carrera">{perfil.carrera}</p>
+            {
+                perfil.situacionLaboral && (
+                    <span class={`situacion-badge ${situacionClass}`}>
+                        {perfil.situacionLaboral}
+                    </span>
+                )
+            }
+        </div>
+    </div>
+
+    <div class="card-content">
+        <p class="card-resumen">{resumen}</p>
+
+        {
+            perfil.experienciasLaborales &&
+                perfil.experienciasLaborales.length > 0 && (
+                    <div class="experiencia-preview">
+                        <strong>Último trabajo:</strong>
+                        <span>
+                            {perfil.experienciasLaborales[0].puesto} en{" "}
+                            {perfil.experienciasLaborales[0].empresa}
+                        </span>
+                    </div>
+                )
+        }
+
+        {
+            perfil.urlPortfolio && (
+                <div class="portfolio-link">
+                    <a
+                        href={perfil.urlPortfolio}
+                        target="_blank"
+                        rel="noopener noreferrer">
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor">
+                            <g fill="none" fill-rule="evenodd">
+                                <path d="M4 19.5A2.5 2.5 0 0 1 1.5 17V8A2.5 2.5 0 0 1 4 5.5h16A2.5 2.5 0 0 1 22.5 8v9a2.5 2.5 0 0 1-2.5 2.5H4zM6 7v10h12V7H6z" />
+                            </g>
+                        </svg>
+                        Ver Portfolio
+                    </a>
+                </div>
+            )
+        }
+    </div>
+
+    <div class="card-footer">
+        <a href={`/perfiles/${perfil.id}`} class="view-profile-btn">
+            Ver Perfil Completo
+            <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor">
+                <polyline points="9,18 15,12 9,6"></polyline>
+            </svg>
+        </a>
+    </div>
+</div>
+
+<style>
+    .perfil-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .perfil-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        overflow: hidden;
+        flex-shrink: 0;
+        border: 2px solid rgba(103, 126, 234, 0.3);
+    }
+
+    .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .card-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .card-name {
+        margin: 0 0 0.25rem 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f2937;
+        line-height: 1.2;
+    }
+
+    .card-carrera {
+        margin: 0 0 0.5rem 0;
+        color: #6b7280;
+        font-size: 0.9rem;
+        line-height: 1.2;
+    }
+
+    .situacion-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+    }
+
+    .situacion-badge.empleado {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .situacion-badge.desempleado {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .situacion-badge.independiente {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .situacion-badge.other {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    .card-content {
+        flex: 1;
+        margin-bottom: 1.5rem;
+    }
+
+    .card-resumen {
+        margin: 0 0 1rem 0;
+        color: #4b5563;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    .experiencia-preview {
+        margin-bottom: 1rem;
+        font-size: 0.85rem;
+        color: #6b7280;
+    }
+
+    .experiencia-preview strong {
+        color: #374151;
+    }
+
+    .portfolio-link {
+        margin-bottom: 1rem;
+    }
+
+    .portfolio-link a {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #3b82f6;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+
+    .portfolio-link a:hover {
+        color: #2563eb;
+    }
+
+    .card-footer {
+        padding-top: 1rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        margin-top: auto;
+    }
+
+    .view-profile-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-decoration: none;
+        padding: 0.75rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .view-profile-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(103, 126, 234, 0.4);
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+        .perfil-card {
+            padding: 1rem;
+        }
+
+        .card-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 0.75rem;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+        }
+
+        .card-name {
+            font-size: 1.1rem;
+        }
+    }
+</style>

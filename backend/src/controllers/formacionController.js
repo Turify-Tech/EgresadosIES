@@ -39,11 +39,13 @@ export async function addFormacionAcademica(req, res) {
         if (anioFinalizacion) {
             const anio = parseInt(anioFinalizacion);
             const currentYear = new Date().getFullYear();
-            
+
             if (isNaN(anio) || anio < 1950 || anio > currentYear + 5) {
                 return res.status(400).json({
                     success: false,
-                    error: `El año de finalización debe estar entre 1950 y ${currentYear + 5}`,
+                    error: `El año de finalización debe estar entre 1950 y ${
+                        currentYear + 5
+                    }`,
                 });
             }
         }
@@ -71,12 +73,15 @@ export async function addFormacionAcademica(req, res) {
             WHERE id = ?
         `;
 
+        const formacionId = Number(result.lastInsertRowid);
         const formacionResult = await client.execute({
             sql: formacionQuery,
-            args: [result.lastInsertRowid],
+            args: [formacionId],
         });
 
-        console.info(`[FORMACION] Usuario ${usuarioId} agregó formación académica - ID: ${result.lastInsertRowid}`);
+        console.info(
+            `[FORMACION] Usuario ${usuarioId} agregó formación académica - ID: ${formacionId}`
+        );
 
         return res.status(201).json({
             success: true,
@@ -146,11 +151,13 @@ export async function updateFormacionAcademica(req, res) {
         if (anioFinalizacion) {
             const anio = parseInt(anioFinalizacion);
             const currentYear = new Date().getFullYear();
-            
+
             if (isNaN(anio) || anio < 1950 || anio > currentYear + 5) {
                 return res.status(400).json({
                     success: false,
-                    error: `El año de finalización debe estar entre 1950 y ${currentYear + 5}`,
+                    error: `El año de finalización debe estar entre 1950 y ${
+                        currentYear + 5
+                    }`,
                 });
             }
         }
@@ -184,7 +191,9 @@ export async function updateFormacionAcademica(req, res) {
             args: [formacionId],
         });
 
-        console.info(`[FORMACION] Usuario ${usuarioId} actualizó formación académica - ID: ${formacionId}`);
+        console.info(
+            `[FORMACION] Usuario ${usuarioId} actualizó formación académica - ID: ${formacionId}`
+        );
 
         return res.status(200).json({
             success: true,
@@ -250,7 +259,9 @@ export async function deleteFormacionAcademica(req, res) {
             args: [formacionId],
         });
 
-        console.info(`[FORMACION] Usuario ${usuarioId} eliminó formación académica - ID: ${formacionId} (${formacion.titulo} en ${formacion.institucion})`);
+        console.info(
+            `[FORMACION] Usuario ${usuarioId} eliminó formación académica - ID: ${formacionId} (${formacion.titulo} en ${formacion.institucion})`
+        );
 
         return res.status(200).json({
             success: true,

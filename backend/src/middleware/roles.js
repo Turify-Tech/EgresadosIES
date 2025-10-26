@@ -28,6 +28,7 @@ export const PERMISSIONS = {
     ADMIN_REPORTS: "admin.reports",
     ADMIN_SETTINGS: "admin.settings",
     ADMIN_LOGS: "admin.logs",
+    ADMIN_DNI_MANAGEMENT: "admin.dni.management",
 
     // Permisos de archivos
     FILE_UPLOAD: "file.upload",
@@ -57,7 +58,19 @@ export const ROLES = {
         PERMISSIONS.FILE_DELETE_OWN,
         PERMISSIONS.STATS_VIEW_BASIC,
     ],
+    Egresado: [
+        PERMISSIONS.PROFILE_VIEW_OWN,
+        PERMISSIONS.PROFILE_EDIT_OWN,
+        PERMISSIONS.FILE_UPLOAD,
+        PERMISSIONS.FILE_DOWNLOAD_OWN,
+        PERMISSIONS.FILE_DELETE_OWN,
+        PERMISSIONS.STATS_VIEW_BASIC,
+    ],
     administrador: [
+        // Todos los permisos de egresado
+        ...Object.values(PERMISSIONS),
+    ],
+    Administrador: [
         // Todos los permisos de egresado
         ...Object.values(PERMISSIONS),
     ],

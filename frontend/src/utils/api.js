@@ -243,7 +243,14 @@ export const profileService = {
      * Obtener perfil del usuario logueado
      */
     async getMyProfile() {
-        return apiClient.get("/profile/me");
+        return apiClient.get("/perfil/mi-perfil");
+    },
+
+    /**
+     * Actualizar perfil del usuario logueado
+     */
+    async updateMyProfile(data) {
+        return apiClient.put("/perfil/mi-perfil", data);
     },
 
     /**
@@ -258,6 +265,69 @@ export const profileService = {
      */
     async updateProfile(id, data) {
         return apiClient.put(`/profile/${id}`, data);
+    },
+
+    /**
+     * Agregar experiencia laboral
+     */
+    async addExperiencia(data) {
+        return apiClient.post("/perfil/experiencia", data);
+    },
+
+    /**
+     * Actualizar experiencia laboral
+     */
+    async updateExperiencia(id, data) {
+        return apiClient.put(`/perfil/experiencia/${id}`, data);
+    },
+
+    /**
+     * Eliminar experiencia laboral
+     */
+    async deleteExperiencia(id) {
+        return apiClient.delete(`/perfil/experiencia/${id}`);
+    },
+
+    /**
+     * Agregar formación académica
+     */
+    async addFormacion(data) {
+        return apiClient.post("/perfil/formacion", data);
+    },
+
+    /**
+     * Actualizar formación académica
+     */
+    async updateFormacion(id, data) {
+        return apiClient.put(`/perfil/formacion/${id}`, data);
+    },
+
+    /**
+     * Eliminar formación académica
+     */
+    async deleteFormacion(id) {
+        return apiClient.delete(`/perfil/formacion/${id}`);
+    },
+
+    /**
+     * Agregar curso
+     */
+    async addCurso(data) {
+        return apiClient.post("/perfil/curso", data);
+    },
+
+    /**
+     * Actualizar curso
+     */
+    async updateCurso(id, data) {
+        return apiClient.put(`/perfil/curso/${id}`, data);
+    },
+
+    /**
+     * Eliminar curso
+     */
+    async deleteCurso(id) {
+        return apiClient.delete(`/perfil/curso/${id}`);
     },
 
     /**
@@ -312,6 +382,41 @@ export const userService = {
      */
     async deleteUser(id) {
         return apiClient.delete(`/users/${id}`);
+    },
+};
+
+// Servicio de perfiles públicos (sin autenticación)
+export const publicProfilesService = {
+    /**
+     * Obtener lista paginada de perfiles públicos
+     */
+    async getPublicProfiles(
+        page = 1,
+        limit = 10,
+        carrera = null,
+        search = null
+    ) {
+        const params = new URLSearchParams();
+        params.set("page", page.toString());
+        params.set("limit", limit.toString());
+        if (carrera) params.set("carrera", carrera);
+        if (search) params.set("search", search);
+
+        return apiClient.get(`/perfiles?${params.toString()}`);
+    },
+
+    /**
+     * Obtener perfil público específico por ID
+     */
+    async getPublicProfile(id) {
+        return apiClient.get(`/perfiles/${id}`);
+    },
+
+    /**
+     * Obtener lista de carreras disponibles
+     */
+    async getCarreras() {
+        return apiClient.get("/carreras");
     },
 };
 
@@ -419,9 +524,9 @@ export function setUserData(userData) {
 export function handleAuthError(error) {
     if (error.status === 401) {
         clearAuth();
-        // Redirigir a login
+        // Redirigir a acceso
         if (typeof window !== "undefined") {
-            window.location.href = "/login";
+            window.location.href = "/acceso";
         }
     }
     throw error;

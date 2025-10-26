@@ -1,0 +1,299 @@
+---
+/**
+ * Componente CursoItem - Item individual de curso o certificación
+ */
+
+export interface Props {
+    curso: {
+        id?: number;
+        nombre: string;
+        institucion: string;
+        horasDuracion?: number;
+        fechaObtencion?: string;
+        descripcion?: string;
+        urlCertificado?: string;
+    };
+}
+
+const { curso } = Astro.props;
+
+// Formatear fecha si existe
+function formatDate(dateStr?: string): string {
+    if (!dateStr) return "";
+
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return dateStr;
+
+    return date.toLocaleDateString("es-ES", {
+        year: "numeric",
+        month: "short",
+    });
+}
+
+const fechaObtencion = formatDate(curso.fechaObtencion);
+---
+
+<div class="curso-item">
+    <div class="timeline-marker"></div>
+    <div class="timeline-content">
+        <h4 class="timeline-title">{curso.nombre}</h4>
+        <p class="timeline-subtitle">{curso.institucion}</p>
+
+        <div class="curso-details">
+            {
+                curso.horasDuracion && (
+                    <span class="detail-badge duration">
+                        <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12,6 12,12 16,14" />
+                        </svg>
+                        {curso.horasDuracion} horas
+                    </span>
+                )
+            }
+
+            {
+                fechaObtencion && (
+                    <span class="detail-badge date">
+                        <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor">
+                            <rect
+                                x="3"
+                                y="4"
+                                width="18"
+                                height="18"
+                                rx="2"
+                                ry="2"
+                            />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
+                        </svg>
+                        {fechaObtencion}
+                    </span>
+                )
+            }
+        </div>
+
+        {
+            curso.descripcion && (
+                <p class="timeline-description">{curso.descripcion}</p>
+            )
+        }
+
+        {
+            curso.urlCertificado && (
+                <div class="curso-actions">
+                    <a
+                        href={curso.urlCertificado}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="certificate-link">
+                        <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14,2 14,8 20,8" />
+                            <line x1="16" y1="13" x2="8" y2="13" />
+                            <line x1="16" y1="17" x2="8" y2="17" />
+                            <polyline points="10,9 9,9 8,9" />
+                        </svg>
+                        Ver Certificado
+                    </a>
+                </div>
+            )
+        }
+    </div>
+</div>
+
+<style>
+    .curso-item {
+        display: flex;
+        gap: 1rem;
+        padding: 1.5rem 0;
+        border-bottom: 1px solid #e5e7eb;
+        transition: all 0.2s ease;
+    }
+
+    .curso-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .curso-item:first-child {
+        padding-top: 0;
+    }
+
+    .curso-item:hover {
+        background: rgba(245, 158, 11, 0.02);
+        margin: 0 -1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        border-radius: 8px;
+    }
+
+    .timeline-marker {
+        flex-shrink: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #f59e0b;
+        margin-top: 0.25rem;
+        position: relative;
+    }
+
+    .timeline-marker::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: white;
+    }
+
+    .timeline-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .timeline-title {
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0 0 0.25rem 0;
+        font-size: 1.1rem;
+        line-height: 1.3;
+    }
+
+    .timeline-subtitle {
+        color: #6b7280;
+        margin: 0 0 0.75rem 0;
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+
+    .curso-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .detail-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border: 1px solid;
+    }
+
+    .detail-badge.duration {
+        background: #fef3c7;
+        color: #92400e;
+        border-color: #fcd34d;
+    }
+
+    .detail-badge.date {
+        background: #e0e7ff;
+        color: #3730a3;
+        border-color: #a5b4fc;
+    }
+
+    .timeline-description {
+        color: #4b5563;
+        line-height: 1.6;
+        margin: 0 0 1rem 0;
+        font-size: 0.95rem;
+        text-align: justify;
+    }
+
+    .curso-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+
+    .certificate-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #3b82f6;
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border: 1px solid #3b82f6;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        background: rgba(59, 130, 246, 0.05);
+    }
+
+    .certificate-link:hover {
+        background: #3b82f6;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .curso-item {
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 1rem 0;
+        }
+
+        .timeline-marker {
+            width: 8px;
+            height: 8px;
+            margin-top: 0;
+        }
+
+        .timeline-marker::before {
+            width: 4px;
+            height: 4px;
+        }
+
+        .timeline-title {
+            font-size: 1rem;
+        }
+
+        .timeline-subtitle {
+            font-size: 0.9rem;
+        }
+
+        .curso-details {
+            justify-content: flex-start;
+        }
+
+        .detail-badge {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+        }
+
+        .timeline-description {
+            font-size: 0.9rem;
+        }
+
+        .certificate-link {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+        }
+    }
+</style>

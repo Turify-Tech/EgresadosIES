@@ -1,356 +1,403 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="Acceso - EgresadosIES" hideAccederButton={true}>
-  <div class="acceso-container">
-    <div class="acceso-card">
-      <div class="card-header"></div>
+    <div class="acceso-container">
+        <div class="acceso-card">
+            <div class="card-header"></div>
 
-      <div class="card-body">
-        <h2 class="acceso-title">Acceder</h2>
-        
-        <div class="form-container">
-          <form id="acceso-form">
-            <div class="form-group">
-              <label for="dni">DNI</label>
-              <input 
-                type="text" 
-                id="dni"
-                name="dni" 
-                required 
-                inputmode="numeric"
-                maxlength="8"
-                placeholder="" 
-                autocomplete="username"
-              />
+            <div class="card-body">
+                <h2 class="acceso-title">Acceder</h2>
+
+                <div class="form-container">
+                    <form id="acceso-form">
+                        <div class="form-group">
+                            <label for="dni">DNI</label>
+                            <input
+                                type="text"
+                                id="dni"
+                                name="dni"
+                                required
+                                inputmode="numeric"
+                                maxlength="8"
+                                placeholder=""
+                                autocomplete="username"
+                            />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Contraseña</label>
+                            <div class="password-input-wrapper">
+                                <input
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    required
+                                    placeholder=""
+                                    autocomplete="current-password"
+                                />
+                                <button
+                                    type="button"
+                                    id="toggle-password"
+                                    class="toggle-password-btn"
+                                    aria-label="Mostrar contraseña">
+                                    <svg
+                                        id="eye-icon"
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor">
+                                        <path
+                                            d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                                        ></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                    <svg
+                                        id="eye-off-icon"
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        style="display:none;">
+                                        <path
+                                            d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+                                        ></path>
+                                        <line x1="1" y1="1" x2="23" y2="23"
+                                        ></line>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button
+                            type="submit"
+                            id="acceso-btn"
+                            class="btn-iniciar">
+                            Ingresar
+                        </button>
+
+                        <div
+                            id="acceso-loading"
+                            class="loading-msg"
+                            style="display:none;">
+                            Validando...
+                        </div>
+                        <div
+                            id="acceso-error"
+                            class="error-msg"
+                            style="display:none;">
+                        </div>
+                    </form>
+                </div>
             </div>
-
-            <div class="form-group">
-              <label for="password">Contraseña</label>
-              <div class="password-input-wrapper">
-                <input 
-                  type="password" 
-                  id="password"
-                  name="password" 
-                  required 
-                  placeholder=""
-                  autocomplete="current-password"
-                />
-              <button type="button" id="toggle-password" class="toggle-password-btn" aria-label="Mostrar contraseña">
-                <svg id="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                  <circle cx="12" cy="12" r="3"></circle>
-                </svg>
-                <svg id="eye-off-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="display:none;">
-                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                  <line x1="1" y1="1" x2="23" y2="23"></line>
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <button type="submit" id="acceso-btn" class="btn-iniciar">
-            Ingresar
-          </button>
-
-          <div id="acceso-loading" class="loading-msg" style="display:none;">
-            Validando...
-          </div>
-          <div id="acceso-error" class="error-msg" style="display:none;"></div>
-        </form>
         </div>
-      </div>
     </div>
-  </div>
 </BaseLayout>
 
 <style>
-  .acceso-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 1.5rem 1rem;
-    background-image: url('/images/Imagen de Fondo.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-
-  .acceso-card {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-    width: 100%;
-    max-width: 480px;
-    overflow: hidden;
-
-  }
-
-  .card-header {
-    position: relative;
-    height: 75px;
-    background-image: url('/images/Fondo Azul card.jpg');
-    background-size: cover;
-    background-position: bottom;
-    background-repeat: no-repeat;
-    overflow: hidden;
-  }
-
-  .card-body {
-    padding: 1.5rem 3rem 3rem;
-  }
-
-  .acceso-title {
-    text-align: center;
-    color: #1437C3;
-    font-family: 'Inter', sans-serif;
-    font-weight: bold;
-    font-size: 36px;
-    margin: 0 0 0.3rem 0;
-  }
-
-  .form-container {
-    max-width: 340px;
-    margin: 0 auto;
-  }
-
-  .form-group {
-    margin-bottom: 1rem;
-  }
-
-  .form-group label {
-    display: block;
-    margin-bottom: 0.4rem;
-    color: #333;
-    font-size: 0.95rem;
-    font-weight: 700;
-    font-family: 'Pontano Sans', sans-serif;
-  }
-
-  .form-group input {
-    width: 100%;
-    padding: 0.65rem 0.9rem;
-    border: 1.5px solid #000000;
-    border-radius: 13px;
-    font-size: 0.95rem;
-    background-color: #f5f3f3;
-    transition: all 0.3s ease;
-    box-sizing: border-box;
-  }
-
-  .form-group input:focus {
-    outline: none;
-    border-color: #1565c0;
-    background-color: #D9D9D9;
-    box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
-  }
-
-  .password-input-wrapper {
-    position: relative;
-    width: 100%;
-  }
-
-  .password-input-wrapper input {
-    padding-right: 3rem;
-  }
-
-  .toggle-password-btn {
-    position: absolute;
-    right: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #666;
-    transition: color 0.2s ease;
-  }
-
-  .toggle-password-btn:hover {
-    color: #1565c0;
-  }
-
-  .toggle-password-btn svg {
-    width: 20px;
-    height: 20px;
-    stroke-width: 2;
-  }
-
-  .btn-iniciar {
-    width: auto;
-    min-width: 160px;
-    padding: 0.65rem 2.5rem;
-    background: #5284e0;
-    color: white;
-    border: none;
-    border-radius: 25px;
-    font-size: 1.1rem;
-    font-weight: 800;
-    font-family: 'Pontano Sans', sans-serif;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin: 1rem auto 0;
-    display: block;
-  }
-
-  .btn-iniciar:hover {
-    background: #3d6fc7;
-    box-shadow: 0 4px 12px rgba(82, 132, 224, 0.3);
-  }
-
-  .btn-iniciar:active {
-    transform: translateY(1px);
-  }
-
-  .btn-iniciar:disabled {
-    background: #a5c1e8;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
-
-  .loading-msg {
-    text-align: center;
-    color: #1565c0;
-    margin-top: 0.5rem;
-    font-size: 0.8rem;
-  }
-
-  .error-msg {
-    text-align: center;
-    color: #d32f2f;
-    margin-top: 0.5rem;
-    font-size: 0.8rem;
-    padding: 0.5rem;
-    background: #ffebee;
-    border-radius: 6px;
-  }
-
-  @media (max-width: 480px) {
     .acceso-container {
-      padding: 1rem;
-      min-height: calc(100vh - 82px - 150px);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem 1rem;
+        background-image: url("/images/Imagen de Fondo.jpg");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
     }
 
     .acceso-card {
-      max-width: 100%;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        width: 100%;
+        max-width: 480px;
+        overflow: hidden;
     }
 
     .card-header {
-      height: 50px;
+        position: relative;
+        height: 75px;
+        background-image: url("/images/Fondo Azul card.jpg");
+        background-size: cover;
+        background-position: bottom;
+        background-repeat: no-repeat;
+        overflow: hidden;
     }
 
     .card-body {
-      padding: 1.25rem 2.5rem 2.5rem;
+        padding: 1.5rem 3rem 3rem;
     }
 
     .acceso-title {
-      font-size: 1.5rem;
-      margin-bottom: 0.75rem;
+        text-align: center;
+        color: #1437c3;
+        font-family: "Inter", sans-serif;
+        font-weight: bold;
+        font-size: 36px;
+        margin: 0 0 0.3rem 0;
+    }
+
+    .form-container {
+        max-width: 340px;
+        margin: 0 auto;
     }
 
     .form-group {
-      margin-bottom: 0.85rem;
+        margin-bottom: 1rem;
     }
 
     .form-group label {
-      font-size: 0.9rem;
-      margin-bottom: 0.35rem;
+        display: block;
+        margin-bottom: 0.4rem;
+        color: #333;
+        font-size: 0.95rem;
+        font-weight: 700;
+        font-family: "Pontano Sans", sans-serif;
     }
 
     .form-group input {
-      padding: 0.6rem 0.85rem;
-      font-size: 0.9rem;
+        width: 100%;
+        padding: 0.65rem 0.9rem;
+        border: 1.5px solid #000000;
+        border-radius: 13px;
+        font-size: 0.95rem;
+        background-color: #f5f3f3;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: #1565c0;
+        background-color: #d9d9d9;
+        box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
+    }
+
+    .password-input-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    .password-input-wrapper input {
+        padding-right: 3rem;
+    }
+
+    .toggle-password-btn {
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        transition: color 0.2s ease;
+    }
+
+    .toggle-password-btn:hover {
+        color: #1565c0;
+    }
+
+    .toggle-password-btn svg {
+        width: 20px;
+        height: 20px;
+        stroke-width: 2;
     }
 
     .btn-iniciar {
-      min-width: 140px;
-      padding: 0.6rem 2rem;
-      font-size: 0.9rem;
+        width: auto;
+        min-width: 160px;
+        padding: 0.65rem 2.5rem;
+        background: #5284e0;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        font-size: 1.1rem;
+        font-weight: 800;
+        font-family: "Pontano Sans", sans-serif;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin: 1rem auto 0;
+        display: block;
     }
-  }
+
+    .btn-iniciar:hover {
+        background: #3d6fc7;
+        box-shadow: 0 4px 12px rgba(82, 132, 224, 0.3);
+    }
+
+    .btn-iniciar:active {
+        transform: translateY(1px);
+    }
+
+    .btn-iniciar:disabled {
+        background: #a5c1e8;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+
+    .loading-msg {
+        text-align: center;
+        color: #1565c0;
+        margin-top: 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .error-msg {
+        text-align: center;
+        color: #d32f2f;
+        margin-top: 0.5rem;
+        font-size: 0.8rem;
+        padding: 0.5rem;
+        background: #ffebee;
+        border-radius: 6px;
+    }
+
+    @media (max-width: 480px) {
+        .acceso-container {
+            padding: 1rem;
+            min-height: calc(100vh - 82px - 150px);
+        }
+
+        .acceso-card {
+            max-width: 100%;
+        }
+
+        .card-header {
+            height: 50px;
+        }
+
+        .card-body {
+            padding: 1.25rem 2.5rem 2.5rem;
+        }
+
+        .acceso-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .form-group {
+            margin-bottom: 0.85rem;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .form-group input {
+            padding: 0.6rem 0.85rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-iniciar {
+            min-width: 140px;
+            padding: 0.6rem 2rem;
+            font-size: 0.9rem;
+        }
+    }
 </style>
 
 <script>
-  import { authService } from '../utils/api.js';
+    import { authService, setAuthToken } from "../utils/api.js";
 
-  const form = document.getElementById('acceso-form') as HTMLFormElement;
-  const btn = document.getElementById('acceso-btn') as HTMLButtonElement;
-  const loading = document.getElementById('acceso-loading') as HTMLElement;
-  const errorMsg = document.getElementById('acceso-error') as HTMLElement;
-  const togglePasswordBtn = document.getElementById('toggle-password') as HTMLButtonElement;
-  const passwordInput = document.getElementById('password') as HTMLInputElement;
-  const dniInput = document.getElementById('dni') as HTMLInputElement;
-  const eyeIcon = document.getElementById('eye-icon') as HTMLElement;
-  const eyeOffIcon = document.getElementById('eye-off-icon') as HTMLElement;
+    const form = document.getElementById("acceso-form") as HTMLFormElement;
+    const btn = document.getElementById("acceso-btn") as HTMLButtonElement;
+    const loading = document.getElementById("acceso-loading") as HTMLElement;
+    const errorMsg = document.getElementById("acceso-error") as HTMLElement;
+    const togglePasswordBtn = document.getElementById(
+        "toggle-password"
+    ) as HTMLButtonElement;
+    const passwordInput = document.getElementById(
+        "password"
+    ) as HTMLInputElement;
+    const dniInput = document.getElementById("dni") as HTMLInputElement;
+    const eyeIcon = document.getElementById("eye-icon") as HTMLElement;
+    const eyeOffIcon = document.getElementById("eye-off-icon") as HTMLElement;
 
-  // Validar que solo se ingresen números en el DNI
-  dniInput.addEventListener('input', (e) => {
-    const target = e.target as HTMLInputElement;
-    target.value = target.value.replace(/[^0-9]/g, '');
-  });
+    // Validar que solo se ingresen números en el DNI
+    dniInput.addEventListener("input", (e) => {
+        const target = e.target as HTMLInputElement;
+        target.value = target.value.replace(/[^0-9]/g, "");
+    });
 
-  // Toggle password visibility
-  togglePasswordBtn.addEventListener('click', () => {
-    const isPassword = passwordInput.type === 'password';
-    passwordInput.type = isPassword ? 'text' : 'password';
-    eyeIcon.style.display = isPassword ? 'none' : 'block';
-    eyeOffIcon.style.display = isPassword ? 'block' : 'none';
-    togglePasswordBtn.setAttribute('aria-label', isPassword ? 'Ocultar contraseña' : 'Mostrar contraseña');
-  });
+    // Toggle password visibility
+    togglePasswordBtn.addEventListener("click", () => {
+        const isPassword = passwordInput.type === "password";
+        passwordInput.type = isPassword ? "text" : "password";
+        eyeIcon.style.display = isPassword ? "none" : "block";
+        eyeOffIcon.style.display = isPassword ? "block" : "none";
+        togglePasswordBtn.setAttribute(
+            "aria-label",
+            isPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+        );
+    });
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    errorMsg.style.display = 'none';
-    
-    const dni = dniInput.value.trim();
-    const password = passwordInput.value;
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        errorMsg.style.display = "none";
 
-    // Validación del DNI
-    if (dni.length < 7 || dni.length > 8 || !/^\d+$/.test(dni)) {
-      errorMsg.textContent = 'El DNI debe tener 7 u 8 dígitos numéricos';
-      errorMsg.style.display = 'block';
-      return;
-    }
+        const dni = dniInput.value.trim();
+        const password = passwordInput.value;
 
-    loading.style.display = 'block';
-    btn.disabled = true;
-
-    try {
-      const data = await authService.login(dni, password);
-
-      if (data.success && data.token) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify({
-          dni: data.dni,
-          tipoUsuario: data.tipoUsuario,
-          email: data.email
-        }));
-
-        // Redirección según tipo de usuario
-        if (data.tipoUsuario === 'administrador') {
-          window.location.href = '/admin';
-        } else if (data.isNewUser) {
-          window.location.href = '/completar-perfil';
-        } else {
-          window.location.href = '/dashboard';
+        // Validación del DNI
+        if (dni.length < 7 || dni.length > 8 || !/^\d+$/.test(dni)) {
+            errorMsg.textContent = "El DNI debe tener 7 u 8 dígitos numéricos";
+            errorMsg.style.display = "block";
+            return;
         }
-      } else {
-        errorMsg.textContent = data.message || 'Credenciales incorrectas';
-        errorMsg.style.display = 'block';
-      }
-    } catch (err: any) {
-      errorMsg.textContent = err.message || 'Error de conexión con el servidor';
-      errorMsg.style.display = 'block';
-    } finally {
-      loading.style.display = 'none';
-      btn.disabled = false;
-    }
-  });
+
+        loading.style.display = "block";
+        btn.disabled = true;
+
+        try {
+            const data = await authService.login(dni, password);
+
+            if (data.success && data.token) {
+                localStorage.setItem("auth_token", data.token);
+                localStorage.setItem(
+                    "user_data",
+                    JSON.stringify({
+                        id: data.user.id,
+                        tipo_usuario: data.user.tipo_usuario,
+                        email: data.user.email,
+                        nombre: data.user.nombre || `Usuario ${data.user.id}`,
+                    })
+                );
+
+                // Configurar token en API client
+                setAuthToken(data.token);
+
+                // Redirección según tipo de usuario
+                if (data.user.tipo_usuario === "Administrador") {
+                    window.location.href = "/admin";
+                } else if (data.user.isNewUser) {
+                    window.location.href = "/perfil/editar";
+                } else {
+                    window.location.href = "/dashboard";
+                }
+            } else {
+                errorMsg.textContent =
+                    data.message || "Credenciales incorrectas";
+                errorMsg.style.display = "block";
+            }
+        } catch (err: any) {
+            errorMsg.textContent =
+                err.message || "Error de conexión con el servidor";
+            errorMsg.style.display = "block";
+        } finally {
+            loading.style.display = "none";
+            btn.disabled = false;
+        }
+    });
 </script>

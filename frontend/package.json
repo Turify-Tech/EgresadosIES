@@ -1,0 +1,20 @@
+{
+    "name": "egresados-ies-frontend",
+    "version": "1.0.0",
+    "description": "Frontend del Sistema de Gestión de Egresados del IES",
+    "type": "module",
+    "scripts": {
+        "dev": "astro dev",
+        "start": "astro dev",
+        "build": "astro build",
+        "preview": "astro preview",
+        "astro": "astro"
+    },
+    "dependencies": {
+        "astro": "5.14.1",
+        "imagekit-javascript": "^4.0.1"
+    },
+    "devDependencies": {
+        "@types/node": "^20.0.0"
+    }
+}

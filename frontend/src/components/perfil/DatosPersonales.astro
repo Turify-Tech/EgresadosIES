@@ -1,0 +1,793 @@
+---
+// Componente para editar datos personales del perfil
+---
+
+<div class="datos-personales-form">
+    <div class="form-header">
+        <h2>DATOS PERSONALES</h2>
+    </div>
+
+    <form class="profile-form" id="datos-personales-form">
+        <!-- Sección superior: Imagen y Descripción -->
+        <div class="profile-top-section">
+            <!-- Imagen de perfil -->
+            <div class="profile-image-section">
+                <div class="image-upload-area">
+                    <div class="image-preview" id="image-preview">
+                        <div class="default-avatar">
+                            <svg
+                                width="40"
+                                height="40"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor">
+                                <path
+                                    d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+                                ></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                    </div>
+                    <input
+                        type="file"
+                        id="profile-image-input"
+                        accept="image/*"
+                        style="display: none;"
+                    />
+                    <button
+                        type="button"
+                        class="upload-btn"
+                        id="upload-image-btn">
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor">
+                            <path
+                                d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5"
+                            ></path>
+                            <path d="M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
+                            ></path>
+                        </svg>
+                    </button>
+                </div>
+                <p class="image-label">Imagen</p>
+            </div>
+
+            <!-- Descripción -->
+            <div class="description-section">
+                <label for="descripcion">Descripción</label>
+                <textarea
+                    id="descripcion"
+                    name="descripcion"
+                    rows="6"
+                    placeholder="Descripción detallada"
+                    class="form-textarea"></textarea>
+            </div>
+        </div>
+
+        <!-- Campos de información personal -->
+        <div class="personal-fields">
+            <div class="field-row">
+                <div class="form-group">
+                    <label for="nombre">Nombre *</label>
+                    <input
+                        type="text"
+                        id="nombre"
+                        name="nombre"
+                        required
+                        class="form-input"
+                    />
+                </div>
+                <div class="form-group">
+                    <label for="apellido">Apellido *</label>
+                    <input
+                        type="text"
+                        id="apellido"
+                        name="apellido"
+                        required
+                        class="form-input"
+                    />
+                </div>
+            </div>
+
+            <div class="field-row">
+                <div class="form-group">
+                    <label for="correo">Correo *</label>
+                    <input
+                        type="email"
+                        id="correo"
+                        name="correo"
+                        required
+                        placeholder="ejemplo@correo.com"
+                        class="form-input"
+                    />
+                </div>
+                <div class="form-group">
+                    <label for="contacto">Contacto *</label>
+                    <input
+                        type="tel"
+                        id="contacto"
+                        name="contacto"
+                        required
+                        placeholder="2604561871"
+                        class="form-input"
+                    />
+                </div>
+            </div>
+
+            <!-- Campos adicionales del perfil -->
+            <div class="field-row">
+                <div class="form-group">
+                    <label for="dni">DNI *</label>
+                    <input
+                        type="text"
+                        id="dni"
+                        name="dni"
+                        required
+                        placeholder="12345678"
+                        class="form-input"
+                    />
+                </div>
+                <div class="form-group">
+                    <label for="telefono">Teléfono</label>
+                    <input
+                        type="tel"
+                        id="telefono"
+                        name="telefono"
+                        placeholder="2604561871"
+                        class="form-input"
+                    />
+                </div>
+            </div>
+
+            <div class="field-row">
+                <div class="form-group full-width">
+                    <label for="resumen-profesional">Resumen Profesional</label>
+                    <textarea
+                        id="resumen-profesional"
+                        name="resumen-profesional"
+                        rows="4"
+                        placeholder="Describe tu experiencia y objetivos profesionales..."
+                        class="form-textarea"></textarea>
+                </div>
+            </div>
+
+            <div class="field-row">
+                <div class="form-group">
+                    <label for="url-portfolio">URL Portfolio</label>
+                    <input
+                        type="url"
+                        id="url-portfolio"
+                        name="url-portfolio"
+                        placeholder="https://mi-portfolio.com"
+                        class="form-input"
+                    />
+                </div>
+                <div class="form-group">
+                    <label for="situacion-laboral">Situación Laboral</label>
+                    <select
+                        id="situacion-laboral"
+                        name="situacion-laboral"
+                        class="form-input">
+                        <option value="">Selecciona una opción</option>
+                        <option value="Empleado">Empleado</option>
+                        <option value="Desempleado">Desempleado</option>
+                        <option value="Emprendedor">Emprendedor</option>
+                        <option value="Freelancer">Freelancer</option>
+                        <option value="Estudiando">Estudiando</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botón Siguiente -->
+        <div class="form-actions">
+            <button
+                type="button"
+                class="btn-siguiente"
+                id="save-datos-personales">
+                Siguiente
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .datos-personales-form {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid #3b82f6;
+        padding-bottom: 1rem;
+    }
+
+    .form-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #3b82f6;
+        letter-spacing: 0.05em;
+    }
+
+    .profile-form {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    /* Sección superior: Imagen + Descripción */
+    .profile-top-section {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 2rem;
+        align-items: start;
+    }
+
+    /* Sección de imagen */
+    .profile-image-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .image-upload-area {
+        position: relative;
+        margin-bottom: 0.5rem;
+    }
+
+    .image-preview {
+        width: 150px;
+        height: 150px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f9fafb;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .default-avatar {
+        color: #9ca3af;
+    }
+
+    .upload-btn {
+        position: absolute;
+        bottom: -8px;
+        right: -8px;
+        width: 32px;
+        height: 32px;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: background 0.2s;
+        font-size: 0.875rem;
+    }
+
+    .upload-btn:hover {
+        background: #2563eb;
+    }
+
+    .image-label {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin: 0;
+        text-align: center;
+    }
+
+    /* Sección de descripción */
+    .description-section {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .description-section label {
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.875rem;
+    }
+
+    /* Campos de información personal */
+    .personal-fields {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .field-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.875rem;
+    }
+
+    .form-input,
+    .form-textarea {
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        transition:
+            border-color 0.2s,
+            box-shadow 0.2s;
+        background: white;
+        font-family: inherit;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    /* Botón Siguiente */
+    .form-actions {
+        display: flex;
+        justify-content: center;
+        padding-top: 2rem;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .btn-siguiente {
+        padding: 0.75rem 2rem;
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+    }
+
+    .btn-siguiente:hover {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        transform: translateY(-1px);
+    }
+
+    .btn-siguiente:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* Estados de validación */
+    .form-input.error,
+    .form-textarea.error {
+        border-color: #ef4444;
+    }
+
+    .form-input.success,
+    .form-textarea.success {
+        border-color: #10b981;
+    }
+
+    .error-message {
+        margin-top: 0.25rem;
+        font-size: 0.75rem;
+        color: #ef4444;
+    }
+
+    .form-help {
+        margin-top: 0.25rem;
+        font-size: 0.75rem;
+        color: #6b7280;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .datos-personales-form {
+            padding: 1rem;
+        }
+
+        .profile-top-section {
+            grid-template-columns: 1fr;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .image-preview {
+            width: 120px;
+            height: 120px;
+        }
+
+        .field-row {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .btn-siguiente {
+            width: 100%;
+        }
+    }
+</style>
+
+<script>
+    // @ts-nocheck
+    class DatosPersonalesManager {
+        constructor() {
+            this.form = document.getElementById("datos-personales-form");
+            this.isInitialized = false;
+            this.validationRules = {
+                telefono: /^(\+54)?\s?\d{2,4}[-\s]?\d{4,8}$/,
+                urlPortfolio:
+                    /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/,
+            };
+
+            this.init();
+        }
+
+        init() {
+            this.bindEvents();
+            this.setupValidation();
+
+            // Escuchar cuando se cargan los datos del perfil
+            window.addEventListener("profile-data-loaded", (e) => {
+                const customEvent = e;
+                console.log(
+                    "DatosPersonales recibió evento profile-data-loaded:",
+                    customEvent.detail
+                );
+                if (customEvent.detail) {
+                    this.populateForm(customEvent.detail);
+                }
+            });
+        }
+
+        bindEvents() {
+            // Validación en tiempo real
+            this.form.addEventListener("input", (e) => {
+                this.validateField(e.target);
+            });
+
+            // Guardado de sección
+            const saveBtn = document.getElementById("save-datos-personales");
+            if (saveBtn) {
+                saveBtn.addEventListener("click", () => {
+                    this.saveSection();
+                });
+            }
+
+            // Auto-guardado después de cambios
+            this.form.addEventListener("change", () => {
+                setTimeout(() => {
+                    if (this.validateForm()) {
+                        this.autoSave();
+                    }
+                }, 1000);
+            });
+        }
+
+        populateForm(profileData) {
+            if (!profileData || this.isInitialized) return;
+
+            console.log("Poblando datos personales con:", profileData);
+
+            // Extraer datos de la estructura de la API
+            // Los datos pueden venir en diferentes estructuras según el endpoint
+            const data =
+                profileData.data?.perfil ||
+                profileData.perfil ||
+                profileData.data ||
+                profileData;
+
+            // Poblar campos de datos personales
+            this.setFieldValue("nombre", data.nombre);
+            this.setFieldValue("apellido", data.apellido);
+            this.setFieldValue("correo", data.email); // email en BD → correo en form
+            this.setFieldValue("contacto", data.telefono); // telefono en BD → contacto en form
+            this.setFieldValue("dni", data.dni);
+            this.setFieldValue("telefono", data.telefono); // campo adicional
+
+            // Poblar campos del perfil
+            this.setFieldValue("resumen-profesional", data.resumenProfesional);
+            this.setFieldValue("url-portfolio", data.urlPortfolio);
+            this.setFieldValue("situacion-laboral", data.situacionLaboral);
+
+            // Los checkboxes de privacidad (futura funcionalidad)
+            this.setCheckboxValue(
+                "perfil-publico",
+                data.perfilPublico || false
+            );
+            this.setCheckboxValue(
+                "mostrar-contacto",
+                data.mostrarContacto || false
+            );
+            this.setCheckboxValue(
+                "disponible-ofertas",
+                data.disponibleOfertas || false
+            );
+
+            this.isInitialized = true;
+            console.log("✅ Datos personales inicializados correctamente");
+        }
+
+        setFieldValue(fieldId, value) {
+            const field = document.getElementById(fieldId);
+            if (
+                field &&
+                value !== null &&
+                value !== undefined &&
+                "value" in field
+            ) {
+                field.value = value;
+            }
+        }
+
+        setCheckboxValue(fieldId, value) {
+            const field = document.getElementById(fieldId);
+            if (field && "checked" in field) {
+                field.checked = Boolean(value);
+            }
+        }
+
+        setupValidation() {
+            // Configurar validación de caracteres en textarea
+            const resumenField = document.getElementById("resumen-profesional");
+            if (resumenField) {
+                resumenField.addEventListener("input", () => {
+                    const maxLength = 500;
+                    const currentLength = resumenField.value.length;
+
+                    // Actualizar contador si existe
+                    let counter =
+                        resumenField.parentNode.querySelector(".char-counter");
+                    if (!counter) {
+                        counter = document.createElement("small");
+                        counter.className = "char-counter form-help";
+                        resumenField.parentNode.appendChild(counter);
+                    }
+
+                    counter.textContent = `${currentLength}/${maxLength} caracteres`;
+                    counter.style.color =
+                        currentLength > maxLength ? "#ef4444" : "#6b7280";
+
+                    if (currentLength > maxLength) {
+                        resumenField.classList.add("error");
+                    } else {
+                        resumenField.classList.remove("error");
+                    }
+                });
+            }
+        }
+
+        validateField(field) {
+            const fieldName = field.name || field.id;
+            let isValid = true;
+            let errorMessage = "";
+
+            // Limpiar estados previos
+            field.classList.remove("error", "success");
+            this.removeErrorMessage(field);
+
+            // Validaciones específicas
+            switch (fieldName) {
+                case "telefono":
+                    if (
+                        field.value &&
+                        !this.validationRules.telefono.test(field.value)
+                    ) {
+                        isValid = false;
+                        errorMessage = "Formato de teléfono inválido";
+                    }
+                    break;
+
+                case "urlPortfolio":
+                    if (
+                        field.value &&
+                        !this.validationRules.urlPortfolio.test(field.value)
+                    ) {
+                        isValid = false;
+                        errorMessage = "URL inválida";
+                    }
+                    break;
+
+                case "resumenProfesional":
+                    if (field.value.length > 500) {
+                        isValid = false;
+                        errorMessage =
+                            "El resumen no puede superar los 500 caracteres";
+                    }
+                    break;
+            }
+
+            // Aplicar estados visuales
+            if (field.value) {
+                field.classList.add(isValid ? "success" : "error");
+
+                if (!isValid) {
+                    this.showErrorMessage(field, errorMessage);
+                }
+            }
+
+            return isValid;
+        }
+
+        validateForm() {
+            const fields = this.form.querySelectorAll(
+                "input, textarea, select"
+            );
+            let isValid = true;
+
+            fields.forEach((field) => {
+                if (!this.validateField(field)) {
+                    isValid = false;
+                }
+            });
+
+            return isValid;
+        }
+
+        showErrorMessage(field, message) {
+            const errorEl = document.createElement("div");
+            errorEl.className = "error-message";
+            errorEl.textContent = message;
+            field.parentNode.appendChild(errorEl);
+        }
+
+        removeErrorMessage(field) {
+            const errorEl = field.parentNode.querySelector(".error-message");
+            if (errorEl) {
+                errorEl.remove();
+            }
+        }
+
+        getFormData() {
+            const formData = new FormData(this.form);
+            const data = {};
+
+            // Convertir FormData a objeto básico
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+
+            // Mapear nombres de campo del formulario a nombres esperados por el backend
+            const mappedData = {
+                // Campos de datos personales
+                nombre: data.nombre,
+                apellido: data.apellido,
+                correo: data.correo, // se mapea a email en backend
+                contacto: data.contacto, // se mapea a telefono en backend
+                dni: data.dni,
+                telefono: data.telefono, // campo adicional
+
+                // Campos del perfil
+                resumenProfesional: data["resumen-profesional"],
+                urlPortfolio: data["url-portfolio"],
+                situacionLaboral: data["situacion-laboral"],
+            };
+
+            // Manejar checkboxes si existen
+            const perfilPublicoEl = document.getElementById("perfil-publico");
+            const mostrarContactoEl =
+                document.getElementById("mostrar-contacto");
+            const disponibleOfertasEl =
+                document.getElementById("disponible-ofertas");
+
+            if (perfilPublicoEl) {
+                mappedData.perfilPublico = perfilPublicoEl.checked;
+            }
+            if (mostrarContactoEl) {
+                mappedData.mostrarContacto = mostrarContactoEl.checked;
+            }
+            if (disponibleOfertasEl) {
+                mappedData.disponibleOfertas = disponibleOfertasEl.checked;
+            }
+
+            console.log("📋 Datos del formulario mapeados:", mappedData);
+            return mappedData;
+        }
+
+        async saveSection() {
+            if (!this.validateForm()) {
+                this.showNotification(
+                    "Por favor corrige los errores antes de guardar",
+                    "error"
+                );
+                return;
+            }
+
+            try {
+                const btn = document.getElementById("save-datos-personales");
+                if (btn && "disabled" in btn) {
+                    btn.disabled = true;
+                    btn.textContent = "Guardando...";
+                }
+
+                const data = this.getFormData();
+
+                // Emitir evento para que el controlador principal maneje el guardado
+                window.dispatchEvent(
+                    new CustomEvent("save-section-data", {
+                        detail: { section: "datos-personales", data },
+                    })
+                );
+
+                this.showNotification("Datos personales guardados", "success");
+
+                // Navegar a la siguiente sección después de guardar
+                setTimeout(() => {
+                    const win = window;
+                    const profileEditor = win.profileEditor;
+                    if (profileEditor && profileEditor.switchSection) {
+                        profileEditor.switchSection("formaciones");
+                    }
+                }, 500);
+            } catch (error) {
+                console.error("Error guardando datos personales:", error);
+                this.showNotification("Error al guardar los datos", "error");
+            } finally {
+                const btn = document.getElementById("save-datos-personales");
+                if (btn && "disabled" in btn) {
+                    btn.disabled = false;
+                    btn.textContent = "Siguiente";
+                }
+            }
+        }
+
+        async autoSave() {
+            const data = this.getFormData();
+
+            // Emitir evento para auto-guardado
+            window.dispatchEvent(
+                new CustomEvent("auto-save-data", {
+                    detail: { section: "datos-personales", data },
+                })
+            );
+
+            console.log("Auto-guardando datos personales...");
+        }
+
+        showNotification(message, type) {
+            // Reutilizar el sistema de notificaciones del componente principal
+            window.dispatchEvent(
+                new CustomEvent("show-notification", {
+                    detail: { message, type },
+                })
+            );
+        }
+    }
+
+    // Inicializar cuando el DOM esté listo
+    document.addEventListener("DOMContentLoaded", () => {
+        window.datosPersonalesManager = new DatosPersonalesManager();
+        console.log("DatosPersonalesManager inicializado y asignado a window");
+    });
+</script>

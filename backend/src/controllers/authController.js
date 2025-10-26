@@ -17,7 +17,11 @@ export async function login(req, res) {
 
     // Validaciones básicas
     if (!dni || !password) {
-        console.warn(`[SECURITY] Login sin credenciales - IP: ${req.ip}, User-Agent: ${req.get('User-Agent')}`);
+        console.warn(
+            `[SECURITY] Login sin credenciales - IP: ${
+                req.ip
+            }, User-Agent: ${req.get("User-Agent")}`
+        );
         return res.status(400).json({
             success: false,
             message: "DNI y contraseña son requeridos",
@@ -25,12 +29,19 @@ export async function login(req, res) {
     }
 
     // Sanitización de inputs
-    const sanitizedDni = dni.toString().trim().replace(/[^0-9]/g, '');
+    const sanitizedDni = dni
+        .toString()
+        .trim()
+        .replace(/[^0-9]/g, "");
     const sanitizedPassword = password.toString().trim();
 
     // Validar formato de DNI (7 u 8 dígitos)
     if (!/^\d{7,8}$/.test(sanitizedDni)) {
-        console.warn(`[SECURITY] DNI inválido - DNI: ${sanitizedDni}, IP: ${req.ip}, User-Agent: ${req.get('User-Agent')}`);
+        console.warn(
+            `[SECURITY] DNI inválido - DNI: ${sanitizedDni}, IP: ${
+                req.ip
+            }, User-Agent: ${req.get("User-Agent")}`
+        );
         return res.status(400).json({
             success: false,
             message: "El DNI debe tener 7 u 8 dígitos",
@@ -45,11 +56,22 @@ export async function login(req, res) {
 
         if (existingUser) {
             // Usuario existe, validar password y hacer login
-            return await handleExistingUserLogin(res, existingUser, sanitizedPassword, req);
+            return await handleExistingUserLogin(
+                res,
+                existingUser,
+                sanitizedPassword,
+                req
+            );
         }
 
         // 2. Usuario no existe, intentar registro automático para egresados
-        return await handleNewUserRegistration(res, client, sanitizedDni, sanitizedPassword, req);
+        return await handleNewUserRegistration(
+            res,
+            client,
+            sanitizedDni,
+            sanitizedPassword,
+            req
+        );
     } catch (error) {
         console.error("Error en login:", error);
         return res.status(500).json({
@@ -120,7 +142,11 @@ async function handleExistingUserLogin(res, user, password, req) {
     const isValidPassword = await verifyPassword(password, user.password);
 
     if (!isValidPassword) {
-        console.warn(`[SECURITY] Login fallido - DNI: ${user.dni}, IP: ${req.ip}, User-Agent: ${req.get('User-Agent')}`);
+        console.warn(
+            `[SECURITY] Login fallido - DNI: ${user.dni}, IP: ${
+                req.ip
+            }, User-Agent: ${req.get("User-Agent")}`
+        );
         return res.status(401).json({
             success: false,
             message: "DNI o contraseña incorrectos",
@@ -136,7 +162,11 @@ async function handleExistingUserLogin(res, user, password, req) {
     });
 
     // Log de login exitoso
-    console.info(`[AUTH] Login exitoso - Usuario: ${user.id}, Tipo: ${user.source === "egresado" ? "Egresado" : "Administrador"}, IP: ${req.ip}`);
+    console.info(
+        `[AUTH] Login exitoso - Usuario: ${user.id}, Tipo: ${
+            user.source === "egresado" ? "Egresado" : "Administrador"
+        }, IP: ${req.ip}`
+    );
 
     // Respuesta exitosa
     return res.status(200).json({
@@ -146,7 +176,8 @@ async function handleExistingUserLogin(res, user, password, req) {
             id: user.id,
             nombre: user.nombre,
             email: user.email,
-            tipo_usuario: user.source === "egresado" ? "Egresado" : "Administrador",
+            tipo_usuario:
+                user.source === "egresado" ? "Egresado" : "Administrador",
             ...(user.source === "egresado" && { isNewUser: false }),
         },
     });
@@ -169,7 +200,11 @@ async function handleNewUserRegistration(res, client, dni, password, req) {
     });
 
     if (dniValidoResult.rows.length === 0) {
-        console.warn(`[SECURITY] Intento de registro con DNI no autorizado - DNI: ${dni}, IP: ${req.ip}, User-Agent: ${req.get('User-Agent')}`);
+        console.warn(
+            `[SECURITY] Intento de registro con DNI no autorizado - DNI: ${dni}, IP: ${
+                req.ip
+            }, User-Agent: ${req.get("User-Agent")}`
+        );
         return res.status(400).json({
             success: false,
             message: "DNI no está autorizado para registrarse como egresado",
@@ -218,7 +253,7 @@ async function handleNewUserRegistration(res, client, dni, password, req) {
             args: [`Egresado ${dni}`, tempEmail, hashedPassword, "Egresado"],
         });
 
-        const usuarioId = usuarioResult.lastInsertRowid;
+        const usuarioId = Number(usuarioResult.lastInsertRowid);
 
         // Crear perfil vacío
         const perfilQuery = `
@@ -231,7 +266,7 @@ async function handleNewUserRegistration(res, client, dni, password, req) {
             args: [null, null, null],
         });
 
-        const perfilId = perfilResult.lastInsertRowid;
+        const perfilId = Number(perfilResult.lastInsertRowid);
 
         // Crear egresado
         const egresadoQuery = `
@@ -253,7 +288,9 @@ async function handleNewUserRegistration(res, client, dni, password, req) {
         });
 
         // Log de registro exitoso
-        console.info(`[AUTH] Registro automático exitoso - Usuario: ${usuarioId}, DNI: ${dni}, IP: ${req.ip}`);
+        console.info(
+            `[AUTH] Registro automático exitoso - Usuario: ${usuarioId}, DNI: ${dni}, IP: ${req.ip}`
+        );
 
         // Respuesta exitosa
         return res.status(201).json({

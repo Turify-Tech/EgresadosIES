@@ -1,0 +1,1210 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PerfilDetalle from "../../components/perfil/PerfilDetalle.astro";
+
+// Esta es una página dinámica que se renderiza en el servidor
+// pero también puede funcionar del lado del cliente para cargar datos dinámicamente
+---
+
+<BaseLayout title="Perfil de Egresado">
+    <main class="perfil-detalle-container">
+        <!-- Indicador de carga -->
+        <div id="loading-indicator" class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>Cargando perfil...</p>
+        </div>
+
+        <!-- Mensaje de error -->
+        <div id="error-message" class="error-container" style="display: none;">
+            <div class="error-content">
+                <h2>Perfil no encontrado</h2>
+                <p id="error-text">No se pudo cargar el perfil solicitado.</p>
+                <div class="error-actions">
+                    <a href="/perfiles" class="btn-secondary"
+                        >Volver a perfiles</a
+                    >
+                    <button id="retry-button" class="btn-primary"
+                        >Reintentar</button
+                    >
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido del perfil -->
+        <div id="perfil-content" style="display: none;">
+            <!-- Header del perfil -->
+            <div class="perfil-header">
+                <div class="header-background" id="header-background">
+                    <div class="header-overlay"></div>
+                </div>
+                <div class="container">
+                    <div class="header-content">
+                        <!-- Botón de volver -->
+                        <div class="header-nav">
+                            <a href="/perfiles" class="back-button">
+                                <svg
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor">
+                                    <polyline points="15,18 9,12 15,6"
+                                    ></polyline>
+                                </svg>
+                                Volver a perfiles
+                            </a>
+                        </div>
+
+                        <!-- Información principal del perfil -->
+                        <div class="profile-hero">
+                            <div class="profile-avatar-container">
+                                <div class="profile-avatar">
+                                    <img
+                                        id="profile-avatar"
+                                        src="/default-avatar.svg"
+                                        alt="Foto de perfil"
+                                        onerror="this.src='/default-avatar.svg'"
+                                    />
+                                </div>
+                            </div>
+                            <div class="profile-info">
+                                <h1 id="profile-name" class="profile-name">
+                                    Cargando...
+                                </h1>
+                                <p id="profile-carrera" class="profile-carrera">
+                                    Carrera
+                                </p>
+                                <div id="profile-badges" class="profile-badges">
+                                    <!-- Se llena dinámicamente -->
+                                </div>
+                                <div
+                                    id="profile-actions"
+                                    class="profile-actions">
+                                    <!-- Se llena dinámicamente -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenido principal -->
+            <div class="container">
+                <div class="perfil-body">
+                    <div class="perfil-layout">
+                        <!-- Columna principal -->
+                        <div class="main-column">
+                            <!-- Resumen profesional -->
+                            <section
+                                id="resumen-section"
+                                class="profile-section"
+                                style="display: none;">
+                                <div class="section-header">
+                                    <h2>Resumen Profesional</h2>
+                                </div>
+                                <div class="section-content">
+                                    <p
+                                        id="resumen-content"
+                                        class="resumen-text">
+                                    </p>
+                                </div>
+                            </section>
+
+                            <!-- Experiencia laboral -->
+                            <section
+                                id="experiencia-section"
+                                class="profile-section"
+                                style="display: none;">
+                                <div class="section-header">
+                                    <h2>Experiencia Laboral</h2>
+                                </div>
+                                <div
+                                    id="experiencia-content"
+                                    class="section-content">
+                                    <!-- Se llena dinámicamente -->
+                                </div>
+                            </section>
+
+                            <!-- Formación académica -->
+                            <section
+                                id="formacion-section"
+                                class="profile-section"
+                                style="display: none;">
+                                <div class="section-header">
+                                    <h2>Formación Académica</h2>
+                                </div>
+                                <div
+                                    id="formacion-content"
+                                    class="section-content">
+                                    <!-- Se llena dinámicamente -->
+                                </div>
+                            </section>
+
+                            <!-- Cursos y certificaciones -->
+                            <section
+                                id="cursos-section"
+                                class="profile-section"
+                                style="display: none;">
+                                <div class="section-header">
+                                    <h2>Cursos y Certificaciones</h2>
+                                </div>
+                                <div
+                                    id="cursos-content"
+                                    class="section-content">
+                                    <!-- Se llena dinámicamente -->
+                                </div>
+                            </section>
+                        </div>
+
+                        <!-- Sidebar -->
+                        <div class="sidebar-column">
+                            <!-- Información de contacto -->
+                            <div
+                                id="contacto-section"
+                                class="sidebar-section"
+                                style="display: none;">
+                                <div class="section-header">
+                                    <h3>Información de Contacto</h3>
+                                </div>
+                                <div
+                                    id="contacto-content"
+                                    class="section-content">
+                                    <!-- Se llena dinámicamente -->
+                                </div>
+                            </div>
+
+                            <!-- Links útiles -->
+                            <div
+                                id="links-section"
+                                class="sidebar-section"
+                                style="display: none;">
+                                <div class="section-header">
+                                    <h3>Enlaces</h3>
+                                </div>
+                                <div id="links-content" class="section-content">
+                                    <!-- Se llena dinámicamente -->
+                                </div>
+                            </div>
+
+                            <!-- Compartir perfil -->
+                            <div class="sidebar-section">
+                                <div class="section-header">
+                                    <h3>Compartir Perfil</h3>
+                                </div>
+                                <div class="section-content">
+                                    <div class="share-buttons">
+                                        <button
+                                            id="copy-link-btn"
+                                            class="share-btn"
+                                            title="Copiar enlace">
+                                            <svg
+                                                width="16"
+                                                height="16"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor">
+                                                <path
+                                                    d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+                                                ></path>
+                                                <path
+                                                    d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+                                                ></path>
+                                            </svg>
+                                            Copiar enlace
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</BaseLayout>
+
+<style>
+    .perfil-detalle-container {
+        min-height: 100vh;
+        background: #f8fafc;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    /* Estados de carga y error */
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 60vh;
+        color: #6b7280;
+        text-align: center;
+    }
+
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid #e5e7eb;
+        border-radius: 50%;
+        border-top-color: #3b82f6;
+        animation: spin 1s ease-in-out infinite;
+        margin-bottom: 1rem;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .error-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 60vh;
+        padding: 2rem;
+    }
+
+    .error-content {
+        text-align: center;
+        max-width: 400px;
+    }
+
+    .error-content h2 {
+        color: #dc2626;
+        margin: 0 0 1rem 0;
+        font-size: 1.5rem;
+    }
+
+    .error-content p {
+        color: #6b7280;
+        margin: 0 0 2rem 0;
+    }
+
+    .error-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    /* Header del perfil */
+    .perfil-header {
+        position: relative;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        overflow: hidden;
+    }
+
+    .header-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    .header-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+            135deg,
+            rgba(102, 126, 234, 0.8) 0%,
+            rgba(118, 75, 162, 0.8) 100%
+        );
+    }
+
+    .header-content {
+        position: relative;
+        z-index: 2;
+        padding: 2rem 0 3rem;
+    }
+
+    .header-nav {
+        margin-bottom: 2rem;
+    }
+
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+
+    .back-button:hover {
+        color: white;
+    }
+
+    .profile-hero {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .profile-avatar-container {
+        flex-shrink: 0;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .profile-name {
+        margin: 0 0 0.5rem 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        line-height: 1.2;
+    }
+
+    .profile-carrera {
+        margin: 0 0 1rem 0;
+        font-size: 1.25rem;
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 500;
+    }
+
+    .profile-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .profile-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    /* Contenido principal */
+    .perfil-body {
+        padding: 3rem 0;
+    }
+
+    .perfil-layout {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        gap: 3rem;
+    }
+
+    .main-column {
+        min-width: 0;
+    }
+
+    .sidebar-column {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    /* Secciones */
+    .profile-section,
+    .sidebar-section {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+    }
+
+    .section-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        background: #f9fafb;
+    }
+
+    .section-header h2 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .section-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .section-content {
+        padding: 1.5rem;
+    }
+
+    /* Resumen profesional */
+    .resumen-text {
+        color: #4b5563;
+        line-height: 1.6;
+        font-size: 1rem;
+        margin: 0;
+    }
+
+    /* Items de experiencia, formación y cursos */
+    .timeline-item {
+        display: flex;
+        gap: 1rem;
+        padding: 1.5rem 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .timeline-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .timeline-item:first-child {
+        padding-top: 0;
+    }
+
+    .timeline-marker {
+        flex-shrink: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #3b82f6;
+        margin-top: 0.25rem;
+    }
+
+    .timeline-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .timeline-title {
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0 0 0.25rem 0;
+        font-size: 1.1rem;
+    }
+
+    .timeline-subtitle {
+        color: #6b7280;
+        margin: 0 0 0.5rem 0;
+        font-weight: 500;
+    }
+
+    .timeline-dates {
+        color: #9ca3af;
+        font-size: 0.875rem;
+        margin: 0 0 0.75rem 0;
+    }
+
+    .timeline-description {
+        color: #4b5563;
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    /* Información de contacto y enlaces */
+    .contact-item,
+    .link-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .contact-item:last-child,
+    .link-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .contact-item:first-child,
+    .link-item:first-child {
+        padding-top: 0;
+    }
+
+    .contact-icon,
+    .link-icon {
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+        color: #6b7280;
+    }
+
+    .contact-info,
+    .link-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .contact-label,
+    .link-label {
+        font-weight: 500;
+        color: #374151;
+        font-size: 0.875rem;
+        margin-bottom: 0.125rem;
+    }
+
+    .contact-value {
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+
+    .link-value {
+        color: #3b82f6;
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: color 0.2s ease;
+    }
+
+    .link-value:hover {
+        color: #2563eb;
+    }
+
+    /* Botones */
+    .btn-primary,
+    .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+
+    .btn-primary {
+        background: #3b82f6;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #2563eb;
+        transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+
+    .btn-secondary:hover {
+        background: #f9fafb;
+    }
+
+    .contact-btn {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .contact-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-1px);
+    }
+
+    /* Compartir */
+    .share-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .share-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        color: #374151;
+        text-decoration: none;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 100%;
+    }
+
+    .share-btn:hover {
+        background: #f3f4f6;
+        border-color: #d1d5db;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .perfil-layout {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .sidebar-column {
+            order: -1;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            padding: 0 0.5rem;
+        }
+
+        .header-content {
+            padding: 1.5rem 0 2rem;
+        }
+
+        .profile-hero {
+            flex-direction: column;
+            text-align: center;
+            gap: 1.5rem;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+        }
+
+        .profile-name {
+            font-size: 2rem;
+        }
+
+        .profile-carrera {
+            font-size: 1.1rem;
+        }
+
+        .perfil-body {
+            padding: 2rem 0;
+        }
+
+        .section-content {
+            padding: 1rem;
+        }
+
+        .section-header {
+            padding: 1rem;
+        }
+
+        .timeline-item {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .timeline-marker {
+            width: 8px;
+            height: 8px;
+            margin-top: 0;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .profile-actions {
+            flex-direction: column;
+        }
+
+        .profile-badges {
+            justify-content: center;
+        }
+
+        .error-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<script>
+    // @ts-nocheck
+    import { publicProfilesService, apiRequest } from "../../utils/api.js";
+
+    class PerfilDetalle {
+        constructor() {
+            this.perfilId = null;
+            this.perfilData = null;
+
+            this.init();
+        }
+
+        init() {
+            // Obtener ID del perfil desde la URL
+            this.perfilId = this.getPerfilIdFromUrl();
+
+            if (!this.perfilId) {
+                this.showError("ID de perfil inválido");
+                return;
+            }
+
+            this.bindEvents();
+            this.loadPerfil();
+        }
+
+        getPerfilIdFromUrl() {
+            const path = window.location.pathname;
+            const segments = path.split("/");
+            const idSegment = segments[segments.length - 1];
+            const id = parseInt(idSegment);
+            return isNaN(id) ? null : id;
+        }
+
+        bindEvents() {
+            // Botón de reintentar
+            const retryButton = document.getElementById("retry-button");
+            if (retryButton) {
+                retryButton.addEventListener("click", () => {
+                    this.loadPerfil();
+                });
+            }
+
+            // Copiar enlace
+            const copyLinkBtn = document.getElementById("copy-link-btn");
+            if (copyLinkBtn) {
+                copyLinkBtn.addEventListener("click", () => {
+                    this.copyToClipboard(window.location.href);
+                });
+            }
+        }
+
+        async loadPerfil() {
+            this.showLoading();
+
+            try {
+                const response = await apiRequest(() =>
+                    publicProfilesService.getPublicProfile(this.perfilId)
+                );
+
+                this.perfilData = response.data;
+                this.renderPerfil();
+                this.hideLoading();
+            } catch (error) {
+                console.error("Error cargando perfil:", error);
+                this.showError(error.message || "Error al cargar el perfil");
+            }
+        }
+
+        renderPerfil() {
+            if (!this.perfilData) return;
+
+            const perfil = this.perfilData;
+
+            // Actualizar título de la página
+            document.title = `${perfil.nombre} - Perfil de Egresado`;
+
+            // Renderizar header
+            this.renderHeader(perfil);
+
+            // Renderizar secciones principales
+            this.renderResumen(perfil);
+            this.renderExperiencia(perfil);
+            this.renderFormacion(perfil);
+            this.renderCursos(perfil);
+
+            // Renderizar sidebar
+            this.renderContacto(perfil);
+            this.renderLinks(perfil);
+        }
+
+        renderHeader(perfil) {
+            // Avatar
+            const avatar = document.getElementById("profile-avatar");
+            if (avatar) {
+                avatar.src = perfil.urlFotoPerfil || "/default-avatar.svg";
+                avatar.alt = `Foto de ${perfil.nombre}`;
+            }
+
+            // Banner de fondo
+            const headerBg = document.getElementById("header-background");
+            if (headerBg && perfil.urlBanner) {
+                headerBg.style.backgroundImage = `url(${perfil.urlBanner})`;
+            }
+
+            // Nombre y carrera
+            const nameEl = document.getElementById("profile-name");
+            const carreraEl = document.getElementById("profile-carrera");
+
+            if (nameEl) nameEl.textContent = perfil.nombre;
+            if (carreraEl) carreraEl.textContent = perfil.carrera;
+
+            // Badges
+            this.renderBadges(perfil);
+
+            // Acciones
+            this.renderActions(perfil);
+        }
+
+        renderBadges(perfil) {
+            const badgesContainer = document.getElementById("profile-badges");
+            if (!badgesContainer) return;
+
+            badgesContainer.innerHTML = "";
+
+            if (perfil.situacionLaboral) {
+                const badge = document.createElement("span");
+                badge.className = "badge";
+                badge.textContent = perfil.situacionLaboral;
+                badgesContainer.appendChild(badge);
+            }
+        }
+
+        renderActions(perfil) {
+            const actionsContainer = document.getElementById("profile-actions");
+            if (!actionsContainer) return;
+
+            actionsContainer.innerHTML = "";
+
+            // Botón de portfolio
+            if (perfil.urlPortfolio) {
+                const portfolioBtn = document.createElement("a");
+                portfolioBtn.href = perfil.urlPortfolio;
+                portfolioBtn.target = "_blank";
+                portfolioBtn.rel = "noopener noreferrer";
+                portfolioBtn.className = "btn-primary contact-btn";
+                portfolioBtn.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <g fill="none" fill-rule="evenodd">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 1.5 17V8A2.5 2.5 0 0 1 4 5.5h16A2.5 2.5 0 0 1 22.5 8v9a2.5 2.5 0 0 1-2.5 2.5H4zM6 7v10h12V7H6z"/>
+                        </g>
+                    </svg>
+                    Ver Portfolio
+                `;
+                actionsContainer.appendChild(portfolioBtn);
+            }
+        }
+
+        renderResumen(perfil) {
+            const section = document.getElementById("resumen-section");
+            const content = document.getElementById("resumen-content");
+
+            if (!perfil.resumenProfesional) {
+                if (section) section.style.display = "none";
+                return;
+            }
+
+            if (section) section.style.display = "block";
+            if (content) content.textContent = perfil.resumenProfesional;
+        }
+
+        renderExperiencia(perfil) {
+            const section = document.getElementById("experiencia-section");
+            const content = document.getElementById("experiencia-content");
+
+            if (
+                !perfil.experienciasLaborales ||
+                perfil.experienciasLaborales.length === 0
+            ) {
+                if (section) section.style.display = "none";
+                return;
+            }
+
+            if (section) section.style.display = "block";
+            if (content) {
+                content.innerHTML = "";
+
+                perfil.experienciasLaborales.forEach((exp) => {
+                    const item = this.createTimelineItem({
+                        title: exp.puesto,
+                        subtitle: exp.empresa,
+                        startDate: exp.fechaInicio,
+                        endDate: exp.fechaFin,
+                        description: exp.descripcion,
+                    });
+                    content.appendChild(item);
+                });
+            }
+        }
+
+        renderFormacion(perfil) {
+            const section = document.getElementById("formacion-section");
+            const content = document.getElementById("formacion-content");
+
+            if (
+                !perfil.formacionAcademica ||
+                perfil.formacionAcademica.length === 0
+            ) {
+                if (section) section.style.display = "none";
+                return;
+            }
+
+            if (section) section.style.display = "block";
+            if (content) {
+                content.innerHTML = "";
+
+                perfil.formacionAcademica.forEach((form) => {
+                    const item = this.createTimelineItem({
+                        title: form.titulo,
+                        subtitle: form.institucion,
+                        startDate: form.anioInicio,
+                        endDate: form.anioFinalizacion,
+                        description: form.descripcion,
+                    });
+                    content.appendChild(item);
+                });
+            }
+        }
+
+        renderCursos(perfil) {
+            const section = document.getElementById("cursos-section");
+            const content = document.getElementById("cursos-content");
+
+            if (!perfil.cursos || perfil.cursos.length === 0) {
+                if (section) section.style.display = "none";
+                return;
+            }
+
+            if (section) section.style.display = "block";
+            if (content) {
+                content.innerHTML = "";
+
+                perfil.cursos.forEach((curso) => {
+                    const item = this.createTimelineItem({
+                        title: curso.nombre,
+                        subtitle: curso.institucion,
+                        description: curso.horasDuracion
+                            ? `Duración: ${curso.horasDuracion} horas`
+                            : null,
+                    });
+                    content.appendChild(item);
+                });
+            }
+        }
+
+        renderContacto(perfil) {
+            const section = document.getElementById("contacto-section");
+            const content = document.getElementById("contacto-content");
+
+            // En perfiles públicos no se muestran datos de contacto sensibles
+            // Solo se puede mostrar información que esté disponible públicamente
+            if (section) section.style.display = "none";
+        }
+
+        renderLinks(perfil) {
+            const section = document.getElementById("links-section");
+            const content = document.getElementById("links-content");
+
+            const hasLinks = perfil.urlPortfolio;
+
+            if (!hasLinks) {
+                if (section) section.style.display = "none";
+                return;
+            }
+
+            if (section) section.style.display = "block";
+            if (content) {
+                content.innerHTML = "";
+
+                if (perfil.urlPortfolio) {
+                    const linkItem = this.createLinkItem({
+                        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <g fill="none" fill-rule="evenodd">
+                                <path d="M4 19.5A2.5 2.5 0 0 1 1.5 17V8A2.5 2.5 0 0 1 4 5.5h16A2.5 2.5 0 0 1 22.5 8v9a2.5 2.5 0 0 1-2.5 2.5H4zM6 7v10h12V7H6z"/>
+                            </g>
+                        </svg>`,
+                        label: "Portfolio",
+                        url: perfil.urlPortfolio,
+                    });
+                    content.appendChild(linkItem);
+                }
+            }
+        }
+
+        createTimelineItem({
+            title,
+            subtitle,
+            startDate,
+            endDate,
+            description,
+        }) {
+            const item = document.createElement("div");
+            item.className = "timeline-item";
+
+            let dateText = "";
+            if (startDate) {
+                const start = this.formatDate(startDate);
+                const end = endDate ? this.formatDate(endDate) : "Presente";
+                dateText = `${start} - ${end}`;
+            }
+
+            item.innerHTML = `
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <h4 class="timeline-title">${title}</h4>
+                    ${subtitle ? `<p class="timeline-subtitle">${subtitle}</p>` : ""}
+                    ${dateText ? `<p class="timeline-dates">${dateText}</p>` : ""}
+                    ${description ? `<p class="timeline-description">${description}</p>` : ""}
+                </div>
+            `;
+
+            return item;
+        }
+
+        createLinkItem({ icon, label, url }) {
+            const item = document.createElement("div");
+            item.className = "link-item";
+
+            item.innerHTML = `
+                <div class="link-icon">${icon}</div>
+                <div class="link-info">
+                    <div class="link-label">${label}</div>
+                    <a href="${url}" target="_blank" rel="noopener noreferrer" class="link-value">
+                        ${this.formatUrl(url)}
+                    </a>
+                </div>
+            `;
+
+            return item;
+        }
+
+        formatDate(dateStr) {
+            if (!dateStr) return "";
+
+            // Si es solo un año
+            if (dateStr.length === 4) {
+                return dateStr;
+            }
+
+            // Si es una fecha completa
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return dateStr;
+
+            return date.toLocaleDateString("es-ES", {
+                year: "numeric",
+                month: "short",
+            });
+        }
+
+        formatUrl(url) {
+            try {
+                const urlObj = new URL(url);
+                return urlObj.hostname;
+            } catch {
+                return url;
+            }
+        }
+
+        async copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                this.showNotification(
+                    "Enlace copiado al portapapeles",
+                    "success"
+                );
+            } catch (error) {
+                // Fallback para navegadores que no soportan clipboard API
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textArea);
+                this.showNotification(
+                    "Enlace copiado al portapapeles",
+                    "success"
+                );
+            }
+        }
+
+        showNotification(message, type = "info") {
+            // Crear notificación temporal
+            const notification = document.createElement("div");
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === "success" ? "#10b981" : "#3b82f6"};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                z-index: 1000;
+                transform: translateX(400px);
+                transition: transform 0.3s ease;
+            `;
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            // Animación de entrada
+            setTimeout(() => {
+                notification.style.transform = "translateX(0)";
+            }, 100);
+
+            // Remover después de 3 segundos
+            setTimeout(() => {
+                notification.style.transform = "translateX(400px)";
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        showLoading() {
+            const loading = document.getElementById("loading-indicator");
+            const content = document.getElementById("perfil-content");
+            const error = document.getElementById("error-message");
+
+            if (loading) loading.style.display = "flex";
+            if (content) content.style.display = "none";
+            if (error) error.style.display = "none";
+        }
+
+        hideLoading() {
+            const loading = document.getElementById("loading-indicator");
+            const content = document.getElementById("perfil-content");
+
+            if (loading) loading.style.display = "none";
+            if (content) content.style.display = "block";
+        }
+
+        showError(message) {
+            const loading = document.getElementById("loading-indicator");
+            const content = document.getElementById("perfil-content");
+            const error = document.getElementById("error-message");
+            const errorText = document.getElementById("error-text");
+
+            if (loading) loading.style.display = "none";
+            if (content) content.style.display = "none";
+            if (error) error.style.display = "block";
+            if (errorText) errorText.textContent = message;
+        }
+    }
+
+    // Inicializar cuando el DOM esté listo
+    document.addEventListener("DOMContentLoaded", () => {
+        new PerfilDetalle();
+    });
+</script>

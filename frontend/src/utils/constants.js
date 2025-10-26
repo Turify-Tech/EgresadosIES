@@ -225,7 +225,7 @@ export const THEME_COLORS = {
 // Rutas de la aplicación
 export const ROUTES = {
     HOME: "/",
-    LOGIN: "/login",
+    LOGIN: "/acceso",
     REGISTER: "/register",
     PROFILE: {
         VIEW: "/profile",

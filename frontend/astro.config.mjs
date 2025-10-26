@@ -9,4 +9,6 @@ export default defineConfig({
     build: {
         assets: "assets",
     },
+    // Configuración para páginas dinámicas
+    trailingSlash: "ignore",
 });

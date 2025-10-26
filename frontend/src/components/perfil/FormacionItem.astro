@@ -1,0 +1,178 @@
+---
+/**
+ * Componente FormacionItem - Item individual de formación académica
+ */
+
+export interface Props {
+    formacion: {
+        id?: number;
+        titulo: string;
+        institucion: string;
+        anioInicio?: string | number;
+        anioFinalizacion?: string | number;
+        descripcion?: string;
+    };
+}
+
+const { formacion } = Astro.props;
+
+// Formatear años
+function formatYear(year: string | number | undefined): string {
+    if (!year) return "";
+    return year.toString();
+}
+
+const anioInicio = formatYear(formacion.anioInicio);
+const anioFin = formacion.anioFinalizacion
+    ? formatYear(formacion.anioFinalizacion)
+    : "Presente";
+---
+
+<div class="formacion-item">
+    <div class="timeline-marker"></div>
+    <div class="timeline-content">
+        <h4 class="timeline-title">{formacion.titulo}</h4>
+        <p class="timeline-subtitle">{formacion.institucion}</p>
+        {
+            (anioInicio || anioFin !== "Presente") && (
+                <p class="timeline-dates">
+                    {anioInicio}{" "}
+                    {anioInicio && anioFin !== "Presente" ? "- " + anioFin : ""}
+                </p>
+            )
+        }
+        {
+            formacion.descripcion && (
+                <p class="timeline-description">{formacion.descripcion}</p>
+            )
+        }
+    </div>
+</div>
+
+<style>
+    .formacion-item {
+        display: flex;
+        gap: 1rem;
+        padding: 1.5rem 0;
+        border-bottom: 1px solid #e5e7eb;
+        transition: all 0.2s ease;
+    }
+
+    .formacion-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .formacion-item:first-child {
+        padding-top: 0;
+    }
+
+    .formacion-item:hover {
+        background: rgba(16, 185, 129, 0.02);
+        margin: 0 -1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        border-radius: 8px;
+    }
+
+    .timeline-marker {
+        flex-shrink: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #10b981;
+        margin-top: 0.25rem;
+        position: relative;
+    }
+
+    .timeline-marker::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: white;
+    }
+
+    .timeline-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .timeline-title {
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0 0 0.25rem 0;
+        font-size: 1.1rem;
+        line-height: 1.3;
+    }
+
+    .timeline-subtitle {
+        color: #6b7280;
+        margin: 0 0 0.5rem 0;
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+
+    .timeline-dates {
+        color: #9ca3af;
+        font-size: 0.875rem;
+        margin: 0 0 0.75rem 0;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .timeline-dates::before {
+        content: "🎓";
+        font-size: 0.75rem;
+    }
+
+    .timeline-description {
+        color: #4b5563;
+        line-height: 1.6;
+        margin: 0;
+        font-size: 0.95rem;
+        text-align: justify;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .formacion-item {
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 1rem 0;
+        }
+
+        .timeline-marker {
+            width: 8px;
+            height: 8px;
+            margin-top: 0;
+        }
+
+        .timeline-marker::before {
+            width: 4px;
+            height: 4px;
+        }
+
+        .timeline-title {
+            font-size: 1rem;
+        }
+
+        .timeline-subtitle {
+            font-size: 0.9rem;
+        }
+
+        .timeline-dates {
+            font-size: 0.8rem;
+        }
+
+        .timeline-description {
+            font-size: 0.9rem;
+        }
+    }
+</style>

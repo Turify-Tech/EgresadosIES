@@ -1,0 +1,571 @@
+---
+// Componente para gestionar proyectos
+---
+
+<div class="proyectos-form">
+    <div class="form-header">
+        <h2>PROYECTOS</h2>
+    </div>
+
+    <form class="proyectos-content" id="proyectos-form">
+        <div class="proyecto-section">
+            <!-- Sección de Imagen -->
+            <div class="image-section">
+                <div class="image-header">
+                    <h3>Imagen</h3>
+                    <button type="button" class="add-item-btn">
+                        <span>⚙</span>
+                    </button>
+                </div>
+
+                <div class="image-upload-area">
+                    <div class="image-preview" id="image-preview">
+                        <div class="placeholder-image">
+                            <!-- Círculo negro como en la imagen -->
+                            <div class="circle-placeholder"></div>
+                        </div>
+                    </div>
+                    <input
+                        type="file"
+                        id="project-image-input"
+                        accept="image/*"
+                        style="display: none;"
+                    />
+                    <button
+                        type="button"
+                        class="upload-btn"
+                        id="upload-project-image">
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+                            ></path>
+                            <polyline points="7,10 12,15 17,10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sección de Información -->
+            <div class="info-section">
+                <!-- Descripción -->
+                <div class="field-row">
+                    <div class="form-group">
+                        <label for="descripcion">Descripción:</label>
+                        <textarea
+                            id="descripcion"
+                            name="descripcion"
+                            class="form-textarea"
+                            placeholder="Descripción detallada..."
+                            rows="4"></textarea>
+                    </div>
+                    <div class="form-group icon-field">
+                        <button type="button" class="add-item-btn">
+                            <span>⚙</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Nombre del Proyecto -->
+                <div class="field-row">
+                    <div class="form-group">
+                        <label for="nombre-proyecto">Nombre del Proyecto:</label
+                        >
+                        <input
+                            type="text"
+                            id="nombre-proyecto"
+                            name="nombreProyecto"
+                            class="form-input"
+                            placeholder=""
+                        />
+                    </div>
+                    <div class="form-group icon-field">
+                        <button type="button" class="add-item-btn">
+                            <span>⚙</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Enlace -->
+                <div class="field-row">
+                    <div class="form-group">
+                        <label for="enlace">Enlace:</label>
+                        <input
+                            type="url"
+                            id="enlace"
+                            name="enlace"
+                            class="form-input"
+                            placeholder="https://..."
+                        />
+                    </div>
+                    <div class="form-group icon-field">
+                        <button type="button" class="add-item-btn">
+                            <span>⚙</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Agregar más -->
+                <div class="field-row">
+                    <div class="form-group">
+                        <label for="agregar-mas">Agregar más:</label>
+                        <button
+                            type="button"
+                            class="info-btn"
+                            title="Agregar más proyectos">
+                            <span>i</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botón Guardar -->
+        <div class="form-actions">
+            <button type="button" class="btn-guardar" id="save-proyectos">
+                Guardar
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .proyectos-form {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid #3b82f6;
+        padding-bottom: 1rem;
+    }
+
+    .form-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #3b82f6;
+        letter-spacing: 0.05em;
+    }
+
+    .proyectos-content {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .proyecto-section {
+        background: #f9fafb;
+        border-radius: 8px;
+        padding: 1.5rem;
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 2rem;
+        align-items: start;
+    }
+
+    /* Sección de Imagen */
+    .image-section {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .image-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .image-header h3 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .image-upload-area {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .image-preview {
+        width: 150px;
+        height: 100px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        overflow: hidden;
+        position: relative;
+        margin-bottom: 1rem;
+    }
+
+    .placeholder-image {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f3f4f6;
+    }
+
+    .circle-placeholder {
+        width: 40px;
+        height: 40px;
+        background: #000;
+        border-radius: 50%;
+    }
+
+    .upload-btn {
+        padding: 0.5rem 1rem;
+        background: #6b7280;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        font-size: 0.875rem;
+        transition: background 0.2s;
+    }
+
+    .upload-btn:hover {
+        background: #4b5563;
+    }
+
+    /* Sección de Información */
+    .info-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .field-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 1rem;
+        align-items: end;
+    }
+
+    .field-row:last-child {
+        align-items: center;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group.icon-field {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+    }
+
+    .form-group label {
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.875rem;
+    }
+
+    .form-input,
+    .form-textarea {
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        transition:
+            border-color 0.2s,
+            box-shadow 0.2s;
+        background: white;
+        font-family: inherit;
+        width: 100%;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    /* Botones */
+    .add-item-btn {
+        width: 32px;
+        height: 32px;
+        background: #6b7280;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background 0.2s;
+    }
+
+    .add-item-btn:hover {
+        background: #4b5563;
+    }
+
+    .info-btn {
+        width: 24px;
+        height: 24px;
+        background: #6b7280;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 0.75rem;
+        font-weight: bold;
+        transition: background 0.2s;
+    }
+
+    .info-btn:hover {
+        background: #4b5563;
+    }
+
+    /* Botón Guardar */
+    .form-actions {
+        display: flex;
+        justify-content: center;
+        padding-top: 2rem;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .btn-guardar {
+        padding: 0.75rem 2rem;
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+    }
+
+    .btn-guardar:hover {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        transform: translateY(-1px);
+    }
+
+    .btn-guardar:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .proyectos-form {
+            padding: 1rem;
+        }
+
+        .proyecto-section {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .image-preview {
+            width: 120px;
+            height: 80px;
+        }
+
+        .field-row {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+
+        .form-group.icon-field {
+            justify-content: flex-start;
+            margin-top: 0.5rem;
+        }
+
+        .btn-guardar {
+            width: 100%;
+        }
+    }
+</style>
+
+<script>
+    // @ts-nocheck
+    class ProyectosManager {
+        constructor() {
+            this.form = document.getElementById("proyectos-form");
+            this.isInitialized = false;
+            this.init();
+        }
+
+        init() {
+            this.bindEvents();
+
+            // Escuchar cuando se cargan los datos del perfil
+            window.addEventListener("profile-data-loaded", (e) => {
+                this.populateForm(e.detail);
+            });
+        }
+
+        bindEvents() {
+            // Upload de imagen
+            document
+                .getElementById("upload-project-image")
+                ?.addEventListener("click", () => {
+                    document.getElementById("project-image-input")?.click();
+                });
+
+            document
+                .getElementById("project-image-input")
+                ?.addEventListener("change", (e) => {
+                    this.handleImageUpload(e);
+                });
+
+            // Botón guardar
+            document
+                .getElementById("save-proyectos")
+                ?.addEventListener("click", () => {
+                    this.saveSection();
+                });
+
+            // Auto-guardado después de cambios
+            this.form?.addEventListener("change", () => {
+                setTimeout(() => {
+                    this.autoSave();
+                }, 1000);
+            });
+        }
+
+        handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const preview = document.getElementById("image-preview");
+                    if (preview) {
+                        preview.innerHTML = `<img src="${e.target.result}" alt="Proyecto" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        populateForm(profileData) {
+            if (!profileData || this.isInitialized) return;
+
+            // TODO: Poblar campos con datos del perfil
+            console.log("Poblando proyectos", profileData);
+            this.isInitialized = true;
+        }
+
+        getFormData() {
+            const formData = new FormData(this.form);
+            const data = {};
+
+            // Convertir FormData a objeto
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+
+            return data;
+        }
+
+        async saveSection() {
+            try {
+                const btn = document.getElementById("save-proyectos");
+                if (btn) {
+                    btn.disabled = true;
+                    btn.textContent = "Guardando...";
+                }
+
+                const data = this.getFormData();
+
+                // Emitir evento para que el controlador principal maneje el guardado
+                window.dispatchEvent(
+                    new CustomEvent("save-section-data", {
+                        detail: { section: "proyectos", data },
+                    })
+                );
+
+                this.showNotification("Proyectos guardados", "success");
+
+                // Completado el perfil - mostrar mensaje final
+                setTimeout(() => {
+                    this.showNotification(
+                        "¡Perfil completado exitosamente!",
+                        "success"
+                    );
+                }, 500);
+            } catch (error) {
+                console.error("Error guardando proyectos:", error);
+                this.showNotification(
+                    "Error al guardar los proyectos",
+                    "error"
+                );
+            } finally {
+                const btn = document.getElementById("save-proyectos");
+                if (btn) {
+                    (btn as HTMLButtonElement).disabled = false;
+                    btn.textContent = "Guardar";
+                }
+            }
+        }
+
+        async autoSave() {
+            const data = this.getFormData();
+
+            // Emitir evento para auto-guardado
+            window.dispatchEvent(
+                new CustomEvent("auto-save-data", {
+                    detail: { section: "proyectos", data },
+                })
+            );
+
+            console.log("Auto-guardando proyectos...");
+        }
+
+        showNotification(message: string, type: string) {
+            // Reutilizar el sistema de notificaciones del componente principal
+            window.dispatchEvent(
+                new CustomEvent("show-notification", {
+                    detail: { message, type },
+                })
+            );
+        }
+    }
+
+    // Inicializar cuando el DOM esté listo
+    document.addEventListener("DOMContentLoaded", () => {
+        (window as any).proyectosManager = new ProyectosManager();
+    });
+</script>

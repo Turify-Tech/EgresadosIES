@@ -1,0 +1,1065 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PerfilCard from "../../components/perfil/PerfilCard.astro";
+---
+
+<BaseLayout title="Perfiles de Egresados">
+    <main class="perfiles-container">
+        <!-- Header con filtros y búsqueda -->
+        <div class="perfiles-header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="title-section">
+                        <h1>Perfiles de Egresados</h1>
+                        <p>
+                            Conoce a nuestros egresados y sus logros
+                            profesionales
+                        </p>
+                    </div>
+
+                    <div class="filters-section">
+                        <!-- Buscador -->
+                        <div class="search-box">
+                            <input
+                                type="text"
+                                id="search-input"
+                                placeholder="Buscar por nombre..."
+                                class="search-input"
+                            />
+                            <button
+                                type="button"
+                                id="search-button"
+                                class="search-button">
+                                <svg
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <path d="m21 21-4.35-4.35"></path>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Filtro por carrera -->
+                        <div class="filter-box">
+                            <select id="carrera-filter" class="filter-select">
+                                <option value="">Todas las carreras</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="container">
+            <!-- Indicador de carga -->
+            <div id="loading-indicator" class="loading-container">
+                <div class="loading-spinner"></div>
+                <p>Cargando perfiles...</p>
+            </div>
+
+            <!-- Mensaje de error -->
+            <div
+                id="error-message"
+                class="error-container"
+                style="display: none;">
+                <div class="error-content">
+                    <h3>Error al cargar perfiles</h3>
+                    <p id="error-text">
+                        Ha ocurrido un error al cargar los perfiles. Por favor,
+                        intenta nuevamente.
+                    </p>
+                    <button id="retry-button" class="retry-button"
+                        >Reintentar</button
+                    >
+                </div>
+            </div>
+
+            <!-- Resultados -->
+            <div id="results-container">
+                <!-- Información de resultados -->
+                <div
+                    id="results-info"
+                    class="results-info"
+                    style="display: none;">
+                    <span id="results-count">0 perfiles encontrados</span>
+                </div>
+
+                <!-- Grid de perfiles -->
+                <div id="perfiles-grid" class="perfiles-grid">
+                    <!-- Los perfiles se cargan dinámicamente aquí -->
+                </div>
+
+                <!-- Mensaje sin resultados -->
+                <div id="no-results" class="no-results" style="display: none;">
+                    <div class="no-results-content">
+                        <svg
+                            width="64"
+                            height="64"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        <h3>No se encontraron perfiles</h3>
+                        <p>
+                            No hay perfiles que coincidan con tu búsqueda.
+                            Intenta con otros términos.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Paginación -->
+                <div
+                    id="pagination-container"
+                    class="pagination-container"
+                    style="display: none;">
+                    <div class="pagination">
+                        <button id="prev-page" class="pagination-btn" disabled>
+                            <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor">
+                                <polyline points="15,18 9,12 15,6"></polyline>
+                            </svg>
+                            Anterior
+                        </button>
+
+                        <div id="page-numbers" class="page-numbers">
+                            <!-- Los números de página se generan dinámicamente -->
+                        </div>
+
+                        <button id="next-page" class="pagination-btn" disabled>
+                            Siguiente
+                            <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor">
+                                <polyline points="9,18 15,12 9,6"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</BaseLayout>
+
+<style>
+    .perfiles-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding-bottom: 2rem;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    /* Header */
+    .perfiles-header {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 2rem;
+    }
+
+    .title-section h1 {
+        color: white;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .title-section p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1.1rem;
+        margin: 0;
+    }
+
+    .filters-section {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    /* Buscador */
+    .search-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .search-input {
+        width: 300px;
+        padding: 0.75rem 3rem 0.75rem 1rem;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        font-size: 1rem;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+
+    .search-input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .search-button {
+        position: absolute;
+        right: 0.5rem;
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.7);
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+
+    .search-button:hover {
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Filtros */
+    .filter-box {
+        position: relative;
+    }
+
+    .filter-select {
+        padding: 0.75rem 2.5rem 0.75rem 1rem;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        font-size: 1rem;
+        backdrop-filter: blur(10px);
+        cursor: pointer;
+        min-width: 200px;
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.7rem center;
+        background-size: 1rem;
+    }
+
+    .filter-select:focus {
+        outline: none;
+        border-color: rgba(255, 255, 255, 0.5);
+        background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .filter-select option {
+        background: #1f2937;
+        color: white;
+        padding: 0.5rem;
+    }
+
+    /* Estados de carga y error */
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 2rem;
+        color: white;
+        text-align: center;
+    }
+
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s ease-in-out infinite;
+        margin-bottom: 1rem;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .error-container {
+        display: flex;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .error-content {
+        background: rgba(220, 38, 38, 0.1);
+        border: 1px solid rgba(220, 38, 38, 0.3);
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        color: white;
+        max-width: 400px;
+    }
+
+    .error-content h3 {
+        margin: 0 0 1rem 0;
+        color: #fecaca;
+    }
+
+    .error-content p {
+        margin: 0 0 1.5rem 0;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .retry-button {
+        background: #dc2626;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background-color 0.2s;
+    }
+
+    .retry-button:hover {
+        background: #b91c1c;
+    }
+
+    /* Resultados */
+    .results-info {
+        margin-bottom: 1.5rem;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.95rem;
+    }
+
+    .perfiles-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Mensaje sin resultados */
+    .no-results {
+        display: flex;
+        justify-content: center;
+        padding: 4rem 2rem;
+    }
+
+    .no-results-content {
+        text-align: center;
+        color: white;
+        max-width: 400px;
+    }
+
+    .no-results-content svg {
+        margin-bottom: 1rem;
+        opacity: 0.6;
+    }
+
+    .no-results-content h3 {
+        margin: 0 0 1rem 0;
+        font-size: 1.5rem;
+    }
+
+    .no-results-content p {
+        color: rgba(255, 255, 255, 0.7);
+        margin: 0;
+    }
+
+    /* Paginación */
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+    }
+
+    .pagination {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 8px;
+        padding: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .pagination-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    .pagination-btn:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .pagination-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .page-numbers {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .page-number {
+        padding: 0.5rem 0.75rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        min-width: 36px;
+        text-align: center;
+    }
+
+    .page-number:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .page-number.active {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
+        font-weight: 600;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1.5rem;
+        }
+
+        .filters-section {
+            flex-direction: column;
+            width: 100%;
+            gap: 1rem;
+        }
+
+        .search-box {
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+        }
+
+        .filter-select {
+            width: 100%;
+        }
+
+        .title-section h1 {
+            font-size: 2rem;
+        }
+
+        .perfiles-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .pagination {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .page-numbers {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .container {
+            padding: 0 0.5rem;
+        }
+
+        .perfiles-header {
+            padding: 1.5rem 0;
+        }
+
+        .title-section h1 {
+            font-size: 1.5rem;
+        }
+
+        .title-section p {
+            font-size: 1rem;
+        }
+    }
+</style>
+
+<script>
+    // @ts-nocheck
+    import { publicProfilesService, apiRequest } from "../../utils/api.js";
+
+    class PerfilesListing {
+        constructor() {
+            this.currentPage = 1;
+            this.limit = 12;
+            this.currentCarrera = "";
+            this.currentSearch = "";
+            this.isLoading = false;
+            this.carreras = [];
+            this.totalPages = 0;
+            this.totalRecords = 0;
+
+            this.init();
+        }
+
+        async init() {
+            this.bindEvents();
+            await this.loadCarreras();
+            await this.loadPerfiles();
+        }
+
+        bindEvents() {
+            // Búsqueda
+            const searchInput = document.getElementById("search-input");
+            const searchButton = document.getElementById("search-button");
+
+            if (searchInput) {
+                searchInput.addEventListener("keypress", (e) => {
+                    if (e.key === "Enter") {
+                        this.handleSearch();
+                    }
+                });
+            }
+
+            if (searchButton) {
+                searchButton.addEventListener("click", () => {
+                    this.handleSearch();
+                });
+            }
+
+            // Filtro de carrera
+            const carreraFilter = document.getElementById("carrera-filter");
+            if (carreraFilter) {
+                carreraFilter.addEventListener("change", (e) => {
+                    this.currentCarrera = e.target.value;
+                    this.currentPage = 1;
+                    this.loadPerfiles();
+                });
+            }
+
+            // Botón de reintentar
+            const retryButton = document.getElementById("retry-button");
+            if (retryButton) {
+                retryButton.addEventListener("click", () => {
+                    this.loadPerfiles();
+                });
+            }
+
+            // Paginación
+            this.bindPaginationEvents();
+        }
+
+        bindPaginationEvents() {
+            const prevBtn = document.getElementById("prev-page");
+            const nextBtn = document.getElementById("next-page");
+
+            if (prevBtn) {
+                prevBtn.addEventListener("click", () => {
+                    if (this.currentPage > 1) {
+                        this.currentPage--;
+                        this.loadPerfiles();
+                    }
+                });
+            }
+
+            if (nextBtn) {
+                nextBtn.addEventListener("click", () => {
+                    if (this.currentPage < this.totalPages) {
+                        this.currentPage++;
+                        this.loadPerfiles();
+                    }
+                });
+            }
+        }
+
+        handleSearch() {
+            const searchInput = document.getElementById("search-input");
+            if (searchInput) {
+                this.currentSearch = searchInput.value.trim();
+                this.currentPage = 1;
+                this.loadPerfiles();
+            }
+        }
+
+        async loadCarreras() {
+            try {
+                const response = await apiRequest(() =>
+                    publicProfilesService.getCarreras()
+                );
+
+                this.carreras = response.data || [];
+                this.renderCarrerasFilter();
+            } catch (error) {
+                console.error("Error cargando carreras:", error);
+            }
+        }
+
+        renderCarrerasFilter() {
+            const carreraFilter = document.getElementById("carrera-filter");
+            if (!carreraFilter) return;
+
+            // Limpiar opciones existentes (excepto la primera)
+            while (carreraFilter.children.length > 1) {
+                carreraFilter.removeChild(carreraFilter.lastChild);
+            }
+
+            // Agregar opciones de carreras
+            this.carreras.forEach((carrera) => {
+                const option = document.createElement("option");
+                option.value = carrera.nombre;
+                option.textContent = carrera.nombre;
+                carreraFilter.appendChild(option);
+            });
+        }
+
+        async loadPerfiles() {
+            if (this.isLoading) return;
+
+            this.isLoading = true;
+            this.showLoading();
+
+            try {
+                const response = await apiRequest(() =>
+                    publicProfilesService.getPublicProfiles(
+                        this.currentPage,
+                        this.limit,
+                        this.currentCarrera || null,
+                        this.currentSearch || null
+                    )
+                );
+
+                const { data, pagination } = response;
+                this.totalPages = pagination.totalPages;
+                this.totalRecords = pagination.totalRecords;
+
+                this.renderPerfiles(data);
+                this.updateResultsInfo();
+                this.updatePagination();
+                this.hideLoading();
+            } catch (error) {
+                console.error("Error cargando perfiles:", error);
+                this.showError(error.message || "Error al cargar los perfiles");
+            } finally {
+                this.isLoading = false;
+            }
+        }
+
+        renderPerfiles(perfiles) {
+            const grid = document.getElementById("perfiles-grid");
+            if (!grid) return;
+
+            if (perfiles.length === 0) {
+                this.showNoResults();
+                return;
+            }
+
+            this.hideNoResults();
+
+            grid.innerHTML = "";
+
+            perfiles.forEach((perfil) => {
+                const card = this.createPerfilCard(perfil);
+                grid.appendChild(card);
+            });
+        }
+
+        createPerfilCard(perfil) {
+            const card = document.createElement("div");
+            card.className = "perfil-card";
+
+            // Imagen de perfil
+            const avatarUrl = perfil.urlFotoPerfil || "/default-avatar.svg";
+
+            // Situación laboral con estilos
+            const situacionClass = this.getSituacionClass(
+                perfil.situacionLaboral
+            );
+
+            // Limitar descripción
+            const resumen = perfil.resumenProfesional
+                ? perfil.resumenProfesional.length > 150
+                    ? perfil.resumenProfesional.substring(0, 150) + "..."
+                    : perfil.resumenProfesional
+                : "Sin descripción disponible";
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="avatar">
+                        <img src="${avatarUrl}" alt="Foto de ${perfil.nombre}" onerror="this.src='/default-avatar.svg'">
+                    </div>
+                    <div class="card-info">
+                        <h3 class="card-name">${perfil.nombre}</h3>
+                        <p class="card-carrera">${perfil.carrera}</p>
+                        ${perfil.situacionLaboral ? `<span class="situacion-badge ${situacionClass}">${perfil.situacionLaboral}</span>` : ""}
+                    </div>
+                </div>
+                
+                <div class="card-content">
+                    <p class="card-resumen">${resumen}</p>
+                    
+                    ${
+                        perfil.experienciasLaborales &&
+                        perfil.experienciasLaborales.length > 0
+                            ? `
+                        <div class="experiencia-preview">
+                            <strong>Último trabajo:</strong>
+                            <span>${perfil.experienciasLaborales[0].puesto} en ${perfil.experienciasLaborales[0].empresa}</span>
+                        </div>
+                    `
+                            : ""
+                    }
+                    
+                    ${
+                        perfil.urlPortfolio
+                            ? `
+                        <div class="portfolio-link">
+                            <a href="${perfil.urlPortfolio}" target="_blank" rel="noopener noreferrer">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <g fill="none" fill-rule="evenodd">
+                                        <path d="m12.593 23.258-.011-.002-.071-.035-.02-.004-.014-.003-.071-.035a.928.928 0 0 1-.032-.018l-.014-.003-.016-.006-.004-.003-.017-.009a.924.924 0 0 1-.019-.007l-.004-.003-.014-.008a.93.93 0 0 1-.021-.007l-.004-.003-.021-.011-.004-.003-.021-.011-.004-.003-.021-.011a.928.928 0 0 1-.021-.011l-.004-.003-.021-.011-.004-.003-.021-.011a.929.929 0 0 1-.037-.02l-.004-.003-.016-.009-.004-.003-.021-.012a.928.928 0 0 1-.035-.018l-.004-.003-.015-.009-.004-.003-.021-.012a.928.928 0 0 1-.039-.021.82.82 0 0 1-.015-.008l-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.017-.010a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009a.928.928 0 0 1-.021-.012l-.004-.003-.015-.009-.004-.003-.015-.009z"/>
+                                        <path d="M4 19.5A2.5 2.5 0 0 1 1.5 17V8A2.5 2.5 0 0 1 4 5.5h16A2.5 2.5 0 0 1 22.5 8v9a2.5 2.5 0 0 1-2.5 2.5H4zM6 7v10h12V7H6z"/>
+                                    </g>
+                                </svg>
+                                Ver Portfolio
+                            </a>
+                        </div>
+                    `
+                            : ""
+                    }
+                </div>
+                
+                <div class="card-footer">
+                    <a href="/perfiles/${perfil.id}" class="view-profile-btn">
+                        Ver Perfil Completo
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <polyline points="9,18 15,12 9,6"></polyline>
+                        </svg>
+                    </a>
+                </div>
+            `;
+
+            return card;
+        }
+
+        getSituacionClass(situacion) {
+            switch (situacion) {
+                case "Empleado":
+                    return "empleado";
+                case "Desempleado":
+                    return "desempleado";
+                case "Independiente":
+                    return "independiente";
+                default:
+                    return "other";
+            }
+        }
+
+        updateResultsInfo() {
+            const resultsInfo = document.getElementById("results-info");
+            const resultsCount = document.getElementById("results-count");
+
+            if (resultsInfo && resultsCount) {
+                resultsCount.textContent = `${this.totalRecords} perfil${this.totalRecords !== 1 ? "es" : ""} encontrado${this.totalRecords !== 1 ? "s" : ""}`;
+                resultsInfo.style.display = "block";
+            }
+        }
+
+        updatePagination() {
+            const paginationContainer = document.getElementById(
+                "pagination-container"
+            );
+            if (!paginationContainer) return;
+
+            if (this.totalPages <= 1) {
+                paginationContainer.style.display = "none";
+                return;
+            }
+
+            paginationContainer.style.display = "flex";
+
+            // Actualizar botones prev/next
+            const prevBtn = document.getElementById("prev-page");
+            const nextBtn = document.getElementById("next-page");
+
+            if (prevBtn) {
+                prevBtn.disabled = this.currentPage <= 1;
+            }
+
+            if (nextBtn) {
+                nextBtn.disabled = this.currentPage >= this.totalPages;
+            }
+
+            // Generar números de página
+            this.renderPageNumbers();
+        }
+
+        renderPageNumbers() {
+            const pageNumbers = document.getElementById("page-numbers");
+            if (!pageNumbers) return;
+
+            pageNumbers.innerHTML = "";
+
+            const startPage = Math.max(1, this.currentPage - 2);
+            const endPage = Math.min(this.totalPages, this.currentPage + 2);
+
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement("button");
+                pageBtn.className = `page-number ${i === this.currentPage ? "active" : ""}`;
+                pageBtn.textContent = i;
+                pageBtn.addEventListener("click", () => {
+                    this.currentPage = i;
+                    this.loadPerfiles();
+                });
+                pageNumbers.appendChild(pageBtn);
+            }
+        }
+
+        showLoading() {
+            const loading = document.getElementById("loading-indicator");
+            const results = document.getElementById("results-container");
+            const error = document.getElementById("error-message");
+
+            if (loading) loading.style.display = "flex";
+            if (results) results.style.display = "none";
+            if (error) error.style.display = "none";
+        }
+
+        hideLoading() {
+            const loading = document.getElementById("loading-indicator");
+            const results = document.getElementById("results-container");
+
+            if (loading) loading.style.display = "none";
+            if (results) results.style.display = "block";
+        }
+
+        showError(message) {
+            const loading = document.getElementById("loading-indicator");
+            const results = document.getElementById("results-container");
+            const error = document.getElementById("error-message");
+            const errorText = document.getElementById("error-text");
+
+            if (loading) loading.style.display = "none";
+            if (results) results.style.display = "none";
+            if (error) error.style.display = "block";
+            if (errorText) errorText.textContent = message;
+        }
+
+        showNoResults() {
+            const noResults = document.getElementById("no-results");
+            const grid = document.getElementById("perfiles-grid");
+
+            if (grid) grid.innerHTML = "";
+            if (noResults) noResults.style.display = "flex";
+        }
+
+        hideNoResults() {
+            const noResults = document.getElementById("no-results");
+            if (noResults) noResults.style.display = "none";
+        }
+    }
+
+    // Inicializar cuando el DOM esté listo
+    document.addEventListener("DOMContentLoaded", () => {
+        new PerfilesListing();
+    });
+</script>
+
+<style is:global>
+    /* Estilos para las tarjetas de perfil */
+    .perfil-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+    }
+
+    .perfil-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        overflow: hidden;
+        flex-shrink: 0;
+        border: 2px solid rgba(103, 126, 234, 0.3);
+    }
+
+    .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .card-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .card-name {
+        margin: 0 0 0.25rem 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f2937;
+        line-height: 1.2;
+    }
+
+    .card-carrera {
+        margin: 0 0 0.5rem 0;
+        color: #6b7280;
+        font-size: 0.9rem;
+        line-height: 1.2;
+    }
+
+    .situacion-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+    }
+
+    .situacion-badge.empleado {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .situacion-badge.desempleado {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .situacion-badge.independiente {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .situacion-badge.other {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    .card-content {
+        margin-bottom: 1.5rem;
+    }
+
+    .card-resumen {
+        margin: 0 0 1rem 0;
+        color: #4b5563;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    .experiencia-preview {
+        margin-bottom: 1rem;
+        font-size: 0.85rem;
+        color: #6b7280;
+    }
+
+    .experiencia-preview strong {
+        color: #374151;
+    }
+
+    .portfolio-link {
+        margin-bottom: 1rem;
+    }
+
+    .portfolio-link a {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #3b82f6;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+
+    .portfolio-link a:hover {
+        color: #2563eb;
+    }
+
+    .card-footer {
+        padding-top: 1rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .view-profile-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-decoration: none;
+        padding: 0.75rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .view-profile-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(103, 126, 234, 0.4);
+    }
+</style>
