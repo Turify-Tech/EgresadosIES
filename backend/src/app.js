@@ -12,6 +12,7 @@ import carrerasRoutes from "./routes/carrerasRoutes.js";
 import mensajesRoutes from "./routes/mensajesRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import imagekitRoutes from "./routes/imagekit.js";
+import publicacionesRoutes from "./routes/publicacionesRoutes.js";
 
 dotenv.config();
 
@@ -72,6 +73,7 @@ app.use("/api/carreras", carrerasRoutes);
 app.use("/api/mensajes", mensajesRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/imagekit", imagekitRoutes);
+app.use("/api/publicaciones", publicacionesRoutes);
 
 // Middleware de manejo de errores globales
 app.use((err, req, res, next) => {
