@@ -5,12 +5,14 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import database from "./config/database.js";
 import authRoutes from "./routes/authRoutes.js";
+import busquedaRoutes from "./routes/busquedaRoutes.js";
 import perfilRoutes from "./routes/perfilRoutes.js";
 import perfilesRoutes from "./routes/perfilesRoutes.js";
 import carrerasRoutes from "./routes/carrerasRoutes.js";
 import mensajesRoutes from "./routes/mensajesRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import imagekitRoutes from "./routes/imagekit.js";
+import publicacionesRoutes from "./routes/publicacionesRoutes.js";
 
 dotenv.config();
 
@@ -62,12 +64,16 @@ app.get("/api/health", async (req, res) => {
 
 // Rutas principales
 app.use("/api/auth", authRoutes);
+app.use("/api/buscar", busquedaRoutes);
+// app.use('/api/perfil', require('./routes/perfilRoutes'));
+// app.use('/api/perfiles', require('./routes/perfilesRoutes'));
 app.use("/api/perfil", perfilRoutes);
 app.use("/api/perfiles", perfilesRoutes);
 app.use("/api/carreras", carrerasRoutes);
 app.use("/api/mensajes", mensajesRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/imagekit", imagekitRoutes);
+app.use("/api/publicaciones", publicacionesRoutes);
 
 // Middleware de manejo de errores globales
 app.use((err, req, res, next) => {
