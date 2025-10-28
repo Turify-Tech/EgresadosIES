@@ -14,7 +14,8 @@ class PerfilesController {
             const {
                 page = 1,
                 limit = 10,
-                carrera = null
+                carrera = null,
+                search = null,
             } = req.query;
 
             // Validar parámetros de paginación
@@ -24,13 +25,23 @@ class PerfilesController {
 
             const client = database.getClient();
 
-            // Construir filtro por carrera si se especifica
+            // Construir filtros
             let whereClause = "";
             let params = [];
+            let conditions = [];
 
             if (carrera) {
-                whereClause = "WHERE c.nombre = ?";
+                conditions.push("c.nombre = ?");
                 params.push(carrera);
+            }
+
+            if (search) {
+                conditions.push("u.nombre LIKE ?");
+                params.push(`%${search}%`);
+            }
+
+            if (conditions.length > 0) {
+                whereClause = "WHERE " + conditions.join(" AND ");
             }
 
             // Query principal para obtener perfiles con datos públicos únicamente
@@ -65,12 +76,12 @@ class PerfilesController {
             `;
 
             // Ejecutar queries
-            const countParams = carrera ? [carrera] : [];
-            const profilesParams = carrera ? [carrera, limitNumber, offset] : [limitNumber, offset];
+            const countParams = [...params];
+            const profilesParams = [...params, limitNumber, offset];
 
             const [profilesResult, countResult] = await Promise.all([
                 client.execute({ sql: profilesQuery, args: profilesParams }),
-                client.execute({ sql: countQuery, args: countParams })
+                client.execute({ sql: countQuery, args: countParams }),
             ]);
 
             const profiles = profilesResult.rows;
@@ -81,17 +92,23 @@ class PerfilesController {
                 profiles.map(async (profile) => {
                     if (!profile.perfilId) return profile;
 
-                    const [experiencias, formacion, cursos] = await Promise.all([
-                        PerfilesController.getExperienciasLaborales(profile.perfilId),
-                        PerfilesController.getFormacionAcademica(profile.perfilId),
-                        PerfilesController.getCursos(profile.perfilId)
-                    ]);
+                    const [experiencias, formacion, cursos] = await Promise.all(
+                        [
+                            PerfilesController.getExperienciasLaborales(
+                                profile.perfilId
+                            ),
+                            PerfilesController.getFormacionAcademica(
+                                profile.perfilId
+                            ),
+                            PerfilesController.getCursos(profile.perfilId),
+                        ]
+                    );
 
                     return {
                         ...profile,
                         experienciasLaborales: experiencias,
                         formacionAcademica: formacion,
-                        cursos: cursos
+                        cursos: cursos,
                     };
                 })
             );
@@ -110,15 +127,14 @@ class PerfilesController {
                     totalRecords: total,
                     limit: limitNumber,
                     hasNextPage,
-                    hasPrevPage
-                }
+                    hasPrevPage,
+                },
             });
-
         } catch (error) {
             console.error("❌ Error obteniendo perfiles públicos:", error);
             res.status(500).json({
                 success: false,
-                message: "Error interno del servidor al obtener perfiles"
+                message: "Error interno del servidor al obtener perfiles",
             });
         }
     }
@@ -135,7 +151,7 @@ class PerfilesController {
             if (!id || isNaN(parseInt(id))) {
                 return res.status(400).json({
                     success: false,
-                    message: "ID de perfil inválido"
+                    message: "ID de perfil inválido",
                 });
             }
 
@@ -162,13 +178,13 @@ class PerfilesController {
 
             const result = await client.execute({
                 sql: profileQuery,
-                args: [parseInt(id)]
+                args: [parseInt(id)],
             });
 
             if (result.rows.length === 0) {
                 return res.status(404).json({
                     success: false,
-                    message: "Perfil no encontrado"
+                    message: "Perfil no encontrado",
                 });
             }
 
@@ -178,26 +194,25 @@ class PerfilesController {
             const [experiencias, formacion, cursos] = await Promise.all([
                 PerfilesController.getExperienciasLaborales(profile.perfilId),
                 PerfilesController.getFormacionAcademica(profile.perfilId),
-                PerfilesController.getCursos(profile.perfilId)
+                PerfilesController.getCursos(profile.perfilId),
             ]);
 
             const enrichedProfile = {
                 ...profile,
                 experienciasLaborales: experiencias,
                 formacionAcademica: formacion,
-                cursos: cursos
+                cursos: cursos,
             };
 
             res.status(200).json({
                 success: true,
-                data: enrichedProfile
+                data: enrichedProfile,
             });
-
         } catch (error) {
             console.error("❌ Error obteniendo perfil público:", error);
             res.status(500).json({
                 success: false,
-                message: "Error interno del servidor al obtener perfil"
+                message: "Error interno del servidor al obtener perfil",
             });
         }
     }
@@ -220,14 +235,13 @@ class PerfilesController {
 
             res.status(200).json({
                 success: true,
-                data: result.rows
+                data: result.rows,
             });
-
         } catch (error) {
             console.error("❌ Error obteniendo carreras:", error);
             res.status(500).json({
                 success: false,
-                message: "Error interno del servidor al obtener carreras"
+                message: "Error interno del servidor al obtener carreras",
             });
         }
     }
@@ -256,7 +270,7 @@ class PerfilesController {
 
             const result = await client.execute({
                 sql: query,
-                args: [perfilId]
+                args: [perfilId],
             });
 
             return result.rows;
@@ -288,7 +302,7 @@ class PerfilesController {
 
             const result = await client.execute({
                 sql: query,
-                args: [perfilId]
+                args: [perfilId],
             });
 
             return result.rows;
@@ -320,7 +334,7 @@ class PerfilesController {
 
             const result = await client.execute({
                 sql: query,
-                args: [perfilId]
+                args: [perfilId],
             });
 
             return result.rows;

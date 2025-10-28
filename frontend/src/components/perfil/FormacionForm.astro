@@ -504,9 +504,69 @@
         populateForm(profileData) {
             if (!profileData || this.isInitialized) return;
 
-            // TODO: Poblar campos con datos del perfil
-            console.log("Poblando formaciones", profileData);
+            console.log("Poblando formación académica con:", profileData);
+
+            // Extraer formación académica de la estructura de la API
+            const formaciones =
+                profileData.data?.formacionAcademica ||
+                profileData.formacionAcademica ||
+                [];
+
+            console.log("Formaciones extraídas:", formaciones);
+
+            // Limpiar formaciones existentes en el DOM
+            this.clearExistingFormaciones();
+
+            // Poblar cada formación
+            formaciones.forEach((formacion, index) => {
+                this.addFormacionToDOM(formacion, index);
+            });
+
             this.isInitialized = true;
+            console.log("✅ Formación académica inicializada correctamente");
+        }
+
+        clearExistingFormaciones() {
+            const container = document.getElementById("formaciones-container");
+            if (container) {
+                // Mantener solo el template y el botón de agregar
+                const items = container.querySelectorAll(
+                    ".formacion-item:not(.template)"
+                );
+                items.forEach((item) => item.remove());
+            }
+        }
+
+        addFormacionToDOM(formacion, index) {
+            const container = document.getElementById("formaciones-container");
+            const template = document.getElementById("formacion-template");
+
+            if (!container || !template) return;
+
+            const clone = template.cloneNode(true);
+            clone.classList.remove("template");
+            clone.style.display = "block";
+            clone.setAttribute("data-index", index);
+
+            // Poblar campos
+            const tituloField = clone.querySelector('[name="titulo"]');
+            const institucionField = clone.querySelector(
+                '[name="institucion"]'
+            );
+            const anioField = clone.querySelector('[name="anioFinalizacion"]');
+
+            if (tituloField) tituloField.value = formacion.titulo || "";
+            if (institucionField)
+                institucionField.value = formacion.institucion || "";
+            if (anioField) anioField.value = formacion.anioFinalizacion || "";
+
+            // Insertar antes del botón de agregar
+            const addButton = container.querySelector(".add-formacion-btn");
+            if (addButton) {
+                container.insertBefore(clone, addButton);
+            } else {
+                container.appendChild(clone);
+            }
         }
 
         getFormData() {

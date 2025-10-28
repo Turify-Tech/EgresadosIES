@@ -340,9 +340,76 @@
         populateForm(profileData) {
             if (!profileData || this.isInitialized) return;
 
-            // TODO: Poblar campos con datos del perfil
-            console.log("Poblando experiencias", profileData);
+            console.log("Poblando experiencias con:", profileData);
+
+            // Extraer experiencias laborales de la estructura de la API
+            const experiencias =
+                profileData.data?.experienciasLaborales ||
+                profileData.experienciasLaborales ||
+                [];
+
+            console.log("Experiencias extraídas:", experiencias);
+
+            // Limpiar experiencias existentes en el DOM
+            this.clearExistingExperiencias();
+
+            // Poblar cada experiencia
+            experiencias.forEach((exp, index) => {
+                this.addExperienciaToDOM(exp, index);
+            });
+
             this.isInitialized = true;
+            console.log("✅ Experiencias inicializadas correctamente");
+        }
+
+        clearExistingExperiencias() {
+            const container = document.getElementById("experiencias-container");
+            if (container) {
+                // Mantener solo el template y el botón de agregar
+                const items = container.querySelectorAll(
+                    ".experiencia-item:not(.template)"
+                );
+                items.forEach((item) => item.remove());
+            }
+        }
+
+        addExperienciaToDOM(experiencia, index) {
+            const container = document.getElementById("experiencias-container");
+            const template = document.getElementById("experiencia-template");
+
+            if (!container || !template) return;
+
+            const clone = template.cloneNode(true);
+            clone.classList.remove("template");
+            clone.style.display = "block";
+            clone.setAttribute("data-index", index);
+
+            // Poblar campos
+            const puestoField = clone.querySelector('[name="puesto"]');
+            const empresaField = clone.querySelector('[name="empresa"]');
+            const fechaInicioField = clone.querySelector(
+                '[name="fechaInicio"]'
+            );
+            const fechaFinField = clone.querySelector('[name="fechaFin"]');
+            const descripcionField = clone.querySelector(
+                '[name="descripcion"]'
+            );
+
+            if (puestoField) puestoField.value = experiencia.puesto || "";
+            if (empresaField) empresaField.value = experiencia.empresa || "";
+            if (fechaInicioField)
+                fechaInicioField.value = experiencia.fechaInicio || "";
+            if (fechaFinField) fechaFinField.value = experiencia.fechaFin || "";
+            if (descripcionField)
+                descripcionField.value = experiencia.descripcion || "";
+
+            // Insertar antes del botón de agregar
+            const addButton = container.querySelector(".add-experiencia-btn");
+            if (addButton) {
+                container.insertBefore(clone, addButton);
+            } else {
+                container.appendChild(clone);
+            }
         }
 
         getFormData() {

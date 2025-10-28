@@ -501,38 +501,41 @@
             console.log("Poblando datos personales con:", profileData);
 
             // Extraer datos de la estructura de la API
-            // Los datos pueden venir en diferentes estructuras según el endpoint
-            const data =
-                profileData.data?.perfil ||
-                profileData.perfil ||
-                profileData.data ||
-                profileData;
+            const usuario =
+                profileData.data?.usuario || profileData.usuario || {};
+            const perfil = profileData.data?.perfil || profileData.perfil || {};
 
-            // Poblar campos de datos personales
-            this.setFieldValue("nombre", data.nombre);
-            this.setFieldValue("apellido", data.apellido);
-            this.setFieldValue("correo", data.email); // email en BD → correo en form
-            this.setFieldValue("contacto", data.telefono); // telefono en BD → contacto en form
-            this.setFieldValue("dni", data.dni);
-            this.setFieldValue("telefono", data.telefono); // campo adicional
+            console.log("Usuario extraído:", usuario);
+            console.log("Perfil extraído:", perfil);
+
+            // Poblar campos de datos personales (usuario)
+            this.setFieldValue("nombre", usuario.nombre);
+            this.setFieldValue("apellido", usuario.apellido);
+            this.setFieldValue("correo", usuario.email); // email en BD → correo en form
+            this.setFieldValue("contacto", usuario.telefono); // telefono en BD → contacto en form
+            this.setFieldValue("dni", usuario.dni);
+            this.setFieldValue("telefono", usuario.telefono); // campo adicional
 
             // Poblar campos del perfil
-            this.setFieldValue("resumen-profesional", data.resumenProfesional);
-            this.setFieldValue("url-portfolio", data.urlPortfolio);
-            this.setFieldValue("situacion-laboral", data.situacionLaboral);
+            this.setFieldValue(
+                "resumen-profesional",
+                perfil.resumenProfesional
+            );
+            this.setFieldValue("url-portfolio", perfil.urlPortfolio);
+            this.setFieldValue("situacion-laboral", perfil.situacionLaboral);
 
             // Los checkboxes de privacidad (futura funcionalidad)
             this.setCheckboxValue(
                 "perfil-publico",
-                data.perfilPublico || false
+                perfil.perfilPublico || false
             );
             this.setCheckboxValue(
                 "mostrar-contacto",
-                data.mostrarContacto || false
+                perfil.mostrarContacto || false
             );
             this.setCheckboxValue(
                 "disponible-ofertas",
-                data.disponibleOfertas || false
+                perfil.disponibleOfertas || false
             );
 
             this.isInitialized = true;

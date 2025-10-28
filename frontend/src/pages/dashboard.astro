@@ -628,7 +628,12 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         margin: 0;
         font-size: 1.1rem;
         font-weight: 600;
-        color: #1f2937;
+        color: #1f2937 !important;
+    }
+
+    /* Forzar color específico para el título de recomendaciones */
+    .recommendations .card-header h3 {
+        color: #1f2937 !important;
     }
 
     .card-action {
@@ -796,6 +801,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         border: 1px solid #e5e7eb;
         border-radius: 8px;
         background: #f9fafb;
+        color: #1f2937 !important;
     }
 
     .rec-icon {
@@ -803,18 +809,42 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         flex-shrink: 0;
     }
 
+    .rec-content {
+        color: #1f2937 !important;
+    }
+
     .rec-content h4 {
         margin: 0 0 0.25rem 0;
         font-size: 0.95rem;
         font-weight: 600;
-        color: #1f2937;
+        color: #1f2937 !important;
     }
 
     .rec-content p {
         margin: 0;
         font-size: 0.85rem;
-        color: #6b7280;
+        color: #6b7280 !important;
         line-height: 1.4;
+    }
+
+    /* Forzar colores con máxima especificidad */
+    .dashboard-card.recommendations .recommendation-item {
+        color: #1f2937 !important;
+    }
+
+    .dashboard-card.recommendations .rec-content,
+    .dashboard-card.recommendations .rec-content h4,
+    .dashboard-card.recommendations .rec-content p {
+        color: #1f2937 !important;
+    }
+
+    .dashboard-card.recommendations .rec-content p {
+        color: #6b7280 !important;
+    }
+
+    /* Sobrescribir cualquier herencia de color */
+    .recommendations * {
+        color: inherit !important;
     }
 
     /* Modal */
@@ -1072,18 +1102,32 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         }
 
         async init() {
+            console.log("Dashboard init started");
+
             // Verificar autenticación
             const userData = getUserData();
+            console.log("User data from localStorage:", userData);
+
             if (!userData) {
+                console.log("No user data found, redirecting to login");
                 this.redirectToLogin();
                 return;
             }
 
             // Verificar que sea un egresado
             if (userData.tipo_usuario !== "Egresado") {
+                console.log("User is not an Egresado, redirecting to admin");
                 this.redirectToAdmin();
                 return;
             }
+
+            console.log(
+                "User is valid Egresado, continuing with dashboard load"
+            );
+            this.userData = userData;
+            this.bindEvents();
+            await this.loadDashboard();
+        }
 
         redirectToLogin() {
             clearAuth();
@@ -1205,10 +1249,14 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             this.showLoading();
 
             try {
+                console.log("Loading dashboard for user:", this.userData);
+
                 // Cargar datos del perfil
                 const response = await apiRequest(() =>
                     profileService.getMyProfile()
                 );
+
+                console.log("Profile response:", response);
                 this.profileData = response.data;
 
                 this.renderDashboard();
@@ -1264,16 +1312,29 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             const userCareer = document.getElementById("user-career");
             const profileStatus = document.getElementById("profile-status");
 
-            if (userAvatar && this.profileData.perfil?.urlFotoPerfil) {
-                userAvatar.src = this.profileData.perfil.urlFotoPerfil;
+            // Extraer datos de la estructura correcta de la API
+            const usuario =
+                this.profileData.data?.usuario ||
+                this.profileData.usuario ||
+                {};
+            const perfil =
+                this.profileData.data?.perfil || this.profileData.perfil || {};
+            const carrera =
+                this.profileData.data?.carrera ||
+                this.profileData.carrera ||
+                {};
+
+            if (userAvatar && perfil.urlFotoPerfil) {
+                userAvatar.src = perfil.urlFotoPerfil;
             }
 
             if (userName) {
-                userName.textContent = this.userData.nombre || "Usuario";
+                userName.textContent =
+                    usuario.nombre || this.userData.nombre || "Usuario";
             }
 
-            if (userCareer && this.profileData.carrera) {
-                userCareer.textContent = this.profileData.carrera.nombre;
+            if (userCareer && carrera.nombre) {
+                userCareer.textContent = carrera.nombre;
             }
 
             if (profileStatus) {
@@ -1316,31 +1377,45 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         calculateProfileCompletion() {
             if (!this.profileData) return 0;
 
+            // Extraer datos de la estructura correcta de la API
+            const usuario =
+                this.profileData.data?.usuario ||
+                this.profileData.usuario ||
+                {};
+            const perfil =
+                this.profileData.data?.perfil || this.profileData.perfil || {};
+            const experiencias =
+                this.profileData.data?.experienciasLaborales ||
+                this.profileData.experienciasLaborales ||
+                [];
+            const formaciones =
+                this.profileData.data?.formacionAcademica ||
+                this.profileData.formacionAcademica ||
+                [];
+            const cursos =
+                this.profileData.data?.cursos || this.profileData.cursos || [];
+
             let completed = 0;
             let total = 10;
 
             // Datos básicos (4 puntos)
-            if (this.userData.nombre) completed++;
-            if (
-                this.userData.email &&
-                !this.userData.email.includes("@temp.ies.edu.ar")
-            )
+            if (usuario.nombre) completed++;
+            if (usuario.email && !usuario.email.includes("@temp.ies.edu.ar"))
                 completed++;
-            if (this.profileData.perfil?.resumenProfesional) completed++;
-            if (this.profileData.perfil?.urlFotoPerfil) completed++;
+            if (perfil.resumenProfesional) completed++;
+            if (perfil.urlFotoPerfil) completed++;
 
             // Experiencia laboral (2 puntos)
-            if (this.profileData.experienciasLaborales?.length > 0)
-                completed += 2;
+            if (experiencias.length > 0) completed += 2;
 
             // Formación académica (2 puntos)
-            if (this.profileData.formacionAcademica?.length > 0) completed += 2;
+            if (formaciones.length > 0) completed += 2;
 
             // Cursos (1 punto)
-            if (this.profileData.cursos?.length > 0) completed++;
+            if (cursos.length > 0) completed++;
 
             // Portfolio (1 punto)
-            if (this.profileData.perfil?.urlPortfolio) completed++;
+            if (perfil.urlPortfolio) completed++;
 
             return (completed / total) * 100;
         }
@@ -1363,12 +1438,24 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             );
             if (!recommendationsList) return;
 
+            // Extraer datos de la estructura correcta de la API
+            const perfil =
+                this.profileData.data?.perfil || this.profileData.perfil || {};
+            const experiencias =
+                this.profileData.data?.experienciasLaborales ||
+                this.profileData.experienciasLaborales ||
+                [];
+            const formaciones =
+                this.profileData.data?.formacionAcademica ||
+                this.profileData.formacionAcademica ||
+                [];
+
             const recommendations = [];
 
             // Lógica para generar recomendaciones dinámicas
             const completion = this.calculateProfileCompletion();
 
-            if (!this.profileData.experienciasLaborales?.length) {
+            if (!experiencias.length) {
                 recommendations.push({
                     icon: "💼",
                     title: "Agrega tu experiencia laboral",
@@ -1377,7 +1464,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                 });
             }
 
-            if (!this.profileData.formacionAcademica?.length) {
+            if (!formaciones.length) {
                 recommendations.push({
                     icon: "🎓",
                     title: "Incluye tu formación académica",
@@ -1386,7 +1473,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                 });
             }
 
-            if (!this.profileData.perfil?.urlPortfolio) {
+            if (!perfil.urlPortfolio) {
                 recommendations.push({
                     icon: "🔗",
                     title: "Agrega tu portfolio",
@@ -1395,7 +1482,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                 });
             }
 
-            if (!this.profileData.perfil?.urlFotoPerfil) {
+            if (!perfil.urlFotoPerfil) {
                 recommendations.push({
                     icon: "📸",
                     title: "Sube tu foto de perfil",
@@ -1407,11 +1494,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             // Si no hay recomendaciones, mostrar mensaje de completitud
             if (recommendations.length === 0) {
                 recommendationsList.innerHTML = `
-                    <div class="recommendation-item">
+                    <div class="recommendation-item" style="color: #1f2937 !important;">
                         <div class="rec-icon">🎉</div>
-                        <div class="rec-content">
-                            <h4>¡Perfil completo!</h4>
-                            <p>Tu perfil está completo. Sigue explorando la comunidad de egresados.</p>
+                        <div class="rec-content" style="color: #1f2937 !important;">
+                            <h4 style="color: #1f2937 !important;">¡Perfil completo!</h4>
+                            <p style="color: #6b7280 !important;">Tu perfil está completo. Sigue explorando la comunidad de egresados.</p>
                         </div>
                     </div>
                 `;
@@ -1422,11 +1509,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             recommendationsList.innerHTML = recommendations
                 .map(
                     (rec) => `
-                <div class="recommendation-item">
+                <div class="recommendation-item" style="color: #1f2937 !important;">
                     <div class="rec-icon">${rec.icon}</div>
-                    <div class="rec-content">
-                        <h4>${rec.title}</h4>
-                        <p>${rec.description}</p>
+                    <div class="rec-content" style="color: #1f2937 !important;">
+                        <h4 style="color: #1f2937 !important;">${rec.title}</h4>
+                        <p style="color: #6b7280 !important;">${rec.description}</p>
                     </div>
                 </div>
             `

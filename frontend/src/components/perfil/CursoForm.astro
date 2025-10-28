@@ -326,9 +326,66 @@
         populateForm(profileData) {
             if (!profileData || this.isInitialized) return;
 
-            // TODO: Poblar campos con datos del perfil
-            console.log("Poblando habilidades", profileData);
+            console.log("Poblando cursos con:", profileData);
+
+            // Extraer cursos de la estructura de la API
+            const cursos = profileData.data?.cursos || profileData.cursos || [];
+
+            console.log("Cursos extraídos:", cursos);
+
+            // Limpiar cursos existentes en el DOM
+            this.clearExistingCursos();
+
+            // Poblar cada curso
+            cursos.forEach((curso, index) => {
+                this.addCursoToDOM(curso, index);
+            });
+
             this.isInitialized = true;
+            console.log("✅ Cursos inicializados correctamente");
+        }
+
+        clearExistingCursos() {
+            const container = document.getElementById("cursos-container");
+            if (container) {
+                // Mantener solo el template y el botón de agregar
+                const items = container.querySelectorAll(
+                    ".curso-item:not(.template)"
+                );
+                items.forEach((item) => item.remove());
+            }
+        }
+
+        addCursoToDOM(curso, index) {
+            const container = document.getElementById("cursos-container");
+            const template = document.getElementById("curso-template");
+
+            if (!container || !template) return;
+
+            const clone = template.cloneNode(true);
+            clone.classList.remove("template");
+            clone.style.display = "block";
+            clone.setAttribute("data-index", index);
+
+            // Poblar campos
+            const nombreField = clone.querySelector('[name="nombre"]');
+            const institucionField = clone.querySelector(
+                '[name="institucion"]'
+            );
+            const horasField = clone.querySelector('[name="horasDuracion"]');
+
+            if (nombreField) nombreField.value = curso.nombre || "";
+            if (institucionField)
+                institucionField.value = curso.institucion || "";
+            if (horasField) horasField.value = curso.horasDuracion || "";
+
+            // Insertar antes del botón de agregar
+            const addButton = container.querySelector(".add-curso-btn");
+            if (addButton) {
+                container.insertBefore(clone, addButton);
+            } else {
+                container.appendChild(clone);
+            }
         }
 
         getFormData() {
