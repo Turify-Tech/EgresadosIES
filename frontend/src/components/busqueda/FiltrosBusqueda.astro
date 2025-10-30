@@ -1,0 +1,438 @@
+---
+/**
+ * Componente FiltrosBusqueda - Filtros avanzados para búsqueda de perfiles
+ * Props:
+ * - carreras: Array<{id: number, nombre: string}> - Lista de carreras disponibles
+ * - filterValues: Object - Valores actuales de los filtros
+ * - onFilterChange: función - Callback para cambios en filtros
+ */
+
+export interface Props {
+    carreras?: Array<{ id: number; nombre: string }>;
+    filterValues?: {
+        carrera?: string;
+        situacionLaboral?: string;
+        empresa?: string;
+        puesto?: string;
+        orderBy?: string;
+    };
+    showAdvanced?: boolean;
+}
+
+const { carreras = [], filterValues = {}, showAdvanced = false } = Astro.props;
+
+const situacionesLaborales = [
+    "Empleado",
+    "Desempleado",
+    "Estudiando",
+    "Emprendedor",
+    "Freelancer",
+];
+
+const ordenamientos = [
+    { value: "nombre_asc", label: "Nombre (A-Z)" },
+    { value: "nombre_desc", label: "Nombre (Z-A)" },
+    { value: "carrera_asc", label: "Carrera (A-Z)" },
+    { value: "reciente", label: "Más recientes" },
+];
+---
+
+<div class="filtros-container">
+    <!-- Filtros básicos -->
+    <div class="filtros-basicos">
+        <div class="filter-row">
+            <!-- Filtro de carrera -->
+            <div class="filter-group">
+                <label for="carrera-filter" class="filter-label">Carrera</label>
+                <select id="carrera-filter" class="filter-select">
+                    <option value="">Todas las carreras</option>
+                    {
+                        carreras.map((carrera) => (
+                            <option
+                                value={carrera.nombre}
+                                selected={
+                                    filterValues.carrera === carrera.nombre
+                                }>
+                                {carrera.nombre}
+                            </option>
+                        ))
+                    }
+                </select>
+            </div>
+
+            <!-- Filtro de situación laboral -->
+            <div class="filter-group">
+                <label for="situacion-filter" class="filter-label"
+                    >Situación Laboral</label
+                >
+                <select id="situacion-filter" class="filter-select">
+                    <option value="">Todas las situaciones</option>
+                    {
+                        situacionesLaborales.map((situacion) => (
+                            <option
+                                value={situacion}
+                                selected={
+                                    filterValues.situacionLaboral === situacion
+                                }>
+                                {situacion}
+                            </option>
+                        ))
+                    }
+                </select>
+            </div>
+
+            <!-- Ordenamiento -->
+            <div class="filter-group">
+                <label for="order-filter" class="filter-label"
+                    >Ordenar por</label
+                >
+                <select id="order-filter" class="filter-select">
+                    {
+                        ordenamientos.map((orden) => (
+                            <option
+                                value={orden.value}
+                                selected={filterValues.orderBy === orden.value}>
+                                {orden.label}
+                            </option>
+                        ))
+                    }
+                </select>
+            </div>
+
+            <!-- Botón de filtros avanzados -->
+            <div class="filter-group">
+                <button
+                    id="toggle-advanced"
+                    class="advanced-toggle"
+                    type="button"
+                    aria-expanded={showAdvanced ? "true" : "false"}>
+                    <span>Filtros avanzados</span>
+                    <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        class="toggle-icon">
+                        <polyline points="6,9 12,15 18,9"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros avanzados (colapsables) -->
+    <div
+        id="filtros-avanzados"
+        class="filtros-avanzados"
+        style={showAdvanced ? "display: block;" : "display: none;"}>
+        <div class="advanced-content">
+            <div class="filter-row">
+                <!-- Filtro de empresa -->
+                <div class="filter-group">
+                    <label for="empresa-filter" class="filter-label"
+                        >Empresa</label
+                    >
+                    <input
+                        type="text"
+                        id="empresa-filter"
+                        class="filter-input"
+                        placeholder="Ej: Microsoft, Google..."
+                        value={filterValues.empresa || ""}
+                    />
+                </div>
+
+                <!-- Filtro de puesto -->
+                <div class="filter-group">
+                    <label for="puesto-filter" class="filter-label"
+                        >Puesto de trabajo</label
+                    >
+                    <input
+                        type="text"
+                        id="puesto-filter"
+                        class="filter-input"
+                        placeholder="Ej: Desarrollador, Diseñador..."
+                        value={filterValues.puesto || ""}
+                    />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones de filtros -->
+    <div class="filter-actions">
+        <div class="results-info">
+            <span id="results-count">Cargando...</span>
+        </div>
+
+        <div class="action-buttons">
+            <button id="clear-filters" class="btn-clear" type="button">
+                <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor">
+                    <path
+                        d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14ZM10 11v6M14 11v6"
+                    ></path>
+                </svg>
+                Limpiar filtros
+            </button>
+
+            <button id="apply-filters" class="btn-apply" type="button">
+                <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor">
+                    <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"
+                    ></polygon>
+                </svg>
+                Aplicar filtros
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .filtros-container {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .filter-row {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: end;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        min-width: 180px;
+        flex: 1;
+    }
+
+    .filter-label {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .filter-select,
+    .filter-input {
+        padding: 0.75rem 1rem;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        font-size: 0.95rem;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+
+    .filter-select {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1rem;
+        padding-right: 2.5rem;
+    }
+
+    .filter-input::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .filter-select:focus,
+    .filter-input:focus {
+        outline: none;
+        border-color: rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+    }
+
+    .filter-select option {
+        background: #1f2937;
+        color: white;
+        padding: 0.5rem;
+    }
+
+    /* Botón de filtros avanzados */
+    .advanced-toggle {
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: white;
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+        font-family: inherit;
+        min-height: 46px;
+    }
+
+    .advanced-toggle:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .toggle-icon {
+        transition: transform 0.3s ease;
+    }
+
+    .advanced-toggle[aria-expanded="true"] .toggle-icon {
+        transform: rotate(180deg);
+    }
+
+    /* Filtros avanzados */
+    .filtros-avanzados {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .advanced-content {
+        display: block;
+    }
+
+    /* Acciones de filtros */
+    .filter-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .results-info {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.9rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn-clear,
+    .btn-apply {
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-family: inherit;
+        border: none;
+    }
+
+    .btn-clear {
+        background: rgba(239, 68, 68, 0.2);
+        color: #fca5a5;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-clear:hover {
+        background: rgba(239, 68, 68, 0.3);
+        color: #fecaca;
+    }
+
+    .btn-apply {
+        background: rgba(34, 197, 94, 0.2);
+        color: #86efac;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .btn-apply:hover {
+        background: rgba(34, 197, 94, 0.3);
+        color: #bbf7d0;
+    }
+
+    /* Loading state */
+    .loading {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .filtros-container {
+            padding: 1rem;
+        }
+
+        .filter-row {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .filter-group {
+            min-width: unset;
+            width: 100%;
+        }
+
+        .filter-actions {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: stretch;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .btn-clear,
+        .btn-apply {
+            justify-content: center;
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .filtros-container {
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-select,
+        .filter-input {
+            padding: 0.625rem 0.875rem;
+            font-size: 0.9rem;
+        }
+
+        .filter-select {
+            padding-right: 2.25rem;
+        }
+    }
+</style>

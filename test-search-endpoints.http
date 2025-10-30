@@ -1,0 +1,65 @@
+### Test de Endpoints de Búsqueda Avanzada
+
+#### 1. Búsqueda básica (sin filtros)
+GET http://localhost:3000/api/buscar
+Content-Type: application/json
+
+###
+
+#### 2. Búsqueda con filtro de carrera
+GET http://localhost:3000/api/buscar?carrera=Ingeniería en Sistemas
+Content-Type: application/json
+
+###
+
+#### 3. Búsqueda con texto libre
+GET http://localhost:3000/api/buscar?query=desarrollador
+Content-Type: application/json
+
+###
+
+#### 4. Búsqueda con múltiples filtros
+GET http://localhost:3000/api/buscar?query=frontend&carrera=Ingeniería en Sistemas&situacionLaboral=Empleado
+Content-Type: application/json
+
+###
+
+#### 5. Búsqueda con filtros avanzados
+GET http://localhost:3000/api/buscar?empresa=Microsoft&puesto=Frontend&orderBy=carrera_asc
+Content-Type: application/json
+
+###
+
+#### 6. Autocompletado - nombres
+GET http://localhost:3000/api/buscar/autocomplete?query=Mar&type=name
+Content-Type: application/json
+
+###
+
+#### 7. Autocompletado - empresas
+GET http://localhost:3000/api/buscar/autocomplete?query=Micro&type=company
+Content-Type: application/json
+
+###
+
+#### 8. Autocompletado - general
+GET http://localhost:3000/api/buscar/autocomplete?query=desarrollador
+Content-Type: application/json
+
+###
+
+#### 9. Obtener opciones de filtros
+GET http://localhost:3000/api/buscar/filtros
+Content-Type: application/json
+
+###
+
+#### 10. Búsqueda con ordenamiento descendente
+GET http://localhost:3000/api/buscar?orderBy=nombre_desc
+Content-Type: application/json
+
+###
+
+#### 11. Búsqueda combinada completa
+GET http://localhost:3000/api/buscar?query=java&carrera=Ingeniería en Sistemas&situacionLaboral=Empleado&empresa=IBM&puesto=Backend&orderBy=reciente
+Content-Type: application/json

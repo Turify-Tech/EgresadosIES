@@ -68,7 +68,7 @@ class ApiClient {
      * @param {Object} options - Opciones de fetch
      */
     async request(endpoint, options = {}) {
-        const url = `${this.config.baseURL}/api${endpoint}`;
+        const url = `${this.config.baseURL}${endpoint}`;
 
         const config = {
             ...options,
@@ -417,6 +417,49 @@ export const publicProfilesService = {
      */
     async getCarreras() {
         return apiClient.get("/carreras");
+    },
+};
+
+// Servicio de búsqueda avanzada
+export const searchService = {
+    /**
+     * Búsqueda avanzada de perfiles
+     */
+    async searchProfiles(filters = {}) {
+        const params = new URLSearchParams();
+
+        // Filtros básicos
+        if (filters.query) params.set("query", filters.query);
+        if (filters.carrera) params.set("carrera", filters.carrera);
+        if (filters.situacionLaboral)
+            params.set("situacionLaboral", filters.situacionLaboral);
+
+        // Filtros avanzados
+        if (filters.empresa) params.set("empresa", filters.empresa);
+        if (filters.puesto) params.set("puesto", filters.puesto);
+
+        // Ordenamiento
+        if (filters.orderBy) params.set("orderBy", filters.orderBy);
+
+        return apiClient.get(`/api/buscar?${params.toString()}`);
+    },
+
+    /**
+     * Obtener opciones de filtros dinámicamente
+     */
+    async getFilterOptions() {
+        return apiClient.get("/api/buscar/filtros");
+    },
+
+    /**
+     * Autocompletado para búsquedas
+     */
+    async autocomplete(query, type = "all") {
+        const params = new URLSearchParams();
+        params.set("query", query);
+        params.set("type", type);
+
+        return apiClient.get(`/api/buscar/autocomplete?${params.toString()}`);
     },
 };
 
