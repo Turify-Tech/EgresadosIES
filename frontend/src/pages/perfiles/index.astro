@@ -712,13 +712,11 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
 
     class PerfilesPageSidebar {
         constructor() {
-            console.log("PerfilesPageSidebar constructor llamado");
             this.searchManager = null;
             this.init();
         }
 
         async init() {
-            console.log("PerfilesPageSidebar.init() llamado");
             try {
                 // Inicializar el gestor de búsqueda adaptado al nuevo layout
                 this.searchManager = new AdvancedSearchManagerSidebar({
@@ -730,8 +728,6 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
                     debounceTime: 500,
                 });
 
-                console.log("searchManager creado:", this.searchManager);
-
                 // Vincular eventos específicos del sidebar
                 this.bindSidebarEvents();
                 this.bindMobileEvents();
@@ -742,30 +738,19 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
         }
 
         bindSidebarEvents() {
-            console.log("bindSidebarEvents llamado");
-
             // Event listener para el botón de mostrar/ocultar filtros
             const toggleFiltersBtn =
                 document.getElementById("toggle-filters-btn");
-            console.log("Botón encontrado:", toggleFiltersBtn);
 
             if (toggleFiltersBtn) {
                 toggleFiltersBtn.addEventListener("click", () => {
-                    console.log("Botón filtros clickeado");
                     if (
                         this.searchManager &&
                         this.searchManager.toggleFilters
                     ) {
                         this.searchManager.toggleFilters();
-                    } else {
-                        console.error(
-                            "searchManager o toggleFilters no disponible"
-                        );
                     }
                 });
-                console.log("Event listener agregado al botón");
-            } else {
-                console.error("No se encontró el botón toggle-filters-btn");
             }
 
             // Limpiar todos los filtros
@@ -867,25 +852,6 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
 
     // Inicializar cuando el DOM esté listo
     document.addEventListener("DOMContentLoaded", () => {
-        console.log("DOM cargado, inicializando PerfilesPageSidebar");
-
-        // Test básico del botón
-        const testBtn = document.getElementById("toggle-filters-btn");
-        console.log("Test - botón encontrado:", testBtn);
-
-        if (testBtn) {
-            testBtn.addEventListener("click", () => {
-                console.log("TEST: Botón clickeado directamente!");
-                const sidebar = document.querySelector(".filters-sidebar");
-                console.log("TEST: Sidebar encontrada:", sidebar);
-                if (sidebar) {
-                    sidebar.classList.toggle("show");
-                    console.log("TEST: Clase 'show' toggled");
-                }
-            });
-        }
-
-        const instance = new PerfilesPageSidebar();
-        console.log("PerfilesPageSidebar creado:", instance);
+        new PerfilesPageSidebar();
     });
 </script>

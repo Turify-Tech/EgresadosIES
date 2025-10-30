@@ -76,16 +76,6 @@ export class AdvancedSearchManagerSidebar {
             sidebarOverlay: document.getElementById("sidebar-overlay"),
             mainContent: document.querySelector(".main-content"),
         };
-
-        console.log(
-            "AdvancedSearchManagerSidebar bindElements:",
-            this.elements
-        );
-        console.log("filtersSidebar encontrada:", this.elements.filtersSidebar);
-        console.log(
-            "toggleFiltersBtn encontrado:",
-            this.elements.toggleFiltersBtn
-        );
     }
 
     bindEvents() {
@@ -577,13 +567,8 @@ export class AdvancedSearchManagerSidebar {
 
     // Métodos para mostrar/ocultar filtros
     toggleFilters() {
-        console.log("toggleFilters llamado");
-        console.log("elementos:", this.elements);
-
         const isVisible =
             this.elements.filtersSidebar.classList.contains("show");
-
-        console.log("isVisible:", isVisible);
 
         if (isVisible) {
             this.hideFilters();
@@ -593,12 +578,8 @@ export class AdvancedSearchManagerSidebar {
     }
 
     showFilters() {
-        console.log("showFilters llamado");
-        console.log("filtersSidebar element:", this.elements.filtersSidebar);
-
         if (this.elements.filtersSidebar) {
             this.elements.filtersSidebar.classList.add("show");
-            console.log("Clase 'show' agregada");
         }
 
         if (this.elements.sidebarOverlay) {
