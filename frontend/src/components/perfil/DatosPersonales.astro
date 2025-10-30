@@ -43,12 +43,12 @@
                             height="16"
                             viewBox="0 0 24 24"
                             fill="none"
-                            stroke="currentColor">
+                            stroke="currentColor"
+                            stroke-width="2">
                             <path
-                                d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5"
+                                d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
                             ></path>
-                            <path d="M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
-                            ></path>
+                            <circle cx="12" cy="13" r="4"></circle>
                         </svg>
                     </button>
                 </div>
@@ -472,6 +472,20 @@
         }
 
         bindEvents() {
+            // Botón de carga de imagen
+            const uploadBtn = document.getElementById("upload-image-btn");
+            const imageInput = document.getElementById("profile-image-input");
+
+            if (uploadBtn && imageInput) {
+                uploadBtn.addEventListener("click", () => {
+                    imageInput.click();
+                });
+
+                imageInput.addEventListener("change", (e) => {
+                    this.handleImageUpload(e);
+                });
+            }
+
             // Validación en tiempo real
             this.form.addEventListener("input", (e) => {
                 this.validateField(e.target);
@@ -493,6 +507,115 @@
                     }
                 }, 1000);
             });
+        }
+
+        async handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            try {
+                console.log("📁 Archivo seleccionado:", file);
+
+                // Importar el servicio de ImgBB dinámicamente
+                const { imageService, ImageUtils } = await import(
+                    "../../utils/imgbb.js"
+                );
+
+                // Validar imagen antes de subir
+                await imageService.validateImage(file);
+
+                // Crear preview inmediato
+                const previewUrl = await imageService.createPreview(file);
+                const imagePreview = document.getElementById("image-preview");
+
+                if (imagePreview) {
+                    imagePreview.innerHTML = `<img src="${previewUrl}" alt="Preview" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;" />`;
+                    imagePreview.style.opacity = "0.7"; // Indicar que está procesando
+                }
+
+                // Comprimir imagen si es muy grande
+                let processedFile = file;
+                if (file.size > 1024 * 1024) {
+                    // Si es mayor a 1MB
+                    processedFile = await ImageUtils.compressImage(file, {
+                        maxWidth: 800,
+                        maxHeight: 800,
+                        quality: 0.8,
+                    });
+                    console.log(
+                        `Imagen comprimida: ${Math.round(file.size / 1024)}KB → ${Math.round(processedFile.size / 1024)}KB`
+                    );
+                }
+
+                // Subir a ImgBB
+                const uploadResult = await imageService.uploadImage(
+                    processedFile,
+                    {
+                        name: `perfil_${Date.now()}`,
+                    }
+                );
+
+                if (uploadResult.success) {
+                    // Actualizar imagen con la URL de ImgBB
+                    if (imagePreview) {
+                        imagePreview.innerHTML = `<img src="${uploadResult.url}" alt="Foto de perfil" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;" />`;
+                        imagePreview.style.opacity = "1"; // Restaurar opacidad
+                    }
+
+                    // Guardar URL en una propiedad para usarla al guardar
+                    this.currentProfileImage = uploadResult.url;
+
+                    // Emitir evento para actualizar la imagen en otras partes
+                    window.dispatchEvent(
+                        new CustomEvent("profile-image-updated", {
+                            detail: { url: uploadResult.url },
+                        })
+                    );
+
+                    this.showNotification(
+                        "Foto de perfil actualizada correctamente",
+                        "success"
+                    );
+
+                    console.log("✅ Imagen subida exitosamente a ImgBB:", {
+                        id: uploadResult.id,
+                        url: uploadResult.url,
+                        thumbnailUrl: uploadResult.thumbnailUrl,
+                    });
+                } else {
+                    throw new Error("Error en la subida a ImgBB");
+                }
+            } catch (error) {
+                console.error("❌ Error subiendo foto:", error);
+
+                // Restaurar preview original si hubo error
+                const imagePreview = document.getElementById("image-preview");
+                if (imagePreview) {
+                    imagePreview.innerHTML = `
+                        <div class="default-avatar">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                    `;
+                    imagePreview.style.opacity = "1";
+                }
+
+                let errorMessage = "Error al subir la imagen";
+                if (error.message.includes("Tipo de archivo")) {
+                    errorMessage =
+                        "Solo se permiten imágenes JPEG, PNG, GIF, WebP o BMP";
+                } else if (error.message.includes("tamaño")) {
+                    errorMessage =
+                        "La imagen es demasiado grande (máximo 32MB)";
+                } else if (error.message.includes("dimensiones")) {
+                    errorMessage =
+                        "La imagen debe ser de al menos 50x50 píxeles";
+                }
+
+                this.showNotification(errorMessage, "error");
+            }
         }
 
         populateForm(profileData) {
@@ -537,6 +660,15 @@
                 "disponible-ofertas",
                 perfil.disponibleOfertas || false
             );
+
+            // Cargar imagen de perfil si existe
+            if (perfil.urlFotoPerfil) {
+                const imagePreview = document.getElementById("image-preview");
+                if (imagePreview) {
+                    imagePreview.innerHTML = `<img src="${perfil.urlFotoPerfil}" alt="Foto de perfil" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;" />`;
+                }
+                this.currentProfileImage = perfil.urlFotoPerfil;
+            }
 
             this.isInitialized = true;
             console.log("✅ Datos personales inicializados correctamente");
@@ -695,6 +827,9 @@
                 resumenProfesional: data["resumen-profesional"],
                 urlPortfolio: data["url-portfolio"],
                 situacionLaboral: data["situacion-laboral"],
+
+                // URL de la foto de perfil si se subió una
+                urlFotoPerfil: this.currentProfileImage || null,
             };
 
             // Manejar checkboxes si existen

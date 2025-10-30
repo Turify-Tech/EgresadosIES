@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test ImageKit - Carga de Imágenes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .test-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0;
+            transition: all 0.2s;
+        }
+
+        .upload-btn:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .preview {
+            width: 200px;
+            height: 200px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            background: #f9f9f9;
+        }
+
+        .preview img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 6px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        h2 {
+            color: #3b82f6;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 10px;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        .status.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🖼️ Test de Carga de Imágenes con ImageKit</h1>
+
+    <!-- Test 1: Foto de Perfil -->
+    <div class="test-section">
+        <h2>📸 Test 1: Foto de Perfil</h2>
+        <p>Prueba la funcionalidad de subir foto de perfil con optimización para avatares (200x200, face-crop).</p>
+
+        <input type="file" id="profile-upload" accept="image/*" style="display: none;">
+        <button class="upload-btn" onclick="document.getElementById('profile-upload').click()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            Subir Foto de Perfil
+        </button>
+
+        <div class="preview" id="profile-preview">
+            <span>Vista previa aparecerá aquí</span>
+        </div>
+
+        <div id="profile-status"></div>
+    </div>
+
+    <!-- Test 2: Imagen de Proyecto -->
+    <div class="test-section">
+        <h2>🎨 Test 2: Imagen de Proyecto</h2>
+        <p>Prueba la funcionalidad de subir imagen de proyecto con optimización para portfolio (600x400, scale-crop).
+        </p>
+
+        <input type="file" id="project-upload" accept="image/*" style="display: none;">
+        <button class="upload-btn" onclick="document.getElementById('project-upload').click()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            Subir Imagen de Proyecto
+        </button>
+
+        <div class="preview" id="project-preview">
+            <span>Vista previa aparecerá aquí</span>
+        </div>
+
+        <div id="project-status"></div>
+    </div>
+
+    <!-- Test 3: Verificación de Configuración -->
+    <div class="test-section">
+        <h2>⚙️ Test 3: Configuración</h2>
+        <p>Verifica que ImageKit esté configurado correctamente.</p>
+
+        <button class="upload-btn" onclick="checkConfig()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M9 12l2 2 4-4"></path>
+                <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"></path>
+                <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"></path>
+                <path d="M12 21c0-1-1-3-3-3s-3 2-3 3 1 3 3 3 3-2 3-3"></path>
+                <path d="M12 3c0 1-1 3-3 3s-3-2-3-3 1-3 3-3 3 2 3 3"></path>
+            </svg>
+            Verificar Configuración
+        </button>
+
+        <div id="config-status"></div>
+    </div>
+
+    <script type="module">
+        // Configuración simulada para testing
+        const CONFIG = {
+            API_URL: 'http://localhost:3000',
+            IMAGEKIT_ENDPOINT: 'https://ik.imagekit.io/your_imagekit_id/'
+        };
+
+        // Simulador de ImageKit para testing local
+        class MockImageKitService {
+            async validateImage(file) {
+                return new Promise((resolve, reject) => {
+                    if (!file) reject(new Error('No hay archivo'));
+
+                    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+                    if (!allowedTypes.includes(file.type)) {
+                        reject(new Error('Tipo de archivo no válido. Solo se permiten JPEG, PNG y WebP'));
+                    }
+
+                    if (file.size > 5 * 1024 * 1024) {
+                        reject(new Error('El archivo es demasiado grande. Máximo 5MB'));
+                    }
+
+                    resolve(true);
+                });
+            }
+
+            async createPreview(file) {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            async uploadImage(file, options = {}) {
+                // Simular delay de subida
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                // Simular respuesta exitosa
+                return {
+                    success: true,
+                    fileId: 'mock_' + Date.now(),
+                    url: 'https://ik.imagekit.io/mock/test_image.jpg',
+                    thumbnailUrl: 'https://ik.imagekit.io/mock/tr:w-200,h-200/test_image.jpg'
+                };
+            }
+
+            generateTransformedUrl(url, transformations = {}) {
+                const params = Object.entries(transformations)
+                    .map(([key, value]) => `${key}-${value}`)
+                    .join(',');
+                return `${url}?tr=${params}`;
+            }
+        }
+
+        const imageKitService = new MockImageKitService();
+
+        // Función para mostrar estado
+        function showStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.className = `status ${type}`;
+            element.textContent = message;
+        }
+
+        // Función para actualizar preview
+        function updatePreview(elementId, imageUrl) {
+            const element = document.getElementById(elementId);
+            if (imageUrl) {
+                element.innerHTML = `<img src="${imageUrl}" alt="Preview">`;
+            } else {
+                element.innerHTML = '<span>Vista previa aparecerá aquí</span>';
+            }
+        }
+
+        // Test de foto de perfil
+        document.getElementById('profile-upload').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            try {
+                showStatus('profile-status', 'Validando imagen...', 'info');
+
+                await imageKitService.validateImage(file);
+                showStatus('profile-status', '✅ Imagen válida. Creando preview...', 'success');
+
+                const preview = await imageKitService.createPreview(file);
+                updatePreview('profile-preview', preview);
+
+                showStatus('profile-status', '📤 Subiendo a ImageKit...', 'info');
+
+                const result = await imageKitService.uploadImage(file, {
+                    folder: '/profiles/',
+                    tags: ['profile', 'avatar', 'test']
+                });
+
+                if (result.success) {
+                    const optimizedUrl = imageKitService.generateTransformedUrl(result.url, {
+                        width: 200,
+                        height: 200,
+                        crop: 'face'
+                    });
+
+                    updatePreview('profile-preview', optimizedUrl);
+                    showStatus('profile-status', `✅ ¡Foto de perfil subida exitosamente! ID: ${result.fileId}`, 'success');
+                }
+
+            } catch (error) {
+                showStatus('profile-status', `❌ Error: ${error.message}`, 'error');
+            }
+        });
+
+        // Test de imagen de proyecto
+        document.getElementById('project-upload').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            try {
+                showStatus('project-status', 'Validando imagen...', 'info');
+
+                await imageKitService.validateImage(file);
+                showStatus('project-status', '✅ Imagen válida. Creando preview...', 'success');
+
+                const preview = await imageKitService.createPreview(file);
+                updatePreview('project-preview', preview);
+
+                showStatus('project-status', '📤 Subiendo a ImageKit...', 'info');
+
+                const result = await imageKitService.uploadImage(file, {
+                    folder: '/projects/',
+                    tags: ['project', 'portfolio', 'test']
+                });
+
+                if (result.success) {
+                    const optimizedUrl = imageKitService.generateTransformedUrl(result.url, {
+                        width: 600,
+                        height: 400,
+                        crop: 'scale'
+                    });
+
+                    updatePreview('project-preview', optimizedUrl);
+                    showStatus('project-status', `✅ ¡Imagen de proyecto subida exitosamente! ID: ${result.fileId}`, 'success');
+                }
+
+            } catch (error) {
+                showStatus('project-status', `❌ Error: ${error.message}`, 'error');
+            }
+        });
+
+        // Función para verificar configuración
+        window.checkConfig = async () => {
+            showStatus('config-status', 'Verificando configuración...', 'info');
+
+            try {
+                // Verificar endpoint de autenticación
+                const response = await fetch(`${CONFIG.API_URL}/api/imagekit/auth`);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    showStatus('config-status',
+                        `✅ Configuración OK! 
+                        Token generado: ${data.token.substring(0, 8)}...
+                        Expira en: ${new Date(data.expire * 1000).toLocaleTimeString()}`,
+                        'success'
+                    );
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                showStatus('config-status',
+                    `❌ Error de configuración: ${error.message}
+                    
+                    Verificar:
+                    • Backend corriendo en ${CONFIG.API_URL}
+                    • Variables de entorno IMAGEKIT_* configuradas
+                    • Ruta /api/imagekit/auth disponible`,
+                    'error'
+                );
+            }
+        };
+
+        // Verificar configuración al cargar
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Test de ImageKit iniciado');
+            console.log('Configuración:', CONFIG);
+        });
+    </script>
+</body>
+
+</html>

@@ -3,6 +3,8 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 import database from "./config/database.js";
 import authRoutes from "./routes/authRoutes.js";
 import busquedaRoutes from "./routes/busquedaRoutes.js";
@@ -11,10 +13,24 @@ import perfilesRoutes from "./routes/perfilesRoutes.js";
 import carrerasRoutes from "./routes/carrerasRoutes.js";
 import mensajesRoutes from "./routes/mensajesRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
-import imagekitRoutes from "./routes/imagekit.js";
 import publicacionesRoutes from "./routes/publicacionesRoutes.js";
 
-dotenv.config();
+// Configurar dotenv con ruta absoluta
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const envPath = path.join(__dirname, "../.env");
+
+console.log("🔧 Cargando variables de entorno desde:", envPath);
+dotenv.config({ path: envPath });
+
+// Debug: Verificar configuración básica
+console.log("🔍 Environment Check:", {
+    nodeEnv: process.env.NODE_ENV || "development",
+    port: process.env.PORT || 3000,
+    frontendUrl: process.env.FRONTEND_URL || "http://localhost:4321",
+    workingDir: process.cwd(),
+    envPath: envPath,
+});
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -72,7 +88,6 @@ app.use("/api/perfiles", perfilesRoutes);
 app.use("/api/carreras", carrerasRoutes);
 app.use("/api/mensajes", mensajesRoutes);
 app.use("/api/admin", adminRoutes);
-app.use("/api/imagekit", imagekitRoutes);
 app.use("/api/publicaciones", publicacionesRoutes);
 
 // Middleware de manejo de errores globales
@@ -113,9 +128,7 @@ if (process.env.NODE_ENV !== "test") {
         .connect()
         .then(() => {
             app.listen(PORT, () => {
-                console.log(
-                    `� Servidor corriendo en http://localhost:${PORT}`
-                );
+                console.log(`� Servidor corriendo en http://localhost:${PORT}`);
                 console.log(
                     `📊 Health check: http://localhost:${PORT}/api/health`
                 );
@@ -132,10 +145,7 @@ if (process.env.NODE_ENV !== "test") {
                     `🎓 Carreras: http://localhost:${PORT}/api/carreras`
                 );
                 console.log(
-                    `� Mensajes: http://localhost:${PORT}/api/mensajes`
-                );
-                console.log(
-                    `📸 ImageKit: http://localhost:${PORT}/api/imagekit/auth`
+                    `💬 Mensajes: http://localhost:${PORT}/api/mensajes`
                 );
                 console.log(
                     `⚙️  Admin DNIs: http://localhost:${PORT}/api/admin/dnis`

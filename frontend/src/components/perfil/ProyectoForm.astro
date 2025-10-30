@@ -41,11 +41,12 @@
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+                            <path
+                                d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
                             ></path>
-                            <polyline points="7,10 12,15 17,10"></polyline>
-                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                            <circle cx="12" cy="13" r="4"></circle>
                         </svg>
+                        Subir imagen
                     </button>
                 </div>
             </div>
@@ -243,10 +244,46 @@
         gap: 0.5rem;
         cursor: pointer;
         font-size: 0.875rem;
-        transition: background 0.2s;
+        transition: all 0.2s;
+        min-height: 38px;
     }
 
-    .upload-btn:hover {
+    .upload-btn:hover:not(:disabled) {
+        background: #4b5563;
+        transform: translateY(-1px);
+    }
+
+    .upload-btn:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .loading-spinner {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .image-preview img {
+        transition: opacity 0.3s ease;
+    }
+
+    .image-upload-area {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .image-upload-area:hover .upload-btn {
         background: #4b5563;
     }
 
@@ -421,10 +458,15 @@
 
 <script>
     // @ts-nocheck
+    import { imageService, ImageUtils } from "../../utils/imgbb.js";
+
     class ProyectosManager {
         constructor() {
             this.form = document.getElementById("proyectos-form");
             this.isInitialized = false;
+            this.currentProjectImage = null; // URL de la imagen actual del proyecto
+            this.proyectos = []; // Array para múltiples proyectos
+            this.currentProjectIndex = 0; // Índice del proyecto actual
             this.init();
         }
 
@@ -466,38 +508,226 @@
             });
         }
 
-        handleImageUpload(e) {
+        async handleImageUpload(e) {
             const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const preview = document.getElementById("image-preview");
-                    if (preview) {
-                        preview.innerHTML = `<img src="${e.target.result}" alt="Proyecto" style="width: 100%; height: 100%; object-fit: cover;">`;
-                    }
-                };
-                reader.readAsDataURL(file);
+            if (!file) return;
+
+            try {
+                // Mostrar loading en el botón
+                const uploadBtn = document.getElementById(
+                    "upload-project-image"
+                );
+                if (uploadBtn) {
+                    uploadBtn.disabled = true;
+                    uploadBtn.innerHTML = `
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="loading-spinner">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M16 12a4 4 0 0 1-8 0"></path>
+                        </svg>
+                        Subiendo...
+                    `;
+                }
+
+                // Validar imagen antes de subir
+                await imageService.validateImage(file);
+
+                // Crear preview inmediato
+                const previewUrl = await imageService.createPreview(file);
+                this.updateImagePreview(previewUrl);
+
+                // Comprimir imagen si es muy grande
+                let processedFile = file;
+                if (file.size > 1024 * 1024) {
+                    // Si es mayor a 1MB
+                    processedFile = await ImageUtils.compressImage(file, {
+                        maxWidth: 1200,
+                        maxHeight: 800,
+                        quality: 0.8,
+                    });
+                    console.log(
+                        `Imagen del proyecto comprimida: ${Math.round(file.size / 1024)}KB → ${Math.round(processedFile.size / 1024)}KB`
+                    );
+                }
+
+                // Subir a ImgBB
+                const uploadResult = await imageService.uploadImage(file, {
+                    name: `proyecto_${Date.now()}`,
+                });
+
+                if (uploadResult.success) {
+                    // Actualizar imagen con la URL de ImgBB
+                    const imageUrl = uploadResult.url;
+
+                    this.updateImagePreview(imageUrl);
+                    this.currentProjectImage = uploadResult.url; // Guardar URL original
+
+                    this.showNotification(
+                        "Imagen del proyecto subida correctamente",
+                        "success"
+                    );
+
+                    console.log("Imagen del proyecto subida a ImgBB:", {
+                        id: uploadResult.id,
+                        url: uploadResult.url,
+                        thumbnailUrl: uploadResult.thumbnailUrl,
+                    });
+                } else {
+                    throw new Error("Error en la subida a ImgBB");
+                }
+            } catch (error) {
+                console.error("Error subiendo imagen del proyecto:", error);
+
+                let errorMessage = "Error al subir la imagen del proyecto";
+                if (error.message.includes("Tipo de archivo")) {
+                    errorMessage = "Solo se permiten imágenes JPEG, PNG o WebP";
+                } else if (error.message.includes("demasiado grande")) {
+                    errorMessage = "La imagen es demasiado grande (máximo 5MB)";
+                } else if (error.message.includes("píxeles")) {
+                    errorMessage =
+                        "La imagen debe ser de al menos 100x100 píxeles";
+                }
+
+                this.showNotification(errorMessage, "error");
+
+                // Revertir preview si falló la subida
+                this.loadProjectImage();
+            } finally {
+                // Restaurar botón
+                const uploadBtn = document.getElementById(
+                    "upload-project-image"
+                );
+                if (uploadBtn) {
+                    uploadBtn.disabled = false;
+                    uploadBtn.innerHTML = `
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                        Subir imagen
+                    `;
+                }
             }
+        }
+
+        updateImagePreview(imageUrl) {
+            const preview = document.getElementById("image-preview");
+            if (preview && imageUrl) {
+                preview.innerHTML = `
+                    <img 
+                        src="${imageUrl}" 
+                        alt="Proyecto" 
+                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;"
+                        onload="this.style.opacity = '1'"
+                        style="opacity: 0; transition: opacity 0.3s;"
+                    />
+                `;
+            } else if (preview) {
+                // Mostrar placeholder si no hay imagen
+                preview.innerHTML = `
+                    <div class="placeholder-image">
+                        <div class="circle-placeholder"></div>
+                    </div>
+                `;
+            }
+        }
+
+        loadProjectImage() {
+            let imageUrl = null;
+
+            // Si hay imagen actual del proyecto, usarla
+            if (this.currentProjectImage) {
+                // ImgBB devuelve URLs directas
+                imageUrl = this.currentProjectImage;
+            }
+
+            this.updateImagePreview(imageUrl);
         }
 
         populateForm(profileData) {
             if (!profileData || this.isInitialized) return;
 
-            // TODO: Poblar campos con datos del perfil
             console.log("Poblando proyectos", profileData);
+
+            // Buscar proyectos en los datos del perfil
+            const perfil = profileData.data?.perfil || profileData.perfil || {};
+
+            // Los proyectos podrían estar en diferentes campos
+            if (perfil.proyectos && Array.isArray(perfil.proyectos)) {
+                this.proyectos = perfil.proyectos;
+                this.loadCurrentProject();
+            } else if (
+                perfil.urlImagenProyecto ||
+                perfil.nombreProyecto ||
+                perfil.descripcionProyecto
+            ) {
+                // Proyecto único en campos individuales
+                this.proyectos = [
+                    {
+                        nombre: perfil.nombreProyecto || "",
+                        descripcion: perfil.descripcionProyecto || "",
+                        enlace: perfil.enlaceProyecto || "",
+                        imagen: perfil.urlImagenProyecto || null,
+                    },
+                ];
+                this.loadCurrentProject();
+            }
+
             this.isInitialized = true;
         }
 
-        getFormData() {
-            const formData = new FormData(this.form);
-            const data = {};
+        loadCurrentProject() {
+            if (this.proyectos.length === 0) return;
 
-            // Convertir FormData a objeto
-            for (let [key, value] of formData.entries()) {
-                data[key] = value;
+            const proyecto = this.proyectos[this.currentProjectIndex] || {};
+
+            // Poblar campos del formulario
+            const nombreInput = document.getElementById("nombre-proyecto");
+            const descripcionInput = document.getElementById("descripcion");
+            const enlaceInput = document.getElementById("enlace");
+
+            if (nombreInput) nombreInput.value = proyecto.nombre || "";
+            if (descripcionInput)
+                descripcionInput.value = proyecto.descripcion || "";
+            if (enlaceInput) enlaceInput.value = proyecto.enlace || "";
+
+            // Cargar imagen del proyecto
+            this.currentProjectImage = proyecto.imagen;
+            this.loadProjectImage();
+        }
+
+        getCurrentProjectData() {
+            const nombreInput = document.getElementById("nombre-proyecto");
+            const descripcionInput = document.getElementById("descripcion");
+            const enlaceInput = document.getElementById("enlace");
+
+            return {
+                nombre: nombreInput?.value || "",
+                descripcion: descripcionInput?.value || "",
+                enlace: enlaceInput?.value || "",
+                imagen: this.currentProjectImage,
+            };
+        }
+
+        getFormData() {
+            // Obtener datos del proyecto actual
+            const proyectoActual = this.getCurrentProjectData();
+
+            // Actualizar el proyecto en el array
+            if (this.proyectos.length === 0) {
+                this.proyectos.push(proyectoActual);
+            } else {
+                this.proyectos[this.currentProjectIndex] = proyectoActual;
             }
 
-            return data;
+            // Devolver datos para la API
+            return {
+                proyectos: this.proyectos,
+                // Compatibilidad con campos individuales por si la API los espera
+                nombreProyecto: proyectoActual.nombre,
+                descripcionProyecto: proyectoActual.descripcion,
+                enlaceProyecto: proyectoActual.enlace,
+                urlImagenProyecto: proyectoActual.imagen,
+            };
         }
 
         async saveSection() {
@@ -535,7 +765,7 @@
             } finally {
                 const btn = document.getElementById("save-proyectos");
                 if (btn) {
-                    (btn as HTMLButtonElement).disabled = false;
+                    btn.disabled = false;
                     btn.textContent = "Guardar";
                 }
             }
@@ -554,7 +784,7 @@
             console.log("Auto-guardando proyectos...");
         }
 
-        showNotification(message: string, type: string) {
+        showNotification(message, type) {
             // Reutilizar el sistema de notificaciones del componente principal
             window.dispatchEvent(
                 new CustomEvent("show-notification", {
@@ -566,6 +796,6 @@
 
     // Inicializar cuando el DOM esté listo
     document.addEventListener("DOMContentLoaded", () => {
-        (window as any).proyectosManager = new ProyectosManager();
+        window.proyectosManager = new ProyectosManager();
     });
 </script>
