@@ -5,7 +5,7 @@ export default defineConfig({
         port: 4321,
         host: true,
     },
-    output: "static",
+    output: "server",
     build: {
         assets: "assets",
     },

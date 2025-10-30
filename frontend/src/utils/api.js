@@ -233,7 +233,10 @@ export const authService = {
      * Confirmar reset de contraseña
      */
     async confirmPasswordReset(token, newPassword) {
-        return apiClient.post("/auth/confirm-reset", { token, newPassword });
+        return apiClient.post("/auth/confirm-reset", {
+            token,
+            newPassword,
+        });
     },
 };
 
@@ -441,14 +444,14 @@ export const searchService = {
         // Ordenamiento
         if (filters.orderBy) params.set("orderBy", filters.orderBy);
 
-        return apiClient.get(`/api/buscar?${params.toString()}`);
+        return apiClient.get(`/buscar?${params.toString()}`);
     },
 
     /**
      * Obtener opciones de filtros dinámicamente
      */
     async getFilterOptions() {
-        return apiClient.get("/api/buscar/filtros");
+        return apiClient.get("/buscar/filtros");
     },
 
     /**
@@ -459,7 +462,7 @@ export const searchService = {
         params.set("query", query);
         params.set("type", type);
 
-        return apiClient.get(`/api/buscar/autocomplete?${params.toString()}`);
+        return apiClient.get(`/buscar/autocomplete?${params.toString()}`);
     },
 };
 
