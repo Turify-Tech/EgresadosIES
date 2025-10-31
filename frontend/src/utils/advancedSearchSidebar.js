@@ -318,8 +318,8 @@ export class AdvancedSearchManagerSidebar {
     }
 
     renderPerfilCard(perfil) {
-        const avatar = perfil.foto_perfil
-            ? `<img src="${perfil.foto_perfil}" alt="${perfil.nombre} ${perfil.apellido}">`
+        const avatar = perfil.urlFotoPerfil
+            ? `<img src="${perfil.urlFotoPerfil}" alt="${perfil.nombre} ${perfil.apellido}">`
             : `<div class="avatar-icon">👤</div>`;
 
         return `
