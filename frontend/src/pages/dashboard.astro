@@ -189,6 +189,38 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                                             </p>
                                         </div>
                                     </button>
+
+                                    <button
+                                        class="action-btn"
+                                        id="download-cv-btn">
+                                        <div class="action-icon">
+                                            <svg
+                                                width="24"
+                                                height="24"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor">
+                                                <path
+                                                    d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                                                ></path>
+                                                <polyline
+                                                    points="14,2 14,8 20,8"
+                                                ></polyline>
+                                                <line
+                                                    x1="12"
+                                                    y1="18"
+                                                    x2="12"
+                                                    y2="12"></line>
+                                                <polyline
+                                                    points="9,15 12,18 15,15"
+                                                ></polyline>
+                                            </svg>
+                                        </div>
+                                        <div class="action-text">
+                                            <h4>Descargar CV</h4>
+                                            <p>Descarga tu CV en formato PDF</p>
+                                        </div>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -1157,6 +1189,14 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                 });
             }
 
+            // Botón descargar CV
+            const downloadCvBtn = document.getElementById("download-cv-btn");
+            if (downloadCvBtn) {
+                downloadCvBtn.addEventListener("click", () => {
+                    this.downloadCV();
+                });
+            }
+
             // Modal de contraseña
             this.bindPasswordModalEvents();
         }
@@ -1237,6 +1277,52 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                 console.error("Error changing password:", error);
                 this.showNotification(
                     "Error al cambiar la contraseña",
+                    "error"
+                );
+            }
+        }
+
+        async downloadCV() {
+            try {
+                this.showNotification("Generando CV...", "info");
+
+                // Llamar al servicio para descargar el CV
+                const response = await profileService.downloadMyCV();
+
+                // Convertir la respuesta a blob
+                const blob = await response.blob();
+
+                // Obtener el nombre del archivo desde los headers o usar uno por defecto
+                const contentDisposition = response.headers.get(
+                    "content-disposition"
+                );
+                let fileName = "Mi_CV.pdf";
+
+                if (contentDisposition) {
+                    const fileNameMatch =
+                        contentDisposition.match(/filename="?(.+)"?/);
+                    if (fileNameMatch) {
+                        fileName = fileNameMatch[1];
+                    }
+                }
+
+                // Crear URL del blob y iniciar descarga
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+
+                // Limpiar
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(link);
+
+                this.showNotification("CV descargado exitosamente", "success");
+            } catch (error) {
+                console.error("Error downloading CV:", error);
+                this.showNotification(
+                    "Error al descargar el CV. Verifique que tenga información en su perfil.",
                     "error"
                 );
             }

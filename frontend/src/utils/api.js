@@ -66,8 +66,9 @@ class ApiClient {
      * Realiza una request HTTP
      * @param {string} endpoint - Endpoint de la API
      * @param {Object} options - Opciones de fetch
+     * @param {boolean} isBlob - Si espera una respuesta de tipo blob (archivos)
      */
-    async request(endpoint, options = {}) {
+    async request(endpoint, options = {}, isBlob = false) {
         const url = `${this.config.baseURL}${endpoint}`;
 
         const config = {
@@ -87,6 +88,28 @@ class ApiClient {
             const response = await fetch(url, config);
             clearTimeout(timeoutId);
 
+            if (!response.ok) {
+                // Para errores, intentar parsear JSON primero
+                let data = null;
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    data = await response.json();
+                } else {
+                    data = await response.text();
+                }
+
+                throw new ApiError(
+                    data?.message || `HTTP Error ${response.status}`,
+                    response.status,
+                    data
+                );
+            }
+
+            // Si es blob, retornar la respuesta completa para acceder a headers
+            if (isBlob) {
+                return response;
+            }
+
             // Intentar parsear JSON
             let data = null;
             const contentType = response.headers.get("content-type");
@@ -94,14 +117,6 @@ class ApiClient {
                 data = await response.json();
             } else {
                 data = await response.text();
-            }
-
-            if (!response.ok) {
-                throw new ApiError(
-                    data?.message || `HTTP Error ${response.status}`,
-                    response.status,
-                    data
-                );
             }
 
             return data;
@@ -125,12 +140,12 @@ class ApiClient {
     /**
      * GET request
      */
-    async get(endpoint, params = {}) {
+    async get(endpoint, params = {}, isBlob = false) {
         const searchParams = new URLSearchParams(params);
         const queryString = searchParams.toString();
         const url = queryString ? `${endpoint}?${queryString}` : endpoint;
 
-        return this.request(url, { method: "GET" });
+        return this.request(url, { method: "GET" }, isBlob);
     }
 
     /**
@@ -354,6 +369,14 @@ export const profileService = {
      */
     async downloadCV(id) {
         return apiClient.get(`/profile/${id}/cv`);
+    },
+
+    /**
+     * Descargar mi CV en formato PDF
+     */
+    async downloadMyCV() {
+        const response = await apiClient.get("/perfil/mi-cv", {}, true);
+        return response;
     },
 };
 

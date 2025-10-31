@@ -34,6 +34,7 @@ import {
     updateCurso,
     deleteCurso,
 } from "../controllers/cursosController.js";
+import { downloadMiCV } from "../controllers/cvController.js";
 
 const router = express.Router();
 
@@ -66,6 +67,13 @@ router.put(
     validatePerfil,
     updateMiPerfil
 );
+
+/**
+ * @route   GET /api/perfil/mi-cv
+ * @desc    Descarga el CV del usuario logueado en formato PDF
+ * @access  Private (Egresado)
+ */
+router.get("/mi-cv", logValidation("Descargar mi CV"), downloadMiCV);
 
 // ===============================================
 // RUTAS DE EXPERIENCIA LABORAL
