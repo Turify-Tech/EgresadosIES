@@ -1,0 +1,47 @@
+---
+export interface Props {
+  disabled?: boolean;
+}
+
+// Default to disabled on server-render. Client-side script will enable when appropriate.
+const { disabled = true } = Astro.props;
+---
+
+<form class="crear-publicacion" id="crear-publicacion-form" onsubmit="return false">
+  <textarea id="crear-contenido" name="contenido" placeholder="¿Qué estás pensando?" rows="3" disabled={disabled}></textarea>
+  <div class="actions">
+    <input id="crear-imagenes" type="file" name="imagenes" accept="image/*" multiple disabled={disabled} />
+    <button id="crear-submit" class="btn-submit" type="submit" disabled={disabled}>Publicar</button>
+  </div>
+  <p id="crear-hint" class="hint">Inicia sesión para crear publicaciones.</p>
+
+  <script>
+    // Cliente: habilitar el formulario si el usuario está autenticado y es Egresado
+    (function(){
+      try {
+        const token = localStorage.getItem('auth_token');
+        const userData = localStorage.getItem('user_data');
+        if (!token || !userData) return;
+        const user = JSON.parse(userData);
+        if (user && user.tipo_usuario === 'Egresado') {
+          const textarea = document.getElementById('crear-contenido');
+          const fileInput = document.getElementById('crear-imagenes');
+          const submit = document.getElementById('crear-submit');
+          const hint = document.getElementById('crear-hint');
+          if (textarea) textarea.removeAttribute('disabled');
+          if (fileInput) fileInput.removeAttribute('disabled');
+          if (submit) submit.removeAttribute('disabled');
+          if (hint) hint.style.display = 'none';
+        }
+      } catch(e) { console.warn('enable crear form failed', e); }
+    })();
+  </script>
+
+  <style>
+    .crear-publicacion{background:#fff;border-radius:10px;padding:1rem;margin-bottom:1rem;box-shadow:0 6px 18px rgba(0,0,0,0.04)}
+    textarea{width:100%;border:1px solid #e6edf3;padding:0.75rem;border-radius:8px;font-size:0.95rem}
+    .actions{display:flex;align-items:center;justify-content:space-between;margin-top:0.5rem}
+    .btn-submit{background:#3b82f6;color:#fff;border:none;padding:0.5rem 1rem;border-radius:8px;cursor:pointer}
+    .hint{margin-top:0.5rem;color:#6b7280;font-size:0.9rem}
+  </style>
+</form>

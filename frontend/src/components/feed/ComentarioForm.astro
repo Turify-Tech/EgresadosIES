@@ -1,0 +1,15 @@
+---
+export interface Props { disabled?: boolean }
+const { disabled = true } = Astro.props;
+---
+
+<form class="comentario-form" onsubmit="return false">
+  <input type="text" name="contenido" placeholder="Escribe un comentario..." disabled={disabled} />
+  <button type="submit" disabled={disabled}>Enviar</button>
+
+  <style>
+    .comentario-form{display:flex;gap:0.5rem;align-items:center}
+    .comentario-form input{flex:1;padding:0.5rem;border-radius:20px;border:1px solid #e6edf3}
+    .comentario-form button{background:#3b82f6;color:#fff;border:none;padding:0.45rem 0.8rem;border-radius:16px}
+  </style>
+</form>

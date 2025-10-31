@@ -30,10 +30,11 @@ const crearPublicacionLimiter = rateLimit({
     legacyHeaders: false,
 });
 
-// Middleware: todas las rutas requieren autenticación y ser egresado
-router.use(authenticateToken);
-router.use(requireEgresado);
+// Rate limiter applies to all routes
 router.use(publicacionesLimiter);
+
+// NOTE: permitir que las rutas GET sean públicas (lectura para todos).
+// Solo las operaciones de escritura (crear/editar/eliminar) requieren autenticación y rol Egresado.
 
 /**
  * @route   POST /api/publicaciones
@@ -41,7 +42,7 @@ router.use(publicacionesLimiter);
  * @access  Privado (solo egresados autenticados)
  * @body    { "contenido": string, "imagenes": ["url1", "url2"] }
  */
-router.post("/", crearPublicacionLimiter, publicacionesController.crearPublicacion);
+router.post("/", crearPublicacionLimiter, authenticateToken, requireEgresado, publicacionesController.crearPublicacion);
 
 /**
  * @route   GET /api/publicaciones
@@ -66,7 +67,7 @@ router.get("/:id", publicacionesController.verPublicacion);
  * @param   {number} id - ID de la publicación
  * @body    { "contenido": string, "imagenes": ["url1", "url2"] }
  */
-router.put("/:id", publicacionesController.editarPublicacion);
+router.put("/:id", authenticateToken, requireEgresado, publicacionesController.editarPublicacion);
 
 /**
  * @route   DELETE /api/publicaciones/:id
@@ -74,7 +75,7 @@ router.put("/:id", publicacionesController.editarPublicacion);
  * @access  Privado (solo el autor de la publicación)
  * @param   {number} id - ID de la publicación
  */
-router.delete("/:id", publicacionesController.eliminarPublicacion);
+router.delete("/:id", authenticateToken, requireEgresado, publicacionesController.eliminarPublicacion);
 
 /**
  * @route   GET /api/publicaciones/usuario/:userId

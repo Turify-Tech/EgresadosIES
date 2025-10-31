@@ -1,19 +1,283 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import CrearPublicacion from '../components/feed/CrearPublicacion.astro';
+import PublicacionCard from '../components/feed/PublicacionCard.astro';
+
+// Ejemplo estático para mostrar diseño cuando no hay posts reales
+const examplePosts = [
+    {
+        id: 1,
+        contenido: '¡Bienvenidos al feed de la comunidad! Comparte tus logros y novedades.',
+        fechaCreacion: new Date().toISOString(),
+        autor: { nombre: 'Marta Gonzales' },
+        imagenes: [],
+        totalComentarios: 2,
+        totalLikes: 25
+    },
+    {
+        id: 2,
+        contenido: 'Recomendaciones para preparar CV y entrevistas. ¡Éxitos! 💼',
+        fechaCreacion: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
+        autor: { nombre: 'Juan Perez' },
+        imagenes: [],
+        totalComentarios: 0,
+        totalLikes: 4
+    }
+];
 ---
 
-<BaseLayout title="Inicio">
-    <section class="hero">
-        <div class="container">
-            <div class="text-center">
-                <h1 class="hero-title">Instituto de Educación Superior</h1>
-                <h2 class="hero-subtitle">Sistema de Gestión de Egresados</h2>
-                <p class="hero-description">
-                    Plataforma oficial para el seguimiento y vinculación de
-                    nuestros egresados con el mundo profesional y la comunidad
-                    educativa.
-                </p>
-            </div>
+<BaseLayout title="Inicio | Feed">
+    <div style="background:white;min-height:100vh;">
+        <div class="page" style="max-width:1200px;margin:1.5rem auto;padding:0 1rem;display:grid;grid-template-columns:260px 1fr 300px;gap:1rem;align-items:start;">
+
+            <!-- Left sidebar -->
+            <aside style="background:white;padding:1rem;border-radius:10px;">
+                <h3 style="margin-top:0;margin-bottom:0.5rem">Tecnicaturas</h3>
+                <ul style="list-style:none;padding:0;margin:0;font-size:0.95rem;">
+                    <li>Administración de Empresas</li>
+                    <li>Análisis y Programación de Sistemas</li>
+                    <li>Computación y Redes</li>
+                    <li>Construcciones Livianas</li>
+                    <li>Desarrollo de Software</li>
+                    <li>Higiene y Seguridad Laboral</li>
+                </ul>
+            </aside>
+
+            <!-- Main column -->
+            <main>
+                <section style="padding:0 0 1rem 0;margin-bottom:1rem;">
+                    <h1 style="font-size:2rem;margin:0 0 0.25rem 0">Perfiles Profesionales del IES</h1>
+                    <p style="color:#6b7280;margin-top:0;margin-bottom:1rem;max-width:760px;">El Instituto de Educación Superior N°9-012 "San Rafael en Informática" es un establecimiento educativo técnico de nivel superior ubicado en San Rafael, Mendoza.</p>
+                </section>
+
+                <CrearPublicacion />
+
+                <section id="feed-list">
+                    {examplePosts.map(post => (
+                        <PublicacionCard post={post} />
+                    ))}
+                </section>
+
+                <div id="load-more" style="text-align:center;margin-top:1rem;">
+                    <button id="btn-load-more" style="background:#eef2ff;border:1px solid #dbeafe;padding:0.5rem 1rem;border-radius:8px;">Cargar más</button>
+                </div>
+            </main>
+
+            <!-- Right column -->
+            <aside style="padding:0.5rem;">
+                <div style="background:white;padding:1rem;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.04);">
+                    <h4 style="margin:0 0 0.5rem 0">Feed de la comunidad</h4>
+                    <p style="margin:0;color:#6b7280;font-size:0.95rem">Conecta con otros egresados, comparte logros y recursos.</p>
+                </div>
+            </aside>
+
         </div>
-    </section>
+    </div>
+
+    <script type="module">
+        // Use relative API path to avoid embedding build-time env in client script
+        const API_URL = '/api';
+
+        document.addEventListener('DOMContentLoaded', () => {
+                    const token = localStorage.getItem('auth_token');
+                    const userData = localStorage.getItem('user_data');
+                    // Determine if the client is allowed to create/comment (must be authenticated egresado)
+                    let isEgresado = false;
+                    try {
+                        if (token && userData) {
+                            const u = JSON.parse(userData);
+                            isEgresado = u && u.tipo_usuario === 'Egresado';
+                        }
+                    } catch (e) { isEgresado = false; }
+
+                    // Defensive cleanup: remove any comment forms if user is NOT allowed
+                    if (!isEgresado) {
+                        document.querySelectorAll('.comentario-form-inline').forEach(el => el.remove());
+                        document.querySelectorAll('.comment-form-placeholder').forEach(ph => {
+                            ph.innerHTML = '<small class="login-hint">Inicia sesión para comentar.</small>';
+                        });
+                        // Ensure crear-publicacion remains disabled (in case of stray enabled state)
+                        const crearTextarea = document.getElementById('crear-contenido');
+                        const crearFiles = document.getElementById('crear-imagenes');
+                        const crearSubmit = document.getElementById('crear-submit');
+                        const crearHint = document.getElementById('crear-hint');
+                        if (crearTextarea) crearTextarea.setAttribute('disabled','');
+                        if (crearFiles) crearFiles.setAttribute('disabled','');
+                        if (crearSubmit) crearSubmit.setAttribute('disabled','');
+                        if (crearHint) crearHint.style.display = '';
+                    }
+            const feedEl = document.getElementById('feed-list');
+
+            function renderPostElement(post) {
+                const container = document.createElement('div');
+                container.innerHTML = `
+                    <article class="post-card" data-id="${post.id}">
+                        <header class="post-header">
+                            <img class="avatar" src="/default-avatar.svg" alt="avatar" />
+                            <div class="meta">
+                                <strong class="author">${post.autor?.nombre || 'Usuario'}</strong>
+                                <time class="time">${post.fechaCreacion ? new Date(post.fechaCreacion).toLocaleString() : ''}</time>
+                            </div>
+                        </header>
+                        <div class="post-body"><p class="content">${(post.contenido||'').replace(/</g,'&lt;')}</p></div>
+                        ${(post.imagenes && post.imagenes.length) ? `<div class="images">${post.imagenes.map(u=>`<img src="${u}" alt="imagen" loading="lazy"/>`).join('')}</div>` : ''}
+                        <footer class="post-actions">
+                            <button class="like-btn" data-liked="false">❤ <span class="like-count">${post.totalLikes||0}</span></button>
+                            <button class="comment-toggle">💬 <span class="comment-count">${post.totalComentarios||0}</span></button>
+                            <div class="spacer"></div>
+                            <button class="more">⋯</button>
+                        </footer>
+                        <section class="comments" hidden id="comments-section-${post.id}">
+                            <div class="comments-list" id="comments-list-${post.id}"></div>
+                            <div class="comment-form-placeholder" id="comment-form-${post.id}"><small class="login-hint">Inicia sesión para comentar.</small></div>
+                        </section>
+                    </article>
+                `;
+                return container.firstElementChild;
+            }
+
+            async function fetchPosts(page = 1, limit = 10) {
+                try {
+                    const url = `${API_URL}/api/publicaciones?page=${page}&limit=${limit}`;
+                    const headers = { 'Content-Type': 'application/json' };
+                    if (token) headers['Authorization'] = 'Bearer ' + token;
+
+                    const res = await fetch(url, { headers });
+                    if (!res.ok) {
+                        console.warn('No se pudieron cargar publicaciones:', res.status);
+                        return null;
+                    }
+                    const body = await res.json();
+                    return body?.data?.publicaciones || [];
+                } catch (err) {
+                    console.error('Error fetching posts', err);
+                    return null;
+                }
+            }
+
+            function attachCommentToggle(postEl, postId) {
+                const toggle = postEl.querySelector('.comment-toggle');
+                const commentsSection = postEl.querySelector(`#comments-section-${postId}`);
+                if (!toggle || !commentsSection) return;
+                toggle.addEventListener('click', () => {
+                    const isHidden = commentsSection.hasAttribute('hidden');
+                    if (isHidden) commentsSection.removeAttribute('hidden'); else commentsSection.setAttribute('hidden','');
+                });
+            }
+
+                    function attachLikeHandler(postEl, postId) {
+                        const likeBtn = postEl.querySelector('.like-btn');
+                        if (!likeBtn) return;
+                        if (!isEgresado) {
+                            // visually disable
+                            likeBtn.style.opacity = '0.6';
+                            likeBtn.style.cursor = 'default';
+                            likeBtn.title = 'Inicia sesión para dar like';
+                            likeBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
+                            return;
+                        }
+
+                        likeBtn.addEventListener('click', async (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            // optimistic UI toggle
+                            const liked = likeBtn.getAttribute('data-liked') === 'true';
+                            const countEl = likeBtn.querySelector('.like-count');
+                            let count = parseInt(countEl?.textContent || '0', 10);
+                            if (liked) { count = Math.max(0, count - 1); likeBtn.setAttribute('data-liked','false'); }
+                            else { count = count + 1; likeBtn.setAttribute('data-liked','true'); }
+                            if (countEl) countEl.textContent = String(count);
+
+                            // TODO: send POST/DELETE to API to persist like
+                            console.log('Toggled like (optimistic) for post', postId, !liked);
+                        });
+                    }
+
+                    function enableCommentFormIfAllowed(postEl, postId) {
+                        try {
+                            if (!isEgresado) return; // strict check
+
+                            const placeholder = postEl.querySelector(`#comment-form-${postId}`);
+                            if (!placeholder) return;
+                            // remove existing content and add form
+                            placeholder.innerHTML = '';
+                            const form = document.createElement('form');
+                            form.className = 'comentario-form-inline';
+                            form.onsubmit = (e) => {
+                                e.preventDefault();
+                                const input = form.querySelector('input');
+                                const value = input?.value?.trim();
+                                if (!value) return;
+                                // optimistic UI: append comment locally and clear input (actual POST to be implemented)
+                                const commentsList = document.getElementById(`comments-list-${postId}`);
+                                if (commentsList) {
+                                    const commentEl = document.createElement('div');
+                                    commentEl.className = 'comentario';
+                                    commentEl.innerHTML = `<img class="avatar" src="/default-avatar.svg" style="width:32px;height:32px;border-radius:50%;object-fit:cover"/> <div class="body"><strong>${(JSON.parse(userData).nombre)||'Yo'}</strong><p class="contenido">${value.replace(/</g,'&lt;')}</p><time class="fecha">Ahora</time></div>`;
+                                    commentsList.appendChild(commentEl);
+                                }
+                                input.value = '';
+                                // TODO: send POST to API to persist comment
+                                console.log('Enviar comentario (optimista) para post', postId, value);
+                            };
+                            form.innerHTML = `<input type="text" name="contenido" placeholder="Escribe un comentario..." style="flex:1;padding:.5rem;border-radius:20px;border:1px solid #e6edf3;margin-right:.5rem" /> <button type="submit" style="background:#3b82f6;color:#fff;border:none;padding:.4rem .7rem;border-radius:16px;">Enviar</button>`;
+                            placeholder.appendChild(form);
+                        } catch(e){ console.warn('enableCommentForm failed', e); }
+                    }
+
+            // Siempre intentar cargar publicaciones reales (lectura pública)
+            fetchPosts(1, 10).then(posts => {
+                if (posts && posts.length > 0) {
+                    feedEl.innerHTML = '';
+                    posts.forEach(p => {
+                        const el = renderPostElement(p);
+                        feedEl.appendChild(el);
+                        attachCommentToggle(el, p.id);
+                        attachLikeHandler(el, p.id);
+                        // solo habilitar formulario si es egresado
+                        if (isEgresado) enableCommentFormIfAllowed(el, p.id);
+                    });
+                } else {
+                    // fallback: usar posts renderizados en el servidor (ejemplos) y adjuntar handlers
+                    document.querySelectorAll('.post-card').forEach((card) => {
+                        const pid = card.getAttribute('data-id');
+                        if (pid) attachCommentToggle(card, pid);
+                        if (pid) attachLikeHandler(card, pid);
+                        if (pid && isEgresado) {
+                            enableCommentFormIfAllowed(card, pid);
+                        }
+                    });
+                }
+            }).catch(() => {
+                // on error, keep server-rendered example posts
+                document.querySelectorAll('.post-card').forEach((card) => {
+                    const pid = card.getAttribute('data-id');
+                    if (pid) attachCommentToggle(card, pid);
+                    if (pid) attachLikeHandler(card, pid);
+                    if (pid && isEgresado) {
+                        enableCommentFormIfAllowed(card, pid);
+                    }
+                });
+            });
+
+            let currentPage = 1;
+            const btnLoadMore = document.getElementById('btn-load-more');
+            btnLoadMore.addEventListener('click', async () => {
+                currentPage += 1;
+                const posts = await fetchPosts(currentPage, 10);
+                if (posts && posts.length > 0) {
+                    posts.forEach(p => {
+                        const el = renderPostElement(p);
+                        feedEl.appendChild(el);
+                                    attachCommentToggle(el, p.id);
+                                    attachLikeHandler(el, p.id);
+                                    enableCommentFormIfAllowed(el, p.id);
+                    });
+                } else {
+                    btnLoadMore.disabled = true;
+                    btnLoadMore.textContent = 'No hay más publicaciones';
+                }
+            });
+        });
+    </script>
 </BaseLayout>

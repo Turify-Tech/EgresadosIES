@@ -1,0 +1,210 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CrearPublicacion from '../../components/feed/CrearPublicacion.astro';
+import PublicacionCard from '../../components/feed/PublicacionCard.astro';
+
+const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3000';
+
+// Ejemplo estático inicial para mostrar diseño mientras no hay sesión
+const examplePosts = [
+  {
+    id: 1,
+    contenido: 'Bienvenidos al nuevo feed de Egresados IES! 🎉 Aquí podrás compartir novedades y logros.',
+    fechaCreacion: new Date().toISOString(),
+    autor: { nombre: 'Marta Gonzales' },
+    imagenes: [],
+    totalComentarios: 2,
+    totalLikes: 25
+  },
+  {
+    id: 2,
+    contenido: 'Compartiendo recursos útiles para quienes buscan trabajo en IT. ¡Éxitos! 💪',
+    fechaCreacion: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
+    autor: { nombre: 'Juan Perez' },
+    imagenes: [],
+    totalComentarios: 0,
+    totalLikes: 4
+  }
+];
+---
+
+<BaseLayout title="Feed de la comunidad" description="Publicaciones y novedades de egresados">
+  <div class="page" style="max-width:1200px;margin:1.5rem auto;padding:0 1rem;display:grid;grid-template-columns:260px 1fr 300px;gap:1rem;align-items:start;">
+
+    <!-- Left sidebar (carreras) -->
+    <aside style="background:linear-gradient(180deg,#1e40af 0%,#3b82f6 100%);color:white;padding:1rem;border-radius:10px;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem">Tecnicaturas</h3>
+      <ul style="list-style:none;padding:0;margin:0;font-size:0.95rem;">
+        <li>Administración de Empresas</li>
+        <li>Análisis y Programación de Sistemas</li>
+        <li>Computación y Redes</li>
+        <li>Construcciones Livianas</li>
+        <li>Desarrollo de Software</li>
+        <li>Higiene y Seguridad Laboral</li>
+      </ul>
+    </aside>
+
+    <!-- Main column -->
+    <main>
+      <section style="background:transparent;padding:1rem 0 0 0;">
+        <h1 style="font-size:2rem;margin:0 0 0.25rem 0">Perfiles Profesionales del IES</h1>
+        <p style="color:#6b7280;margin-top:0;margin-bottom:1rem;max-width:760px;">El Instituto de Educación Superior N°9-012 "San Rafael en Informática" es un establecimiento educativo técnico de nivel superior ubicado en San Rafael, Mendoza.</p>
+      </section>
+
+      <CrearPublicacion />
+
+      <section id="feed-list">
+        {examplePosts.map(post => (
+          <PublicacionCard post={post} />
+        ))}
+      </section>
+
+      <div id="load-more" style="text-align:center;margin-top:1rem;">
+        <button id="btn-load-more" style="background:#eef2ff;border:1px solid #dbeafe;padding:0.5rem 1rem;border-radius:8px;">Cargar más</button>
+      </div>
+    </main>
+
+    <!-- Right column: feed summary / community card (placeholder) -->
+    <aside style="padding:0.5rem;">
+      <div style="background:#fff;padding:1rem;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.04);">
+        <h4 style="margin:0 0 0.5rem 0">Feed de la comunidad</h4>
+        <p style="margin:0;color:#6b7280;font-size:0.95rem">Conecta con otros egresados, comparte logros y recursos.</p>
+      </div>
+    </aside>
+
+  </div>
+
+  <script type="module">
+    const API_URL = "" + import.meta.env.PUBLIC_API_URL || 'http://localhost:3000';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('auth_token');
+      const userData = localStorage.getItem('user_data');
+      const feedEl = document.getElementById('feed-list');
+
+      // Helper to render a single post element (same structure as PublicacionCard)
+      function renderPostElement(post) {
+        const container = document.createElement('div');
+        container.innerHTML = `
+          <article class="post-card" data-id="${post.id}">
+            <header class="post-header">
+              <img class="avatar" src="/default-avatar.svg" alt="avatar" />
+              <div class="meta">
+                <strong class="author">${post.autor?.nombre || 'Usuario'}</strong>
+                <time class="time">${post.fechaCreacion ? new Date(post.fechaCreacion).toLocaleString() : ''}</time>
+              </div>
+            </header>
+            <div class="post-body"><p class="content">${(post.contenido||'').replace(/</g,'&lt;')}</p></div>
+            ${(post.imagenes && post.imagenes.length) ? `<div class="images">${post.imagenes.map(u=>`<img src="${u}" alt="imagen" loading="lazy"/>`).join('')}</div>` : ''}
+            <footer class="post-actions">
+              <button class="like-btn" data-liked="false">❤ <span class="like-count">${post.totalLikes||0}</span></button>
+              <button class="comment-toggle">💬 <span class="comment-count">${post.totalComentarios||0}</span></button>
+              <div class="spacer"></div>
+              <button class="more">⋯</button>
+            </footer>
+            <section class="comments" hidden id="comments-section-${post.id}">
+              <div class="comments-list" id="comments-list-${post.id}"></div>
+              <div class="comment-form-placeholder" id="comment-form-${post.id}"><small class="login-hint">Inicia sesión para comentar.</small></div>
+            </section>
+          </article>
+        `;
+        return container.firstElementChild;
+      }
+
+      async function fetchPosts(page = 1, limit = 10) {
+        try {
+          const url = `${API_URL}/api/publicaciones?page=${page}&limit=${limit}`;
+          const headers = { 'Content-Type': 'application/json' };
+          if (token) headers['Authorization'] = 'Bearer ' + token;
+
+          const res = await fetch(url, { headers });
+          if (!res.ok) {
+            console.warn('No se pudieron cargar publicaciones:', res.status);
+            return null;
+          }
+          const body = await res.json();
+          return body?.data?.publicaciones || [];
+        } catch (err) {
+          console.error('Error fetching posts', err);
+          return null;
+        }
+      }
+
+      // Toggle comments visibility for a post element
+      function attachCommentToggle(postEl, postId) {
+        const toggle = postEl.querySelector('.comment-toggle');
+        const commentsSection = postEl.querySelector(`#comments-section-${postId}`);
+        if (!toggle || !commentsSection) return;
+        toggle.addEventListener('click', () => {
+          const isHidden = commentsSection.hasAttribute('hidden');
+          if (isHidden) commentsSection.removeAttribute('hidden'); else commentsSection.setAttribute('hidden','');
+        });
+      }
+
+      // Enable comment forms when logged in as Egresado
+      function enableCommentFormIfAllowed(postEl, postId) {
+        try {
+          if (!token || !userData) return;
+          const user = JSON.parse(userData);
+          if (!user || user.tipo_usuario !== 'Egresado') return;
+
+          const placeholder = postEl.querySelector(`#comment-form-${postId}`);
+          if (!placeholder) return;
+          // Create a simple form
+          const form = document.createElement('form');
+          form.className = 'comentario-form-inline';
+          form.onsubmit = (e) => { e.preventDefault(); const input = form.querySelector('input'); console.log('Enviar comentario (simulado) para post', postId, input.value); input.value=''; };
+          form.innerHTML = `<input type="text" name="contenido" placeholder="Escribe un comentario..." style="flex:1;padding:.5rem;border-radius:20px;border:1px solid #e6edf3;margin-right:.5rem" /> <button type="submit" style="background:#3b82f6;color:#fff;border:none;padding:.4rem .7rem;border-radius:16px;">Enviar</button>`;
+          placeholder.innerHTML = '';
+          placeholder.appendChild(form);
+        } catch(e){ console.warn('enableCommentForm failed', e); }
+      }
+
+      // Initial render: use example posts (already server-rendered) — if token & API available, replace with real posts
+      if (token) {
+        fetchPosts(1, 10).then(posts => {
+          if (posts && posts.length > 0) {
+            feedEl.innerHTML = '';
+            posts.forEach(p => {
+              const el = renderPostElement(p);
+              feedEl.appendChild(el);
+              attachCommentToggle(el, p.id);
+              enableCommentFormIfAllowed(el, p.id);
+            });
+          } else {
+            // still attach toggles to existing server-rendered example posts
+            document.querySelectorAll('.post-card').forEach((card) => {
+              const pid = card.getAttribute('data-id');
+              if (pid) attachCommentToggle(card, pid);
+            });
+          }
+        });
+      } else {
+        // Not logged: attach comment toggle to example posts so UI behaves similarly
+        document.querySelectorAll('.post-card').forEach((card) => {
+          const pid = card.getAttribute('data-id');
+          if (pid) attachCommentToggle(card, pid);
+        });
+      }
+
+      // Load more handler (simple pagination)
+      let currentPage = 1;
+      const btnLoadMore = document.getElementById('btn-load-more');
+      btnLoadMore.addEventListener('click', async () => {
+        currentPage += 1;
+        const posts = await fetchPosts(currentPage, 10);
+        if (posts && posts.length > 0) {
+          posts.forEach(p => {
+            const el = renderPostElement(p);
+            feedEl.appendChild(el);
+            attachCommentToggle(el, p.id);
+            enableCommentFormIfAllowed(el, p.id);
+          });
+        } else {
+          btnLoadMore.disabled = true;
+          btnLoadMore.textContent = 'No hay más publicaciones';
+        }
+      });
+    });
+  </script>
+</BaseLayout>
