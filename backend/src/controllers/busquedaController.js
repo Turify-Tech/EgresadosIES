@@ -15,8 +15,27 @@ export const buscarPerfiles = async (req, res) => {
         const client = database.getClient();
 
         // Extraer parámetros de búsqueda de req.query
-        const { query, carrera, situacionLaboral, empresa, puesto, orderBy } =
-            req.query;
+        const { 
+            query, 
+            carrera, 
+            situacionLaboral, 
+            empresa, 
+            puesto, 
+            orderBy,
+            // NUEVO: Parámetros de paginación
+            pagina = 1,
+            limite = 10,
+            // NUEVO: Filtro por tecnología
+            tecnologia,
+            // NUEVO: Ordenamiento avanzado
+            ordenarPor,
+            orden
+        } = req.query;
+
+        // NUEVO: Validar y convertir parámetros de paginación
+        const paginaNum = Math.max(1, parseInt(pagina) || 1);
+        const limiteNum = Math.min(50, Math.max(1, parseInt(limite) || 10)); // Max 50 por página
+        const offset = (paginaNum - 1) * limiteNum;
 
         // Consulta SQL base que une las tablas necesarias
         // Usamos una subconsulta para manejar múltiples experiencias sin duplicar egresados
@@ -49,7 +68,7 @@ export const buscarPerfiles = async (req, res) => {
         const condiciones = [];
         const parametros = [];
 
-        // Lógica para búsqueda de texto libre (query)
+        // Lógica para búsqueda de texto libre (query) - EXPANDIDA
         if (query && query.trim()) {
             const textoBusqueda = `%${query.trim()}%`;
             condiciones.push(`(
@@ -58,11 +77,18 @@ export const buscarPerfiles = async (req, res) => {
                 EXISTS (
                     SELECT 1 FROM ExperienciaLaboral el2 
                     WHERE el2.perfilId = p.id 
-                    AND (el2.puesto LIKE ? OR el2.empresa LIKE ?)
+                    AND (el2.puesto LIKE ? OR el2.empresa LIKE ? OR el2.descripcion LIKE ?)
+                ) OR
+                EXISTS (
+                    SELECT 1 FROM Curso cu2 
+                    WHERE cu2.perfilId = p.id 
+                    AND cu2.nombre LIKE ?
                 )
             )`);
-            // Agregar el mismo parámetro 4 veces para cada campo de búsqueda
+            // Agregar el parámetro para cada campo de búsqueda
             parametros.push(
+                textoBusqueda,
+                textoBusqueda,
                 textoBusqueda,
                 textoBusqueda,
                 textoBusqueda,
@@ -97,15 +123,47 @@ export const buscarPerfiles = async (req, res) => {
             parametros.push(`%${puesto.trim()}%`);
         }
 
+        // NUEVO: Filtro por tecnología (búsqueda en experiencias y cursos)
+        if (tecnologia && tecnologia.trim()) {
+            const techBusqueda = `%${tecnologia.trim()}%`;
+            condiciones.push(`(
+                EXISTS (
+                    SELECT 1 FROM ExperienciaLaboral el6 
+                    WHERE el6.perfilId = p.id 
+                    AND (el6.descripcion LIKE ? OR el6.puesto LIKE ?)
+                ) OR
+                EXISTS (
+                    SELECT 1 FROM Curso cu4 
+                    WHERE cu4.perfilId = p.id 
+                    AND cu4.nombre LIKE ?
+                )
+            )`);
+            parametros.push(techBusqueda, techBusqueda, techBusqueda);
+        }
+
         // Construir la consulta final
         let consultaFinal = sqlBase;
         if (condiciones.length > 0) {
             consultaFinal += " AND " + condiciones.join(" AND ");
         }
 
-        // Agregar ordenamiento
+        // MEJORADO: Sistema de ordenamiento que soporta ambos formatos
         let ordenClause = "ORDER BY u.nombre ASC"; // Por defecto
-        if (orderBy) {
+        
+        // Priorizar el nuevo sistema de ordenamiento si está presente
+        if (ordenarPor && orden) {
+            const ordenamientosValidos = {
+                'nombre': 'u.nombre',
+                'carrera': 'c.nombre',
+                'experiencia': 'p.situacionLaboral'
+            };
+            
+            const campoOrden = ordenamientosValidos[ordenarPor] || 'u.nombre';
+            const direccionOrden = orden === 'desc' ? 'DESC' : 'ASC';
+            ordenClause = `ORDER BY ${campoOrden} ${direccionOrden}`;
+        }
+        // Mantener compatibilidad con el formato anterior de develop
+        else if (orderBy) {
             switch (orderBy) {
                 case "nombre_desc":
                     ordenClause = "ORDER BY u.nombre DESC";
@@ -122,24 +180,55 @@ export const buscarPerfiles = async (req, res) => {
         }
         consultaFinal += " " + ordenClause;
 
-        // Ejecutar la consulta de forma segura
+        // NUEVO: Consulta simple para contar resultados
+        let consultaConteo = `
+            SELECT COUNT(DISTINCT u.id) as total
+            FROM Usuario u
+            INNER JOIN Egresado e ON u.id = e.id
+            LEFT JOIN Perfil p ON e.perfilId = p.id
+            LEFT JOIN Carrera c ON e.carreraId = c.id
+            WHERE u.tipo_usuario = 'Egresado'
+        `;
+        if (condiciones.length > 0) {
+            consultaConteo += " AND " + condiciones.join(" AND ");
+        }
+
+        // NUEVO: Agregar paginación a la consulta principal
+        consultaFinal += ` LIMIT ${limiteNum} OFFSET ${offset}`;
+
+        // Ejecutar ambas consultas de forma segura
         console.log("Consulta SQL final:", consultaFinal);
+        console.log("Consulta de conteo:", consultaConteo);
         console.log("Parámetros:", parametros);
 
-        const result = await client.execute({
-            sql: consultaFinal,
-            args: parametros,
-        });
+        const [resultConteo, resultPerfiles] = await Promise.all([
+            client.execute({
+                sql: consultaConteo,
+                args: parametros
+            }),
+            client.execute({
+                sql: consultaFinal,
+                args: parametros,
+            })
+        ]);
 
-        console.log("Resultados encontrados:", result.rows.length);
-        console.log("Primeros resultados:", result.rows.slice(0, 2));
+        const total = resultConteo.rows[0]?.total || 0;
+        const totalPaginas = Math.ceil(total / limiteNum);
 
-        // Devolver los resultados
+        console.log("Resultados encontrados:", resultPerfiles.rows.length);
+        console.log("Total en BD:", total);
+        console.log("Primeros resultados:", resultPerfiles.rows.slice(0, 2));
+
+        // Devolver los resultados con paginación
         const response = {
             success: true,
             data: {
-                perfiles: result.rows,
-                total: result.rows.length,
+                perfiles: resultPerfiles.rows,
+                total: total,
+                // NUEVO: Metadata de paginación
+                pagina: paginaNum,
+                limite: limiteNum,
+                totalPaginas: totalPaginas,
             },
             parametrosBusqueda: {
                 query,
@@ -148,6 +237,12 @@ export const buscarPerfiles = async (req, res) => {
                 empresa,
                 puesto,
                 orderBy,
+                tecnologia, // NUEVO: Parámetro de tecnología
+                ordenarPor, // NUEVO: Campo de ordenamiento
+                orden,      // NUEVO: Dirección de ordenamiento
+                // NUEVO: Parámetros de paginación en respuesta
+                pagina: paginaNum,
+                limite: limiteNum,
             },
             timestamp: new Date().toISOString(),
         };
