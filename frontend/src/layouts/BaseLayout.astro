@@ -40,48 +40,12 @@ import "../styles/components.css";
             #acceder-btn.show {
                 visibility: visible;
             }
-
-            /* Responsive header */
-            @media (max-width: 768px) {
-                header {
-                    padding: 0.5rem 1rem !important;
-                }
-                
-                header img[alt="Logo"] {
-                    width: 32px !important;
-                }
-                
-                header h1 {
-                    font-size: 1.2rem !important;
-                }
-                
-                header nav {
-                    display: none !important;
-                }
-                
-                header a[href="/perfiles"] span {
-                    display: none !important;
-                }
-                
-                header #acceder-btn {
-                    padding: 0.4rem 1rem !important;
-                    font-size: 0.8rem !important;
-                }
-
-                header #user-profile > div {
-                    padding: 0.4rem 0.75rem !important;
-                }
-
-                header #user-name-nav {
-                    font-size: 0.8rem !important;
-                }
-            }
         </style>
     </head>
     <body
         style="margin: 0; padding: 0; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column;">
         <!-- Header -->
-        <header style="background-color: #E6E6E6; padding: 0.75rem 2rem; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <header style="background-color: #E6E6E6; padding: 0.75rem 2rem;">
             <div
                 style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
                 <div style="display: flex; align-items: center; gap: 2rem;">
@@ -91,7 +55,7 @@ import "../styles/components.css";
                             alt="Logo"
                             style="width: 45px; height: auto;"
                         />
-                        <a href="/" id="logo-link" style="text-decoration: none;">
+                        <a href="/" style="text-decoration: none;">
                             <h1
                                 style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.75rem; color: #1a1a1a;">
                                 EgresadosIES
@@ -102,7 +66,24 @@ import "../styles/components.css";
                     <!-- Navegación -->
                     <nav
                         style="display: flex; gap: 1.5rem; align-items: center;">
+                        <a
+                            href="/perfiles"
+                            style="color: #374151; text-decoration: none; font-family: 'Inter', sans-serif; font-weight: 500; transition: color 0.2s ease;"
+                            onmouseover="this.style.color='#3b82f6'"
+                            onmouseout="this.style.color='#374151'">
+                            Perfiles
+                        </a>
+
                         <!-- Navegación para usuarios autenticados -->
+                        <a
+                            href="/dashboard"
+                            id="perfil-link"
+                            style="color: #374151; text-decoration: none; font-family: 'Inter', sans-serif; font-weight: 500; transition: color 0.2s ease; display: none;"
+                            onmouseover="this.style.color='#3b82f6'"
+                            onmouseout="this.style.color='#374151'">
+                            Mi Perfil
+                        </a>
+
                         <a
                             href="/admin"
                             id="admin-link"
@@ -114,27 +95,13 @@ import "../styles/components.css";
                     </nav>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1rem;">
-                    <!-- Ver egresados link -->
-                    <a
-                        href="/perfiles"
-                        style="color: #374151; text-decoration: none; font-family: 'Inter', sans-serif; font-weight: 500; transition: color 0.2s ease; display: flex; flex-direction: column; align-items: center; gap: 0.25rem;"
-                        onmouseover="this.style.color='#3b82f6'"
-                        onmouseout="this.style.color='#374151'">
-                        <img
-                            src="/images/Group%2099.png"
-                            alt="Ver egresados"
-                            style="width: 24px; height: 24px;"
-                        />
-                        <span style="font-size: 0.85rem;">Ver egresados</span>
-                    </a>
-                    
                     {
                         !hideAccederButton && (
                             <a
                                 href="/acceso"
                                 id="acceder-btn"
                                 style="background: #5284e0; color: white; padding: 0.5rem 1.5rem; border-radius: 25px; text-decoration: none; font-family: 'Pontano Sans', sans-serif; font-weight: 700; font-size: 0.9rem; transition: background 0.3s ease;">
-                                Ingresar
+                                Acceder
                             </a>
                         )
                     }
@@ -244,12 +211,14 @@ import "../styles/components.css";
                 ) as HTMLButtonElement;
 
                 // Enlaces de navegación
+                const dashboardLink = document.getElementById(
+                    "dashboard-link"
+                ) as HTMLElement;
+                const perfilLink = document.getElementById(
+                    "perfil-link"
+                ) as HTMLElement;
                 const adminLink = document.getElementById(
                     "admin-link"
-                ) as HTMLElement;
-                
-                const logoLink = document.getElementById(
-                    "logo-link"
                 ) as HTMLElement;
 
                 // Verificar autenticación
@@ -260,11 +229,6 @@ import "../styles/components.css";
                     try {
                         const user = JSON.parse(userData);
                         setupAuthenticatedUI(user);
-                        
-                        // Cambiar el link del logo a dashboard si está autenticado como egresado
-                        if (logoLink && user.tipo_usuario === "Egresado") {
-                            logoLink.href = "/dashboard";
-                        }
                     } catch (error) {
                         console.error("Error parsing user data:", error);
                         clearAuth();
@@ -273,21 +237,6 @@ import "../styles/components.css";
                 } else {
                     setupUnauthenticatedUI();
                 }
-
-                // Escuchar cambios en localStorage para actualizar el nombre
-                window.addEventListener('storage', () => {
-                    const updatedUserData = localStorage.getItem("user_data");
-                    if (updatedUserData) {
-                        try {
-                            const user = JSON.parse(updatedUserData);
-                            if (userNameNav) {
-                                userNameNav.textContent = user.nombre || "Usuario";
-                            }
-                        } catch (error) {
-                            console.error("Error updating user data:", error);
-                        }
-                    }
-                });
 
                 function setupAuthenticatedUI(user) {
                     // Ocultar botón de acceder
@@ -314,8 +263,13 @@ import "../styles/components.css";
 
                     // Mostrar navegación según el tipo de usuario
                     if (user.tipo_usuario === "Egresado") {
+                        if (dashboardLink)
+                            dashboardLink.style.display = "block";
+                        if (perfilLink) perfilLink.style.display = "block";
                         if (adminLink) adminLink.style.display = "none";
                     } else if (user.tipo_usuario === "Administrador") {
+                        if (dashboardLink) dashboardLink.style.display = "none";
+                        if (perfilLink) perfilLink.style.display = "block";
                         if (adminLink) adminLink.style.display = "block";
                     }
 
@@ -346,6 +300,8 @@ import "../styles/components.css";
                     }
 
                     // Ocultar navegación autenticada
+                    if (dashboardLink) dashboardLink.style.display = "none";
+                    if (perfilLink) perfilLink.style.display = "none";
                     if (adminLink) adminLink.style.display = "none";
                 }
 

@@ -30,46 +30,34 @@ const crearPublicacionLimiter = rateLimit({
     legacyHeaders: false,
 });
 
+// Middleware: todas las rutas requieren autenticación y ser egresado
+router.use(authenticateToken);
+router.use(requireEgresado);
+router.use(publicacionesLimiter);
+
+/**
+ * @route   POST /api/publicaciones
+ * @desc    Crear nueva publicación
+ * @access  Privado (solo egresados autenticados)
+ * @body    { "contenido": string, "imagenes": ["url1", "url2"] }
+ */
+router.post("/", crearPublicacionLimiter, publicacionesController.crearPublicacion);
+
 /**
  * @route   GET /api/publicaciones
  * @desc    Listar publicaciones (feed paginado)
- * @access  Público
+ * @access  Privado (solo egresados autenticados)
  * @query   { "page": number, "limit": number }
  */
-router.get("/", publicacionesLimiter, publicacionesController.listarPublicaciones);
-
-/**
- * @route   GET /api/publicaciones/usuario/:userId
- * @desc    Publicaciones de un usuario específico
- * @access  Público
- * @param   {number} userId - ID del usuario
- * @query   { "page": number, "limit": number }
- */
-router.get("/usuario/:userId", publicacionesLimiter, publicacionesController.publicacionesDeUsuario);
+router.get("/", publicacionesController.listarPublicaciones);
 
 /**
  * @route   GET /api/publicaciones/:id
  * @desc    Ver publicación específica
- * @access  Público
+ * @access  Privado (solo egresados autenticados)
  * @param   {number} id - ID de la publicación
  */
-router.get("/:id", publicacionesLimiter, publicacionesController.verPublicacion);
-
-/**
- * @route   POST /api/publicaciones
- * @desc    Crear nueva publicación
- * @access  Privado (solo egresados autenticados)
- * @body    { "contenido": string, "imagenes": ["url1", "url2"] }
- */
-router.post("/", authenticateToken, requireEgresado, crearPublicacionLimiter, publicacionesController.crearPublicacion);
-
-/**
- * @route   POST /api/publicaciones
- * @desc    Crear nueva publicación
- * @access  Privado (solo egresados autenticados)
- * @body    { "contenido": string, "imagenes": ["url1", "url2"] }
- */
-router.post("/", authenticateToken, requireEgresado, crearPublicacionLimiter, publicacionesController.crearPublicacion);
+router.get("/:id", publicacionesController.verPublicacion);
 
 /**
  * @route   PUT /api/publicaciones/:id
@@ -78,7 +66,7 @@ router.post("/", authenticateToken, requireEgresado, crearPublicacionLimiter, pu
  * @param   {number} id - ID de la publicación
  * @body    { "contenido": string, "imagenes": ["url1", "url2"] }
  */
-router.put("/:id", authenticateToken, requireEgresado, publicacionesController.editarPublicacion);
+router.put("/:id", publicacionesController.editarPublicacion);
 
 /**
  * @route   DELETE /api/publicaciones/:id
@@ -86,6 +74,15 @@ router.put("/:id", authenticateToken, requireEgresado, publicacionesController.e
  * @access  Privado (solo el autor de la publicación)
  * @param   {number} id - ID de la publicación
  */
-router.delete("/:id", authenticateToken, requireEgresado, publicacionesController.eliminarPublicacion);
+router.delete("/:id", publicacionesController.eliminarPublicacion);
+
+/**
+ * @route   GET /api/publicaciones/usuario/:userId
+ * @desc    Publicaciones de un usuario específico
+ * @access  Privado (solo egresados autenticados)
+ * @param   {number} userId - ID del usuario
+ * @query   { "page": number, "limit": number }
+ */
+router.get("/usuario/:userId", publicacionesController.publicacionesDeUsuario);
 
 export default router;

@@ -2,1230 +2,1618 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
-<BaseLayout title="Dashboard | Feed" hideAccederButton={true}>
-    <div class="feed-page">
-        <div class="feed-container">
-            <!-- Sidebar izquierdo - Perfil del usuario -->
-            <aside class="sidebar-left">
-                <!-- Card de perfil -->
-                <div class="profile-card">
-                    <div class="profile-banner">
-                        <img src="/images/Fondo Azul card.jpg" alt="Banner" class="card-banner" />
-                    </div>
-                    <div class="profile-info">
-                        <div class="profile-header">
-                            <div class="profile-avatar" id="profile-avatar">
-                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <circle cx="12" cy="10" r="3"></circle>
-                                    <path d="M6.168 18.849A4 4 0 0 1 10 16h4a4 4 0 0 1 3.834 2.855"></path>
-                                </svg>
-                            </div>
-                            <div class="profile-text">
-                                <h3 id="profile-name">Julieta Sotelo</h3>
-                                <p class="profile-subtitle" id="profile-year">Egresado en 2026</p>
-                                <p class="profile-career" id="profile-career">Desarrollo Full stack</p>
-                            </div>
-                        </div>
-                        
-                        <div class="profile-actions">
-                            <a href="#" class="profile-link">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                    <polyline points="14 2 14 8 20 8"></polyline>
-                                </svg>
-                                Ver Currículum Vitae
-                            </a>
-                            <a href="#" class="profile-link">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="3" width="7" height="7"></rect>
-                                    <rect x="14" y="3" width="7" height="7"></rect>
-                                    <rect x="14" y="14" width="7" height="7"></rect>
-                                    <rect x="3" y="14" width="7" height="7"></rect>
-                                </svg>
-                                Ver Portafolio
-                            </a>
-                            <div class="profile-status">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                                </svg>
-                                <span>En búsqueda de trabajo</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<BaseLayout title="Dashboard" hideAccederButton={true}>
+    <main class="dashboard-container">
+        <!-- Indicador de carga -->
+        <div id="loading-indicator" class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>Cargando dashboard...</p>
+        </div>
 
-                <!-- Card de menú de usuario -->
-                <div class="menu-card">
-                    <div class="menu-banner">
-                        <img src="/images/Fondo Azul card.jpg" alt="Banner" class="card-banner" />
-                    </div>
-                    <div class="menu-content">
-                        <h3>Menú de usuario</h3>
-                        <ul class="menu-list">
-                            <li>
-                                <a href="/perfil/editar" class="menu-link">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                        <circle cx="12" cy="7" r="4"></circle>
-                                    </svg>
-                                    Editar mis datos personales
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="menu-link">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <rect x="3" y="3" width="7" height="7"></rect>
-                                        <rect x="14" y="3" width="7" height="7"></rect>
-                                        <rect x="14" y="14" width="7" height="7"></rect>
-                                        <rect x="3" y="14" width="7" height="7"></rect>
-                                    </svg>
-                                    Editar mi CV o Portafolio
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="menu-link">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                                    </svg>
-                                    Mis publicaciones
-                                </a>
-                            </li>
-                        </ul>
+        <!-- Mensaje de error -->
+        <div id="error-message" class="error-container" style="display: none;">
+            <div class="error-content">
+                <h2>Error de acceso</h2>
+                <p id="error-text">No se pudo cargar el dashboard.</p>
+                <div class="error-actions">
+                    <a href="/acceso" class="btn-primary">Iniciar Sesión</a>
+                    <button id="retry-button" class="btn-secondary"
+                        >Reintentar</button
+                    >
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido del dashboard -->
+        <div id="dashboard-content" style="display: none;">
+            <!-- Header del dashboard -->
+            <div class="dashboard-header">
+                <div class="container">
+                    <div class="header-content">
+                        <div class="welcome-section">
+                            <h1 id="welcome-title">¡Bienvenido!</h1>
+                            <p id="welcome-subtitle">
+                                Gestiona tu perfil profesional y conecta con la
+                                comunidad IES
+                            </p>
+                        </div>
+                        <div class="profile-summary" id="profile-summary">
+                            <div class="profile-avatar">
+                                <img
+                                    id="user-avatar"
+                                    src="/default-avatar.svg"
+                                    alt="Foto de perfil"
+                                />
+                            </div>
+                            <div class="profile-info">
+                                <h3 id="user-name">Usuario</h3>
+                                <p id="user-career">Carrera</p>
+                                <span id="profile-status" class="status-badge"
+                                    >Perfil incompleto</span
+                                >
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </aside>
+            </div>
 
             <!-- Contenido principal -->
-            <main class="feed-main">
-                <section class="page-header">
-                    <h1 id="welcome-title">Hola,</h1>
-                </section>
-
-                <!-- Desplegable de Menú de Usuario (solo móvil) -->
-                <details class="menu-mobile">
-                    <summary>Menú de usuario</summary>
-                    <ul>
-                        <li>
-                            <a href="/perfil/editar">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="12" cy="7" r="4"></circle>
+            <div class="container">
+                <div class="dashboard-body">
+                    <!-- Alerta de perfil incompleto -->
+                    <div
+                        id="profile-incomplete-alert"
+                        class="alert alert-warning"
+                        style="display: none;">
+                        <div class="alert-content">
+                            <div class="alert-icon">
+                                <svg
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor">
+                                    <path
+                                        d="M12 9v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"
+                                    ></path>
                                 </svg>
-                                Editar mis datos personales
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="3" width="7" height="7"></rect>
-                                    <rect x="14" y="3" width="7" height="7"></rect>
-                                    <rect x="14" y="14" width="7" height="7"></rect>
-                                    <rect x="3" y="14" width="7" height="7"></rect>
-                                </svg>
-                                Editar mi CV o Portafolio
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                                </svg>
-                                Mis publicaciones
-                            </a>
-                        </li>
-                    </ul>
-                </details>
-
-                <!-- Formulario crear publicación (visible para egresados autenticados) -->
-                <form class="crear-post" id="crear-form">
-                    <div class="form-user-info">
-                        <div class="avatar"></div>
-                        <div>
-                            <strong id="user-name-form">Usuario</strong>
+                            </div>
+                            <div class="alert-text">
+                                <h4>Completa tu perfil</h4>
+                                <p>
+                                    Tu perfil está incompleto. Complétalo para
+                                    ser visible en la comunidad y acceder a
+                                    todas las funcionalidades.
+                                </p>
+                            </div>
+                            <div class="alert-actions">
+                                <a href="/perfil/editar" class="btn-primary"
+                                    >Completar Perfil</a
+                                >
+                            </div>
                         </div>
                     </div>
-                    <textarea id="post-content" placeholder="¿Qué quieres compartir con la comunidad de egresados?" rows="3"></textarea>
-                    <div class="form-actions">
-                        <label class="file-upload-btn">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                <polyline points="21 15 16 10 5 21"></polyline>
-                            </svg>
-                            <span>Imagen</span>
-                            <input type="file" id="post-images" accept="image/*" multiple style="display: none;" />
-                        </label>
-                        <button type="submit" id="submit-post-btn">Publicar</button>
+
+                    <!-- Grid principal -->
+                    <div class="dashboard-grid">
+                        <!-- Acciones rápidas -->
+                        <div class="dashboard-card quick-actions">
+                            <div class="card-header">
+                                <h3>Acciones Rápidas</h3>
+                            </div>
+                            <div class="card-content">
+                                <div class="action-buttons">
+                                    <a href="/perfil/editar" class="action-btn">
+                                        <div class="action-icon">
+                                            <svg
+                                                width="24"
+                                                height="24"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor">
+                                                <path
+                                                    d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+                                                ></path>
+                                                <circle cx="12" cy="7" r="4"
+                                                ></circle>
+                                            </svg>
+                                        </div>
+                                        <div class="action-text">
+                                            <h4>Editar Perfil</h4>
+                                            <p>
+                                                Actualiza tu información
+                                                personal y profesional
+                                            </p>
+                                        </div>
+                                    </a>
+
+                                    <a href="/perfiles" class="action-btn">
+                                        <div class="action-icon">
+                                            <svg
+                                                width="24"
+                                                height="24"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor">
+                                                <path
+                                                    d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"
+                                                ></path>
+                                                <circle cx="9" cy="7" r="4"
+                                                ></circle>
+                                                <path
+                                                    d="M23 21v-2a4 4 0 0 0-3-3.87"
+                                                ></path>
+                                                <path
+                                                    d="M16 3.13a4 4 0 0 1 0 7.75"
+                                                ></path>
+                                            </svg>
+                                        </div>
+                                        <div class="action-text">
+                                            <h4>Ver Egresados</h4>
+                                            <p>
+                                                Explora la comunidad de
+                                                egresados del IES
+                                            </p>
+                                        </div>
+                                    </a>
+
+                                    <button
+                                        class="action-btn"
+                                        id="change-password-btn">
+                                        <div class="action-icon">
+                                            <svg
+                                                width="24"
+                                                height="24"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor">
+                                                <rect
+                                                    x="3"
+                                                    y="11"
+                                                    width="18"
+                                                    height="11"
+                                                    rx="2"
+                                                    ry="2"></rect>
+                                                <circle cx="12" cy="16" r="1"
+                                                ></circle>
+                                                <path
+                                                    d="M7 11V7a5 5 0 0 1 10 0v4"
+                                                ></path>
+                                            </svg>
+                                        </div>
+                                        <div class="action-text">
+                                            <h4>Cambiar Contraseña</h4>
+                                            <p>
+                                                Actualiza tu contraseña de
+                                                acceso
+                                            </p>
+                                        </div>
+                                    </button>
+
+                                    <button
+                                        class="action-btn"
+                                        id="download-cv-btn">
+                                        <div class="action-icon">
+                                            <svg
+                                                width="24"
+                                                height="24"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor">
+                                                <path
+                                                    d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                                                ></path>
+                                                <polyline
+                                                    points="14,2 14,8 20,8"
+                                                ></polyline>
+                                                <line
+                                                    x1="12"
+                                                    y1="18"
+                                                    x2="12"
+                                                    y2="12"></line>
+                                                <polyline
+                                                    points="9,15 12,18 15,15"
+                                                ></polyline>
+                                            </svg>
+                                        </div>
+                                        <div class="action-text">
+                                            <h4>Descargar CV</h4>
+                                            <p>Descarga tu CV en formato PDF</p>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Resumen del perfil -->
+                        <div class="dashboard-card profile-overview">
+                            <div class="card-header">
+                                <h3>Mi Perfil</h3>
+                                <a href="/perfil/editar" class="card-action"
+                                    >Editar</a
+                                >
+                            </div>
+                            <div
+                                class="card-content"
+                                id="profile-overview-content">
+                                <div class="profile-stats">
+                                    <div class="stat-item">
+                                        <span
+                                            class="stat-value"
+                                            id="experience-count">0</span
+                                        >
+                                        <span class="stat-label"
+                                            >Experiencias</span
+                                        >
+                                    </div>
+                                    <div class="stat-item">
+                                        <span
+                                            class="stat-value"
+                                            id="education-count">0</span
+                                        >
+                                        <span class="stat-label">Formación</span
+                                        >
+                                    </div>
+                                    <div class="stat-item">
+                                        <span
+                                            class="stat-value"
+                                            id="courses-count">0</span
+                                        >
+                                        <span class="stat-label">Cursos</span>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="profile-completion"
+                                    id="profile-completion">
+                                    <div class="completion-header">
+                                        <span>Completitud del perfil</span>
+                                        <span id="completion-percentage"
+                                            >0%</span
+                                        >
+                                    </div>
+                                    <div class="completion-bar">
+                                        <div
+                                            class="completion-fill"
+                                            id="completion-fill"
+                                            style="width: 0%">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actividad reciente -->
+                        <div class="dashboard-card recent-activity">
+                            <div class="card-header">
+                                <h3>Actividad Reciente</h3>
+                            </div>
+                            <div
+                                class="card-content"
+                                id="recent-activity-content">
+                                <div class="activity-placeholder">
+                                    <svg
+                                        width="48"
+                                        height="48"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor">
+                                        <path d="M12 2v20m8-10H4"></path>
+                                    </svg>
+                                    <p>No hay actividad reciente</p>
+                                    <small
+                                        >Las actualizaciones de tu perfil
+                                        aparecerán aquí</small
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recomendaciones -->
+                        <div class="dashboard-card recommendations">
+                            <div class="card-header">
+                                <h3>Recomendaciones</h3>
+                            </div>
+                            <div class="card-content">
+                                <div
+                                    class="recommendation-list"
+                                    id="recommendations-list">
+                                    <div class="recommendation-item">
+                                        <div class="rec-icon">💡</div>
+                                        <div class="rec-content">
+                                            <h4>
+                                                Completa tu experiencia laboral
+                                            </h4>
+                                            <p>
+                                                Agrega tu experiencia laboral
+                                                para conectar mejor con otros
+                                                egresados.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="recommendation-item">
+                                        <div class="rec-icon">📚</div>
+                                        <div class="rec-content">
+                                            <h4>
+                                                Añade tu formación académica
+                                            </h4>
+                                            <p>
+                                                Incluye tus estudios y
+                                                certificaciones para destacar tu
+                                                perfil.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="recommendation-item">
+                                        <div class="rec-icon">🔗</div>
+                                        <div class="rec-content">
+                                            <h4>Agrega tu portfolio</h4>
+                                            <p>
+                                                Comparte tu trabajo y proyectos
+                                                con la comunidad.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div id="image-preview" class="image-preview"></div>
-                </form>
-
-                <div class="feed-intro">
-                    <h2>Feed de la comunidad</h2>
                 </div>
-
-                <!-- Feed de publicaciones -->
-                <div id="feed-list">
-                    <!-- Aquí se cargarán las publicaciones dinámicamente -->
-                    <div class="loading-posts">
-                        <div class="loading-spinner"></div>
-                        <p>Cargando publicaciones...</p>
-                    </div>
-                </div>
-
-                <div class="load-more" style="display: none;">
-                    <button id="load-more-btn">Cargar más</button>
-                </div>
-            </main>
+            </div>
         </div>
-    </div>
 
-    <style is:global>
-        .feed-page {
-            background: #f5f5f5;
-            min-height: 100vh;
-            padding: 1rem;
-            overflow: visible;
-        }
-        
-        .feed-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 2.5rem;
-            padding-top: 1.5rem;
-            align-items: start;
-        }
-
-        /* Sidebar */
-        .sidebar-left {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            position: sticky;
-            top: calc(82px + 1rem);
-            align-self: start;
-        }
-        
-        /* Profile Card */
-        .profile-card {
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        
-        .profile-banner {
-            width: 100%;
-            height: 70px;
-            overflow: hidden;
-        }
-        
-        .card-banner {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-        
-        .profile-info {
-            padding: 0.75rem 1rem 1rem;
-            position: relative;
-        }
-        
-        .profile-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.75rem;
-            margin-bottom: 0.75rem;
-        }
-        
-        .profile-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: #3B5998;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            overflow: hidden;
-        }
-        
-        .profile-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .profile-avatar svg {
-            width: 28px;
-            height: 28px;
-        }
-        
-        .profile-text {
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .profile-info h3 {
-            margin: 0 0 0.15rem 0;
-            font-size: 1rem;
-            color: #000;
-            font-weight: 600;
-            line-height: 1.2;
-        }
-        
-        .profile-subtitle {
-            font-size: 0.8rem;
-            color: #666;
-            margin: 0 0 0.1rem 0;
-            line-height: 1.3;
-        }
-        
-        .profile-career {
-            font-size: 0.8rem;
-            color: #333;
-            margin: 0;
-            line-height: 1.3;
-        }
-        
-        .profile-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-            text-align: left;
-        }
-        
-        .profile-link {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.35rem 0;
-            color: #000;
-            text-decoration: none;
-            font-size: 0.8rem;
-            transition: color 0.2s;
-            line-height: 1.3;
-        }
-        
-        .profile-link:hover {
-            color: #1437C3;
-        }
-        
-        .profile-link svg {
-            flex-shrink: 0;
-            width: 15px;
-            height: 15px;
-        }
-        
-        .profile-status {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.35rem 0;
-            color: #000;
-            font-size: 0.8rem;
-            line-height: 1.3;
-        }
-        
-        .profile-status svg {
-            flex-shrink: 0;
-            width: 15px;
-            height: 15px;
-        }
-        
-        /* Menu Card */
-        .menu-card {
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        
-        .menu-banner {
-            width: 100%;
-            height: 70px;
-            overflow: hidden;
-        }
-        
-        .menu-content {
-            padding: 0.75rem 1rem 1rem;
-        }
-        
-        .menu-content h3 {
-            margin: 0 0 0.75rem 0;
-            font-size: 1rem;
-            color: #1437C3;
-            font-weight: 600;
-        }
-        
-        .menu-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-        }
-        
-        .menu-list li {
-            padding: 0;
-        }
-        
-        .menu-link {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.35rem 0;
-            color: #000;
-            text-decoration: none;
-            font-size: 0.8rem;
-            transition: color 0.2s;
-            line-height: 1.3;
-        }
-        
-        .menu-link:hover {
-            color: #1437C3;
-        }
-        
-        .menu-link svg {
-            flex-shrink: 0;
-            width: 16px;
-            height: 16px;
-        }
-
-        /* Main content */
-        .feed-main {
-            max-width: 680px;
-        }
-        
-        .page-header {
-            margin-bottom: 1.5rem;
-        }
-        
-        .page-header h1 {
-            font-size: 1.75rem;
-            margin: 0 0 0.5rem 0;
-            color: #000;
-        }
-        
-        .page-header p {
-            color: #666;
-            margin: 0;
-            line-height: 1.6;
-            font-size: 1rem;
-        }
-
-        .feed-intro h2 {
-            margin: 0 0 0.5rem 0;
-            font-size: 1.30rem;
-            color: #000;
-        }
-        
-        .feed-intro p {
-            margin: 0;
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        /* Formulario crear post */
-        .crear-post {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-
-        .form-user-info {
-            display: flex;
-            gap: 0.75rem;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .form-user-info .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #c7d2fe;
-            flex-shrink: 0;
-        }
-
-        .form-user-info strong {
-            color: #000;
-            font-size: 0.95rem;
-        }
-        
-        .crear-post textarea {
-            width: 100%;
-            border: 1px solid #e5e7eb;
-            padding: 0.75rem;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            font-family: inherit;
-            resize: vertical;
-            margin-bottom: 0.75rem;
-        }
-        
-        .crear-post textarea:focus {
-            outline: none;
-            border-color: #3b82f6;
-        }
-        
-        .form-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .file-upload-btn {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            cursor: pointer;
-            color: #6b7280;
-            transition: all 0.2s;
-        }
-
-        .file-upload-btn:hover {
-            background: #f3f4f6;
-            border-color: #3b82f6;
-            color: #3b82f6;
-        }
-        
-        .form-actions button {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            padding: 0.5rem 1.5rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-        }
-        
-        .form-actions button:hover {
-            background: #2563eb;
-        }
-
-        .form-actions button:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-        }
-
-        .image-preview {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 0.5rem;
-            margin-top: 0.75rem;
-        }
-
-        .image-preview-item {
-            position: relative;
-            aspect-ratio: 1;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .image-preview-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .image-preview-remove {
-            position: absolute;
-            top: 0.25rem;
-            right: 0.25rem;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Loading posts */
-        .loading-posts {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 3rem;
-            color: #6b7280;
-        }
-
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #e5e7eb;
-            border-radius: 50%;
-            border-top-color: #3b82f6;
-            animation: spin 1s ease-in-out infinite;
-            margin-bottom: 1rem;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* Post card */
-        .post-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            border: 1px solid #e5e7eb;
-        }
-        
-        .post-header {
-            display: flex;
-            gap: 0.75rem;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        
-        .avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: #c7d2fe;
-            flex-shrink: 0;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .post-meta {
-            display: flex;
-            flex-direction: column;
-            gap: 0.15rem;
-            flex: 1;
-        }
-        
-        .post-meta strong {
-            font-weight: 600;
-            color: #000;
-            font-size: 1rem;
-        }
-        
-        .post-meta time {
-            font-size: 0.8rem;
-            color: #9ca3af;
-        }
-
-        .post-options {
-            position: relative;
-        }
-
-        .post-options-btn {
-            background: transparent;
-            border: none;
-            color: #6b7280;
-            cursor: pointer;
-            padding: 0.25rem;
-            border-radius: 4px;
-        }
-
-        .post-options-btn:hover {
-            background: #f3f4f6;
-        }
-        
-        .post-body {
-            margin-bottom: 1rem;
-        }
-        
-        .post-body p {
-            margin: 0 0 1rem 0;
-            color: #1f2937;
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-        
-        .post-images {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-        
-        .post-images img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-        
-        .post-actions {
-            display: flex;
-            gap: 1.5rem;
-            padding-top: 1rem;
-            border-top: 1px solid #e5e7eb;
-        }
-        
-        .action-btn {
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            color: #6b7280;
-            font-size: 0.9rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-        
-        .action-btn:hover {
-            background: #f3f4f6;
-        }
-        
-        .like-btn:hover {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-
-        .like-btn.liked {
-            color: #dc2626;
-        }
-
-        .like-btn.liked span:first-child {
-            animation: like-pop 0.3s ease;
-        }
-
-        @keyframes like-pop {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.3);
-            }
-        }
-        
-        .comment-btn:hover {
-            background: #dbeafe;
-            color: #2563eb;
-        }
-
-        /* Load more */
-        .load-more {
-            text-align: center;
-            margin: 2rem 0;
-        }
-        
-        .load-more button {
-            background: #eef2ff;
-            border: 1px solid #dbeafe;
-            padding: 0.5rem 1.5rem;
-            border-radius: 6px;
-            cursor: pointer;
-            color: #3b82f6;
-            font-weight: 500;
-        }
-        
-        .load-more button:hover {
-            background: #dbeafe;
-        }
-
-        .load-more button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Empty state */
-        .empty-feed {
-            text-align: center;
-            padding: 3rem 2rem;
-            color: #6b7280;
-        }
-
-        .empty-feed svg {
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-
-        .empty-feed h3 {
-            margin: 0 0 0.5rem 0;
-            color: #374151;
-        }
-
-        .empty-feed p {
-            margin: 0;
-        }
-
-        /* Desplegable de menú de usuario (solo móvil) */
-        .menu-mobile {
-            display: none;
-            background: white;
-            border-radius: 8px;
-            padding: 1rem;
-            margin: 1rem 0.5rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .menu-mobile summary {
-            cursor: pointer;
-            font-weight: 600;
-            color: #1437C3;
-            font-size: 1rem;
-            padding: 0.5rem;
-            list-style: none;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .menu-mobile summary::-webkit-details-marker {
-            display: none;
-        }
-
-        .menu-mobile summary::after {
-            content: '▼';
-            font-size: 0.8rem;
-            transition: transform 0.3s;
-        }
-
-        .menu-mobile[open] summary::after {
-            transform: rotate(180deg);
-        }
-
-        .menu-mobile ul {
-            list-style: none;
-            padding: 0;
-            margin: 0.75rem 0 0 0;
-        }
-
-        .menu-mobile li {
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .menu-mobile li:last-child {
-            border-bottom: none;
-        }
-
-        .menu-mobile a {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 0.5rem;
-            color: #333;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: background 0.2s;
-        }
-
-        .menu-mobile a:hover {
-            background: #f5f5f5;
-            border-radius: 4px;
-        }
-
-        .menu-mobile svg {
-            color: #1437C3;
-            flex-shrink: 0;
-        }
-
-        @media (max-width: 768px) {
-            .feed-page {
-                padding: 0.5rem;
-            }
-
-            .feed-container {
-                grid-template-columns: 1fr;
-                gap: 0.5rem;
-            }
-            
-            .sidebar-left {
-                display: none;
-            }
-
-            .menu-mobile {
-                display: block;
-            }
-
-            .feed-main {
-                max-width: 100%;
-            }
-
-            .page-header {
-                padding: 0 0.5rem;
-                margin-bottom: 0.5rem;
-            }
-
-            .page-header h1 {
-                font-size: 1.3rem;
-                margin-bottom: 0.5rem;
-            }
-
-            .crear-post {
-                margin: 0 0.5rem 1rem 0.5rem;
-                padding: 1rem;
-            }
-
-            .crear-post textarea {
-                font-size: 0.9rem;
-            }
-
-            .form-actions button {
-                font-size: 0.85rem;
-                padding: 0.4rem 1.2rem;
-            }
-
-            .feed-intro {
-                padding: 0 0.5rem;
-            }
-
-            .feed-intro h2 {
-                font-size: 1.1rem;
-            }
-
-            .post-card {
-                margin: 0 0.5rem 1rem 0.5rem;
-                padding: 1rem;
-            }
-
-            .post-header {
-                flex-wrap: wrap;
-            }
-
-            .load-more {
-                padding: 0 0.5rem;
-            }
-        }
-    </style>
-
-    <script>
-        const API_URL = 'http://localhost:3000/api';
-        let currentPage = 1;
-        let isLoading = false;
-        let hasMorePages = true;
-        let currentUser = null;
-
-        // Obtener datos del usuario autenticado
-        function getUserData() {
-            const userDataString = localStorage.getItem('user_data');
-            if (!userDataString) return null;
-            try {
-                return JSON.parse(userDataString);
-            } catch {
-                return null;
-            }
-        }
-
-        // Obtener token de autenticación
-        function getAuthToken() {
-            return localStorage.getItem('auth_token');
-        }
-
-        // Función para formatear fecha relativa
-        function formatearFechaRelativa(fechaString) {
-            const fecha = new Date(fechaString);
-            const ahora = new Date();
-            const diffMs = ahora.getTime() - fecha.getTime();
-            const diffMins = Math.floor(diffMs / 60000);
-            const diffHoras = Math.floor(diffMs / 3600000);
-            const diffDias = Math.floor(diffMs / 86400000);
-
-            if (diffMins < 1) return 'Ahora';
-            if (diffMins < 60) return `${diffMins}m`;
-            if (diffHoras < 24) return `${diffHoras}h`;
-            if (diffDias < 7) return `${diffDias}d`;
-            
-            return fecha.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' });
-        }
-
-        // Función para crear el HTML de una publicación
-        function crearPostCard(publicacion) {
-            const { id, contenido, autor, fechaCreacion, totalComentarios, totalLikes, imagenes } = publicacion;
-            const isOwner = currentUser && currentUser.id === autor.id;
-            
-            // Escapar HTML para prevenir XSS
-            const contenidoEscapado = contenido.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            const nombreAutor = autor.nombre || 'Usuario';
-            
-            const optionsHTML = isOwner ? `
-                <div class="post-options">
-                    <button class="post-options-btn" onclick="deletePost(${id})">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <polyline points="3 6 5 6 21 6"></polyline>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        <!-- Modal de cambio de contraseña -->
+        <div id="password-modal" class="modal" style="display: none;">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Cambiar Contraseña</h3>
+                    <button class="modal-close" id="close-password-modal">
+                        <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
                     </button>
                 </div>
-            ` : '';
-
-            const imagenesHTML = imagenes && imagenes.length > 0 ? `
-                <div class="post-images">
-                    ${imagenes.map(img => `<img src="${img}" alt="Imagen de publicación" />`).join('')}
-                </div>
-            ` : '';
-            
-            // Avatar con foto de perfil si existe
-            const avatarHTML = autor.urlFotoPerfil 
-                ? `<div class="avatar"><img src="${autor.urlFotoPerfil}" alt="${nombreAutor}" /></div>`
-                : `<div class="avatar"></div>`;
-            
-            return `
-                <article class="post-card" data-post-id="${id}">
-                    <header class="post-header">
-                        ${avatarHTML}
-                        <div class="post-meta">
-                            <strong>${nombreAutor}</strong>
-                            <time>${formatearFechaRelativa(fechaCreacion)}</time>
-                        </div>
-                        ${optionsHTML}
-                    </header>
-                    <div class="post-body">
-                        <p>${contenidoEscapado}</p>
-                        ${imagenesHTML}
+                <form id="password-form" class="modal-body">
+                    <div class="form-group">
+                        <label for="current-password">Contraseña Actual</label>
+                        <input
+                            type="password"
+                            id="current-password"
+                            name="currentPassword"
+                            required
+                            class="form-input"
+                        />
                     </div>
-                    <footer class="post-actions">
-                        <button class="action-btn comment-btn" onclick="toggleComments(${id})">
-                            <span>💬</span>
-                            <span class="count">${totalComentarios > 0 ? totalComentarios : 'Comentar'}</span>
-                        </button>
-                        <button class="action-btn like-btn" onclick="toggleLike(${id})">
-                            <span>❤</span>
-                            <span class="count">${totalLikes > 0 ? totalLikes : 'Me gusta'}</span>
-                        </button>
-                    </footer>
-                </article>
-            `;
+                    <div class="form-group">
+                        <label for="new-password">Nueva Contraseña</label>
+                        <input
+                            type="password"
+                            id="new-password"
+                            name="newPassword"
+                            required
+                            class="form-input"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-password"
+                            >Confirmar Nueva Contraseña</label
+                        >
+                        <input
+                            type="password"
+                            id="confirm-password"
+                            name="confirmPassword"
+                            required
+                            class="form-input"
+                        />
+                    </div>
+                    <div class="modal-actions">
+                        <button
+                            type="button"
+                            class="btn-secondary"
+                            id="cancel-password">Cancelar</button
+                        >
+                        <button type="submit" class="btn-primary"
+                            >Cambiar Contraseña</button
+                        >
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</BaseLayout>
+
+<style>
+    .dashboard-container {
+        min-height: 100vh;
+        background: #f8fafc;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    /* Estados de carga y error */
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 60vh;
+        color: #6b7280;
+        text-align: center;
+    }
+
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid #e5e7eb;
+        border-radius: 50%;
+        border-top-color: #3b82f6;
+        animation: spin 1s ease-in-out infinite;
+        margin-bottom: 1rem;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .error-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 60vh;
+        padding: 2rem;
+    }
+
+    .error-content {
+        text-align: center;
+        max-width: 400px;
+    }
+
+    .error-content h2 {
+        color: #dc2626;
+        margin: 0 0 1rem 0;
+        font-size: 1.5rem;
+    }
+
+    .error-content p {
+        color: #6b7280;
+        margin: 0 0 2rem 0;
+    }
+
+    .error-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    /* Header del dashboard */
+    .dashboard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .welcome-section h1 {
+        margin: 0 0 0.5rem 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .welcome-section p {
+        margin: 0;
+        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .profile-summary {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .profile-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        flex-shrink: 0;
+    }
+
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-info h3 {
+        margin: 0 0 0.25rem 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .profile-info p {
+        margin: 0 0 0.5rem 0;
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        background: rgba(245, 158, 11, 0.2);
+        color: #f59e0b;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .status-badge.complete {
+        background: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    /* Contenido principal */
+    .dashboard-body {
+        padding-bottom: 2rem;
+    }
+
+    /* Alertas */
+    .alert {
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        border: 1px solid;
+    }
+
+    .alert-warning {
+        background: #fef3c7;
+        border-color: #fcd34d;
+        color: #92400e;
+    }
+
+    .alert-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .alert-icon {
+        flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+        color: #f59e0b;
+    }
+
+    .alert-text {
+        flex: 1;
+    }
+
+    .alert-text h4 {
+        margin: 0 0 0.25rem 0;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .alert-text p {
+        margin: 0;
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+
+    .alert-actions {
+        flex-shrink: 0;
+    }
+
+    /* Grid del dashboard */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+    }
+
+    .dashboard-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        background: #f9fafb;
+    }
+
+    .card-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1f2937 !important;
+    }
+
+    /* Forzar color específico para el título de recomendaciones */
+    .recommendations .card-header h3 {
+        color: #1f2937 !important;
+    }
+
+    .card-action {
+        color: #3b82f6;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+
+    .card-action:hover {
+        color: #2563eb;
+    }
+
+    .card-content {
+        padding: 1.5rem;
+    }
+
+    /* Acciones rápidas */
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #374151;
+        background: white;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .action-btn:hover {
+        border-color: #3b82f6;
+        background: #f8fafc;
+        color: #1f2937;
+    }
+
+    .action-icon {
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        background: #f3f4f6;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6b7280;
+    }
+
+    .action-btn:hover .action-icon {
+        background: #3b82f6;
+        color: white;
+    }
+
+    .action-text {
+        flex: 1;
+        text-align: left;
+    }
+
+    .action-text h4 {
+        margin: 0 0 0.25rem 0;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .action-text p {
+        margin: 0;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    /* Estadísticas del perfil */
+    .profile-stats {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-value {
+        display: block;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #3b82f6;
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 0.25rem;
+    }
+
+    /* Barra de completitud */
+    .completion-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        color: #374151;
+        font-weight: 500;
+    }
+
+    .completion-bar {
+        height: 8px;
+        background: #e5e7eb;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .completion-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+        transition: width 0.3s ease;
+    }
+
+    /* Actividad reciente */
+    .activity-placeholder {
+        text-align: center;
+        padding: 2rem;
+        color: #9ca3af;
+    }
+
+    .activity-placeholder svg {
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .activity-placeholder p {
+        margin: 0 0 0.5rem 0;
+        font-weight: 500;
+    }
+
+    .activity-placeholder small {
+        font-size: 0.8rem;
+    }
+
+    /* Recomendaciones */
+    .recommendation-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .recommendation-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background: #f9fafb;
+        color: #1f2937 !important;
+    }
+
+    .rec-icon {
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .rec-content {
+        color: #1f2937 !important;
+    }
+
+    .rec-content h4 {
+        margin: 0 0 0.25rem 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #1f2937 !important;
+    }
+
+    .rec-content p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #6b7280 !important;
+        line-height: 1.4;
+    }
+
+    /* Forzar colores con máxima especificidad */
+    .dashboard-card.recommendations .recommendation-item {
+        color: #1f2937 !important;
+    }
+
+    .dashboard-card.recommendations .rec-content,
+    .dashboard-card.recommendations .rec-content h4,
+    .dashboard-card.recommendations .rec-content p {
+        color: #1f2937 !important;
+    }
+
+    .dashboard-card.recommendations .rec-content p {
+        color: #6b7280 !important;
+    }
+
+    /* Sobrescribir cualquier herencia de color */
+    .recommendations * {
+        color: inherit !important;
+    }
+
+    /* Modal */
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+        position: relative;
+        background: white;
+        border-radius: 12px;
+        max-width: 400px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        color: #6b7280;
+        cursor: pointer;
+        padding: 0.25rem;
+        border-radius: 4px;
+        transition: color 0.2s ease;
+    }
+
+    .modal-close:hover {
+        color: #374151;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #374151;
+        font-size: 0.9rem;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.2s ease;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 2rem;
+    }
+
+    /* Botones */
+    .btn-primary,
+    .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+
+    .btn-primary {
+        background: #3b82f6;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #2563eb;
+        transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+
+    .btn-secondary:hover {
+        background: #f9fafb;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            padding: 0 0.5rem;
         }
 
-        // Función para cargar publicaciones
-        async function cargarPublicaciones(page = 1) {
-            if (isLoading) return;
-            
-            isLoading = true;
-            const loadMoreBtn = document.getElementById('load-more-btn');
-            if (loadMoreBtn) {
-                loadMoreBtn.textContent = 'Cargando...';
-                loadMoreBtn.disabled = true;
+        .dashboard-header {
+            padding: 1.5rem 0;
+        }
+
+        .header-content {
+            flex-direction: column;
+            gap: 1.5rem;
+            text-align: center;
+        }
+
+        .welcome-section h1 {
+            font-size: 2rem;
+        }
+
+        .profile-summary {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .dashboard-grid {
+            gap: 1rem;
+            grid-template-columns: 1fr;
+        }
+
+        .card-content {
+            padding: 1rem;
+        }
+
+        .card-header {
+            padding: 1rem;
+        }
+
+        .profile-stats {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: left;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+        }
+
+        .action-btn {
+            flex-direction: column;
+            text-align: center;
+            gap: 0.75rem;
+        }
+
+        .action-text {
+            text-align: center;
+        }
+
+        .alert-content {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .error-actions {
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .modal-content {
+            margin: 1rem;
+            width: calc(100% - 2rem);
+        }
+
+        .modal-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<script>
+    // @ts-nocheck
+    import {
+        authService,
+        profileService,
+        apiRequest,
+        getUserData,
+        clearAuth,
+    } from "../utils/api.js";
+
+    class Dashboard {
+        constructor() {
+            this.userData = null;
+            this.profileData = null;
+            this.isLoading = false;
+
+            this.init();
+        }
+
+        async init() {
+            console.log("Dashboard init started");
+
+            // Verificar autenticación
+            const userData = getUserData();
+            console.log("User data from localStorage:", userData);
+
+            if (!userData) {
+                console.log("No user data found, redirecting to login");
+                this.redirectToLogin();
+                return;
+            }
+
+            // Verificar que sea un egresado
+            if (userData.tipo_usuario !== "Egresado") {
+                console.log("User is not an Egresado, redirecting to admin");
+                this.redirectToAdmin();
+                return;
+            }
+
+            console.log(
+                "User is valid Egresado, continuing with dashboard load"
+            );
+            this.userData = userData;
+            this.bindEvents();
+            await this.loadDashboard();
+        }
+
+        redirectToLogin() {
+            clearAuth();
+            window.location.href = "/acceso";
+        }
+
+        redirectToAdmin() {
+            window.location.href = "/admin";
+        }
+
+        bindEvents() {
+            // Botón de reintentar
+            const retryButton = document.getElementById("retry-button");
+            if (retryButton) {
+                retryButton.addEventListener("click", () => {
+                    this.loadDashboard();
+                });
+            }
+
+            // Botón de cambiar contraseña
+            const changePasswordBtn = document.getElementById(
+                "change-password-btn"
+            );
+            if (changePasswordBtn) {
+                changePasswordBtn.addEventListener("click", () => {
+                    this.showPasswordModal();
+                });
+            }
+
+            // Botón descargar CV
+            const downloadCvBtn = document.getElementById("download-cv-btn");
+            if (downloadCvBtn) {
+                downloadCvBtn.addEventListener("click", () => {
+                    this.downloadCV();
+                });
+            }
+
+            // Modal de contraseña
+            this.bindPasswordModalEvents();
+        }
+
+        bindPasswordModalEvents() {
+            const modal = document.getElementById("password-modal");
+            const closeBtn = document.getElementById("close-password-modal");
+            const cancelBtn = document.getElementById("cancel-password");
+            const form = document.getElementById("password-form");
+            const overlay = modal?.querySelector(".modal-overlay");
+
+            const closeModal = () => {
+                if (modal) modal.style.display = "none";
+            };
+
+            if (closeBtn) closeBtn.addEventListener("click", closeModal);
+            if (cancelBtn) cancelBtn.addEventListener("click", closeModal);
+            if (overlay) overlay.addEventListener("click", closeModal);
+
+            if (form) {
+                form.addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    this.handlePasswordChange();
+                });
+            }
+        }
+
+        showPasswordModal() {
+            const modal = document.getElementById("password-modal");
+            if (modal) {
+                modal.style.display = "flex";
+            }
+        }
+
+        async handlePasswordChange() {
+            const form = document.getElementById("password-form");
+            if (!form) return;
+
+            const formData = new FormData(form);
+            const currentPassword = formData.get("currentPassword");
+            const newPassword = formData.get("newPassword");
+            const confirmPassword = formData.get("confirmPassword");
+
+            // Validaciones
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                this.showNotification(
+                    "Todos los campos son obligatorios",
+                    "error"
+                );
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                this.showNotification("Las contraseñas no coinciden", "error");
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                this.showNotification(
+                    "La nueva contraseña debe tener al menos 6 caracteres",
+                    "error"
+                );
+                return;
             }
 
             try {
-                const token = getAuthToken();
-                if (!token) {
-                    window.location.href = '/acceso';
-                    return;
-                }
+                // Aquí implementarás el endpoint para cambiar contraseña
+                // await apiRequest(() => authService.changePassword(currentPassword, newPassword));
 
-                const response = await fetch(`${API_URL}/publicaciones?page=${page}&limit=10`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (response.status === 401) {
-                    window.location.href = '/acceso';
-                    return;
-                }
-
-                const result = await response.json();
-                console.log('API Response:', result);
-
-                if (result.success && result.data.publicaciones) {
-                    const feedList = document.getElementById('feed-list');
-                    console.log('Publicaciones recibidas:', result.data.publicaciones);
-                    
-                    // Actualizar nombre del usuario en localStorage si encontramos su publicación
-                    if (page === 1 && currentUser) {
-                        const miPublicacion = result.data.publicaciones.find(p => p.autor.id === currentUser.id);
-                        if (miPublicacion && miPublicacion.autor.nombre) {
-                            const userData = getUserData();
-                            if (userData && userData.nombre !== miPublicacion.autor.nombre) {
-                                userData.nombre = miPublicacion.autor.nombre;
-                                localStorage.setItem('user_data', JSON.stringify(userData));
-                                // Actualizar también en BaseLayout
-                                window.dispatchEvent(new Event('storage'));
-                            }
-                        }
-                    }
-                    
-                    // Si es la primera página, limpiar el contenido
-                    if (page === 1) {
-                        feedList.innerHTML = '';
-                    }
-
-                    // Si no hay publicaciones
-                    if (result.data.publicaciones.length === 0 && page === 1) {
-                        feedList.innerHTML = `
-                            <div class="empty-feed">
-                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <path d="M12 2v20m8-10H4"></path>
-                                </svg>
-                                <h3>Aún no hay publicaciones</h3>
-                                <p>¡Sé el primero en compartir algo con la comunidad!</p>
-                            </div>
-                        `;
-                    } else {
-                        // Agregar las nuevas publicaciones
-                        result.data.publicaciones.forEach(publicacion => {
-                            console.log('Procesando publicación:', publicacion);
-                            const cardHTML = crearPostCard(publicacion);
-                            console.log('HTML generado:', cardHTML);
-                            feedList.insertAdjacentHTML('beforeend', cardHTML);
-                        });
-                    }
-
-                    // Actualizar estado de paginación
-                    hasMorePages = result.data.pagination.hasNext;
-                    
-                    // Mostrar/ocultar botón de cargar más
-                    const loadMoreSection = document.querySelector('.load-more');
-                    if (loadMoreSection) {
-                        loadMoreSection.style.display = hasMorePages ? 'block' : 'none';
-                    }
-                }
+                this.showNotification(
+                    "Contraseña cambiada exitosamente",
+                    "success"
+                );
+                const modal = document.getElementById("password-modal");
+                if (modal) modal.style.display = "none";
+                form.reset();
             } catch (error) {
-                console.error('Error cargando publicaciones:', error);
-                const feedList = document.getElementById('feed-list');
-                if (page === 1) {
-                    feedList.innerHTML = `
-                        <div style="text-align: center; padding: 2rem; color: #666;">
-                            <p>Error al cargar las publicaciones. Por favor, intenta de nuevo.</p>
-                            <button onclick="cargarPublicaciones(1)" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">
-                                Reintentar
-                            </button>
-                        </div>
-                    `;
+                console.error("Error changing password:", error);
+                this.showNotification(
+                    "Error al cambiar la contraseña",
+                    "error"
+                );
+            }
+        }
+
+        async downloadCV() {
+            try {
+                this.showNotification("Generando CV...", "info");
+
+                // Llamar al servicio para descargar el CV
+                const response = await profileService.downloadMyCV();
+
+                // Convertir la respuesta a blob
+                const blob = await response.blob();
+
+                // Obtener el nombre del archivo desde los headers o usar uno por defecto
+                const contentDisposition = response.headers.get(
+                    "content-disposition"
+                );
+                let fileName = "Mi_CV.pdf";
+
+                if (contentDisposition) {
+                    const fileNameMatch =
+                        contentDisposition.match(/filename="?(.+)"?/);
+                    if (fileNameMatch) {
+                        fileName = fileNameMatch[1];
+                    }
                 }
+
+                // Crear URL del blob y iniciar descarga
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+
+                // Limpiar
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(link);
+
+                this.showNotification("CV descargado exitosamente", "success");
+            } catch (error) {
+                console.error("Error downloading CV:", error);
+                this.showNotification(
+                    "Error al descargar el CV. Verifique que tenga información en su perfil.",
+                    "error"
+                );
+            }
+        }
+
+        async loadDashboard() {
+            if (this.isLoading) return;
+
+            this.isLoading = true;
+            this.showLoading();
+
+            try {
+                console.log("Loading dashboard for user:", this.userData);
+
+                // Cargar datos del perfil
+                const response = await apiRequest(() =>
+                    profileService.getMyProfile()
+                );
+
+                console.log("Profile response:", response);
+                this.profileData = response.data;
+
+                this.renderDashboard();
+                this.hideLoading();
+            } catch (error) {
+                console.error("Error loading dashboard:", error);
+                this.showError(error.message || "Error al cargar el dashboard");
             } finally {
-                isLoading = false;
-                if (loadMoreBtn) {
-                    loadMoreBtn.textContent = 'Cargar más';
-                    loadMoreBtn.disabled = false;
+                this.isLoading = false;
+            }
+        }
+
+        renderDashboard() {
+            if (!this.userData || !this.profileData) return;
+
+            // Actualizar welcome section
+            this.updateWelcomeSection();
+
+            // Actualizar profile summary
+            this.updateProfileSummary();
+
+            // Actualizar estadísticas
+            this.updateProfileStats();
+
+            // Actualizar alerta de perfil incompleto
+            this.updateProfileAlert();
+
+            // Actualizar recomendaciones
+            this.updateRecommendations();
+        }
+
+        updateWelcomeSection() {
+            const welcomeTitle = document.getElementById("welcome-title");
+            const welcomeSubtitle = document.getElementById("welcome-subtitle");
+
+            if (welcomeTitle) {
+                const nombre = this.userData.nombre || "Usuario";
+                welcomeTitle.textContent = `¡Bienvenido, ${nombre}!`;
+            }
+
+            if (welcomeSubtitle) {
+                const isNewUser = this.userData.isNewUser;
+                if (isNewUser) {
+                    welcomeSubtitle.textContent =
+                        "¡Tu cuenta ha sido creada! Completa tu perfil para comenzar.";
                 }
             }
         }
 
-        // Función para crear nueva publicación
-        async function crearPublicacion(contenido, imagenes = []) {
-            const token = getAuthToken();
-            if (!token) {
-                window.location.href = '/acceso';
-                return;
+        updateProfileSummary() {
+            const userAvatar = document.getElementById("user-avatar");
+            const userName = document.getElementById("user-name");
+            const userCareer = document.getElementById("user-career");
+            const profileStatus = document.getElementById("profile-status");
+
+            // Extraer datos de la estructura correcta de la API
+            const usuario =
+                this.profileData.data?.usuario ||
+                this.profileData.usuario ||
+                {};
+            const perfil =
+                this.profileData.data?.perfil || this.profileData.perfil || {};
+            const carrera =
+                this.profileData.data?.carrera ||
+                this.profileData.carrera ||
+                {};
+
+            if (userAvatar && perfil.urlFotoPerfil) {
+                userAvatar.src = perfil.urlFotoPerfil;
             }
 
-            try {
-                const response = await fetch(`${API_URL}/publicaciones`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ contenido, imagenes })
-                });
+            if (userName) {
+                userName.textContent =
+                    usuario.nombre || this.userData.nombre || "Usuario";
+            }
 
-                if (response.status === 401) {
-                    window.location.href = '/acceso';
-                    return;
-                }
+            if (userCareer && carrera.nombre) {
+                userCareer.textContent = carrera.nombre;
+            }
 
-                const result = await response.json();
-
-                if (result.success) {
-                    // Recargar el feed
-                    currentPage = 1;
-                    await cargarPublicaciones(1);
-                    
-                    // Limpiar el formulario
-                    document.getElementById('post-content').value = '';
-                    document.getElementById('image-preview').innerHTML = '';
-                    
-                    showNotification('Publicación creada exitosamente', 'success');
+            if (profileStatus) {
+                const completion = this.calculateProfileCompletion();
+                if (completion >= 80) {
+                    profileStatus.textContent = "Perfil completo";
+                    profileStatus.className = "status-badge complete";
                 } else {
-                    showNotification(result.message || 'Error al crear la publicación', 'error');
+                    profileStatus.textContent = `Perfil ${Math.round(completion)}% completo`;
+                    profileStatus.className = "status-badge";
                 }
-            } catch (error) {
-                console.error('Error creando publicación:', error);
-                showNotification('Error al crear la publicación', 'error');
             }
         }
 
-        // Función para eliminar publicación
-        async function deletePost(postId) {
-            if (!confirm('¿Estás seguro de que quieres eliminar esta publicación?')) {
-                return;
-            }
+        updateProfileStats() {
+            const experienceCount = document.getElementById("experience-count");
+            const educationCount = document.getElementById("education-count");
+            const coursesCount = document.getElementById("courses-count");
+            const completionPercentage = document.getElementById(
+                "completion-percentage"
+            );
+            const completionFill = document.getElementById("completion-fill");
 
-            const token = getAuthToken();
-            if (!token) {
-                window.location.href = '/acceso';
-                return;
-            }
+            const stats = {
+                experience: this.profileData.experienciasLaborales?.length || 0,
+                education: this.profileData.formacionAcademica?.length || 0,
+                courses: this.profileData.cursos?.length || 0,
+            };
 
-            try {
-                const response = await fetch(`${API_URL}/publicaciones/${postId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+            if (experienceCount) experienceCount.textContent = stats.experience;
+            if (educationCount) educationCount.textContent = stats.education;
+            if (coursesCount) coursesCount.textContent = stats.courses;
+
+            const completion = this.calculateProfileCompletion();
+            if (completionPercentage)
+                completionPercentage.textContent = `${Math.round(completion)}%`;
+            if (completionFill) completionFill.style.width = `${completion}%`;
+        }
+
+        calculateProfileCompletion() {
+            if (!this.profileData) return 0;
+
+            // Extraer datos de la estructura correcta de la API
+            const usuario =
+                this.profileData.data?.usuario ||
+                this.profileData.usuario ||
+                {};
+            const perfil =
+                this.profileData.data?.perfil || this.profileData.perfil || {};
+            const experiencias =
+                this.profileData.data?.experienciasLaborales ||
+                this.profileData.experienciasLaborales ||
+                [];
+            const formaciones =
+                this.profileData.data?.formacionAcademica ||
+                this.profileData.formacionAcademica ||
+                [];
+            const cursos =
+                this.profileData.data?.cursos || this.profileData.cursos || [];
+
+            let completed = 0;
+            let total = 10;
+
+            // Datos básicos (4 puntos)
+            if (usuario.nombre) completed++;
+            if (usuario.email && !usuario.email.includes("@temp.ies.edu.ar"))
+                completed++;
+            if (perfil.resumenProfesional) completed++;
+            if (perfil.urlFotoPerfil) completed++;
+
+            // Experiencia laboral (2 puntos)
+            if (experiencias.length > 0) completed += 2;
+
+            // Formación académica (2 puntos)
+            if (formaciones.length > 0) completed += 2;
+
+            // Cursos (1 punto)
+            if (cursos.length > 0) completed++;
+
+            // Portfolio (1 punto)
+            if (perfil.urlPortfolio) completed++;
+
+            return (completed / total) * 100;
+        }
+
+        updateProfileAlert() {
+            const alert = document.getElementById("profile-incomplete-alert");
+            if (!alert) return;
+
+            const completion = this.calculateProfileCompletion();
+            if (completion < 50) {
+                alert.style.display = "block";
+            } else {
+                alert.style.display = "none";
+            }
+        }
+
+        updateRecommendations() {
+            const recommendationsList = document.getElementById(
+                "recommendations-list"
+            );
+            if (!recommendationsList) return;
+
+            // Extraer datos de la estructura correcta de la API
+            const perfil =
+                this.profileData.data?.perfil || this.profileData.perfil || {};
+            const experiencias =
+                this.profileData.data?.experienciasLaborales ||
+                this.profileData.experienciasLaborales ||
+                [];
+            const formaciones =
+                this.profileData.data?.formacionAcademica ||
+                this.profileData.formacionAcademica ||
+                [];
+
+            const recommendations = [];
+
+            // Lógica para generar recomendaciones dinámicas
+            const completion = this.calculateProfileCompletion();
+
+            if (!experiencias.length) {
+                recommendations.push({
+                    icon: "💼",
+                    title: "Agrega tu experiencia laboral",
+                    description:
+                        "Comparte tu trayectoria profesional con la comunidad.",
                 });
-
-                if (response.status === 401) {
-                    window.location.href = '/acceso';
-                    return;
-                }
-
-                const result = await response.json();
-
-                if (result.success) {
-                    // Remover la publicación del DOM
-                    const postCard = document.querySelector(`[data-post-id="${postId}"]`);
-                    if (postCard) {
-                        postCard.remove();
-                    }
-                    showNotification('Publicación eliminada', 'success');
-                } else {
-                    showNotification(result.message || 'Error al eliminar la publicación', 'error');
-                }
-            } catch (error) {
-                console.error('Error eliminando publicación:', error);
-                showNotification('Error al eliminar la publicación', 'error');
             }
+
+            if (!formaciones.length) {
+                recommendations.push({
+                    icon: "🎓",
+                    title: "Incluye tu formación académica",
+                    description:
+                        "Añade tus estudios y certificaciones para destacar.",
+                });
+            }
+
+            if (!perfil.urlPortfolio) {
+                recommendations.push({
+                    icon: "🔗",
+                    title: "Agrega tu portfolio",
+                    description:
+                        "Muestra tu trabajo y proyectos a otros profesionales.",
+                });
+            }
+
+            if (!perfil.urlFotoPerfil) {
+                recommendations.push({
+                    icon: "📸",
+                    title: "Sube tu foto de perfil",
+                    description:
+                        "Una foto profesional hace más atractivo tu perfil.",
+                });
+            }
+
+            // Si no hay recomendaciones, mostrar mensaje de completitud
+            if (recommendations.length === 0) {
+                recommendationsList.innerHTML = `
+                    <div class="recommendation-item" style="color: #1f2937 !important;">
+                        <div class="rec-icon">🎉</div>
+                        <div class="rec-content" style="color: #1f2937 !important;">
+                            <h4 style="color: #1f2937 !important;">¡Perfil completo!</h4>
+                            <p style="color: #6b7280 !important;">Tu perfil está completo. Sigue explorando la comunidad de egresados.</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Renderizar recomendaciones
+            recommendationsList.innerHTML = recommendations
+                .map(
+                    (rec) => `
+                <div class="recommendation-item" style="color: #1f2937 !important;">
+                    <div class="rec-icon">${rec.icon}</div>
+                    <div class="rec-content" style="color: #1f2937 !important;">
+                        <h4 style="color: #1f2937 !important;">${rec.title}</h4>
+                        <p style="color: #6b7280 !important;">${rec.description}</p>
+                    </div>
+                </div>
+            `
+                )
+                .join("");
         }
 
-        // Funciones placeholder para likes y comentarios
-        function toggleLike(postId) {
-            showNotification('Funcionalidad de likes en desarrollo', 'info');
-        }
-
-        function toggleComments(postId) {
-            showNotification('Funcionalidad de comentarios en desarrollo', 'info');
-        }
-
-        // Función para mostrar notificaciones
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
+        showNotification(message, type = "info") {
+            const notification = document.createElement("div");
             notification.style.cssText = `
                 position: fixed;
                 top: 20px;
                 right: 20px;
-                background: ${type === 'success' ? '#10b981' : type === 'error' ? '#dc2626' : '#3b82f6'};
+                background: ${type === "success" ? "#10b981" : type === "error" ? "#dc2626" : "#3b82f6"};
                 color: white;
                 padding: 1rem 1.5rem;
                 border-radius: 8px;
@@ -1240,144 +1628,50 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             document.body.appendChild(notification);
 
             setTimeout(() => {
-                notification.style.transform = 'translateX(0)';
+                notification.style.transform = "translateX(0)";
             }, 100);
 
             setTimeout(() => {
-                notification.style.transform = 'translateX(400px)';
+                notification.style.transform = "translateX(400px)";
                 setTimeout(() => {
                     document.body.removeChild(notification);
                 }, 300);
             }, 4000);
         }
 
-        // Función para cargar datos del perfil
-        async function cargarDatosPerfil() {
-            try {
-                const token = getAuthToken();
-                if (!token) return;
+        showLoading() {
+            const loading = document.getElementById("loading-indicator");
+            const content = document.getElementById("dashboard-content");
+            const error = document.getElementById("error-message");
 
-                const response = await fetch(`${API_URL}/perfil/mi-perfil`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) return;
-
-                const result = await response.json();
-                
-                if (result.success && result.data) {
-                    const perfil = result.data;
-                    
-                    // Actualizar foto de perfil
-                    const profileAvatar = document.getElementById('profile-avatar');
-                    if (profileAvatar && perfil.urlFotoPerfil) {
-                        profileAvatar.innerHTML = `<img src="${perfil.urlFotoPerfil}" alt="Foto de perfil" />`;
-                    }
-                    
-                    // Actualizar nombre
-                    const profileName = document.getElementById('profile-name');
-                    if (profileName) {
-                        profileName.textContent = currentUser.nombre || 'Egresado';
-                    }
-                    
-                    // Actualizar año de egreso (de formacion academica)
-                    const profileYear = document.getElementById('profile-year');
-                    if (profileYear && perfil.formacionAcademica && perfil.formacionAcademica.length > 0) {
-                        const ultimaFormacion = perfil.formacionAcademica[perfil.formacionAcademica.length - 1];
-                        if (ultimaFormacion.anioFinalizacion) {
-                            profileYear.textContent = `Egresado en ${ultimaFormacion.anioFinalizacion}`;
-                        }
-                    }
-                    
-                    // Actualizar carrera/título profesional
-                    const profileCareer = document.getElementById('profile-career');
-                    if (profileCareer && perfil.tituloprofesional) {
-                        profileCareer.textContent = perfil.tituloprofesional;
-                    }
-                }
-            } catch (error) {
-                console.error('Error cargando datos del perfil:', error);
-            }
+            if (loading) loading.style.display = "flex";
+            if (content) content.style.display = "none";
+            if (error) error.style.display = "none";
         }
 
-        // Event listeners
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Verificar autenticación
-            currentUser = getUserData();
-            if (!currentUser || currentUser.tipo_usuario !== 'Egresado') {
-                window.location.href = '/acceso';
-                return;
-            }
+        hideLoading() {
+            const loading = document.getElementById("loading-indicator");
+            const content = document.getElementById("dashboard-content");
 
-            // Actualizar título de bienvenida con el nombre del usuario
-            const welcomeTitle = document.getElementById('welcome-title');
-            if (welcomeTitle && currentUser) {
-                welcomeTitle.innerHTML = `Hola,  ${currentUser.nombre}! <img src="/images/Vector.png" alt="Saludo" style="width: 24px; height: 24px; vertical-align: middle; margin-left: 4px;" />`;
-            }
+            if (loading) loading.style.display = "none";
+            if (content) content.style.display = "block";
+        }
 
-            // Cargar datos del perfil desde la API
-            await cargarDatosPerfil();
+        showError(message) {
+            const loading = document.getElementById("loading-indicator");
+            const content = document.getElementById("dashboard-content");
+            const error = document.getElementById("error-message");
+            const errorText = document.getElementById("error-text");
 
-            // Actualizar nombre del usuario en el formulario
-            const userNameForm = document.getElementById('user-name-form');
-            if (userNameForm && currentUser) {
-                userNameForm.textContent = currentUser.nombre;
-            }
+            if (loading) loading.style.display = "none";
+            if (content) content.style.display = "none";
+            if (error) error.style.display = "block";
+            if (errorText) errorText.textContent = message;
+        }
+    }
 
-            // Cargar primera página al cargar la página
-            cargarPublicaciones(1);
-
-            // Configurar botón de cargar más
-            const loadMoreBtn = document.getElementById('load-more-btn');
-            if (loadMoreBtn) {
-                loadMoreBtn.addEventListener('click', () => {
-                    currentPage++;
-                    cargarPublicaciones(currentPage);
-                });
-            }
-
-            // Configurar formulario de crear publicación
-            const crearForm = document.getElementById('crear-form');
-            if (crearForm) {
-                crearForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    
-                    const contenido = document.getElementById('post-content').value.trim();
-                    if (!contenido) {
-                        showNotification('Por favor escribe algo para publicar', 'error');
-                        return;
-                    }
-
-                    const submitBtn = document.getElementById('submit-post-btn');
-                    if (submitBtn) {
-                        submitBtn.disabled = true;
-                        submitBtn.textContent = 'Publicando...';
-                    }
-
-                    await crearPublicacion(contenido);
-
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = 'Publicar';
-                    }
-                });
-            }
-
-            // Preview de imágenes (funcionalidad futura)
-            const postImages = document.getElementById('post-images');
-            if (postImages) {
-                postImages.addEventListener('change', (e) => {
-                    showNotification('La subida de imágenes estará disponible próximamente', 'info');
-                });
-            }
-        });
-
-        // Exponer funciones globalmente
-        window.deletePost = deletePost;
-        window.toggleLike = toggleLike;
-        window.toggleComments = toggleComments;
-        window.cargarPublicaciones = cargarPublicaciones;
-    </script>
-</BaseLayout>
+    // Inicializar dashboard cuando el DOM esté listo
+    document.addEventListener("DOMContentLoaded", () => {
+        new Dashboard();
+    });
+</script>
