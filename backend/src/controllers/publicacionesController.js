@@ -136,9 +136,41 @@ export async function listarPublicaciones(req, res) {
         for (const row of publicacionesResult.rows) {
             const publicacion = convertBigIntToNumber(row);
             
-            // Obtener autor
-            const autorQuery = `SELECT nombre FROM Usuario WHERE id = ${publicacion.autorId}`;
+            // Obtener autor con información del perfil si existe
+            const autorQuery = `
+                SELECT 
+                    u.nombre as nombreUsuario,
+                    u.apellido,
+                    p.tituloprofesional,
+                    p.urlFotoPerfil
+                FROM Usuario u
+                LEFT JOIN Egresado e ON u.id = e.id
+                LEFT JOIN Perfil p ON e.perfilId = p.id
+                WHERE u.id = ${publicacion.autorId}
+            `;
             const autorResult = await client.execute(autorQuery);
+            
+            console.log('Datos del autor:', autorResult.rows[0]);
+            
+            let nombreCompleto = 'Usuario desconocido';
+            let urlFotoPerfil = null;
+            if (autorResult.rows.length > 0) {
+                const autor = autorResult.rows[0];
+                urlFotoPerfil = autor.urlFotoPerfil;
+                
+                // Prioridad: nombre + apellido de Usuario, si no existe usar tituloprofesional
+                if (autor.nombreUsuario && autor.apellido) {
+                    nombreCompleto = `${autor.nombreUsuario} ${autor.apellido}`;
+                } else if (autor.nombreUsuario) {
+                    nombreCompleto = autor.nombreUsuario;
+                } else if (autor.tituloprofesional) {
+                    nombreCompleto = autor.tituloprofesional;
+                } else {
+                    nombreCompleto = 'Usuario desconocido';
+                }
+            }
+            
+            console.log('Nombre completo a mostrar:', nombreCompleto);
 
             // Obtener imágenes de esta publicación
             const imagenesQuery = `
@@ -151,7 +183,8 @@ export async function listarPublicaciones(req, res) {
             publicacion.imagenes = imagenesResult.rows.map(img => img.url);
             publicacion.autor = {
                 id: publicacion.autorId,
-                nombre: autorResult.rows[0]?.nombre || 'Usuario desconocido'
+                nombre: nombreCompleto,
+                urlFotoPerfil: urlFotoPerfil
             };
             
             // Agregar contadores temporales
