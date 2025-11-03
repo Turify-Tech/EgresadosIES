@@ -8,14 +8,57 @@
     </div>
 
     <form class="experiencias-content" id="experiencias-form">
+        <!-- Header con navegación -->
+        <div class="experiencias-header">
+            <div class="nav-controls">
+                <button
+                    type="button"
+                    class="nav-btn"
+                    id="prev-experiencia"
+                    disabled>
+                    ← Anterior
+                </button>
+                <span class="nav-info" id="experiencia-counter">1 / 1</span>
+                <button type="button" class="nav-btn" id="next-experiencia">
+                    Siguiente →
+                </button>
+            </div>
+            <button
+                type="button"
+                class="add-experiencia-btn"
+                id="add-new-experiencia">
+                + Agregar Experiencia
+            </button>
+        </div>
+
         <!-- Sección: Laborales -->
         <div class="experiencias-section">
             <div class="section-header">
-                <h3>Laborales:</h3>
+                <h3>Experiencia Laboral</h3>
+                <div class="header-actions">
+                    <button
+                        type="button"
+                        class="delete-btn"
+                        id="delete-experiencia"
+                        title="Eliminar experiencia actual">
+                        🗑️
+                    </button>
+                </div>
             </div>
 
-            <div class="experiencia-item">
+            <div class="experiencia-item" id="experiencia-fields">
                 <div class="field-row">
+                    <div class="form-group">
+                        <label for="puesto">Puesto:</label>
+                        <input
+                            type="text"
+                            id="puesto"
+                            name="puesto"
+                            class="form-input"
+                            placeholder="Ej: Desarrollador Full Stack"
+                            required
+                        />
+                    </div>
                     <div class="form-group">
                         <label for="empresa">Empresa:</label>
                         <input
@@ -23,64 +66,50 @@
                             id="empresa"
                             name="empresa"
                             class="form-input"
-                            placeholder=""
+                            placeholder="Ej: Tech Solutions S.A."
+                            required
                         />
-                    </div>
-                    <div class="form-group icon-field">
-                        <button
-                            type="button"
-                            class="add-item-btn"
-                            id="add-experiencia-btn">
-                            <span>⚙</span>
-                        </button>
                     </div>
                 </div>
 
                 <div class="field-row">
                     <div class="form-group">
-                        <label for="descripcion">Descripción:</label>
+                        <label for="fecha-inicio">Fecha de Inicio:</label>
                         <input
-                            type="text"
+                            type="date"
+                            id="fecha-inicio"
+                            name="fechaInicio"
+                            class="form-input"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha-fin">Fecha de Fin:</label>
+                        <input
+                            type="date"
+                            id="fecha-fin"
+                            name="fechaFin"
+                            class="form-input"
+                        />
+                        <div class="checkbox-field">
+                            <input
+                                type="checkbox"
+                                id="trabajo-actual"
+                                name="trabajoActual"
+                            />
+                            <label for="trabajo-actual">Trabajo actual</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field-row">
+                    <div class="form-group full-width">
+                        <label for="descripcion">Descripción (opcional):</label>
+                        <textarea
                             id="descripcion"
                             name="descripcion"
-                            class="form-input"
-                            placeholder=""
-                        />
-                    </div>
-                    <div class="form-group icon-field">
-                        <button type="button" class="add-item-btn">
-                            <span>⚙</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="field-row">
-                    <div class="form-group">
-                        <label for="duracion-laboral">Duración laboral:</label>
-                        <input
-                            type="text"
-                            id="duracion-laboral"
-                            name="duracionLaboral"
-                            class="form-input"
-                            placeholder=""
-                        />
-                    </div>
-                    <div class="form-group icon-field">
-                        <button type="button" class="add-item-btn">
-                            <span>⚙</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="field-row">
-                    <div class="form-group">
-                        <label for="agregar-mas">Agregar más:</label>
-                        <button
-                            type="button"
-                            class="info-btn"
-                            title="Agregar más experiencias">
-                            <span>i</span>
-                        </button>
+                            class="form-textarea"
+                            placeholder="Describe tus responsabilidades y logros..."
+                            rows="4"></textarea>
                     </div>
                 </div>
             </div>
@@ -125,6 +154,69 @@
         gap: 2rem;
     }
 
+    /* Header con navegación */
+    .experiencias-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .nav-controls {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .nav-btn {
+        padding: 0.5rem 1rem;
+        background: #6366f1;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+        background: #4f46e5;
+        transform: translateY(-1px);
+    }
+
+    .nav-btn:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .nav-info {
+        font-weight: 600;
+        color: #374151;
+        min-width: 60px;
+        text-align: center;
+    }
+
+    .add-experiencia-btn {
+        padding: 0.75rem 1.5rem;
+        background: #10b981;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.875rem;
+    }
+
+    .add-experiencia-btn:hover {
+        background: #059669;
+        transform: translateY(-1px);
+    }
+
     /* Secciones */
     .experiencias-section {
         background: #f9fafb;
@@ -133,6 +225,9 @@
     }
 
     .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         margin-bottom: 1rem;
         padding-bottom: 0.5rem;
         border-bottom: 1px solid #e5e7eb;
@@ -145,13 +240,43 @@
         color: #374151;
     }
 
+    .header-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .delete-btn {
+        padding: 0.5rem;
+        background: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.875rem;
+    }
+
+    .delete-btn:hover {
+        background: #dc2626;
+        transform: scale(1.05);
+    }
+
+    .delete-btn:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+        transform: none;
+    }
+
     /* Campos de formulario */
     .field-row {
         display: grid;
-        grid-template-columns: 1fr auto;
+        grid-template-columns: 1fr 1fr;
         gap: 1rem;
-        align-items: end;
         margin-bottom: 1rem;
+    }
+
+    .field-row:has(.full-width) {
+        grid-template-columns: 1fr;
     }
 
     .form-group {
@@ -159,11 +284,8 @@
         flex-direction: column;
     }
 
-    .form-group.icon-field {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 40px;
+    .form-group.full-width {
+        grid-column: 1 / -1;
     }
 
     .form-group label {
@@ -173,7 +295,8 @@
         font-size: 0.875rem;
     }
 
-    .form-input {
+    .form-input,
+    .form-textarea {
         padding: 0.75rem;
         border: 1px solid #d1d5db;
         border-radius: 6px;
@@ -186,50 +309,35 @@
         width: 100%;
     }
 
-    .form-input:focus {
+    .form-input:focus,
+    .form-textarea:focus {
         outline: none;
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
-    /* Botones */
-    .add-item-btn {
-        width: 32px;
-        height: 32px;
-        background: #6b7280;
-        color: white;
-        border: none;
-        border-radius: 6px;
+    .form-textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .checkbox-field {
         display: flex;
         align-items: center;
-        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .checkbox-field input[type="checkbox"] {
+        width: auto;
+        margin: 0;
+    }
+
+    .checkbox-field label {
+        margin: 0;
+        font-weight: normal;
+        font-size: 0.875rem;
         cursor: pointer;
-        font-size: 1rem;
-        transition: background 0.2s;
-    }
-
-    .add-item-btn:hover {
-        background: #4b5563;
-    }
-
-    .info-btn {
-        width: 24px;
-        height: 24px;
-        background: #6b7280;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 0.75rem;
-        font-weight: bold;
-        transition: background 0.2s;
-    }
-
-    .info-btn:hover {
-        background: #4b5563;
     }
 
     /* Botón Siguiente */
@@ -272,14 +380,24 @@
             padding: 1rem;
         }
 
+        .experiencias-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: stretch;
+        }
+
+        .nav-controls {
+            justify-content: center;
+        }
+
         .field-row {
             grid-template-columns: 1fr;
             gap: 0.5rem;
         }
 
-        .form-group.icon-field {
-            justify-content: flex-start;
-            margin-top: 0.5rem;
+        .nav-btn {
+            flex: 1;
+            max-width: 120px;
         }
 
         .btn-siguiente {
@@ -290,10 +408,15 @@
 
 <script>
     // @ts-nocheck
+    import { apiClient } from "../../utils/api.js";
+
     class ExperienciasManager {
         constructor() {
             this.form = document.getElementById("experiencias-form");
             this.isInitialized = false;
+            this.experiencias = []; // Array de experiencias
+            this.currentIndex = 0; // Índice actual
+            this.isModified = false; // Flag para cambios sin guardar
             this.init();
         }
 
@@ -307,14 +430,56 @@
                     this.populateForm(customEvent.detail);
                 }
             });
+
+            // Inicializar con una experiencia vacía si no hay datos
+            if (this.experiencias.length === 0) {
+                this.experiencias = [this.createEmptyExperiencia()];
+                this.updateNavigationUI();
+                this.loadCurrentExperiencia();
+            }
         }
 
         bindEvents() {
-            // Botones agregar
+            // Navegación
             document
-                .getElementById("add-experiencia-btn")
-                ?.addEventListener("click", () => {
-                    this.addExperienciaItem();
+                .getElementById("prev-experiencia")
+                ?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.navigateTo(this.currentIndex - 1);
+                });
+
+            document
+                .getElementById("next-experiencia")
+                ?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.navigateTo(this.currentIndex + 1);
+                });
+
+            // Agregar nueva experiencia
+            document
+                .getElementById("add-new-experiencia")
+                ?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.addNewExperiencia();
+                });
+
+            // Eliminar experiencia actual
+            document
+                .getElementById("delete-experiencia")
+                ?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.deleteCurrentExperiencia();
+                });
+
+            // Checkbox trabajo actual
+            document
+                .getElementById("trabajo-actual")
+                ?.addEventListener("change", (e) => {
+                    this.handleTrabajoActualChange(e.target.checked);
                 });
 
             // Botón siguiente
@@ -325,16 +490,201 @@
                 });
 
             // Auto-guardado después de cambios
-            this.form?.addEventListener("change", () => {
-                setTimeout(() => {
+            this.form?.addEventListener("input", () => {
+                this.isModified = true;
+                clearTimeout(this.autoSaveTimer);
+                this.autoSaveTimer = setTimeout(() => {
                     this.autoSave();
-                }, 1000);
+                }, 2000);
             });
         }
 
-        addExperienciaItem() {
-            // TODO: Agregar nueva experiencia
-            console.log("Agregando nueva experiencia");
+        createEmptyExperiencia() {
+            return {
+                id: null,
+                puesto: "",
+                empresa: "",
+                fechaInicio: "",
+                fechaFin: "",
+                descripcion: "",
+                esTrabajoActual: false,
+            };
+        }
+
+        addNewExperiencia() {
+            // Guardar la experiencia actual antes de cambiar
+            this.saveCurrentExperiencia();
+
+            // Agregar nueva experiencia vacía
+            const nuevaExperiencia = this.createEmptyExperiencia();
+            this.experiencias.push(nuevaExperiencia);
+
+            // Navegar a la nueva experiencia
+            this.navigateTo(this.experiencias.length - 1);
+
+            this.showNotification("Nueva experiencia agregada", "success");
+        }
+
+        async deleteCurrentExperiencia() {
+            if (this.experiencias.length <= 1) {
+                this.showNotification(
+                    "Debe mantener al menos una experiencia",
+                    "warning"
+                );
+                return;
+            }
+
+            const experienciaActual = this.experiencias[this.currentIndex];
+
+            if (
+                !confirm(
+                    `¿Está seguro de eliminar la experiencia en "${experienciaActual.empresa}"?`
+                )
+            ) {
+                return;
+            }
+
+            try {
+                // Si tiene ID, eliminar del servidor
+                if (experienciaActual.id) {
+                    const response = await apiClient.delete(
+                        `/perfil/experiencia/${experienciaActual.id}`
+                    );
+
+                    if (!response.success) {
+                        throw new Error(
+                            response.error || "Error al eliminar experiencia"
+                        );
+                    }
+                }
+
+                // Eliminar del array local
+                this.experiencias.splice(this.currentIndex, 1);
+
+                // Ajustar índice actual
+                if (this.currentIndex >= this.experiencias.length) {
+                    this.currentIndex = this.experiencias.length - 1;
+                }
+
+                this.updateNavigationUI();
+                this.loadCurrentExperiencia();
+
+                this.showNotification("Experiencia eliminada", "success");
+            } catch (error) {
+                console.error("Error eliminando experiencia:", error);
+                this.showNotification(
+                    "Error al eliminar la experiencia",
+                    "error"
+                );
+            }
+        }
+
+        navigateTo(newIndex) {
+            console.log(`Navegando de ${this.currentIndex} a ${newIndex}`);
+
+            if (newIndex < 0 || newIndex >= this.experiencias.length) {
+                console.warn(
+                    `Índice inválido: ${newIndex}. Total experiencias: ${this.experiencias.length}`
+                );
+                return;
+            }
+
+            // Guardar la experiencia actual antes de cambiar
+            this.saveCurrentExperiencia();
+
+            this.currentIndex = newIndex;
+            console.log(`Nuevo índice actual: ${this.currentIndex}`);
+
+            this.loadCurrentExperiencia();
+            this.updateNavigationUI();
+        }
+
+        saveCurrentExperiencia() {
+            if (!this.isModified) return;
+
+            const formData = this.getFormData();
+            this.experiencias[this.currentIndex] = {
+                ...this.experiencias[this.currentIndex],
+                ...formData,
+            };
+
+            this.isModified = false;
+        }
+
+        loadCurrentExperiencia() {
+            if (this.experiencias.length === 0) {
+                console.warn("No hay experiencias para cargar");
+                return;
+            }
+
+            const experiencia = this.experiencias[this.currentIndex] || {};
+            console.log("Cargando experiencia:", experiencia);
+
+            // Poblar campos del formulario con verificaciones de seguridad
+            const puestoInput = document.getElementById("puesto");
+            const empresaInput = document.getElementById("empresa");
+            const fechaInicioInput = document.getElementById("fecha-inicio");
+            const fechaFinInput = document.getElementById("fecha-fin");
+            const descripcionInput = document.getElementById("descripcion");
+            const trabajoActualCheckbox =
+                document.getElementById("trabajo-actual");
+
+            if (puestoInput) puestoInput.value = experiencia.puesto || "";
+            if (empresaInput) empresaInput.value = experiencia.empresa || "";
+            if (fechaInicioInput)
+                fechaInicioInput.value = experiencia.fechaInicio || "";
+            if (fechaFinInput) fechaFinInput.value = experiencia.fechaFin || "";
+            if (descripcionInput)
+                descripcionInput.value = experiencia.descripcion || "";
+
+            if (trabajoActualCheckbox) {
+                trabajoActualCheckbox.checked =
+                    experiencia.esTrabajoActual || false;
+                this.handleTrabajoActualChange(trabajoActualCheckbox.checked);
+            }
+
+            this.isModified = false;
+        }
+
+        updateNavigationUI() {
+            console.log(
+                `Actualizando UI - Índice: ${this.currentIndex}, Total: ${this.experiencias.length}`
+            );
+
+            const prevBtn = document.getElementById("prev-experiencia");
+            const nextBtn = document.getElementById("next-experiencia");
+            const counter = document.getElementById("experiencia-counter");
+            const deleteBtn = document.getElementById("delete-experiencia");
+
+            if (prevBtn) {
+                prevBtn.disabled = this.currentIndex === 0;
+                console.log(`Botón anterior habilitado: ${!prevBtn.disabled}`);
+            }
+
+            if (nextBtn) {
+                nextBtn.disabled =
+                    this.currentIndex === this.experiencias.length - 1;
+                console.log(`Botón siguiente habilitado: ${!nextBtn.disabled}`);
+            }
+
+            if (counter) {
+                counter.textContent = `${this.currentIndex + 1} / ${this.experiencias.length}`;
+                console.log(`Contador actualizado: ${counter.textContent}`);
+            }
+
+            if (deleteBtn) {
+                deleteBtn.disabled = this.experiencias.length <= 1;
+            }
+        }
+
+        handleTrabajoActualChange(isChecked) {
+            const fechaFinInput = document.getElementById("fecha-fin");
+            if (fechaFinInput) {
+                fechaFinInput.disabled = isChecked;
+                if (isChecked) {
+                    fechaFinInput.value = "";
+                }
+            }
         }
 
         populateForm(profileData) {
@@ -343,85 +693,48 @@
             console.log("Poblando experiencias con:", profileData);
 
             // Extraer experiencias laborales de la estructura de la API
-            const experiencias =
+            const experienciasData =
                 profileData.data?.experienciasLaborales ||
                 profileData.experienciasLaborales ||
                 [];
 
-            console.log("Experiencias extraídas:", experiencias);
+            console.log("Experiencias extraídas:", experienciasData);
 
-            // Limpiar experiencias existentes en el DOM
-            this.clearExistingExperiencias();
+            if (experienciasData.length > 0) {
+                this.experiencias = experienciasData.map((exp) => ({
+                    id: exp.id,
+                    puesto: exp.puesto || "",
+                    empresa: exp.empresa || "",
+                    fechaInicio: exp.fechaInicio || "",
+                    fechaFin: exp.fechaFin || "",
+                    descripcion: exp.descripcion || "",
+                    esTrabajoActual: !exp.fechaFin, // Si no hay fecha fin, es trabajo actual
+                }));
+            } else {
+                // Si no hay experiencias, mantener una vacía
+                this.experiencias = [this.createEmptyExperiencia()];
+            }
 
-            // Poblar cada experiencia
-            experiencias.forEach((exp, index) => {
-                this.addExperienciaToDOM(exp, index);
-            });
+            this.currentIndex = 0;
+            this.updateNavigationUI();
+            this.loadCurrentExperiencia();
 
             this.isInitialized = true;
             console.log("✅ Experiencias inicializadas correctamente");
         }
 
-        clearExistingExperiencias() {
-            const container = document.getElementById("experiencias-container");
-            if (container) {
-                // Mantener solo el template y el botón de agregar
-                const items = container.querySelectorAll(
-                    ".experiencia-item:not(.template)"
-                );
-                items.forEach((item) => item.remove());
-            }
-        }
-
-        addExperienciaToDOM(experiencia, index) {
-            const container = document.getElementById("experiencias-container");
-            const template = document.getElementById("experiencia-template");
-
-            if (!container || !template) return;
-
-            const clone = template.cloneNode(true);
-            clone.classList.remove("template");
-            clone.style.display = "block";
-            clone.setAttribute("data-index", index);
-
-            // Poblar campos
-            const puestoField = clone.querySelector('[name="puesto"]');
-            const empresaField = clone.querySelector('[name="empresa"]');
-            const fechaInicioField = clone.querySelector(
-                '[name="fechaInicio"]'
-            );
-            const fechaFinField = clone.querySelector('[name="fechaFin"]');
-            const descripcionField = clone.querySelector(
-                '[name="descripcion"]'
-            );
-
-            if (puestoField) puestoField.value = experiencia.puesto || "";
-            if (empresaField) empresaField.value = experiencia.empresa || "";
-            if (fechaInicioField)
-                fechaInicioField.value = experiencia.fechaInicio || "";
-            if (fechaFinField) fechaFinField.value = experiencia.fechaFin || "";
-            if (descripcionField)
-                descripcionField.value = experiencia.descripcion || "";
-
-            // Insertar antes del botón de agregar
-            const addButton = container.querySelector(".add-experiencia-btn");
-            if (addButton) {
-                container.insertBefore(clone, addButton);
-            } else {
-                container.appendChild(clone);
-            }
-        }
-
         getFormData() {
-            const formData = new FormData(this.form);
-            const data = {};
-
-            // Convertir FormData a objeto
-            for (let [key, value] of formData.entries()) {
-                data[key] = value;
-            }
-
-            return data;
+            return {
+                puesto: document.getElementById("puesto")?.value || "",
+                empresa: document.getElementById("empresa")?.value || "",
+                fechaInicio:
+                    document.getElementById("fecha-inicio")?.value || "",
+                fechaFin: document.getElementById("fecha-fin")?.value || "",
+                descripcion:
+                    document.getElementById("descripcion")?.value || "",
+                esTrabajoActual:
+                    document.getElementById("trabajo-actual")?.checked || false,
+            };
         }
 
         async saveSection() {
@@ -432,14 +745,11 @@
                     btn.textContent = "Guardando...";
                 }
 
-                const data = this.getFormData();
+                // Guardar la experiencia actual
+                this.saveCurrentExperiencia();
 
-                // Emitir evento para que el controlador principal maneje el guardado
-                window.dispatchEvent(
-                    new CustomEvent("save-section-data", {
-                        detail: { section: "experiencias", data },
-                    })
-                );
+                // Guardar todas las experiencias en el servidor
+                await this.saveAllExperiencias();
 
                 this.showNotification("Experiencias guardadas", "success");
 
@@ -465,20 +775,110 @@
             }
         }
 
-        async autoSave() {
-            const data = this.getFormData();
+        async saveAllExperiencias() {
+            const promises = [];
 
-            // Emitir evento para auto-guardado
-            window.dispatchEvent(
-                new CustomEvent("auto-save-data", {
-                    detail: { section: "experiencias", data },
-                })
-            );
+            for (const experiencia of this.experiencias) {
+                // Saltar experiencias vacías
+                if (!experiencia.puesto || !experiencia.empresa) continue;
 
-            console.log("Auto-guardando experiencias...");
+                if (experiencia.id) {
+                    // Actualizar experiencia existente
+                    promises.push(
+                        apiClient
+                            .put(`/perfil/experiencia/${experiencia.id}`, {
+                                puesto: experiencia.puesto,
+                                empresa: experiencia.empresa,
+                                fechaInicio: experiencia.fechaInicio || null,
+                                fechaFin: experiencia.esTrabajoActual
+                                    ? null
+                                    : experiencia.fechaFin || null,
+                                descripcion: experiencia.descripcion || null,
+                            })
+                            .then((response) => {
+                                if (response.success) {
+                                    // Actualizar datos locales con respuesta del servidor
+                                    Object.assign(
+                                        experiencia,
+                                        response.data.experiencia
+                                    );
+                                }
+                                return response;
+                            })
+                    );
+                } else {
+                    // Crear nueva experiencia
+                    promises.push(
+                        apiClient
+                            .post("/perfil/experiencia", {
+                                puesto: experiencia.puesto,
+                                empresa: experiencia.empresa,
+                                fechaInicio: experiencia.fechaInicio || null,
+                                fechaFin: experiencia.esTrabajoActual
+                                    ? null
+                                    : experiencia.fechaFin || null,
+                                descripcion: experiencia.descripcion || null,
+                            })
+                            .then((response) => {
+                                if (response.success) {
+                                    // Asignar ID del servidor
+                                    experiencia.id =
+                                        response.data.experiencia.id;
+                                    Object.assign(
+                                        experiencia,
+                                        response.data.experiencia
+                                    );
+                                }
+                                return response;
+                            })
+                    );
+                }
+            }
+
+            const results = await Promise.all(promises);
+
+            // Verificar si todas las operaciones fueron exitosas
+            const failed = results.filter((result) => !result.success);
+            if (failed.length > 0) {
+                throw new Error(
+                    `${failed.length} experiencia(s) no pudieron guardarse`
+                );
+            }
         }
 
-        showNotification(message: string, type: string) {
+        async autoSave() {
+            if (!this.isModified) return;
+
+            try {
+                this.saveCurrentExperiencia();
+
+                // Solo auto-guardar experiencias que ya tienen ID
+                const experienciasConId = this.experiencias.filter(
+                    (exp) => exp.id && exp.puesto && exp.empresa
+                );
+
+                for (const experiencia of experienciasConId) {
+                    await apiClient.put(
+                        `/perfil/experiencia/${experiencia.id}`,
+                        {
+                            puesto: experiencia.puesto,
+                            empresa: experiencia.empresa,
+                            fechaInicio: experiencia.fechaInicio || null,
+                            fechaFin: experiencia.esTrabajoActual
+                                ? null
+                                : experiencia.fechaFin || null,
+                            descripcion: experiencia.descripcion || null,
+                        }
+                    );
+                }
+
+                console.log("Auto-guardado de experiencias completado");
+            } catch (error) {
+                console.error("Error en auto-guardado:", error);
+            }
+        }
+
+        showNotification(message, type) {
             // Reutilizar el sistema de notificaciones del componente principal
             window.dispatchEvent(
                 new CustomEvent("show-notification", {

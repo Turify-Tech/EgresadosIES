@@ -119,6 +119,32 @@ export async function getMiPerfil(req, res) {
             args: [perfilId],
         });
 
+        // Obtener habilidades
+        const habilidadesQuery = `
+            SELECT id, nombre, tipo, nivel
+            FROM Habilidades
+            WHERE usuarioId = ?
+            ORDER BY tipo, nombre
+        `;
+
+        const habilidadesResult = await client.execute({
+            sql: habilidadesQuery,
+            args: [usuarioId],
+        });
+
+        // Obtener proyectos
+        const proyectosQuery = `
+            SELECT id, nombre, descripcion, enlace, tecnologias, fechaProyecto, imagen
+            FROM Proyectos
+            WHERE usuarioId = ?
+            ORDER BY fechaProyecto DESC, id DESC
+        `;
+
+        const proyectosResult = await client.execute({
+            sql: proyectosQuery,
+            args: [usuarioId],
+        });
+
         // Construir respuesta completa
         const perfilCompleto = {
             usuario: {
@@ -145,7 +171,20 @@ export async function getMiPerfil(req, res) {
             experienciasLaborales: experienciasResult.rows,
             formacionAcademica: formacionResult.rows,
             cursos: cursosResult.rows,
+            habilidades: habilidadesResult.rows,
+            proyectos: proyectosResult.rows,
         };
+
+        console.log("🔍 [getMiPerfil] Respuesta completa enviada:");
+        console.log("- Experiencias:", experienciasResult.rows.length);
+        console.log("- Formaciones:", formacionResult.rows.length);
+        console.log("- Cursos:", cursosResult.rows.length);
+        console.log("- Habilidades:", habilidadesResult.rows.length);
+        console.log("- Proyectos:", proyectosResult.rows.length);
+        console.log(
+            "- Proyectos data:",
+            JSON.stringify(proyectosResult.rows, null, 2)
+        );
 
         return res.status(200).json({
             success: true,

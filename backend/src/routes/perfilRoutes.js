@@ -9,6 +9,8 @@ import {
     validateExperienciaLaboral,
     validateFormacionAcademica,
     validateCurso,
+    validateHabilidad,
+    validateProyecto,
     validateIdParam,
     sanitizeStrings,
     logValidation,
@@ -34,6 +36,16 @@ import {
     updateCurso,
     deleteCurso,
 } from "../controllers/cursosController.js";
+import {
+    addHabilidad,
+    updateHabilidad,
+    deleteHabilidad,
+} from "../controllers/habilidadesController.js";
+import {
+    addProyecto,
+    updateProyecto,
+    deleteProyecto,
+} from "../controllers/proyectosController.js";
 import { downloadMiCV } from "../controllers/cvController.js";
 
 const router = express.Router();
@@ -197,6 +209,92 @@ router.delete(
     validateIdParam("id"),
     logValidation("Eliminar curso"),
     deleteCurso
+);
+
+// ===============================================
+// RUTAS DE HABILIDADES
+// ===============================================
+
+/**
+ * @route   POST /api/perfil/habilidad
+ * @desc    Agrega una nueva habilidad
+ * @access  Private (Egresado)
+ * @body    { nombre, tipo?, nivel? }
+ */
+router.post(
+    "/habilidad",
+    logValidation("Agregar habilidad"),
+    validateHabilidad,
+    addHabilidad
+);
+
+/**
+ * @route   PUT /api/perfil/habilidad/:id
+ * @desc    Actualiza una habilidad existente
+ * @access  Private (Egresado - solo propias)
+ * @body    { nombre?, tipo?, nivel? }
+ */
+router.put(
+    "/habilidad/:id",
+    validateIdParam("id"),
+    logValidation("Actualizar habilidad"),
+    validateHabilidad,
+    updateHabilidad
+);
+
+/**
+ * @route   DELETE /api/perfil/habilidad/:id
+ * @desc    Elimina una habilidad
+ * @access  Private (Egresado - solo propias)
+ */
+router.delete(
+    "/habilidad/:id",
+    validateIdParam("id"),
+    logValidation("Eliminar habilidad"),
+    deleteHabilidad
+);
+
+// ===============================================
+// RUTAS DE PROYECTOS
+// ===============================================
+
+/**
+ * @route   POST /api/perfil/proyecto
+ * @desc    Agrega un nuevo proyecto
+ * @access  Private (Egresado)
+ * @body    { nombre, descripcion?, enlace?, tecnologias?, fechaProyecto?, imagen? }
+ */
+router.post(
+    "/proyecto",
+    logValidation("Agregar proyecto"),
+    validateProyecto,
+    addProyecto
+);
+
+/**
+ * @route   PUT /api/perfil/proyecto/:id
+ * @desc    Actualiza un proyecto existente
+ * @access  Private (Egresado - solo propios)
+ * @body    { nombre?, descripcion?, enlace?, tecnologias?, fechaProyecto?, imagen? }
+ */
+router.put(
+    "/proyecto/:id",
+    validateIdParam("id"),
+    logValidation("Actualizar proyecto"),
+    validateProyecto,
+    updateProyecto
+);
+
+/**
+ * @route   DELETE /api/perfil/proyecto/:id
+ * @desc    Elimina un proyecto
+ * @access  Private (Egresado - solo propios)
+ */
+router.delete(
+    "/proyecto/:id",
+    validateIdParam("id"),
+    logValidation("Eliminar proyecto"),
+    deleteProyecto
 );
 
 // ===============================================

@@ -819,8 +819,18 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                 // Navegación entre secciones
                 document.querySelectorAll(".nav-btn").forEach((btn) => {
                     btn.addEventListener("click", (e) => {
-                        const section = e.target.dataset.section;
-                        this.switchSection(section);
+                        e.preventDefault();
+                        const section = e.currentTarget.dataset.section;
+                        console.log(
+                            `🎯 Nav button clicked - section: ${section}`
+                        );
+                        if (section) {
+                            this.switchSection(section);
+                        } else {
+                            console.warn(
+                                "⚠️ Section ID not found in button dataset"
+                            );
+                        }
                     });
                 });
 
@@ -930,7 +940,7 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                             newButton.textContent = "Guardando...";
 
                             try {
-                                // Si es la primera sección (datos personales), guardar los datos
+                                // Guardar cada sección específica
                                 if (id === "save-datos-personales") {
                                     console.log(
                                         "💾 Guardando datos personales..."
@@ -940,24 +950,32 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                                         "Datos personales guardados correctamente",
                                         "success"
                                     );
-                                }
-                                // Si es la última sección (proyectos), guardar todo el perfil
-                                else if (
-                                    !nextSection &&
-                                    id === "save-proyectos"
-                                ) {
-                                    console.log(
-                                        "💾 Guardando perfil completo..."
-                                    );
-                                    await this.saveProfile();
+                                } else if (id === "save-formaciones") {
+                                    console.log("💾 Guardando formaciones...");
+                                    await this.saveFormaciones();
                                     this.showNotification(
-                                        "¡Perfil guardado exitosamente!",
+                                        "Formaciones guardadas correctamente",
                                         "success"
                                     );
-                                } else {
-                                    // Para otras secciones, solo mostrar mensaje por ahora
+                                } else if (id === "save-experiencias") {
+                                    console.log("💾 Guardando experiencias...");
+                                    await this.saveExperiencias();
                                     this.showNotification(
-                                        "Navegando a la siguiente sección",
+                                        "Experiencias guardadas correctamente",
+                                        "success"
+                                    );
+                                } else if (id === "save-habilidades") {
+                                    console.log("💾 Guardando habilidades...");
+                                    await this.saveHabilidades();
+                                    this.showNotification(
+                                        "Habilidades guardadas correctamente",
+                                        "success"
+                                    );
+                                } else if (id === "save-proyectos") {
+                                    console.log("💾 Guardando proyectos...");
+                                    await this.saveProyectos();
+                                    this.showNotification(
+                                        "¡Perfil completado exitosamente!",
                                         "success"
                                     );
                                 }
@@ -981,10 +999,8 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                                 }
                             } catch (error) {
                                 console.error("Error:", error);
-                                this.showNotification(
-                                    "Error al guardar la sección",
-                                    "error"
-                                );
+                                // No mostrar mensaje genérico aquí ya que los métodos save
+                                // específicos ya mostraron el error detallado
                             } finally {
                                 // Restaurar botón después de un delay
                                 setTimeout(() => {
@@ -1002,6 +1018,13 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
             }
 
             switchSection(sectionId) {
+                if (!sectionId) {
+                    console.error(
+                        "❌ switchSection called with undefined/null sectionId"
+                    );
+                    return;
+                }
+
                 console.log(`🔄 Switching to section: ${sectionId}`);
 
                 // Actualizar navegación
@@ -1036,8 +1059,6 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
 
                 // Actualizar título de sección
                 this.updateSectionTitle(sectionId);
-
-                // updateSaveButton eliminado - ya no se usa
 
                 this.currentSection = sectionId;
                 console.log(`✅ Section switch completed: ${sectionId}`);
@@ -1095,6 +1116,40 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
 
                     console.log("Respuesta cruda de la API:", response);
                     this.profileData = response;
+
+                    // Logging detallado de los datos recibidos
+                    console.log("🔍 [Frontend] Datos recibidos del backend:");
+                    console.log(
+                        "- Proyectos:",
+                        response.proyectos
+                            ? response.proyectos.length
+                            : "undefined"
+                    );
+                    console.log(
+                        "- Habilidades:",
+                        response.habilidades
+                            ? response.habilidades.length
+                            : "undefined"
+                    );
+                    console.log(
+                        "- Experiencias:",
+                        response.experienciasLaborales
+                            ? response.experienciasLaborales.length
+                            : "undefined"
+                    );
+                    console.log(
+                        "- Formaciones:",
+                        response.formacionAcademica
+                            ? response.formacionAcademica.length
+                            : "undefined"
+                    );
+                    console.log(
+                        "- Cursos:",
+                        response.cursos ? response.cursos.length : "undefined"
+                    );
+                    if (response.proyectos) {
+                        console.log("- Proyectos data:", response.proyectos);
+                    }
 
                     // Actualizar header
                     this.updateHeader(response);
@@ -1493,6 +1548,327 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                         document.body.removeChild(notification);
                     }, 300);
                 }, 4000);
+            }
+
+            // Métodos de guardado específicos para cada sección
+            async saveFormaciones() {
+                try {
+                    console.log("💾 Guardando formaciones y cursos...");
+
+                    // Obtener datos del FormacionesManager
+                    if (window.formacionesManager) {
+                        const data = window.formacionesManager.getFormData();
+                        console.log("Datos de formaciones:", data);
+
+                        // Guardar formaciones
+                        if (data.formaciones && data.formaciones.length > 0) {
+                            for (const formacion of data.formaciones) {
+                                if (formacion.titulo) {
+                                    // Preparar datos limpios para la API
+                                    const formacionData = {
+                                        titulo: formacion.titulo,
+                                        institucion: formacion.institucion,
+                                        anioFinalizacion:
+                                            formacion.anioFinalizacion,
+                                    };
+
+                                    if (formacion.id) {
+                                        await profileService.updateFormacion(
+                                            formacion.id,
+                                            formacionData
+                                        );
+                                    } else {
+                                        await profileService.addFormacion(
+                                            formacionData
+                                        );
+                                    }
+                                }
+                            }
+                        }
+
+                        // Guardar cursos
+                        if (data.cursos && data.cursos.length > 0) {
+                            for (const curso of data.cursos) {
+                                if (curso.nombre) {
+                                    // Preparar datos limpios para la API
+                                    const cursoData = {
+                                        nombre: curso.nombre,
+                                        institucion: curso.institucion || null,
+                                        horasDuracion:
+                                            curso.horasDuracion || null,
+                                    };
+
+                                    if (curso.id) {
+                                        await profileService.updateCurso(
+                                            curso.id,
+                                            cursoData
+                                        );
+                                    } else {
+                                        await profileService.addCurso(
+                                            cursoData
+                                        );
+                                    }
+                                }
+                            }
+                        }
+
+                        // Recargar datos después del guardado exitoso
+                        console.log(
+                            "✅ Formaciones guardadas, recargando datos..."
+                        );
+                        await this.loadUserProfile();
+
+                        return true;
+                    } else {
+                        console.warn("FormacionesManager no encontrado");
+                        return false;
+                    }
+                } catch (error) {
+                    console.error("Error guardando formaciones:", error);
+
+                    // Mostrar error específico al usuario
+                    let errorMessage = "Error al guardar formaciones y cursos";
+
+                    if (error.response && error.response.data) {
+                        // Error del backend con detalles
+                        if (
+                            error.response.data.details &&
+                            Array.isArray(error.response.data.details)
+                        ) {
+                            errorMessage = `Error de validación: ${error.response.data.details.join(", ")}`;
+                        } else if (error.response.data.error) {
+                            errorMessage = error.response.data.error;
+                        }
+                    } else if (error.message) {
+                        errorMessage = error.message;
+                    }
+
+                    this.showNotification(errorMessage, "error");
+                    throw error;
+                }
+            }
+
+            async saveExperiencias() {
+                try {
+                    console.log("💾 Guardando experiencias laborales...");
+
+                    // Obtener datos del ExperienciasManager
+                    if (window.experienciasManager) {
+                        const data = window.experienciasManager.getFormData();
+                        console.log("Datos de experiencias:", data);
+
+                        if (data.experiencias && data.experiencias.length > 0) {
+                            for (const experiencia of data.experiencias) {
+                                if (experiencia.puesto && experiencia.empresa) {
+                                    // Preparar datos limpios para la API
+                                    const experienciaData = {
+                                        puesto: experiencia.puesto,
+                                        empresa: experiencia.empresa,
+                                        fechaInicio:
+                                            experiencia.fechaInicio || null,
+                                        fechaFin: experiencia.fechaFin || null,
+                                        descripcion:
+                                            experiencia.descripcion || null,
+                                    };
+
+                                    if (experiencia.id) {
+                                        await profileService.updateExperiencia(
+                                            experiencia.id,
+                                            experienciaData
+                                        );
+                                    } else {
+                                        await profileService.addExperiencia(
+                                            experienciaData
+                                        );
+                                    }
+                                }
+                            }
+                        }
+
+                        // Recargar datos después del guardado exitoso
+                        console.log(
+                            "✅ Experiencias guardadas, recargando datos..."
+                        );
+                        await this.loadUserProfile();
+
+                        return true;
+                    } else {
+                        console.warn("ExperienciasManager no encontrado");
+                        return false;
+                    }
+                } catch (error) {
+                    console.error("Error guardando experiencias:", error);
+
+                    // Mostrar error específico al usuario
+                    let errorMessage =
+                        "Error al guardar experiencias laborales";
+
+                    if (error.response && error.response.data) {
+                        // Error del backend con detalles
+                        if (
+                            error.response.data.details &&
+                            Array.isArray(error.response.data.details)
+                        ) {
+                            errorMessage = `Error de validación: ${error.response.data.details.join(", ")}`;
+                        } else if (error.response.data.error) {
+                            errorMessage = error.response.data.error;
+                        }
+                    } else if (error.message) {
+                        errorMessage = error.message;
+                    }
+
+                    this.showNotification(errorMessage, "error");
+                    throw error;
+                }
+            }
+
+            async saveHabilidades() {
+                try {
+                    console.log("💾 Guardando habilidades...");
+
+                    // Obtener datos del HabilidadesManager
+                    if (window.habilidadesManager) {
+                        const data = window.habilidadesManager.getFormData();
+                        console.log("Datos de habilidades:", data);
+
+                        const todasHabilidades = [
+                            ...(data.habilidadesTecnicas || []),
+                            ...(data.habilidadesBlandas || []),
+                        ];
+
+                        if (todasHabilidades.length > 0) {
+                            for (const habilidad of todasHabilidades) {
+                                if (habilidad.nombre) {
+                                    // Preparar datos limpios para la API
+                                    const habilidadData = {
+                                        nombre: habilidad.nombre,
+                                        tipo: habilidad.tipo || "tecnica",
+                                        nivel: habilidad.nivel || null,
+                                    };
+
+                                    if (habilidad.id) {
+                                        await profileService.updateHabilidad(
+                                            habilidad.id,
+                                            habilidadData
+                                        );
+                                    } else {
+                                        await profileService.addHabilidad(
+                                            habilidadData
+                                        );
+                                    }
+                                }
+                            }
+                        }
+
+                        // Recargar datos después del guardado exitoso
+                        console.log(
+                            "✅ Habilidades guardadas, recargando datos..."
+                        );
+                        await this.loadUserProfile();
+
+                        return true;
+                    } else {
+                        console.warn("HabilidadesManager no encontrado");
+                        return false;
+                    }
+                } catch (error) {
+                    console.error("Error guardando habilidades:", error);
+
+                    // Mostrar error específico al usuario
+                    let errorMessage = "Error al guardar habilidades";
+
+                    if (error.response && error.response.data) {
+                        // Error del backend con detalles
+                        if (
+                            error.response.data.details &&
+                            Array.isArray(error.response.data.details)
+                        ) {
+                            errorMessage = `Error de validación: ${error.response.data.details.join(", ")}`;
+                        } else if (error.response.data.error) {
+                            errorMessage = error.response.data.error;
+                        }
+                    } else if (error.message) {
+                        errorMessage = error.message;
+                    }
+
+                    this.showNotification(errorMessage, "error");
+                    throw error;
+                }
+            }
+
+            async saveProyectos() {
+                try {
+                    console.log("💾 Guardando proyectos...");
+
+                    // Obtener datos del ProyectosManager
+                    if (window.proyectosManager) {
+                        const data = window.proyectosManager.getFormData();
+                        console.log("Datos de proyectos:", data);
+
+                        if (data.proyectos && data.proyectos.length > 0) {
+                            for (const proyecto of data.proyectos) {
+                                if (proyecto.nombre) {
+                                    // Preparar datos limpios para la API
+                                    const proyectoData = {
+                                        nombre: proyecto.nombre,
+                                        descripcion:
+                                            proyecto.descripcion || null,
+                                        enlace: proyecto.enlace || null,
+                                        tecnologias:
+                                            proyecto.tecnologias || null,
+                                        fechaProyecto:
+                                            proyecto.fechaProyecto || null,
+                                        imagen: proyecto.imagen || null,
+                                    };
+
+                                    if (proyecto.id) {
+                                        await profileService.updateProyecto(
+                                            proyecto.id,
+                                            proyectoData
+                                        );
+                                    } else {
+                                        await profileService.addProyecto(
+                                            proyectoData
+                                        );
+                                    }
+                                }
+                            }
+                        }
+
+                        // Recargar datos después del guardado exitoso
+                        console.log(
+                            "✅ Proyectos guardados, recargando datos..."
+                        );
+                        await this.loadUserProfile();
+
+                        return true;
+                    } else {
+                        console.warn("ProyectosManager no encontrado");
+                        return false;
+                    }
+                } catch (error) {
+                    console.error("Error guardando proyectos:", error);
+
+                    // Mostrar error específico al usuario
+                    let errorMessage = "Error al guardar proyectos";
+
+                    if (error.response && error.response.data) {
+                        // Error del backend con detalles
+                        if (
+                            error.response.data.details &&
+                            Array.isArray(error.response.data.details)
+                        ) {
+                            errorMessage = `Error de validación: ${error.response.data.details.join(", ")}`;
+                        } else if (error.response.data.error) {
+                            errorMessage = error.response.data.error;
+                        }
+                    } else if (error.message) {
+                        errorMessage = error.message;
+                    }
+
+                    this.showNotification(errorMessage, "error");
+                    throw error;
+                }
             }
         }
 

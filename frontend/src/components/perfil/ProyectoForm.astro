@@ -8,14 +8,48 @@
     </div>
 
     <form class="proyectos-content" id="proyectos-form">
+        <!-- Header con navegación -->
+        <div class="proyectos-header">
+            <div class="nav-controls">
+                <button
+                    type="button"
+                    class="nav-btn"
+                    id="prev-proyecto"
+                    disabled>
+                    ← Anterior
+                </button>
+                <span class="nav-info" id="proyecto-counter">1 / 1</span>
+                <button type="button" class="nav-btn" id="next-proyecto">
+                    Siguiente →
+                </button>
+            </div>
+            <button
+                type="button"
+                class="add-proyecto-btn"
+                id="add-new-proyecto">
+                + Agregar Proyecto
+            </button>
+        </div>
+
         <div class="proyecto-section">
+            <!-- Header de sección con botón eliminar -->
+            <div class="section-header">
+                <h3>Proyecto</h3>
+                <div class="header-actions">
+                    <button
+                        type="button"
+                        class="delete-btn"
+                        id="delete-proyecto"
+                        title="Eliminar proyecto actual">
+                        🗑️
+                    </button>
+                </div>
+            </div>
+
             <!-- Sección de Imagen -->
             <div class="image-section">
                 <div class="image-header">
-                    <h3>Imagen</h3>
-                    <button type="button" class="add-item-btn">
-                        <span>⚙</span>
-                    </button>
+                    <h4>Imagen del Proyecto</h4>
                 </div>
 
                 <div class="image-upload-area">
@@ -53,24 +87,6 @@
 
             <!-- Sección de Información -->
             <div class="info-section">
-                <!-- Descripción -->
-                <div class="field-row">
-                    <div class="form-group">
-                        <label for="descripcion">Descripción:</label>
-                        <textarea
-                            id="descripcion"
-                            name="descripcion"
-                            class="form-textarea"
-                            placeholder="Descripción detallada..."
-                            rows="4"></textarea>
-                    </div>
-                    <div class="form-group icon-field">
-                        <button type="button" class="add-item-btn">
-                            <span>⚙</span>
-                        </button>
-                    </div>
-                </div>
-
                 <!-- Nombre del Proyecto -->
                 <div class="field-row">
                     <div class="form-group">
@@ -81,45 +97,55 @@
                             id="nombre-proyecto"
                             name="nombreProyecto"
                             class="form-input"
-                            placeholder=""
+                            placeholder="Ej: E-commerce Platform"
+                            required
                         />
                     </div>
-                    <div class="form-group icon-field">
-                        <button type="button" class="add-item-btn">
-                            <span>⚙</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Enlace -->
-                <div class="field-row">
                     <div class="form-group">
-                        <label for="enlace">Enlace:</label>
+                        <label for="enlace">Enlace del Proyecto:</label>
                         <input
                             type="url"
                             id="enlace"
                             name="enlace"
                             class="form-input"
-                            placeholder="https://..."
+                            placeholder="https://mi-proyecto.com"
                         />
-                    </div>
-                    <div class="form-group icon-field">
-                        <button type="button" class="add-item-btn">
-                            <span>⚙</span>
-                        </button>
                     </div>
                 </div>
 
-                <!-- Agregar más -->
+                <!-- Tecnologías -->
                 <div class="field-row">
                     <div class="form-group">
-                        <label for="agregar-mas">Agregar más:</label>
-                        <button
-                            type="button"
-                            class="info-btn"
-                            title="Agregar más proyectos">
-                            <span>i</span>
-                        </button>
+                        <label for="tecnologias">Tecnologías Utilizadas:</label>
+                        <input
+                            type="text"
+                            id="tecnologias"
+                            name="tecnologias"
+                            class="form-input"
+                            placeholder="React, Node.js, MongoDB, etc."
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha-proyecto">Fecha:</label>
+                        <input
+                            type="date"
+                            id="fecha-proyecto"
+                            name="fechaProyecto"
+                            class="form-input"
+                        />
+                    </div>
+                </div>
+
+                <!-- Descripción -->
+                <div class="field-row">
+                    <div class="form-group full-width">
+                        <label for="descripcion">Descripción:</label>
+                        <textarea
+                            id="descripcion"
+                            name="descripcion"
+                            class="form-textarea"
+                            placeholder="Describe el proyecto, sus objetivos, funcionalidades principales..."
+                            rows="4"></textarea>
                     </div>
                 </div>
             </div>
@@ -164,12 +190,120 @@
         gap: 2rem;
     }
 
+    /* Header con navegación */
+    .proyectos-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: #f1f5f9;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 1rem;
+    }
+
+    .nav-controls {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .nav-btn {
+        padding: 0.5rem 1rem;
+        background: #6366f1;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+        background: #4f46e5;
+        transform: translateY(-1px);
+    }
+
+    .nav-btn:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .nav-info {
+        font-weight: 600;
+        color: #374151;
+        min-width: 60px;
+        text-align: center;
+    }
+
+    .add-proyecto-btn {
+        padding: 0.75rem 1.5rem;
+        background: #10b981;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.875rem;
+    }
+
+    .add-proyecto-btn:hover {
+        background: #059669;
+        transform: translateY(-1px);
+    }
+
+    /* Header de sección */
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .section-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .delete-btn {
+        padding: 0.5rem;
+        background: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.875rem;
+    }
+
+    .delete-btn:hover {
+        background: #dc2626;
+        transform: scale(1.05);
+    }
+
+    .delete-btn:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+        transform: none;
+    }
+
     .proyecto-section {
         background: #f9fafb;
         border-radius: 8px;
         padding: 1.5rem;
         display: grid;
-        grid-template-columns: 200px 1fr;
+        grid-template-columns: 250px 1fr;
         gap: 2rem;
         align-items: start;
     }
@@ -181,17 +315,14 @@
     }
 
     .image-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
         margin-bottom: 1rem;
         padding-bottom: 0.5rem;
         border-bottom: 1px solid #e5e7eb;
     }
 
-    .image-header h3 {
+    .image-header h4 {
         margin: 0;
-        font-size: 1rem;
+        font-size: 0.9rem;
         font-weight: 600;
         color: #374151;
     }
@@ -294,15 +425,16 @@
         gap: 1rem;
     }
 
+    /* Campos de formulario */
     .field-row {
         display: grid;
-        grid-template-columns: 1fr auto;
+        grid-template-columns: 1fr 1fr;
         gap: 1rem;
-        align-items: end;
+        margin-bottom: 1rem;
     }
 
-    .field-row:last-child {
-        align-items: center;
+    .field-row:has(.full-width) {
+        grid-template-columns: 1fr;
     }
 
     .form-group {
@@ -310,11 +442,8 @@
         flex-direction: column;
     }
 
-    .form-group.icon-field {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 40px;
+    .form-group.full-width {
+        grid-column: 1 / -1;
     }
 
     .form-group label {
@@ -348,46 +477,6 @@
     .form-textarea {
         resize: vertical;
         min-height: 100px;
-    }
-
-    /* Botones */
-    .add-item-btn {
-        width: 32px;
-        height: 32px;
-        background: #6b7280;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 1rem;
-        transition: background 0.2s;
-    }
-
-    .add-item-btn:hover {
-        background: #4b5563;
-    }
-
-    .info-btn {
-        width: 24px;
-        height: 24px;
-        background: #6b7280;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 0.75rem;
-        font-weight: bold;
-        transition: background 0.2s;
-    }
-
-    .info-btn:hover {
-        background: #4b5563;
     }
 
     /* Botón Guardar */
@@ -430,6 +519,16 @@
             padding: 1rem;
         }
 
+        .proyectos-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: stretch;
+        }
+
+        .nav-controls {
+            justify-content: center;
+        }
+
         .proyecto-section {
             grid-template-columns: 1fr;
             gap: 1rem;
@@ -445,9 +544,9 @@
             gap: 0.5rem;
         }
 
-        .form-group.icon-field {
-            justify-content: flex-start;
-            margin-top: 0.5rem;
+        .nav-btn {
+            flex: 1;
+            max-width: 120px;
         }
 
         .btn-guardar {
@@ -459,15 +558,16 @@
 <script>
     // @ts-nocheck
     import { imageService, ImageUtils } from "../../utils/imgbb.js";
+    import { apiClient } from "../../utils/api.js";
 
     class ProyectosManager {
         constructor() {
             console.log("🏗️ ProyectosManager - Constructor iniciado");
             this.form = document.getElementById("proyectos-form");
             this.isInitialized = false;
-            this.currentProjectImage = null; // URL de la imagen actual del proyecto
-            this.proyectos = []; // Array para múltiples proyectos
+            this.proyectos = []; // Array de proyectos
             this.currentProjectIndex = 0; // Índice del proyecto actual
+            this.isModified = false; // Flag para cambios sin guardar
             console.log("🔍 ProyectosManager - Form encontrado:", !!this.form);
             this.init();
         }
@@ -479,9 +579,51 @@
             window.addEventListener("profile-data-loaded", (e) => {
                 this.populateForm(e.detail);
             });
+
+            // Inicializar con un proyecto vacío si no hay datos
+            if (this.proyectos.length === 0) {
+                this.proyectos = [this.createEmptyProyecto()];
+                this.updateNavigationUI();
+                this.loadCurrentProject();
+            }
         }
 
         bindEvents() {
+            // Navegación
+            document
+                .getElementById("prev-proyecto")
+                ?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.navigateTo(this.currentProjectIndex - 1);
+                });
+
+            document
+                .getElementById("next-proyecto")
+                ?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.navigateTo(this.currentProjectIndex + 1);
+                });
+
+            // Agregar nuevo proyecto
+            document
+                .getElementById("add-new-proyecto")
+                ?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.addNewProject();
+                });
+
+            // Eliminar proyecto actual
+            document
+                .getElementById("delete-proyecto")
+                ?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.deleteCurrentProject();
+                });
+
             // Upload de imagen
             const uploadBtn = document.getElementById("upload-project-image");
             const imageInput = document.getElementById("project-image-input");
@@ -512,11 +654,162 @@
                 });
 
             // Auto-guardado después de cambios
-            this.form?.addEventListener("change", () => {
-                setTimeout(() => {
+            this.form?.addEventListener("input", () => {
+                this.isModified = true;
+                clearTimeout(this.autoSaveTimer);
+                this.autoSaveTimer = setTimeout(() => {
                     this.autoSave();
-                }, 1000);
+                }, 2000);
             });
+        }
+
+        createEmptyProyecto() {
+            return {
+                id: null,
+                nombre: "",
+                descripcion: "",
+                enlace: "",
+                tecnologias: "",
+                fechaProyecto: "",
+                imagen: null,
+            };
+        }
+
+        addNewProject() {
+            // Guardar el proyecto actual antes de cambiar
+            this.saveCurrentProject();
+
+            // Agregar nuevo proyecto vacío
+            const nuevoProyecto = this.createEmptyProyecto();
+            this.proyectos.push(nuevoProyecto);
+
+            // Navegar al nuevo proyecto
+            this.navigateTo(this.proyectos.length - 1);
+
+            this.showNotification("Nuevo proyecto agregado", "success");
+        }
+
+        async deleteCurrentProject() {
+            if (this.proyectos.length <= 1) {
+                this.showNotification(
+                    "Debe mantener al menos un proyecto",
+                    "warning"
+                );
+                return;
+            }
+
+            const proyectoActual = this.proyectos[this.currentProjectIndex];
+
+            if (
+                !confirm(
+                    `¿Está seguro de eliminar el proyecto "${proyectoActual.nombre || "Sin nombre"}"?`
+                )
+            ) {
+                return;
+            }
+
+            try {
+                // Si tiene ID, eliminar del servidor
+                if (proyectoActual.id) {
+                    const response = await apiClient.delete(
+                        `/perfil/proyecto/${proyectoActual.id}`
+                    );
+
+                    if (!response.success) {
+                        throw new Error(
+                            response.error || "Error al eliminar proyecto"
+                        );
+                    }
+                }
+
+                // Eliminar del array local
+                this.proyectos.splice(this.currentProjectIndex, 1);
+
+                // Ajustar índice actual
+                if (this.currentProjectIndex >= this.proyectos.length) {
+                    this.currentProjectIndex = this.proyectos.length - 1;
+                }
+
+                this.updateNavigationUI();
+                this.loadCurrentProject();
+
+                this.showNotification("Proyecto eliminado", "success");
+            } catch (error) {
+                console.error("Error eliminando proyecto:", error);
+                this.showNotification("Error al eliminar el proyecto", "error");
+            }
+        }
+
+        navigateTo(newIndex) {
+            if (newIndex < 0 || newIndex >= this.proyectos.length) return;
+
+            // Guardar el proyecto actual antes de cambiar
+            this.saveCurrentProject();
+
+            this.currentProjectIndex = newIndex;
+            this.loadCurrentProject();
+            this.updateNavigationUI();
+        }
+
+        saveCurrentProject() {
+            if (!this.isModified) return;
+
+            const formData = this.getCurrentProjectData();
+            this.proyectos[this.currentProjectIndex] = {
+                ...this.proyectos[this.currentProjectIndex],
+                ...formData,
+            };
+
+            this.isModified = false;
+        }
+
+        loadCurrentProject() {
+            if (this.proyectos.length === 0) {
+                console.warn("No hay proyectos para cargar");
+                return;
+            }
+
+            const proyecto = this.proyectos[this.currentProjectIndex] || {};
+            console.log("Cargando proyecto:", proyecto);
+
+            // Poblar campos del formulario
+            const nombreInput = document.getElementById("nombre-proyecto");
+            const descripcionInput = document.getElementById("descripcion");
+            const enlaceInput = document.getElementById("enlace");
+            const tecnologiasInput = document.getElementById("tecnologias");
+            const fechaInput = document.getElementById("fecha-proyecto");
+
+            if (nombreInput) nombreInput.value = proyecto.nombre || "";
+            if (descripcionInput)
+                descripcionInput.value = proyecto.descripcion || "";
+            if (enlaceInput) enlaceInput.value = proyecto.enlace || "";
+            if (tecnologiasInput)
+                tecnologiasInput.value = proyecto.tecnologias || "";
+            if (fechaInput) fechaInput.value = proyecto.fechaProyecto || "";
+
+            // Cargar imagen del proyecto
+            this.loadProjectImage();
+            this.isModified = false;
+        }
+
+        updateNavigationUI() {
+            const prevBtn = document.getElementById("prev-proyecto");
+            const nextBtn = document.getElementById("next-proyecto");
+            const counter = document.getElementById("proyecto-counter");
+            const deleteBtn = document.getElementById("delete-proyecto");
+
+            if (prevBtn) prevBtn.disabled = this.currentProjectIndex === 0;
+            if (nextBtn)
+                nextBtn.disabled =
+                    this.currentProjectIndex === this.proyectos.length - 1;
+
+            if (counter) {
+                counter.textContent = `${this.currentProjectIndex + 1} / ${this.proyectos.length}`;
+            }
+
+            if (deleteBtn) {
+                deleteBtn.disabled = this.proyectos.length <= 1;
+            }
         }
 
         async handleImageUpload(e) {
@@ -580,7 +873,11 @@
                     const imageUrl = uploadResult.url;
 
                     this.updateImagePreview(imageUrl);
-                    this.currentProjectImage = uploadResult.url; // Guardar URL original
+
+                    // Guardar URL en el proyecto actual
+                    this.proyectos[this.currentProjectIndex].imagen =
+                        uploadResult.url;
+                    this.isModified = true;
 
                     this.showNotification(
                         "Imagen del proyecto subida correctamente",
@@ -655,9 +952,10 @@
             let imageUrl = null;
 
             // Si hay imagen actual del proyecto, usarla
-            if (this.currentProjectImage) {
+            const proyectoActual = this.proyectos[this.currentProjectIndex];
+            if (proyectoActual && proyectoActual.imagen) {
                 // ImgBB devuelve URLs directas
-                imageUrl = this.currentProjectImage;
+                imageUrl = proyectoActual.imagen;
             }
 
             this.updateImagePreview(imageUrl);
@@ -669,84 +967,106 @@
             console.log("Poblando proyectos", profileData);
 
             // Buscar proyectos en los datos del perfil
-            const perfil = profileData.data?.perfil || profileData.perfil || {};
+            const data = profileData.data || profileData;
 
-            // Los proyectos podrían estar en diferentes campos
-            if (perfil.proyectos && Array.isArray(perfil.proyectos)) {
-                this.proyectos = perfil.proyectos;
-                this.loadCurrentProject();
-            } else if (
-                perfil.urlImagenProyecto ||
-                perfil.nombreProyecto ||
-                perfil.descripcionProyecto
-            ) {
-                // Proyecto único en campos individuales
-                this.proyectos = [
-                    {
-                        nombre: perfil.nombreProyecto || "",
-                        descripcion: perfil.descripcionProyecto || "",
-                        enlace: perfil.enlaceProyecto || "",
-                        imagen: perfil.urlImagenProyecto || null,
-                    },
-                ];
-                this.loadCurrentProject();
+            console.log("🔍 [ProyectoForm] Buscando proyectos en:", data);
+            console.log(
+                "🔍 [ProyectoForm] Proyectos encontrados:",
+                data.proyectos
+            );
+
+            // Los proyectos están directamente en data.proyectos
+            if (data.proyectos && Array.isArray(data.proyectos)) {
+                this.proyectos = data.proyectos.map((p) => ({
+                    id: p.id || null,
+                    nombre: p.nombre || "",
+                    descripcion: p.descripcion || "",
+                    enlace: p.enlace || "",
+                    tecnologias: p.tecnologias || "",
+                    fechaProyecto: p.fechaProyecto || "",
+                    imagen: p.imagen || null,
+                }));
+
+                console.log(
+                    "✅ [ProyectoForm] Proyectos cargados:",
+                    this.proyectos.length
+                );
+            } else {
+                // Fallback: buscar en la estructura antigua por compatibilidad
+                const perfil = data.perfil || {};
+                if (perfil.proyectos && Array.isArray(perfil.proyectos)) {
+                    this.proyectos = perfil.proyectos.map((p) => ({
+                        id: p.id || null,
+                        nombre: p.nombre || "",
+                        descripcion: p.descripcion || "",
+                        enlace: p.enlace || "",
+                        tecnologias: p.tecnologias || "",
+                        fechaProyecto: p.fechaProyecto || "",
+                        imagen: p.imagen || null,
+                    }));
+                } else if (
+                    perfil.urlImagenProyecto ||
+                    perfil.nombreProyecto ||
+                    perfil.descripcionProyecto
+                ) {
+                    // Proyecto único en campos individuales
+                    this.proyectos = [
+                        {
+                            id: null,
+                            nombre: perfil.nombreProyecto || "",
+                            descripcion: perfil.descripcionProyecto || "",
+                            enlace: perfil.enlaceProyecto || "",
+                            tecnologias: perfil.tecnologiasProyecto || "",
+                            fechaProyecto: perfil.fechaProyecto || "",
+                            imagen: perfil.urlImagenProyecto || null,
+                        },
+                    ];
+                }
             }
 
+            // Si no hay proyectos, mantener uno vacío
+            if (this.proyectos.length === 0) {
+                this.proyectos = [this.createEmptyProyecto()];
+            }
+
+            this.currentProjectIndex = 0;
+            this.updateNavigationUI();
+            this.loadCurrentProject();
+
             this.isInitialized = true;
-        }
-
-        loadCurrentProject() {
-            if (this.proyectos.length === 0) return;
-
-            const proyecto = this.proyectos[this.currentProjectIndex] || {};
-
-            // Poblar campos del formulario
-            const nombreInput = document.getElementById("nombre-proyecto");
-            const descripcionInput = document.getElementById("descripcion");
-            const enlaceInput = document.getElementById("enlace");
-
-            if (nombreInput) nombreInput.value = proyecto.nombre || "";
-            if (descripcionInput)
-                descripcionInput.value = proyecto.descripcion || "";
-            if (enlaceInput) enlaceInput.value = proyecto.enlace || "";
-
-            // Cargar imagen del proyecto
-            this.currentProjectImage = proyecto.imagen;
-            this.loadProjectImage();
         }
 
         getCurrentProjectData() {
             const nombreInput = document.getElementById("nombre-proyecto");
             const descripcionInput = document.getElementById("descripcion");
             const enlaceInput = document.getElementById("enlace");
+            const tecnologiasInput = document.getElementById("tecnologias");
+            const fechaInput = document.getElementById("fecha-proyecto");
 
             return {
                 nombre: nombreInput?.value || "",
                 descripcion: descripcionInput?.value || "",
                 enlace: enlaceInput?.value || "",
-                imagen: this.currentProjectImage,
+                tecnologias: tecnologiasInput?.value || "",
+                fechaProyecto: fechaInput?.value || "",
+                // La imagen se maneja por separado
             };
         }
 
         getFormData() {
-            // Obtener datos del proyecto actual
-            const proyectoActual = this.getCurrentProjectData();
-
-            // Actualizar el proyecto en el array
-            if (this.proyectos.length === 0) {
-                this.proyectos.push(proyectoActual);
-            } else {
-                this.proyectos[this.currentProjectIndex] = proyectoActual;
-            }
+            // Guardar datos del proyecto actual
+            this.saveCurrentProject();
 
             // Devolver datos para la API
             return {
                 proyectos: this.proyectos,
                 // Compatibilidad con campos individuales por si la API los espera
-                nombreProyecto: proyectoActual.nombre,
-                descripcionProyecto: proyectoActual.descripcion,
-                enlaceProyecto: proyectoActual.enlace,
-                urlImagenProyecto: proyectoActual.imagen,
+                nombreProyecto: this.proyectos[0]?.nombre || "",
+                descripcionProyecto: this.proyectos[0]?.descripcion || "",
+                enlaceProyecto: this.proyectos[0]?.enlace || "",
+                tecnologiasProyecto: this.proyectos[0]?.tecnologias || "",
+                fechaProyecto: this.proyectos[0]?.fechaProyecto || "",
+                urlImagenProyecto: this.proyectos[0]?.imagen || null,
             };
         }
 
@@ -792,16 +1112,29 @@
         }
 
         async autoSave() {
-            const data = this.getFormData();
+            try {
+                this.saveCurrentProject();
 
-            // Emitir evento para auto-guardado
-            window.dispatchEvent(
-                new CustomEvent("auto-save-data", {
-                    detail: { section: "proyectos", data },
-                })
-            );
+                // Solo auto-guardar proyectos que ya tienen ID
+                const proyectosConId = this.proyectos.filter(
+                    (proyecto) => proyecto.id && proyecto.nombre
+                );
 
-            console.log("Auto-guardando proyectos...");
+                for (const proyecto of proyectosConId) {
+                    await apiClient.put(`/perfil/proyecto/${proyecto.id}`, {
+                        nombre: proyecto.nombre,
+                        descripcion: proyecto.descripcion || null,
+                        enlace: proyecto.enlace || null,
+                        tecnologias: proyecto.tecnologias || null,
+                        fechaProyecto: proyecto.fechaProyecto || null,
+                        imagen: proyecto.imagen || null,
+                    });
+                }
+
+                console.log("Auto-guardado de proyectos completado");
+            } catch (error) {
+                console.error("Error en auto-guardado de proyectos:", error);
+            }
         }
 
         showNotification(message, type) {

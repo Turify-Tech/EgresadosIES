@@ -11,59 +11,70 @@
         <!-- Sección: Técnicas -->
         <div class="habilidades-section">
             <div class="section-header">
-                <h3>Técnicas:</h3>
+                <h3>Habilidades Técnicas</h3>
+                <button
+                    type="button"
+                    class="add-habilidad-btn"
+                    id="add-new-habilidad-tecnica">
+                    + Agregar Habilidad
+                </button>
             </div>
 
-            <div class="field-row">
-                <div class="form-group">
-                    <label for="lenguajes">Lenguajes:</label>
-                    <select id="lenguajes" name="lenguajes" class="form-select">
-                        <option value="">Python, Java...</option>
-                        <option value="Python">Python</option>
-                        <option value="Java">Java</option>
-                        <option value="JavaScript">JavaScript</option>
-                        <option value="TypeScript">TypeScript</option>
-                        <option value="C++">C++</option>
-                        <option value="C#">C#</option>
-                        <option value="PHP">PHP</option>
-                        <option value="Go">Go</option>
-                        <option value="Rust">Rust</option>
-                        <option value="Swift">Swift</option>
-                    </select>
-                </div>
-                <div class="form-group icon-field">
-                    <button type="button" class="add-item-btn">
-                        <span>⚙</span>
-                    </button>
-                </div>
+            <div class="habilidades-list" id="habilidades-tecnicas-list">
+                <!-- Las habilidades se cargan dinámicamente aquí -->
             </div>
 
-            <div class="field-row">
-                <div class="form-group">
-                    <label for="herramientas">Herramientas:</label>
-                    <select
-                        id="herramientas"
-                        name="herramientas"
-                        class="form-select">
-                        <option value="">Figma, AutoCad...</option>
-                        <option value="Figma">Figma</option>
-                        <option value="AutoCAD">AutoCAD</option>
-                        <option value="Photoshop">Photoshop</option>
-                        <option value="Illustrator">Illustrator</option>
-                        <option value="InDesign">InDesign</option>
-                        <option value="Sketch">Sketch</option>
-                        <option value="XD">Adobe XD</option>
-                        <option value="Blender">Blender</option>
-                        <option value="Unity">Unity</option>
-                        <option value="Git">Git</option>
-                        <option value="Docker">Docker</option>
-                        <option value="Kubernetes">Kubernetes</option>
-                    </select>
+            <div class="add-habilidad-form" id="habilidad-tecnica-form">
+                <div class="field-row">
+                    <div class="form-group">
+                        <label for="categoria-tecnica">Categoría:</label>
+                        <select
+                            id="categoria-tecnica"
+                            name="categoria"
+                            class="form-select">
+                            <option value="lenguajes"
+                                >Lenguajes de Programación</option
+                            >
+                            <option value="frameworks">Frameworks</option>
+                            <option value="bases_datos">Bases de Datos</option>
+                            <option value="herramientas">Herramientas</option>
+                            <option value="metodologias">Metodologías</option>
+                            <option value="otras">Otras</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="habilidad-tecnica">Habilidad:</label>
+                        <input
+                            type="text"
+                            id="habilidad-tecnica"
+                            name="habilidad"
+                            class="form-input"
+                            placeholder="Ej: Python, React, MySQL..."
+                        />
+                    </div>
                 </div>
-                <div class="form-group icon-field">
-                    <button type="button" class="add-item-btn">
-                        <span>⚙</span>
-                    </button>
+
+                <div class="field-row">
+                    <div class="form-group">
+                        <label for="nivel-tecnica">Nivel:</label>
+                        <select
+                            id="nivel-tecnica"
+                            name="nivel"
+                            class="form-select">
+                            <option value="basico">Básico</option>
+                            <option value="intermedio">Intermedio</option>
+                            <option value="avanzado">Avanzado</option>
+                            <option value="experto">Experto</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button
+                            type="button"
+                            class="btn-add-habilidad"
+                            id="btn-add-habilidad-tecnica">
+                            Agregar
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -71,22 +82,53 @@
         <!-- Sección: Blandas -->
         <div class="blandas-section">
             <div class="section-header">
-                <h3>Blandas:</h3>
+                <h3>Habilidades Blandas</h3>
+                <button
+                    type="button"
+                    class="add-habilidad-btn"
+                    id="add-new-habilidad-blanda">
+                    + Agregar Habilidad
+                </button>
             </div>
 
-            <div class="field-row">
-                <div class="form-group full-width">
-                    <textarea
-                        id="habilidades-blandas"
-                        name="habilidadesBlandas"
-                        class="form-textarea"
-                        placeholder="Buen desempeño en equipo..."
-                        rows="4"></textarea>
+            <div class="habilidades-list" id="habilidades-blandas-list">
+                <!-- Las habilidades se cargan dinámicamente aquí -->
+            </div>
+
+            <div class="add-habilidad-form" id="habilidad-blanda-form">
+                <div class="field-row">
+                    <div class="form-group full-width">
+                        <label for="habilidad-blanda">Habilidad Blanda:</label>
+                        <input
+                            type="text"
+                            id="habilidad-blanda"
+                            name="habilidadBlanda"
+                            class="form-input"
+                            placeholder="Ej: Trabajo en equipo, Liderazgo, Comunicación..."
+                        />
+                    </div>
                 </div>
-                <div class="form-group icon-field">
-                    <button type="button" class="add-item-btn">
-                        <span>⚙</span>
-                    </button>
+
+                <div class="field-row">
+                    <div class="form-group">
+                        <label for="descripcion-blanda"
+                            >Descripción (opcional):</label
+                        >
+                        <textarea
+                            id="descripcion-blanda"
+                            name="descripcionBlanda"
+                            class="form-textarea"
+                            placeholder="Describe cómo has aplicado esta habilidad..."
+                            rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <button
+                            type="button"
+                            class="btn-add-habilidad"
+                            id="btn-add-habilidad-blanda">
+                            Agregar
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -139,6 +181,9 @@
     }
 
     .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         margin-bottom: 1rem;
         padding-bottom: 0.5rem;
         border-bottom: 1px solid #e5e7eb;
@@ -151,17 +196,134 @@
         color: #374151;
     }
 
+    .add-habilidad-btn {
+        padding: 0.5rem 1rem;
+        background: #10b981;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .add-habilidad-btn:hover {
+        background: #059669;
+        transform: translateY(-1px);
+    }
+
+    /* Lista de habilidades */
+    .habilidades-list {
+        min-height: 60px;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+    }
+
+    .habilidad-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0.25rem;
+        padding: 0.5rem 0.75rem;
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        border-radius: 20px;
+        font-size: 0.875rem;
+    }
+
+    .habilidad-item.tecnica {
+        background: #dbeafe;
+        border-color: #93c5fd;
+        color: #1e40af;
+    }
+
+    .habilidad-item.blanda {
+        background: #dcfce7;
+        border-color: #86efac;
+        color: #166534;
+    }
+
+    .habilidad-nivel {
+        font-size: 0.75rem;
+        padding: 0.125rem 0.375rem;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 10px;
+        font-weight: 600;
+    }
+
+    .habilidad-remove {
+        background: none;
+        border: none;
+        color: #ef4444;
+        cursor: pointer;
+        padding: 0;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        line-height: 1;
+        transition: all 0.2s;
+    }
+
+    .habilidad-remove:hover {
+        background: #ef4444;
+        color: white;
+    }
+
+    /* Formulario para agregar habilidades */
+    .add-habilidad-form {
+        background: #f8fafc;
+        padding: 1rem;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+        margin-top: 1rem;
+        display: none;
+    }
+
+    .add-habilidad-form.active {
+        display: block;
+    }
+
+    .btn-add-habilidad {
+        padding: 0.5rem 1rem;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        align-self: end;
+    }
+
+    .btn-add-habilidad:hover {
+        background: #2563eb;
+        transform: translateY(-1px);
+    }
+
+    .empty-habilidades {
+        text-align: center;
+        color: #6b7280;
+        font-style: italic;
+        padding: 2rem;
+    }
+
     /* Campos de formulario */
     .field-row {
         display: grid;
-        grid-template-columns: 1fr auto;
+        grid-template-columns: 1fr 1fr;
         gap: 1rem;
-        align-items: end;
         margin-bottom: 1rem;
     }
 
-    .field-row:last-child {
-        margin-bottom: 0;
+    .field-row:has(.full-width) {
+        grid-template-columns: 1fr;
     }
 
     .form-group {
@@ -170,14 +332,7 @@
     }
 
     .form-group.full-width {
-        width: 100%;
-    }
-
-    .form-group.icon-field {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 40px;
+        grid-column: 1 / -1;
     }
 
     .form-group label {
@@ -187,6 +342,7 @@
         font-size: 0.875rem;
     }
 
+    .form-input,
     .form-select,
     .form-textarea {
         padding: 0.75rem;
@@ -201,6 +357,7 @@
         width: 100%;
     }
 
+    .form-input:focus,
     .form-select:focus,
     .form-textarea:focus {
         outline: none;
@@ -210,27 +367,7 @@
 
     .form-textarea {
         resize: vertical;
-        min-height: 100px;
-    }
-
-    /* Botones */
-    .add-item-btn {
-        width: 32px;
-        height: 32px;
-        background: #6b7280;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 1rem;
-        transition: background 0.2s;
-    }
-
-    .add-item-btn:hover {
-        background: #4b5563;
+        min-height: 80px;
     }
 
     /* Botón Siguiente */
@@ -278,9 +415,9 @@
             gap: 0.5rem;
         }
 
-        .form-group.icon-field {
-            justify-content: flex-start;
-            margin-top: 0.5rem;
+        .habilidad-item {
+            font-size: 0.8rem;
+            padding: 0.375rem 0.625rem;
         }
 
         .btn-siguiente {
@@ -291,10 +428,14 @@
 
 <script>
     // @ts-nocheck
+    import { apiClient } from "../../utils/api.js";
+
     class HabilidadesManager {
         constructor() {
             this.form = document.getElementById("habilidades-form");
             this.isInitialized = false;
+            this.habilidadesTecnicas = [];
+            this.habilidadesBlandas = [];
             this.init();
         }
 
@@ -305,99 +446,344 @@
             window.addEventListener("profile-data-loaded", (e) => {
                 this.populateForm(e.detail);
             });
+
+            this.renderHabilidades();
         }
 
         bindEvents() {
+            // Botones para mostrar formularios de agregar
+            document
+                .getElementById("add-new-habilidad-tecnica")
+                ?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.toggleFormulario("habilidad-tecnica-form");
+                });
+
+            document
+                .getElementById("add-new-habilidad-blanda")
+                ?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.toggleFormulario("habilidad-blanda-form");
+                });
+
+            // Botones para agregar habilidades
+            document
+                .getElementById("btn-add-habilidad-tecnica")
+                ?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.addHabilidadTecnica();
+                });
+
+            document
+                .getElementById("btn-add-habilidad-blanda")
+                ?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.addHabilidadBlanda();
+                });
+
             // Botón siguiente
             document
                 .getElementById("save-habilidades")
-                ?.addEventListener("click", () => {
+                ?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     this.saveSection();
                 });
 
             // Auto-guardado después de cambios
-            this.form?.addEventListener("change", () => {
-                setTimeout(() => {
+            this.form?.addEventListener("input", () => {
+                clearTimeout(this.autoSaveTimer);
+                this.autoSaveTimer = setTimeout(() => {
                     this.autoSave();
-                }, 1000);
+                }, 2000);
             });
+
+            // Enter en campos de input para agregar rápido
+            document
+                .getElementById("habilidad-tecnica")
+                ?.addEventListener("keypress", (e) => {
+                    if (e.key === "Enter") {
+                        e.preventDefault();
+                        this.addHabilidadTecnica();
+                    }
+                });
+
+            document
+                .getElementById("habilidad-blanda")
+                ?.addEventListener("keypress", (e) => {
+                    if (e.key === "Enter") {
+                        e.preventDefault();
+                        this.addHabilidadBlanda();
+                    }
+                });
+        }
+
+        toggleFormulario(formId) {
+            const form = document.getElementById(formId);
+            if (form) {
+                form.classList.toggle("active");
+
+                // Enfocar el campo principal
+                if (form.classList.contains("active")) {
+                    const input = form.querySelector("input[type='text']");
+                    if (input) {
+                        setTimeout(() => input.focus(), 100);
+                    }
+                }
+            }
+        }
+
+        addHabilidadTecnica() {
+            const categoria =
+                document.getElementById("categoria-tecnica")?.value || "otras";
+            const habilidad = document
+                .getElementById("habilidad-tecnica")
+                ?.value?.trim();
+            const nivel =
+                document.getElementById("nivel-tecnica")?.value || "intermedio";
+
+            if (!habilidad) {
+                this.showNotification(
+                    "Por favor ingrese el nombre de la habilidad",
+                    "warning"
+                );
+                return;
+            }
+
+            // Verificar si ya existe
+            const existe = this.habilidadesTecnicas.some(
+                (h) =>
+                    h.nombre.toLowerCase() === habilidad.toLowerCase() &&
+                    h.categoria === categoria
+            );
+
+            if (existe) {
+                this.showNotification("Esta habilidad ya existe", "warning");
+                return;
+            }
+
+            const nuevaHabilidad = {
+                id: null,
+                nombre: habilidad,
+                categoria: categoria,
+                nivel: nivel,
+                tipo: "tecnica",
+            };
+
+            this.habilidadesTecnicas.push(nuevaHabilidad);
+            this.renderHabilidades();
+
+            // Limpiar formulario
+            document.getElementById("habilidad-tecnica").value = "";
+            document.getElementById("categoria-tecnica").value = "lenguajes";
+            document.getElementById("nivel-tecnica").value = "intermedio";
+
+            this.showNotification("Habilidad técnica agregada", "success");
+        }
+
+        addHabilidadBlanda() {
+            const habilidad = document
+                .getElementById("habilidad-blanda")
+                ?.value?.trim();
+            const descripcion = document
+                .getElementById("descripcion-blanda")
+                ?.value?.trim();
+
+            if (!habilidad) {
+                this.showNotification(
+                    "Por favor ingrese el nombre de la habilidad",
+                    "warning"
+                );
+                return;
+            }
+
+            // Verificar si ya existe
+            const existe = this.habilidadesBlandas.some(
+                (h) => h.nombre.toLowerCase() === habilidad.toLowerCase()
+            );
+
+            if (existe) {
+                this.showNotification("Esta habilidad ya existe", "warning");
+                return;
+            }
+
+            const nuevaHabilidad = {
+                id: null,
+                nombre: habilidad,
+                descripcion: descripcion,
+                tipo: "blanda",
+            };
+
+            this.habilidadesBlandas.push(nuevaHabilidad);
+            this.renderHabilidades();
+
+            // Limpiar formulario
+            document.getElementById("habilidad-blanda").value = "";
+            document.getElementById("descripcion-blanda").value = "";
+
+            this.showNotification("Habilidad blanda agregada", "success");
+        }
+
+        removeHabilidad(tipo, index) {
+            if (tipo === "tecnica") {
+                this.habilidadesTecnicas.splice(index, 1);
+            } else {
+                this.habilidadesBlandas.splice(index, 1);
+            }
+            this.renderHabilidades();
+            this.showNotification("Habilidad eliminada", "success");
+        }
+
+        renderHabilidades() {
+            this.renderHabilidadesTecnicas();
+            this.renderHabilidadesBlandas();
+        }
+
+        renderHabilidadesTecnicas() {
+            const container = document.getElementById(
+                "habilidades-tecnicas-list"
+            );
+            if (!container) return;
+
+            if (this.habilidadesTecnicas.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-habilidades">
+                        No hay habilidades técnicas agregadas
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = this.habilidadesTecnicas
+                .map(
+                    (habilidad, index) => `
+                    <div class="habilidad-item tecnica">
+                        <span class="habilidad-nombre">${habilidad.nombre}</span>
+                        <span class="habilidad-nivel">${this.getNivelText(habilidad.nivel)}</span>
+                        <button 
+                            type="button" 
+                            class="habilidad-remove" 
+                            onclick="window.habilidadesManager.removeHabilidad('tecnica', ${index})"
+                            title="Eliminar habilidad">
+                            ×
+                        </button>
+                    </div>
+                `
+                )
+                .join("");
+        }
+
+        renderHabilidadesBlandas() {
+            const container = document.getElementById(
+                "habilidades-blandas-list"
+            );
+            if (!container) return;
+
+            if (this.habilidadesBlandas.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-habilidades">
+                        No hay habilidades blandas agregadas
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = this.habilidadesBlandas
+                .map(
+                    (habilidad, index) => `
+                    <div class="habilidad-item blanda" title="${habilidad.descripcion || ""}">
+                        <span class="habilidad-nombre">${habilidad.nombre}</span>
+                        <button 
+                            type="button" 
+                            class="habilidad-remove" 
+                            onclick="window.habilidadesManager.removeHabilidad('blanda', ${index})"
+                            title="Eliminar habilidad">
+                            ×
+                        </button>
+                    </div>
+                `
+                )
+                .join("");
+        }
+
+        getNivelText(nivel) {
+            const niveles = {
+                basico: "Básico",
+                intermedio: "Intermedio",
+                avanzado: "Avanzado",
+                experto: "Experto",
+            };
+            return niveles[nivel] || "Intermedio";
         }
 
         populateForm(profileData) {
             if (!profileData || this.isInitialized) return;
 
-            console.log("Poblando cursos con:", profileData);
+            console.log("Poblando habilidades con:", profileData);
 
-            // Extraer cursos de la estructura de la API
-            const cursos = profileData.data?.cursos || profileData.cursos || [];
+            // Extraer habilidades del perfil
+            const perfil = profileData.data?.perfil || profileData.perfil || {};
 
-            console.log("Cursos extraídos:", cursos);
+            // Procesar habilidades técnicas (pueden venir como string o array)
+            if (perfil.habilidadesTecnicas) {
+                if (typeof perfil.habilidadesTecnicas === "string") {
+                    // Si es string, dividir por comas
+                    this.habilidadesTecnicas = perfil.habilidadesTecnicas
+                        .split(",")
+                        .map((h) => h.trim())
+                        .filter((h) => h)
+                        .map((h) => ({
+                            id: null,
+                            nombre: h,
+                            categoria: "otras",
+                            nivel: "intermedio",
+                            tipo: "tecnica",
+                        }));
+                } else if (Array.isArray(perfil.habilidadesTecnicas)) {
+                    this.habilidadesTecnicas = perfil.habilidadesTecnicas;
+                }
+            }
 
-            // Limpiar cursos existentes en el DOM
-            this.clearExistingCursos();
+            // Procesar habilidades blandas
+            if (perfil.habilidadesBlandas) {
+                if (typeof perfil.habilidadesBlandas === "string") {
+                    // Si es string, dividir por comas
+                    this.habilidadesBlandas = perfil.habilidadesBlandas
+                        .split(",")
+                        .map((h) => h.trim())
+                        .filter((h) => h)
+                        .map((h) => ({
+                            id: null,
+                            nombre: h,
+                            descripcion: "",
+                            tipo: "blanda",
+                        }));
+                } else if (Array.isArray(perfil.habilidadesBlandas)) {
+                    this.habilidadesBlandas = perfil.habilidadesBlandas;
+                }
+            }
 
-            // Poblar cada curso
-            cursos.forEach((curso, index) => {
-                this.addCursoToDOM(curso, index);
-            });
-
+            this.renderHabilidades();
             this.isInitialized = true;
-            console.log("✅ Cursos inicializados correctamente");
-        }
-
-        clearExistingCursos() {
-            const container = document.getElementById("cursos-container");
-            if (container) {
-                // Mantener solo el template y el botón de agregar
-                const items = container.querySelectorAll(
-                    ".curso-item:not(.template)"
-                );
-                items.forEach((item) => item.remove());
-            }
-        }
-
-        addCursoToDOM(curso, index) {
-            const container = document.getElementById("cursos-container");
-            const template = document.getElementById("curso-template");
-
-            if (!container || !template) return;
-
-            const clone = template.cloneNode(true);
-            clone.classList.remove("template");
-            clone.style.display = "block";
-            clone.setAttribute("data-index", index);
-
-            // Poblar campos
-            const nombreField = clone.querySelector('[name="nombre"]');
-            const institucionField = clone.querySelector(
-                '[name="institucion"]'
-            );
-            const horasField = clone.querySelector('[name="horasDuracion"]');
-
-            if (nombreField) nombreField.value = curso.nombre || "";
-            if (institucionField)
-                institucionField.value = curso.institucion || "";
-            if (horasField) horasField.value = curso.horasDuracion || "";
-
-            // Insertar antes del botón de agregar
-            const addButton = container.querySelector(".add-curso-btn");
-            if (addButton) {
-                container.insertBefore(clone, addButton);
-            } else {
-                container.appendChild(clone);
-            }
+            console.log("✅ Habilidades inicializadas correctamente");
         }
 
         getFormData() {
-            const formData = new FormData(this.form);
-            const data = {};
-
-            // Convertir FormData a objeto
-            for (let [key, value] of formData.entries()) {
-                data[key] = value;
-            }
-
-            return data;
+            return {
+                habilidadesTecnicas: this.habilidadesTecnicas,
+                habilidadesBlandas: this.habilidadesBlandas,
+                // Compatibilidad con campos de string
+                habilidadesTecnicasString: this.habilidadesTecnicas
+                    .map((h) => h.nombre)
+                    .join(", "),
+                habilidadesBlandasString: this.habilidadesBlandas
+                    .map((h) => h.nombre)
+                    .join(", "),
+            };
         }
 
         async saveSection() {
@@ -442,20 +828,23 @@
         }
 
         async autoSave() {
-            const data = this.getFormData();
+            try {
+                const data = this.getFormData();
 
-            // Emitir evento para auto-guardado
-            window.dispatchEvent(
-                new CustomEvent("auto-save-data", {
-                    detail: { section: "habilidades", data },
-                })
-            );
+                // Emitir evento para auto-guardado
+                window.dispatchEvent(
+                    new CustomEvent("auto-save-data", {
+                        detail: { section: "habilidades", data },
+                    })
+                );
 
-            console.log("Auto-guardando habilidades...");
+                console.log("Auto-guardando habilidades...");
+            } catch (error) {
+                console.error("Error en auto-guardado de habilidades:", error);
+            }
         }
 
-        showNotification(message: string, type: string) {
-            // Reutilizar el sistema de notificaciones del componente principal
+        showNotification(message, type) {
             window.dispatchEvent(
                 new CustomEvent("show-notification", {
                     detail: { message, type },
@@ -466,6 +855,6 @@
 
     // Inicializar cuando el DOM esté listo
     document.addEventListener("DOMContentLoaded", () => {
-        (window as any).cursosManager = new HabilidadesManager();
+        window.habilidadesManager = new HabilidadesManager();
     });
 </script>

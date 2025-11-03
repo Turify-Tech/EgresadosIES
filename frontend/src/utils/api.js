@@ -349,6 +349,48 @@ export const profileService = {
     },
 
     /**
+     * Agregar habilidad
+     */
+    async addHabilidad(data) {
+        return apiClient.post("/perfil/habilidad", data);
+    },
+
+    /**
+     * Actualizar habilidad
+     */
+    async updateHabilidad(id, data) {
+        return apiClient.put(`/perfil/habilidad/${id}`, data);
+    },
+
+    /**
+     * Eliminar habilidad
+     */
+    async deleteHabilidad(id) {
+        return apiClient.delete(`/perfil/habilidad/${id}`);
+    },
+
+    /**
+     * Agregar proyecto
+     */
+    async addProyecto(data) {
+        return apiClient.post("/perfil/proyecto", data);
+    },
+
+    /**
+     * Actualizar proyecto
+     */
+    async updateProyecto(id, data) {
+        return apiClient.put(`/perfil/proyecto/${id}`, data);
+    },
+
+    /**
+     * Eliminar proyecto
+     */
+    async deleteProyecto(id) {
+        return apiClient.delete(`/perfil/proyecto/${id}`);
+    },
+
+    /**
      * Completar perfil (wizard inicial)
      */
     async completeProfile(data) {

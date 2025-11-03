@@ -218,3 +218,41 @@ CREATE TABLE LikePublicacion (
   FOREIGN KEY (egresadoId) REFERENCES Egresado (id) ON DELETE CASCADE,
   FOREIGN KEY (publicacionId) REFERENCES Publicacion (id) ON DELETE CASCADE
 );
+
+-- -----------------------------------------------------------------
+-- Tabla: Habilidades
+-- -----------------------------------------------------------------
+-- Propósito: Almacena las habilidades técnicas y blandas de cada egresado.
+--            Permite categorizar y clasificar por nivel de experticia.
+-- -----------------------------------------------------------------
+CREATE TABLE Habilidades (
+  id INTEGER PRIMARY KEY,
+  usuarioId INTEGER NOT NULL,
+  nombre TEXT NOT NULL,
+  tipo TEXT NOT NULL DEFAULT 'tecnica' CHECK (tipo IN ('tecnica', 'blanda', 'idioma')),
+  nivel TEXT NOT NULL DEFAULT 'intermedio' CHECK (nivel IN ('basico', 'intermedio', 'avanzado', 'experto')),
+  fechaCreacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  fechaActualizacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (usuarioId) REFERENCES Egresado (id) ON DELETE CASCADE,
+  UNIQUE(usuarioId, nombre) -- Evita habilidades duplicadas por usuario
+);
+
+-- -----------------------------------------------------------------
+-- Tabla: Proyectos
+-- -----------------------------------------------------------------
+-- Propósito: Almacena información sobre proyectos desarrollados por los egresados.
+--            Incluye soporte para imágenes, enlaces y detalles técnicos.
+-- -----------------------------------------------------------------
+CREATE TABLE Proyectos (
+  id INTEGER PRIMARY KEY,
+  usuarioId INTEGER NOT NULL,
+  nombre TEXT NOT NULL,
+  descripcion TEXT,
+  enlace TEXT,
+  tecnologias TEXT,
+  fechaProyecto DATE,
+  imagen TEXT, -- URL de la imagen del proyecto
+  fechaCreacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  fechaActualizacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (usuarioId) REFERENCES Egresado (id) ON DELETE CASCADE
+);

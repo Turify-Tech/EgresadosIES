@@ -8,68 +8,89 @@
     </div>
 
     <form class="formaciones-content" id="formaciones-form">
+        <!-- Header con navegación para Formaciones -->
+        <div class="formaciones-header">
+            <div class="nav-controls">
+                <button
+                    type="button"
+                    class="nav-btn"
+                    id="prev-formacion"
+                    disabled>
+                    ← Anterior
+                </button>
+                <span class="nav-info" id="formacion-counter">1 / 1</span>
+                <button type="button" class="nav-btn" id="next-formacion">
+                    Siguiente →
+                </button>
+            </div>
+            <button
+                type="button"
+                class="add-formacion-btn"
+                id="add-new-formacion">
+                + Agregar Formación
+            </button>
+        </div>
+
         <!-- Sección: Formaciones Académicas -->
         <div class="formacion-section">
             <div class="section-header">
-                <h3>Formaciones Académicas</h3>
-                <button
-                    type="button"
-                    class="add-item-btn"
-                    id="add-formacion-btn">
-                    <span>+</span>
-                </button>
+                <h3>Formación Académica</h3>
+                <div class="header-actions">
+                    <button
+                        type="button"
+                        class="delete-btn"
+                        id="delete-formacion"
+                        title="Eliminar formación actual">
+                        🗑️
+                    </button>
+                </div>
             </div>
 
-            <div class="formacion-item" id="formacion-template">
+            <div class="formacion-item" id="formacion-fields">
                 <div class="field-row">
                     <div class="form-group">
-                        <label for="carrera">Carrera/Título de Software</label>
+                        <label for="titulo">Título/Carrera:</label>
                         <input
                             type="text"
-                            id="carrera"
-                            name="carrera"
+                            id="titulo"
+                            name="titulo"
                             class="form-input"
-                            placeholder="Ingeniería en Software"
+                            placeholder="Ej: Ingeniería en Software"
+                            required
                         />
                     </div>
-                    <div class="form-group time-fields">
-                        <label for="ano-egreso">Año de egreso:</label>
-                        <input
-                            type="number"
-                            id="ano-egreso"
-                            name="anoEgreso"
-                            class="form-input year-input"
-                            min="1950"
-                            max="2050"
-                        />
-                    </div>
-                </div>
-
-                <div class="field-row">
                     <div class="form-group">
-                        <label for="institucion">Institución</label>
+                        <label for="institucion">Institución:</label>
                         <input
                             type="text"
                             id="institucion"
                             name="institucion"
                             class="form-input"
-                            placeholder="Universidad/Instituto"
-                        />
-                    </div>
-                    <div class="form-group time-fields">
-                        <label for="horas-cursadas">Horas cursadas:</label>
-                        <input
-                            type="number"
-                            id="horas-cursadas"
-                            name="horasCursadas"
-                            class="form-input hours-input"
+                            placeholder="Ej: Universidad Nacional"
+                            required
                         />
                     </div>
                 </div>
 
                 <div class="field-row">
                     <div class="form-group">
-                        <label for="enlace-titulo">Enlace al título</label>
+                        <label for="ano-finalizacion"
+                            >Año de Finalización:</label
+                        >
+                        <input
+                            type="number"
+                            id="ano-finalizacion"
+                            name="anioFinalizacion"
+                            class="form-input"
+                            min="1950"
+                            max="2050"
+                            placeholder="2024"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="enlace-titulo"
+                            >Enlace al título (opcional):</label
+                        >
                         <input
                             type="url"
                             id="enlace-titulo"
@@ -78,105 +99,115 @@
                             placeholder="https://..."
                         />
                     </div>
-                    <div class="form-group time-fields">
-                        <label for="agregar-otra">Agregar otra:</label>
-                        <button
-                            type="button"
-                            class="info-btn"
-                            title="Información">
-                            <span>i</span>
-                        </button>
-                    </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Header con navegación para Cursos -->
+        <div class="cursos-header">
+            <div class="nav-controls">
+                <button type="button" class="nav-btn" id="prev-curso" disabled>
+                    ← Anterior
+                </button>
+                <span class="nav-info" id="curso-counter">1 / 1</span>
+                <button type="button" class="nav-btn" id="next-curso">
+                    Siguiente →
+                </button>
+            </div>
+            <button type="button" class="add-curso-btn" id="add-new-curso">
+                + Agregar Curso
+            </button>
         </div>
 
         <!-- Sección: Cursos -->
         <div class="cursos-section">
             <div class="section-header">
-                <h3>Cursos</h3>
-                <button type="button" class="add-item-btn" id="add-curso-btn">
-                    <span>+</span>
-                </button>
-            </div>
-
-            <div class="curso-item">
-                <div class="field-row">
-                    <div class="form-group">
-                        <input
-                            type="text"
-                            name="nombreCurso"
-                            class="form-input curso-input"
-                            placeholder="Curso de Python en Udemy"
-                        />
-                    </div>
-                    <div class="form-group time-fields">
-                        <label for="finalizar">Finalizar:</label>
-                        <input
-                            type="text"
-                            id="finalizar"
-                            name="finalizar"
-                            class="form-input finalizar-input"
-                            placeholder="En proceso"
-                        />
-                        <button type="button" class="enlace-btn">Enlace</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Certificados -->
-        <div class="certificados-section">
-            <div class="field-row">
-                <div class="form-group">
-                    <label>Certificados:</label>
-                    <input
-                        type="text"
-                        name="certificados"
-                        class="form-input certificados-input"
-                        placeholder="Seleccionar"
-                    />
-                </div>
-                <div class="form-group">
-                    <label>Enlace</label>
-                    <input
-                        type="url"
-                        name="enlaceCertificado"
-                        class="form-input"
-                        placeholder="URL del certificado"
-                    />
-                </div>
-            </div>
-
-            <div class="field-row">
-                <div class="form-group">
-                    <label>Horas cursadas:</label>
-                    <input
-                        type="number"
-                        name="horasCertificado"
-                        class="form-input hours-input"
-                    />
-                </div>
-                <div class="form-group">
-                    <label>Nivel:</label>
-                    <input
-                        type="text"
-                        name="nivelCertificado"
-                        class="form-input"
-                        placeholder="Básico/Intermedio/Avanzado"
-                    />
-                </div>
-            </div>
-
-            <div class="field-row">
-                <div class="form-group full-width">
-                    <label>Agregar más:</label>
+                <h3>Cursos y Certificaciones</h3>
+                <div class="header-actions">
                     <button
                         type="button"
-                        class="info-btn"
-                        title="Agregar más certificados">
-                        <span>i</span>
+                        class="delete-btn"
+                        id="delete-curso"
+                        title="Eliminar curso actual">
+                        🗑️
                     </button>
+                </div>
+            </div>
+
+            <div class="curso-item" id="curso-fields">
+                <div class="field-row">
+                    <div class="form-group">
+                        <label for="nombre-curso">Nombre del Curso:</label>
+                        <input
+                            type="text"
+                            id="nombre-curso"
+                            name="nombre"
+                            class="form-input"
+                            placeholder="Ej: Curso de Python en Udemy"
+                            required
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="institucion-curso">Institución:</label>
+                        <input
+                            type="text"
+                            id="institucion-curso"
+                            name="institucionCurso"
+                            class="form-input"
+                            placeholder="Ej: Udemy, Coursera"
+                        />
+                    </div>
+                </div>
+
+                <div class="field-row">
+                    <div class="form-group">
+                        <label for="horas-duracion">Horas de Duración:</label>
+                        <input
+                            type="number"
+                            id="horas-duracion"
+                            name="horasDuracion"
+                            class="form-input"
+                            min="1"
+                            placeholder="40"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="enlace-curso"
+                            >Enlace del Curso (opcional):</label
+                        >
+                        <input
+                            type="url"
+                            id="enlace-curso"
+                            name="enlaceCurso"
+                            class="form-input"
+                            placeholder="https://..."
+                        />
+                    </div>
+                </div>
+
+                <div class="field-row">
+                    <div class="form-group">
+                        <label for="estado-curso">Estado:</label>
+                        <select
+                            id="estado-curso"
+                            name="estado"
+                            class="form-select">
+                            <option value="completado">Completado</option>
+                            <option value="en_proceso">En proceso</option>
+                            <option value="pausado">Pausado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha-finalizacion"
+                            >Fecha de Finalización:</label
+                        >
+                        <input
+                            type="date"
+                            id="fecha-finalizacion"
+                            name="fechaFinalizacion"
+                            class="form-input"
+                        />
+                    </div>
                 </div>
             </div>
         </div>
@@ -222,11 +253,78 @@
 
     /* Secciones */
     .formacion-section,
-    .cursos-section,
-    .certificados-section {
+    .cursos-section {
         background: #f9fafb;
         border-radius: 8px;
         padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Headers con navegación */
+    .formaciones-header,
+    .cursos-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: #f1f5f9;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 1rem;
+    }
+
+    .nav-controls {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .nav-btn {
+        padding: 0.5rem 1rem;
+        background: #6366f1;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+        background: #4f46e5;
+        transform: translateY(-1px);
+    }
+
+    .nav-btn:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .nav-info {
+        font-weight: 600;
+        color: #374151;
+        min-width: 60px;
+        text-align: center;
+    }
+
+    .add-formacion-btn,
+    .add-curso-btn {
+        padding: 0.75rem 1.5rem;
+        background: #10b981;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.875rem;
+    }
+
+    .add-formacion-btn:hover,
+    .add-curso-btn:hover {
+        background: #059669;
+        transform: translateY(-1px);
     }
 
     .section-header {
@@ -245,32 +343,43 @@
         color: #374151;
     }
 
-    .add-item-btn {
-        width: 32px;
-        height: 32px;
-        background: #3b82f6;
-        color: white;
-        border: none;
-        border-radius: 6px;
+    .header-actions {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 1.2rem;
-        transition: background 0.2s;
+        gap: 0.5rem;
     }
 
-    .add-item-btn:hover {
-        background: #2563eb;
+    .delete-btn {
+        padding: 0.5rem;
+        background: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.875rem;
+    }
+
+    .delete-btn:hover {
+        background: #dc2626;
+        transform: scale(1.05);
+    }
+
+    .delete-btn:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+        transform: none;
     }
 
     /* Campos de formulario */
     .field-row {
         display: grid;
-        grid-template-columns: 1fr auto;
+        grid-template-columns: 1fr 1fr;
         gap: 1rem;
-        align-items: end;
         margin-bottom: 1rem;
+    }
+
+    .field-row:has(.full-width) {
+        grid-template-columns: 1fr;
     }
 
     .form-group {
@@ -282,14 +391,6 @@
         grid-column: 1 / -1;
     }
 
-    .form-group.time-fields {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        gap: 0.5rem;
-        min-width: 200px;
-    }
-
     .form-group label {
         margin-bottom: 0.5rem;
         font-weight: 600;
@@ -297,13 +398,8 @@
         font-size: 0.875rem;
     }
 
-    .time-fields label {
-        margin-bottom: 0;
-        white-space: nowrap;
-        font-size: 0.8rem;
-    }
-
-    .form-input {
+    .form-input,
+    .form-select {
         padding: 0.75rem;
         border: 1px solid #d1d5db;
         border-radius: 6px;
@@ -313,65 +409,14 @@
             box-shadow 0.2s;
         background: white;
         font-family: inherit;
+        width: 100%;
     }
 
-    .form-input:focus {
+    .form-input:focus,
+    .form-select:focus {
         outline: none;
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-
-    .year-input,
-    .hours-input {
-        width: 80px;
-    }
-
-    .curso-input {
-        width: 100%;
-    }
-
-    .finalizar-input {
-        width: 120px;
-    }
-
-    .certificados-input {
-        width: 100%;
-    }
-
-    /* Botones especiales */
-    .enlace-btn {
-        padding: 0.5rem 1rem;
-        background: #10b981;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        font-size: 0.75rem;
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-
-    .enlace-btn:hover {
-        background: #059669;
-    }
-
-    .info-btn {
-        width: 24px;
-        height: 24px;
-        background: #6b7280;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 0.75rem;
-        font-weight: bold;
-        transition: background 0.2s;
-    }
-
-    .info-btn:hover {
-        background: #4b5563;
     }
 
     /* Botón Siguiente */
@@ -414,25 +459,25 @@
             padding: 1rem;
         }
 
+        .formaciones-header,
+        .cursos-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: stretch;
+        }
+
+        .nav-controls {
+            justify-content: center;
+        }
+
         .field-row {
             grid-template-columns: 1fr;
             gap: 0.5rem;
         }
 
-        .form-group.time-fields {
-            flex-direction: column;
-            align-items: stretch;
-            min-width: auto;
-        }
-
-        .time-fields label {
-            margin-bottom: 0.5rem;
-        }
-
-        .year-input,
-        .hours-input,
-        .finalizar-input {
-            width: 100%;
+        .nav-btn {
+            flex: 1;
+            max-width: 120px;
         }
 
         .btn-siguiente {
@@ -443,10 +488,23 @@
 
 <script>
     // @ts-nocheck
+    import { apiClient } from "../../utils/api.js";
+
     class FormacionesManager {
         constructor() {
             this.form = document.getElementById("formaciones-form");
             this.isInitialized = false;
+
+            // Datos separados para formaciones y cursos
+            this.formaciones = [];
+            this.cursos = [];
+            this.currentFormacionIndex = 0;
+            this.currentCursoIndex = 0;
+
+            // Flags para cambios sin guardar
+            this.formacionModified = false;
+            this.cursoModified = false;
+
             this.init();
         }
 
@@ -460,20 +518,83 @@
                     this.populateForm(customEvent.detail);
                 }
             });
+
+            // Inicializar con elementos vacíos si no hay datos
+            if (this.formaciones.length === 0) {
+                this.formaciones = [this.createEmptyFormacion()];
+            }
+            if (this.cursos.length === 0) {
+                this.cursos = [this.createEmptyCurso()];
+            }
+            this.updateNavigationUI();
+            this.loadCurrentData();
         }
 
         bindEvents() {
-            // Botones agregar
+            // Navegación Formaciones
             document
-                .getElementById("add-formacion-btn")
-                ?.addEventListener("click", () => {
-                    this.addFormacionItem();
+                .getElementById("prev-formacion")
+                ?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.navigateFormacion(this.currentFormacionIndex - 1);
                 });
 
             document
-                .getElementById("add-curso-btn")
-                ?.addEventListener("click", () => {
-                    this.addCursoItem();
+                .getElementById("next-formacion")
+                ?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.navigateFormacion(this.currentFormacionIndex + 1);
+                });
+
+            document
+                .getElementById("add-new-formacion")
+                ?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.addNewFormacion();
+                });
+
+            document
+                .getElementById("delete-formacion")
+                ?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.deleteCurrentFormacion();
+                });
+
+            // Navegación Cursos
+            document
+                .getElementById("prev-curso")
+                ?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.navigateCurso(this.currentCursoIndex - 1);
+                });
+
+            document
+                .getElementById("next-curso")
+                ?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.navigateCurso(this.currentCursoIndex + 1);
+                });
+
+            document
+                .getElementById("add-new-curso")
+                ?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.addNewCurso();
+                });
+
+            document
+                .getElementById("delete-curso")
+                ?.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.deleteCurrentCurso();
                 });
 
             // Botón siguiente
@@ -484,21 +605,318 @@
                 });
 
             // Auto-guardado después de cambios
-            this.form?.addEventListener("change", () => {
-                setTimeout(() => {
+            this.form?.addEventListener("input", () => {
+                this.formacionModified = true;
+                this.cursoModified = true;
+                clearTimeout(this.autoSaveTimer);
+                this.autoSaveTimer = setTimeout(() => {
                     this.autoSave();
-                }, 1000);
+                }, 2000);
             });
         }
 
-        addFormacionItem() {
-            // TODO: Agregar nueva formación
-            console.log("Agregando nueva formación");
+        createEmptyFormacion() {
+            return {
+                id: null,
+                titulo: "",
+                institucion: "",
+                anioFinalizacion: "",
+                enlaceTitulo: "",
+            };
         }
 
-        addCursoItem() {
-            // TODO: Agregar nuevo curso
-            console.log("Agregando nuevo curso");
+        createEmptyCurso() {
+            return {
+                id: null,
+                nombre: "",
+                institucionCurso: "",
+                horasDuracion: "",
+                enlaceCurso: "",
+                estado: "completado",
+                fechaFinalizacion: "",
+            };
+        }
+
+        // === MÉTODOS PARA FORMACIONES ===
+
+        addNewFormacion() {
+            this.saveCurrentFormacion();
+            const nuevaFormacion = this.createEmptyFormacion();
+            this.formaciones.push(nuevaFormacion);
+            this.navigateFormacion(this.formaciones.length - 1);
+            this.showNotification("Nueva formación agregada", "success");
+        }
+
+        async deleteCurrentFormacion() {
+            if (this.formaciones.length <= 1) {
+                this.showNotification(
+                    "Debe mantener al menos una formación",
+                    "warning"
+                );
+                return;
+            }
+
+            const formacionActual =
+                this.formaciones[this.currentFormacionIndex];
+
+            if (
+                !confirm(
+                    `¿Está seguro de eliminar la formación "${formacionActual.titulo}"?`
+                )
+            ) {
+                return;
+            }
+
+            try {
+                if (formacionActual.id) {
+                    const response = await apiClient.delete(
+                        `/perfil/formacion/${formacionActual.id}`
+                    );
+                    if (!response.success) {
+                        throw new Error(
+                            response.error || "Error al eliminar formación"
+                        );
+                    }
+                }
+
+                this.formaciones.splice(this.currentFormacionIndex, 1);
+
+                if (this.currentFormacionIndex >= this.formaciones.length) {
+                    this.currentFormacionIndex = this.formaciones.length - 1;
+                }
+
+                this.updateNavigationUI();
+                this.loadCurrentData();
+                this.showNotification("Formación eliminada", "success");
+            } catch (error) {
+                console.error("Error eliminando formación:", error);
+                this.showNotification(
+                    "Error al eliminar la formación",
+                    "error"
+                );
+            }
+        }
+
+        navigateFormacion(newIndex) {
+            if (newIndex < 0 || newIndex >= this.formaciones.length) return;
+
+            this.saveCurrentFormacion();
+            this.currentFormacionIndex = newIndex;
+            this.loadCurrentData();
+            this.updateNavigationUI();
+        }
+
+        saveCurrentFormacion() {
+            if (!this.formacionModified) return;
+
+            const formData = this.getFormacionData();
+            this.formaciones[this.currentFormacionIndex] = {
+                ...this.formaciones[this.currentFormacionIndex],
+                ...formData,
+            };
+
+            this.formacionModified = false;
+        }
+
+        loadCurrentFormacion() {
+            if (this.formaciones.length === 0) {
+                console.warn("No hay formaciones para cargar");
+                return;
+            }
+
+            const formacion =
+                this.formaciones[this.currentFormacionIndex] || {};
+            console.log("Cargando formación:", formacion);
+
+            const tituloInput = document.getElementById("titulo");
+            const institucionInput = document.getElementById("institucion");
+            const anoInput = document.getElementById("ano-finalizacion");
+            const enlaceInput = document.getElementById("enlace-titulo");
+
+            if (tituloInput) tituloInput.value = formacion.titulo || "";
+            if (institucionInput)
+                institucionInput.value = formacion.institucion || "";
+            if (anoInput) anoInput.value = formacion.anioFinalizacion || "";
+            if (enlaceInput) enlaceInput.value = formacion.enlaceTitulo || "";
+        }
+
+        // === MÉTODOS PARA CURSOS ===
+
+        addNewCurso() {
+            this.saveCurrentCurso();
+            const nuevoCurso = this.createEmptyCurso();
+            this.cursos.push(nuevoCurso);
+            this.navigateCurso(this.cursos.length - 1);
+            this.showNotification("Nuevo curso agregado", "success");
+        }
+
+        async deleteCurrentCurso() {
+            if (this.cursos.length <= 1) {
+                this.showNotification(
+                    "Debe mantener al menos un curso",
+                    "warning"
+                );
+                return;
+            }
+
+            const cursoActual = this.cursos[this.currentCursoIndex];
+
+            if (
+                !confirm(
+                    `¿Está seguro de eliminar el curso "${cursoActual.nombre}"?`
+                )
+            ) {
+                return;
+            }
+
+            try {
+                if (cursoActual.id) {
+                    const response = await apiClient.delete(
+                        `/perfil/curso/${cursoActual.id}`
+                    );
+                    if (!response.success) {
+                        throw new Error(
+                            response.error || "Error al eliminar curso"
+                        );
+                    }
+                }
+
+                this.cursos.splice(this.currentCursoIndex, 1);
+
+                if (this.currentCursoIndex >= this.cursos.length) {
+                    this.currentCursoIndex = this.cursos.length - 1;
+                }
+
+                this.updateNavigationUI();
+                this.loadCurrentData();
+                this.showNotification("Curso eliminado", "success");
+            } catch (error) {
+                console.error("Error eliminando curso:", error);
+                this.showNotification("Error al eliminar el curso", "error");
+            }
+        }
+
+        navigateCurso(newIndex) {
+            if (newIndex < 0 || newIndex >= this.cursos.length) return;
+
+            this.saveCurrentCurso();
+            this.currentCursoIndex = newIndex;
+            this.loadCurrentData();
+            this.updateNavigationUI();
+        }
+
+        saveCurrentCurso() {
+            if (!this.cursoModified) return;
+
+            const formData = this.getCursoData();
+            this.cursos[this.currentCursoIndex] = {
+                ...this.cursos[this.currentCursoIndex],
+                ...formData,
+            };
+
+            this.cursoModified = false;
+        }
+
+        loadCurrentCurso() {
+            if (this.cursos.length === 0) {
+                console.warn("No hay cursos para cargar");
+                return;
+            }
+
+            const curso = this.cursos[this.currentCursoIndex] || {};
+            console.log("Cargando curso:", curso);
+
+            const nombreInput = document.getElementById("nombre-curso");
+            const institucionInput =
+                document.getElementById("institucion-curso");
+            const horasInput = document.getElementById("horas-duracion");
+            const enlaceInput = document.getElementById("enlace-curso");
+            const estadoInput = document.getElementById("estado-curso");
+            const fechaInput = document.getElementById("fecha-finalizacion");
+
+            if (nombreInput) nombreInput.value = curso.nombre || "";
+            if (institucionInput)
+                institucionInput.value = curso.institucionCurso || "";
+            if (horasInput) horasInput.value = curso.horasDuracion || "";
+            if (enlaceInput) enlaceInput.value = curso.enlaceCurso || "";
+            if (estadoInput) estadoInput.value = curso.estado || "completado";
+            if (fechaInput) fechaInput.value = curso.fechaFinalizacion || "";
+        }
+
+        // === MÉTODOS COMUNES ===
+
+        loadCurrentData() {
+            this.loadCurrentFormacion();
+            this.loadCurrentCurso();
+        }
+
+        updateNavigationUI() {
+            // Formaciones
+            const prevFormacionBtn = document.getElementById("prev-formacion");
+            const nextFormacionBtn = document.getElementById("next-formacion");
+            const formacionCounter =
+                document.getElementById("formacion-counter");
+            const deleteFormacionBtn =
+                document.getElementById("delete-formacion");
+
+            if (prevFormacionBtn)
+                prevFormacionBtn.disabled = this.currentFormacionIndex === 0;
+            if (nextFormacionBtn)
+                nextFormacionBtn.disabled =
+                    this.currentFormacionIndex === this.formaciones.length - 1;
+            if (formacionCounter) {
+                formacionCounter.textContent = `${this.currentFormacionIndex + 1} / ${this.formaciones.length}`;
+            }
+            if (deleteFormacionBtn) {
+                deleteFormacionBtn.disabled = this.formaciones.length <= 1;
+            }
+
+            // Cursos
+            const prevCursoBtn = document.getElementById("prev-curso");
+            const nextCursoBtn = document.getElementById("next-curso");
+            const cursoCounter = document.getElementById("curso-counter");
+            const deleteCursoBtn = document.getElementById("delete-curso");
+
+            if (prevCursoBtn)
+                prevCursoBtn.disabled = this.currentCursoIndex === 0;
+            if (nextCursoBtn)
+                nextCursoBtn.disabled =
+                    this.currentCursoIndex === this.cursos.length - 1;
+            if (cursoCounter) {
+                cursoCounter.textContent = `${this.currentCursoIndex + 1} / ${this.cursos.length}`;
+            }
+            if (deleteCursoBtn) {
+                deleteCursoBtn.disabled = this.cursos.length <= 1;
+            }
+        }
+
+        getFormacionData() {
+            return {
+                titulo: document.getElementById("titulo")?.value || "",
+                institucion:
+                    document.getElementById("institucion")?.value || "",
+                anioFinalizacion:
+                    document.getElementById("ano-finalizacion")?.value || "",
+                enlaceTitulo:
+                    document.getElementById("enlace-titulo")?.value || "",
+            };
+        }
+
+        getCursoData() {
+            return {
+                nombre: document.getElementById("nombre-curso")?.value || "",
+                institucionCurso:
+                    document.getElementById("institucion-curso")?.value || "",
+                horasDuracion:
+                    document.getElementById("horas-duracion")?.value || "",
+                enlaceCurso:
+                    document.getElementById("enlace-curso")?.value || "",
+                estado:
+                    document.getElementById("estado-curso")?.value ||
+                    "completado",
+                fechaFinalizacion:
+                    document.getElementById("fecha-finalizacion")?.value || "",
+            };
         }
 
         populateForm(profileData) {
@@ -506,79 +924,45 @@
 
             console.log("Poblando formación académica con:", profileData);
 
-            // Extraer formación académica de la estructura de la API
-            const formaciones =
+            // Extraer formaciones de la API
+            const formacionesData =
                 profileData.data?.formacionAcademica ||
                 profileData.formacionAcademica ||
                 [];
 
-            console.log("Formaciones extraídas:", formaciones);
+            // Extraer cursos de la API
+            const cursosData =
+                profileData.data?.cursos || profileData.cursos || [];
 
-            // Limpiar formaciones existentes en el DOM
-            this.clearExistingFormaciones();
+            if (formacionesData.length > 0) {
+                this.formaciones = formacionesData.map((form) => ({
+                    id: form.id,
+                    titulo: form.titulo || "",
+                    institucion: form.institucion || "",
+                    anioFinalizacion: form.anioFinalizacion || "",
+                    enlaceTitulo: form.enlaceTitulo || "",
+                }));
+            }
 
-            // Poblar cada formación
-            formaciones.forEach((formacion, index) => {
-                this.addFormacionToDOM(formacion, index);
-            });
+            if (cursosData.length > 0) {
+                this.cursos = cursosData.map((curso) => ({
+                    id: curso.id,
+                    nombre: curso.nombre || "",
+                    institucionCurso: curso.institucion || "",
+                    horasDuracion: curso.horasDuracion || "",
+                    enlaceCurso: curso.enlaceCurso || "",
+                    estado: curso.estado || "completado",
+                    fechaFinalizacion: curso.fechaFinalizacion || "",
+                }));
+            }
+
+            this.currentFormacionIndex = 0;
+            this.currentCursoIndex = 0;
+            this.updateNavigationUI();
+            this.loadCurrentData();
 
             this.isInitialized = true;
             console.log("✅ Formación académica inicializada correctamente");
-        }
-
-        clearExistingFormaciones() {
-            const container = document.getElementById("formaciones-container");
-            if (container) {
-                // Mantener solo el template y el botón de agregar
-                const items = container.querySelectorAll(
-                    ".formacion-item:not(.template)"
-                );
-                items.forEach((item) => item.remove());
-            }
-        }
-
-        addFormacionToDOM(formacion, index) {
-            const container = document.getElementById("formaciones-container");
-            const template = document.getElementById("formacion-template");
-
-            if (!container || !template) return;
-
-            const clone = template.cloneNode(true);
-            clone.classList.remove("template");
-            clone.style.display = "block";
-            clone.setAttribute("data-index", index);
-
-            // Poblar campos
-            const tituloField = clone.querySelector('[name="titulo"]');
-            const institucionField = clone.querySelector(
-                '[name="institucion"]'
-            );
-            const anioField = clone.querySelector('[name="anioFinalizacion"]');
-
-            if (tituloField) tituloField.value = formacion.titulo || "";
-            if (institucionField)
-                institucionField.value = formacion.institucion || "";
-            if (anioField) anioField.value = formacion.anioFinalizacion || "";
-
-            // Insertar antes del botón de agregar
-            const addButton = container.querySelector(".add-formacion-btn");
-            if (addButton) {
-                container.insertBefore(clone, addButton);
-            } else {
-                container.appendChild(clone);
-            }
-        }
-
-        getFormData() {
-            const formData = new FormData(this.form);
-            const data = {};
-
-            // Convertir FormData a objeto
-            for (let [key, value] of formData.entries()) {
-                data[key] = value;
-            }
-
-            return data;
         }
 
         async saveSection() {
@@ -589,18 +973,20 @@
                     btn.textContent = "Guardando...";
                 }
 
-                const data = this.getFormData();
+                // Guardar datos actuales
+                this.saveCurrentFormacion();
+                this.saveCurrentCurso();
 
-                // Emitir evento para que el controlador principal maneje el guardado
-                window.dispatchEvent(
-                    new CustomEvent("save-section-data", {
-                        detail: { section: "formaciones", data },
-                    })
+                // Guardar en el servidor
+                await this.saveAllFormaciones();
+                await this.saveAllCursos();
+
+                this.showNotification(
+                    "Formaciones y cursos guardados",
+                    "success"
                 );
 
-                this.showNotification("Formaciones guardadas", "success");
-
-                // Navegar a la siguiente sección después de guardar
+                // Navegar a la siguiente sección
                 setTimeout(() => {
                     const profileEditor = (window as any).profileEditor;
                     if (profileEditor) {
@@ -622,21 +1008,151 @@
             }
         }
 
-        async autoSave() {
-            const data = this.getFormData();
+        async saveAllFormaciones() {
+            const promises = [];
 
-            // Emitir evento para auto-guardado
-            window.dispatchEvent(
-                new CustomEvent("auto-save-data", {
-                    detail: { section: "formaciones", data },
-                })
-            );
+            for (const formacion of this.formaciones) {
+                if (!formacion.titulo || !formacion.institucion) continue;
 
-            console.log("Auto-guardando formaciones...");
+                if (formacion.id) {
+                    promises.push(
+                        apiClient
+                            .put(`/perfil/formacion/${formacion.id}`, {
+                                titulo: formacion.titulo,
+                                institucion: formacion.institucion,
+                                anioFinalizacion:
+                                    formacion.anioFinalizacion || null,
+                            })
+                            .then((response) => {
+                                if (response.success) {
+                                    Object.assign(
+                                        formacion,
+                                        response.data.formacion
+                                    );
+                                }
+                                return response;
+                            })
+                    );
+                } else {
+                    promises.push(
+                        apiClient
+                            .post("/perfil/formacion", {
+                                titulo: formacion.titulo,
+                                institucion: formacion.institucion,
+                                anioFinalizacion:
+                                    formacion.anioFinalizacion || null,
+                            })
+                            .then((response) => {
+                                if (response.success) {
+                                    formacion.id = response.data.formacion.id;
+                                    Object.assign(
+                                        formacion,
+                                        response.data.formacion
+                                    );
+                                }
+                                return response;
+                            })
+                    );
+                }
+            }
+
+            const results = await Promise.all(promises);
+            const failed = results.filter((result) => !result.success);
+            if (failed.length > 0) {
+                throw new Error(
+                    `${failed.length} formación(es) no pudieron guardarse`
+                );
+            }
         }
 
-        showNotification(message: string, type: string) {
-            // Reutilizar el sistema de notificaciones del componente principal
+        async saveAllCursos() {
+            const promises = [];
+
+            for (const curso of this.cursos) {
+                if (!curso.nombre) continue;
+
+                if (curso.id) {
+                    promises.push(
+                        apiClient
+                            .put(`/perfil/curso/${curso.id}`, {
+                                nombre: curso.nombre,
+                                institucion: curso.institucionCurso || null,
+                                horasDuracion: curso.horasDuracion || null,
+                            })
+                            .then((response) => {
+                                if (response.success) {
+                                    Object.assign(curso, response.data.curso);
+                                }
+                                return response;
+                            })
+                    );
+                } else {
+                    promises.push(
+                        apiClient
+                            .post("/perfil/curso", {
+                                nombre: curso.nombre,
+                                institucion: curso.institucionCurso || null,
+                                horasDuracion: curso.horasDuracion || null,
+                            })
+                            .then((response) => {
+                                if (response.success) {
+                                    curso.id = response.data.curso.id;
+                                    Object.assign(curso, response.data.curso);
+                                }
+                                return response;
+                            })
+                    );
+                }
+            }
+
+            const results = await Promise.all(promises);
+            const failed = results.filter((result) => !result.success);
+            if (failed.length > 0) {
+                throw new Error(
+                    `${failed.length} curso(s) no pudieron guardarse`
+                );
+            }
+        }
+
+        async autoSave() {
+            try {
+                this.saveCurrentFormacion();
+                this.saveCurrentCurso();
+
+                // Solo auto-guardar elementos que ya tienen ID
+                const formacionesConId = this.formaciones.filter(
+                    (form) => form.id && form.titulo && form.institucion
+                );
+
+                const cursosConId = this.cursos.filter(
+                    (curso) => curso.id && curso.nombre
+                );
+
+                // Auto-guardar formaciones
+                for (const formacion of formacionesConId) {
+                    await apiClient.put(`/perfil/formacion/${formacion.id}`, {
+                        titulo: formacion.titulo,
+                        institucion: formacion.institucion,
+                        anioFinalizacion: formacion.anioFinalizacion || null,
+                    });
+                }
+
+                // Auto-guardar cursos
+                for (const curso of cursosConId) {
+                    await apiClient.put(`/perfil/curso/${curso.id}`, {
+                        nombre: curso.nombre,
+                        institucion: curso.institucionCurso || null,
+                        horasDuracion: curso.horasDuracion || null,
+                    });
+                }
+
+                console.log("Auto-guardado de formaciones y cursos completado");
+            } catch (error) {
+                console.error("Error en auto-guardado:", error);
+            }
+        }
+
+        showNotification(message, type) {
             window.dispatchEvent(
                 new CustomEvent("show-notification", {
                     detail: { message, type },
