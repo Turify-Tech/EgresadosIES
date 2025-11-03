@@ -19,7 +19,7 @@
                 </div>
 
                 <div class="image-upload-area">
-                    <div class="image-preview" id="image-preview">
+                    <div class="image-preview" id="project-image-preview">
                         <div class="placeholder-image">
                             <!-- Círculo negro como en la imagen -->
                             <div class="circle-placeholder"></div>
@@ -462,11 +462,13 @@
 
     class ProyectosManager {
         constructor() {
+            console.log("🏗️ ProyectosManager - Constructor iniciado");
             this.form = document.getElementById("proyectos-form");
             this.isInitialized = false;
             this.currentProjectImage = null; // URL de la imagen actual del proyecto
             this.proyectos = []; // Array para múltiples proyectos
             this.currentProjectIndex = 0; // Índice del proyecto actual
+            console.log("🔍 ProyectosManager - Form encontrado:", !!this.form);
             this.init();
         }
 
@@ -481,17 +483,26 @@
 
         bindEvents() {
             // Upload de imagen
-            document
-                .getElementById("upload-project-image")
-                ?.addEventListener("click", () => {
-                    document.getElementById("project-image-input")?.click();
-                });
+            const uploadBtn = document.getElementById("upload-project-image");
+            const imageInput = document.getElementById("project-image-input");
 
-            document
-                .getElementById("project-image-input")
-                ?.addEventListener("change", (e) => {
-                    this.handleImageUpload(e);
-                });
+            console.log("🔍 ProyectoForm - Elementos encontrados:", {
+                uploadBtn: !!uploadBtn,
+                imageInput: !!imageInput,
+            });
+
+            uploadBtn?.addEventListener("click", () => {
+                console.log("🖱️ Click en botón de subir imagen de proyecto");
+                imageInput?.click();
+            });
+
+            imageInput?.addEventListener("change", (e) => {
+                console.log(
+                    "📁 Archivo seleccionado para proyecto:",
+                    e.target.files[0]
+                );
+                this.handleImageUpload(e);
+            });
 
             // Botón guardar
             document
@@ -510,7 +521,14 @@
 
         async handleImageUpload(e) {
             const file = e.target.files[0];
-            if (!file) return;
+            console.log("🚀 ProyectoForm - handleImageUpload iniciado:", {
+                file,
+            });
+
+            if (!file) {
+                console.log("❌ No se seleccionó archivo");
+                return;
+            }
 
             try {
                 // Mostrar loading en el botón
@@ -550,9 +568,12 @@
                 }
 
                 // Subir a ImgBB
-                const uploadResult = await imageService.uploadImage(file, {
-                    name: `proyecto_${Date.now()}`,
-                });
+                const uploadResult = await imageService.uploadImage(
+                    processedFile,
+                    {
+                        name: `proyecto_${Date.now()}`,
+                    }
+                );
 
                 if (uploadResult.success) {
                     // Actualizar imagen con la URL de ImgBB
@@ -610,15 +631,14 @@
         }
 
         updateImagePreview(imageUrl) {
-            const preview = document.getElementById("image-preview");
+            const preview = document.getElementById("project-image-preview");
             if (preview && imageUrl) {
                 preview.innerHTML = `
                     <img 
                         src="${imageUrl}" 
                         alt="Proyecto" 
-                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;"
+                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px; opacity: 0; transition: opacity 0.3s;"
                         onload="this.style.opacity = '1'"
-                        style="opacity: 0; transition: opacity 0.3s;"
                     />
                 `;
             } else if (preview) {
@@ -796,6 +816,8 @@
 
     // Inicializar cuando el DOM esté listo
     document.addEventListener("DOMContentLoaded", () => {
+        console.log("🎬 ProyectoForm - Inicializando ProyectosManager");
         window.proyectosManager = new ProyectosManager();
+        console.log("✅ ProyectoForm - ProyectosManager inicializado");
     });
 </script>
