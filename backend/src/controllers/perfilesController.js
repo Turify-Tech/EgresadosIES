@@ -191,17 +191,24 @@ class PerfilesController {
             const profile = result.rows[0];
 
             // Obtener datos relacionados si existe el perfil
-            const [experiencias, formacion, cursos] = await Promise.all([
-                PerfilesController.getExperienciasLaborales(profile.perfilId),
-                PerfilesController.getFormacionAcademica(profile.perfilId),
-                PerfilesController.getCursos(profile.perfilId),
-            ]);
+            const [experiencias, formacion, cursos, proyectos, habilidades] =
+                await Promise.all([
+                    PerfilesController.getExperienciasLaborales(
+                        profile.perfilId
+                    ),
+                    PerfilesController.getFormacionAcademica(profile.perfilId),
+                    PerfilesController.getCursos(profile.perfilId),
+                    PerfilesController.getProyectos(parseInt(id)), // Los proyectos están ligados a usuarioId
+                    PerfilesController.getHabilidades(parseInt(id)), // Las habilidades están ligadas a usuarioId
+                ]);
 
             const enrichedProfile = {
                 ...profile,
                 experienciasLaborales: experiencias,
                 formacionAcademica: formacion,
                 cursos: cursos,
+                proyectos: proyectos,
+                habilidades: habilidades,
             };
 
             res.status(200).json({
@@ -340,6 +347,73 @@ class PerfilesController {
             return result.rows;
         } catch (error) {
             console.error("❌ Error obteniendo cursos:", error);
+            return [];
+        }
+    }
+
+    /**
+     * Obtiene proyectos de un usuario
+     */
+    static async getProyectos(usuarioId) {
+        try {
+            if (!usuarioId) return [];
+
+            const client = database.getClient();
+
+            const query = `
+                SELECT 
+                    id,
+                    nombre,
+                    descripcion,
+                    enlace,
+                    tecnologias,
+                    fechaProyecto,
+                    imagen
+                FROM Proyectos
+                WHERE usuarioId = ?
+                ORDER BY fechaProyecto DESC, id DESC
+            `;
+
+            const result = await client.execute({
+                sql: query,
+                args: [usuarioId],
+            });
+
+            return result.rows;
+        } catch (error) {
+            console.error("❌ Error obteniendo proyectos:", error);
+            return [];
+        }
+    }
+
+    /**
+     * Obtiene habilidades de un usuario
+     */
+    static async getHabilidades(usuarioId) {
+        try {
+            if (!usuarioId) return [];
+
+            const client = database.getClient();
+
+            const query = `
+                SELECT 
+                    id,
+                    nombre,
+                    tipo,
+                    nivel
+                FROM Habilidades
+                WHERE usuarioId = ?
+                ORDER BY tipo, nombre
+            `;
+
+            const result = await client.execute({
+                sql: query,
+                args: [usuarioId],
+            });
+
+            return result.rows;
+        } catch (error) {
+            console.error("❌ Error obteniendo habilidades:", error);
             return [];
         }
     }

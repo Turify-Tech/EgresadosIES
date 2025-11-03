@@ -533,11 +533,66 @@ export async function getStaticPaths() {
           
           <div class="section">
             <h3 class="section-title">Habilidades</h3>
-            <div class="skills-list">Trabajo muy bien en equipo...</div>
-            <div style="margin-top: 0.75rem;">
-              <strong>Frontend:</strong> React, HTML, CSS<br>
-              <strong>Backend:</strong> Flask
-            </div>
+            ${
+                profile.habilidades && profile.habilidades.length > 0
+                    ? (() => {
+                          const habilidadesTecnicas =
+                              profile.habilidades.filter(
+                                  (h) => h.tipo === "tecnica"
+                              );
+                          const habilidadesBlandas = profile.habilidades.filter(
+                              (h) => h.tipo === "blanda"
+                          );
+                          const habilidadesIdiomas = profile.habilidades.filter(
+                              (h) => h.tipo === "idioma"
+                          );
+
+                          let html = '<div class="skills-list">';
+
+                          if (habilidadesTecnicas.length > 0) {
+                              html +=
+                                  '<div style="margin-bottom: 0.75rem;"><strong>Técnicas:</strong> ' +
+                                  habilidadesTecnicas
+                                      .map(
+                                          (h) =>
+                                              h.nombre +
+                                              (h.nivel ? ` (${h.nivel})` : "")
+                                      )
+                                      .join(", ") +
+                                  "</div>";
+                          }
+
+                          if (habilidadesBlandas.length > 0) {
+                              html +=
+                                  '<div style="margin-bottom: 0.75rem;"><strong>Habilidades Blandas:</strong> ' +
+                                  habilidadesBlandas
+                                      .map(
+                                          (h) =>
+                                              h.nombre +
+                                              (h.nivel ? ` (${h.nivel})` : "")
+                                      )
+                                      .join(", ") +
+                                  "</div>";
+                          }
+
+                          if (habilidadesIdiomas.length > 0) {
+                              html +=
+                                  '<div style="margin-bottom: 0.75rem;"><strong>Idiomas:</strong> ' +
+                                  habilidadesIdiomas
+                                      .map(
+                                          (h) =>
+                                              h.nombre +
+                                              (h.nivel ? ` (${h.nivel})` : "")
+                                      )
+                                      .join(", ") +
+                                  "</div>";
+                          }
+
+                          html += "</div>";
+                          return html;
+                      })()
+                    : `<div class="empty-state">No hay habilidades registradas</div>`
+            }
           </div>
           
           <div class="section">
@@ -545,14 +600,26 @@ export async function getStaticPaths() {
               <div class="section-icon">${createIcon("folder")}</div>
               Proyectos
             </h3>
-            <div class="project-item">
-              <div class="project-icon">📁</div>
-              <div class="project-info">
-                <div class="item-title">E-commerce Platform</div>
-                <div class="item-subtitle">React + Node.js marketplace</div>
-                <a href="#" class="project-link">www.udemy.com/ejemplo</a>
-              </div>
-            </div>
+            ${
+                profile.proyectos && profile.proyectos.length > 0
+                    ? profile.proyectos
+                          .map(
+                              (proyecto) => `
+                <div class="project-item">
+                  <div class="project-icon">📁</div>
+                  <div class="project-info">
+                    <div class="item-title">${proyecto.nombre || ""}</div>
+                    ${proyecto.descripcion ? `<div class="item-subtitle">${proyecto.descripcion}</div>` : ""}
+                    ${proyecto.tecnologias ? `<div class="item-subtitle"><strong>Tecnologías:</strong> ${proyecto.tecnologias}</div>` : ""}
+                    ${proyecto.enlace ? `<a href="${proyecto.enlace}" target="_blank" class="project-link">${proyecto.enlace}</a>` : ""}
+                    ${proyecto.fechaProyecto ? `<div class="item-subtitle" style="font-size: 0.85rem; color: var(--text-secondary);"><strong>Fecha:</strong> ${proyecto.fechaProyecto}</div>` : ""}
+                  </div>
+                </div>
+              `
+                          )
+                          .join("")
+                    : `<div class="empty-state">No hay proyectos registrados</div>`
+            }
           </div>
         </div>
       </div>
