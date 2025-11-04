@@ -1,0 +1,49 @@
+---
+export interface Props {
+  disabled?: boolean;
+}
+
+// Default to disabled on server-render. Client-side script will enable when appropriate.
+const { disabled = true } = Astro.props;
+---
+
+<form class="crear-publicacion" id="crear-publicacion-form" onsubmit="return false" style="display:none;">
+  <textarea id="crear-contenido" name="contenido" placeholder="¿Qué estás pensando?" rows="3" disabled={disabled}></textarea>
+  <div class="actions">
+    <input id="crear-imagenes" type="file" name="imagenes" accept="image/*" multiple disabled={disabled} />
+    <button id="crear-submit" class="btn-submit" type="submit" disabled={disabled}>Publicar</button>
+  </div>
+
+  <script>
+    // Cliente: mostrar y habilitar el formulario SOLO si el usuario está autenticado y es Egresado
+    (function(){
+      try {
+        const token = localStorage.getItem('auth_token');
+        const userData = localStorage.getItem('user_data');
+        if (!token || !userData) return; // Si no hay token, el form permanece oculto
+        const user = JSON.parse(userData);
+        if (user && user.tipo_usuario === 'Egresado') {
+          const form = document.getElementById('crear-publicacion-form');
+          const textarea = document.getElementById('crear-contenido');
+          const fileInput = document.getElementById('crear-imagenes');
+          const submit = document.getElementById('crear-submit');
+          if (form) form.style.display = 'block'; // Mostrar el formulario
+          if (textarea) textarea.removeAttribute('disabled');
+          if (fileInput) fileInput.removeAttribute('disabled');
+          if (submit) submit.removeAttribute('disabled');
+        }
+      } catch(e) { console.warn('enable crear form failed', e); }
+    })();
+  </script>
+
+  <style>
+    .crear-publicacion{background:#fff;border-radius:12px;padding:1.25rem;margin-bottom:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.1);border:1px solid #f0f0f0}
+    textarea{width:100%;border:1px solid #e5e7eb;padding:0.75rem;border-radius:8px;font-size:0.95rem;font-family:inherit;resize:vertical}
+    textarea:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
+    .actions{display:flex;align-items:center;justify-content:space-between;margin-top:0.75rem;gap:0.5rem}
+    .btn-submit{background:#3b82f6;color:#fff;border:none;padding:0.5rem 1.25rem;border-radius:8px;cursor:pointer;font-weight:500;font-size:0.9rem}
+    .btn-submit:hover{background:#2563eb}
+    .btn-submit:disabled{background:#d1d5db;cursor:not-allowed}
+    input[type="file"]{font-size:0.9rem}
+  </style>
+</form>

@@ -1,0 +1,58 @@
+---
+export interface Props {
+  post: any;
+}
+
+const { post } = Astro.props;
+---
+
+<article class="post-card" data-id={post?.id}>
+  <header class="post-header">
+    <img class="avatar" src={post?.autor?.avatar || '/default-avatar.svg'} alt="avatar" />
+    <div class="meta">
+      <strong class="author">{post?.autor?.nombre || 'Usuario'}</strong>
+      <time class="time">{post?.fechaCreacion ? new Date(post.fechaCreacion).toLocaleString() : ''}</time>
+    </div>
+  </header>
+
+  <div class="post-body">
+    <p class="content">{post?.contenido}</p>
+
+    {post?.imagenes && post.imagenes.length > 0 ? (
+      <div class="images">
+        {post.imagenes.map((url) => (
+          <img src={url} alt="imagen" loading="lazy" />
+        ))}
+      </div>
+    ) : null}
+  </div>
+
+  <footer class="post-actions">
+    <button class="like-btn" data-liked="false">❤ <span class="like-count">{post?.totalLikes || 0}</span></button>
+    <div class="spacer"></div>
+    <button class="more">⋯</button>
+  </footer>
+
+  <style>
+    .post-card{background:#fff;border-radius:8px;padding:1.5rem;margin-bottom:1.5rem;box-shadow:0 1px 2px rgba(0,0,0,0.05);border:1px solid #e5e7eb}
+    .post-header{display:flex;gap:0.75rem;align-items:center}
+    .avatar{width:48px;height:48px;min-width:48px;border-radius:50%;object-fit:cover;background:#c7d2fe}
+    .meta{display:flex;flex-direction:column;gap:0.15rem}
+    .author{font-weight:600;color:#000;font-size:1rem;line-height:1.2}
+    .time{font-size:0.8rem;color:#9ca3af;line-height:1.2}
+    .post-body{margin-top:1rem}
+    .content{white-space:pre-wrap;color:#1f2937;font-size:0.95rem;line-height:1.6;margin:0}
+    .images{display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap}
+    .images img{width:140px;height:100px;object-fit:cover;border-radius:8px}
+    .post-actions{display:flex;align-items:center;gap:1.5rem;margin-top:1rem;padding-top:1rem;border-top:1px solid #e5e7eb}
+    .like-btn,.comment-toggle,.more{background:transparent;border:none;cursor:pointer;font-size:0.9rem;color:#6b7280;display:flex;align-items:center;gap:0.4rem;padding:0.25rem 0.5rem;border-radius:4px;transition:all 0.2s;font-weight:500}
+    .like-btn:hover{background:#fee2e2;color:#dc2626}
+    .comment-toggle:hover{background:#dbeafe;color:#2563eb}
+    .more{color:#9ca3af;padding:0.25rem}
+    .more:hover{background:#f3f4f6}
+    .spacer{flex:1}
+    .comments{margin-top:1rem;padding-top:1rem;border-top:1px solid #e5e7eb}
+    .comments-list{display:flex;flex-direction:column;gap:0.75rem}
+    .comment-form-placeholder{margin-top:0.75rem}
+  </style>
+</article>
