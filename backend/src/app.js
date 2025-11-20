@@ -14,6 +14,8 @@ import carrerasRoutes from "./routes/carrerasRoutes.js";
 import mensajesRoutes from "./routes/mensajesRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import publicacionesRoutes from "./routes/publicacionesRoutes.js";
+import comentariosRoutes from "./routes/comentariosRoutes.js";
+import likesRoutes from "./routes/likesRoutes.js";
 
 // Configurar dotenv con ruta absoluta
 const __filename = fileURLToPath(import.meta.url);
@@ -89,6 +91,8 @@ app.use("/api/carreras", carrerasRoutes);
 app.use("/api/mensajes", mensajesRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/publicaciones", publicacionesRoutes);
+app.use("/api/comentarios", comentariosRoutes);
+app.use("/api/likes", likesRoutes);
 
 // Middleware de manejo de errores globales
 app.use((err, req, res, next) => {

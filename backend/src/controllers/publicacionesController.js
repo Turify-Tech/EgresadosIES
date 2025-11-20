@@ -187,9 +187,21 @@ export async function listarPublicaciones(req, res) {
                 urlFotoPerfil: urlFotoPerfil
             };
             
-            // Agregar contadores temporales
-            publicacion.totalComentarios = 0;
-            publicacion.totalLikes = 0;
+            // Obtener total de comentarios
+            const comentariosQuery = `
+                SELECT COUNT(*) as total FROM Comentario 
+                WHERE publicacionId = ${publicacion.id}
+            `;
+            const comentariosResult = await client.execute(comentariosQuery);
+            publicacion.totalComentarios = Number(comentariosResult.rows[0]?.total || 0);
+            
+            // Obtener total de likes
+            const likesQuery = `
+                SELECT COUNT(*) as total FROM LikePublicacion 
+                WHERE publicacionId = ${publicacion.id}
+            `;
+            const likesResult = await client.execute(likesQuery);
+            publicacion.totalLikes = Number(likesResult.rows[0]?.total || 0);
             
             // Limpiar campos temporales
             delete publicacion.autorId;
