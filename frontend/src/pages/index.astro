@@ -1,5 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import ComentariosModal from "../components/ComentariosModal.astro";
+import "../styles/index.css";
 ---
 
 <BaseLayout title="Inicio | Feed">
@@ -64,402 +66,22 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
                 <!-- Feed de publicaciones -->
                 <div id="feed-list">
-                    <!-- Posts estáticos de ejemplo -->
-                    <article class="post-card">
-                        <header class="post-header">
-                            <div class="avatar"></div>
-                            <div class="post-meta">
-                                <strong>Marta Gonzales</strong>
-                                <time>3h</time>
-                            </div>
-                        </header>
-                        <div class="post-body">
-                            <p>¡Hola comunidad! Acabo de conseguir mi primer trabajo como desarrolladora en una startup de fintech. Gracias a todos los que me apoyaron durante mi búsqueda. ¡La perseverancia vale la pena! 🚀</p>
-                        </div>
-                        <footer class="post-actions">
-                            <button class="action-btn comment-btn">
-                                <span>💬</span>
-                                <span class="count">Comentarios</span>
-                            </button>
-                            <button class="action-btn like-btn">
-                                <span>❤</span>
-                                <span class="count">2.5k</span>
-                            </button>
-                        </footer>
-                    </article>
-
-                    <article class="post-card">
-                        <header class="post-header">
-                            <div class="avatar"></div>
-                            <div class="post-meta">
-                                <strong>Marta Gonzales</strong>
-                                <time>Miembro de la comunidad</time>
-                            </div>
-                        </header>
-                        <div class="post-body">
-                            <p>¡Hola comunidad! Acabo de conseguir mi primer trabajo como desarrolladora en una startup de fintech. Gracias a todos los que me apoyaron durante mi búsqueda. ¡La perseverancia vale la pena! 🚀</p>
-                        </div>
-                        <footer class="post-actions">
-                            <button class="action-btn like-btn">
-                                <span>❤</span>
-                                <span class="count">2</span>
-                            </button>
-                        </footer>
-                    </article>
+                    <!-- Aquí se cargarán las publicaciones dinámicamente -->
+                    <div class="loading-posts">
+                        <div class="loading-spinner"></div>
+                        <p>Cargando publicaciones...</p>
+                    </div>
                 </div>
 
-                <div class="load-more">
+                <div class="load-more" style="display: none;">
                     <button id="load-more-btn">Cargar más</button>
                 </div>
             </main>
         </div>
     </div>
 
-    <style is:global>
-        .feed-page {
-            background: #f5f5f5;
-            min-height: 100vh;
-            padding: 1rem;
-            overflow: visible;
-        }
-        
-        .feed-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 1.5rem;
-            align-items: start;
-        }
-
-        /* Sidebar */
-        .sidebar-left {
-            background: white;
-            padding: 0;
-            border-radius: 8px;
-            position: sticky;
-            top: 28px;
-            overflow: hidden;
-            align-self: start;
-        }
-        
-        .sidebar-banner {
-            width: 100%;
-            height: 70px;
-            object-fit: cover;
-            display: block;
-        }
-        
-        .sidebar-left h3 {
-            margin: 0;
-            padding: 0.75rem 1.5rem;
-            font-size: 1.2rem;
-            color: #1437C3;
-            font-weight: 700 !important;
-        }
-        
-        .sidebar-left ul {
-            list-style: none;
-            padding: 0 1.5rem 1.5rem 1.5rem;
-            margin: 0;
-        }
-        
-        .sidebar-left li {
-            padding: 0.25rem 0;
-            color: #333;
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-
-        /* Main content */
-        .feed-main {
-            max-width: 680px;
-        }
-        
-        .page-header {
-            margin-bottom: 1.5rem;
-        }
-        
-        .page-header h1 {
-            font-size: 1.75rem;
-            margin: 0 0 0.5rem 0;
-            color: #000;
-        }
-        
-        .page-header p {
-            color: #666;
-            margin: 0;
-            line-height: 1.6;
-            font-size: 1rem;
-        }
-
-        
-        .feed-intro h2 {
-            margin: 0 0 0.5rem 0;
-            font-size: 1.30rem;
-            color: #000;
-        }
-        
-        .feed-intro p {
-            margin: 0;
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        /* Formulario crear post */
-        .crear-post {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-        
-        .crear-post textarea {
-            width: 100%;
-            border: 1px solid #e5e7eb;
-            padding: 0.75rem;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            font-family: inherit;
-            resize: vertical;
-        }
-        
-        .crear-post textarea:focus {
-            outline: none;
-            border-color: #3b82f6;
-        }
-        
-        .form-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 0.75rem;
-        }
-        
-        .form-actions button {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            padding: 0.5rem 1.5rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-        }
-        
-        .form-actions button:hover {
-            background: #2563eb;
-        }
-
-        /* Post card */
-        .post-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            border: 1px solid #e5e7eb;
-        }
-        
-        .post-header {
-            display: flex;
-            gap: 0.75rem;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        
-        .avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: #c7d2fe;
-            flex-shrink: 0;
-        }
-        
-        .post-meta {
-            display: flex;
-            flex-direction: column;
-            gap: 0.15rem;
-        }
-        
-        .post-meta strong {
-            font-weight: 600;
-            color: #000;
-            font-size: 1rem;
-        }
-        
-        .post-meta time {
-            font-size: 0.8rem;
-            color: #9ca3af;
-        }
-        
-        .post-body {
-            margin-bottom: 1rem;
-        }
-        
-        .post-body p {
-            margin: 0 0 1rem 0;
-            color: #1f2937;
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-        
-        .post-images {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-        
-        .post-images img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-        
-        .post-stats {
-            display: flex;
-            gap: 1.5rem;
-            padding-top: 1rem;
-            border-top: 1px solid #e5e7eb;
-        }
-        
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            color: #6b7280;
-            font-size: 0.9rem;
-        }
-
-        /* Desplegable de tecnicaturas (solo móvil) */
-        .tecnicaturas-mobile {
-            display: none;
-            background: white;
-            border-radius: 8px;
-            padding: 1rem;
-            margin: 1rem 0.5rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .tecnicaturas-mobile summary {
-            cursor: pointer;
-            font-weight: 600;
-            color: #1437C3;
-            font-size: 1rem;
-            padding: 0.5rem;
-            list-style: none;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .tecnicaturas-mobile summary::-webkit-details-marker {
-            display: none;
-        }
-
-        .tecnicaturas-mobile summary::after {
-            content: '▼';
-            font-size: 0.8rem;
-            transition: transform 0.3s;
-        }
-
-        .tecnicaturas-mobile[open] summary::after {
-            transform: rotate(180deg);
-        }
-
-        .tecnicaturas-mobile ul {
-            list-style: none;
-            padding: 0;
-            margin: 0.75rem 0 0 0;
-        }
-
-        .tecnicaturas-mobile li {
-            padding: 0.5rem;
-            color: #333;
-            font-size: 0.9rem;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .tecnicaturas-mobile li:last-child {
-            border-bottom: none;
-        }
-
-        /* Load more */
-        .load-more {
-            text-align: center;
-            margin: 2rem 0;
-        }
-        
-        .load-more button {
-            background: #eef2ff;
-            border: 1px solid #dbeafe;
-            padding: 0.5rem 1.5rem;
-            border-radius: 6px;
-            cursor: pointer;
-            color: #3b82f6;
-            font-weight: 500;
-        }
-        
-        .load-more button:hover {
-            background: #dbeafe;
-        }
-
-        @media (max-width: 768px) {
-            .feed-page {
-                padding: 0.5rem;
-            }
-
-            .feed-container {
-                grid-template-columns: 1fr;
-                gap: 0.5rem;
-            }
-            
-            .sidebar-left {
-                display: none;
-            }
-
-            .tecnicaturas-mobile {
-                display: block;
-            }
-
-            .feed-main {
-                max-width: 100%;
-            }
-
-            .page-header {
-                padding: 0 0.5rem;
-                margin-bottom: 0.5rem;
-            }
-
-            .page-header h1 {
-                font-size: 1.3rem;
-                margin-bottom: 0.5rem;
-            }
-
-            .page-header p {
-                font-size: 0.85rem;
-            }
-
-            .feed-intro {
-                padding: 0 0.5rem;
-            }
-
-            .post-card {
-                margin: 0 0.5rem 1rem 0.5rem;
-                padding: 1rem;
-            }
-
-            .post-header {
-                flex-wrap: wrap;
-            }
-
-            .load-more {
-                padding: 0 0.5rem;
-            }
-        }
-    </style>
+    <!-- Modal de comentarios -->
+    <ComentariosModal />
 
     <script>
         const API_URL = 'http://localhost:3000/api';
@@ -505,15 +127,17 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                             </div>
                         ` : ''}
                     </div>
-                    <footer class="post-stats">
-                        <span class="stat-item">
-                            <span>💬</span>
-                            <span class="count">${totalComentarios} ${totalComentarios === 1 ? 'comentario' : 'comentarios'}</span>
-                        </span>
-                        <span class="stat-item">
-                            <span>❤</span>
-                            <span class="count">${totalLikes} ${totalLikes === 1 ? 'me gusta' : 'me gusta'}</span>
-                        </span>
+                    <footer class="post-actions">
+                        <button class="action-btn comment-btn" onclick="toggleComments(${id})">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                            <span class="comment-count">${totalComentarios}</span>
+                        </button>
+                        <button class="action-btn like-btn">
+                            <span>🤍</span>
+                            <span class="like-count">${totalLikes}</span>
+                        </button>
                     </footer>
                 </article>
             `;
@@ -583,6 +207,134 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             }
         }
 
+        // Variables para el modal de comentarios
+        let currentPublicacionId = null;
+
+        // Función para obtener el token
+        function getAuthToken() {
+            return localStorage.getItem('auth_token');
+        }
+
+        // Función para verificar si el usuario es egresado
+        function isEgresado() {
+            const userData = localStorage.getItem('user_data');
+            if (!userData) return false;
+            try {
+                const user = JSON.parse(userData);
+                return user.tipo_usuario === 'Egresado';
+            } catch {
+                return false;
+            }
+        }
+
+        // Función para formatear tiempo relativo
+        function formatearTiempoRelativo(fechaString) {
+            const fecha = new Date(fechaString + 'Z'); // Agregar Z para UTC
+            const ahora = new Date();
+            const diffMs = ahora - fecha;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHoras = Math.floor(diffMs / 3600000);
+            const diffDias = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Ahora';
+            if (diffMins < 60) return `${diffMins}m`;
+            if (diffHoras < 24) return `${diffHoras}h`;
+            if (diffDias < 7) return `${diffDias}d`;
+            
+            return fecha.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' });
+        }
+
+        // Función para crear HTML de comentario
+        function crearComentarioHTML(comentario) {
+            const avatarUrl = comentario.autor?.urlFotoPerfil || '';
+            const nombreCompleto = `${comentario.autor?.nombre || ''} ${comentario.autor?.apellido || ''}`.trim();
+            const tituloCarrera = comentario.autor?.tituloCarrera || '';
+            
+            return `
+                <div class="comentario-item" data-comentario-id="${comentario.id}">
+                    <div class="comentario-avatar">
+                        ${avatarUrl ? 
+                            `<img src="${avatarUrl}" alt="${nombreCompleto}" />` : 
+                            `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`
+                        }
+                    </div>
+                    <div class="comentario-content">
+                        <div class="comentario-header">
+                            <strong class="comentario-autor">${nombreCompleto}</strong>
+                            ${tituloCarrera ? `<p class="comentario-subtitle">${tituloCarrera}</p>` : ''}
+                        </div>
+                        <p class="comentario-texto">${comentario.contenido}</p>
+                        <div class="comentario-footer">
+                            <span class="comentario-tiempo">${formatearTiempoRelativo(comentario.fechaCreacion)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Función para cargar comentarios
+        async function cargarComentarios(publicacionId, page = 1) {
+            const comentariosList = document.getElementById('comentarios-list');
+            if (!comentariosList) return;
+
+            try {
+                const response = await fetch(`${API_URL}/comentarios/publicacion/${publicacionId}?page=${page}&limit=10`);
+                const result = await response.json();
+
+                if (result.success) {
+                    if (page === 1) {
+                        comentariosList.innerHTML = '';
+                    }
+
+                    const comentarios = result.data || [];
+
+                    if (comentarios.length === 0 && page === 1) {
+                        comentariosList.innerHTML = '<p class="no-comentarios">No hay comentarios en esta publicación.</p>';
+                    } else {
+                        comentarios.forEach(comentario => {
+                            const comentarioHTML = crearComentarioHTML(comentario);
+                            comentariosList.insertAdjacentHTML('beforeend', comentarioHTML);
+                        });
+                    }
+
+                    const pagination = document.getElementById('comentarios-pagination');
+                    if (pagination && result.pagination) {
+                        pagination.style.display = result.pagination.hasNextPage ? 'block' : 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error cargando comentarios:', error);
+                comentariosList.innerHTML = '<p class="error-comentarios">Error al cargar comentarios</p>';
+            }
+        }
+
+        // Función para mostrar/ocultar modal de comentarios
+        function toggleComments(publicacionId) {
+            currentPublicacionId = publicacionId;
+            const modal = document.getElementById('comentarios-modal');
+            if (!modal) return;
+
+            const isVisible = modal.style.display === 'flex';
+            
+            if (isVisible) {
+                modal.style.display = 'none';
+                currentPublicacionId = null;
+            } else {
+                modal.style.display = 'flex';
+                cargarComentarios(publicacionId, 1);
+                
+                // Ocultar el formulario si no es egresado
+                const comentarioForm = document.getElementById('comentario-form');
+                if (comentarioForm) {
+                    if (isEgresado()) {
+                        comentarioForm.style.display = 'flex';
+                    } else {
+                        comentarioForm.style.display = 'none';
+                    }
+                }
+            }
+        }
+
         // Event listener para el botón de cargar más
         document.addEventListener('DOMContentLoaded', () => {
             // Cargar primera página al cargar la página
@@ -596,6 +348,45 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                     cargarPublicaciones(currentPage);
                 });
             }
+
+            // Cerrar modal de comentarios
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', () => {
+                    const modal = document.getElementById('comentarios-modal');
+                    if (modal) {
+                        modal.style.display = 'none';
+                        currentPublicacionId = null;
+                    }
+                });
+            }
+
+            // Cerrar modal al hacer clic fuera
+            const modal = document.getElementById('comentarios-modal');
+            if (modal) {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                        currentPublicacionId = null;
+                    }
+                });
+            }
+
+            // Cargar más comentarios
+            const loadMoreCommentsBtn = document.getElementById('load-more-comments-btn');
+            if (loadMoreCommentsBtn) {
+                loadMoreCommentsBtn.addEventListener('click', () => {
+                    if (currentPublicacionId) {
+                        const comentariosList = document.getElementById('comentarios-list');
+                        const currentCount = comentariosList?.children.length || 0;
+                        const page = Math.floor(currentCount / 10) + 1;
+                        cargarComentarios(currentPublicacionId, page);
+                    }
+                });
+            }
         });
+
+        // Exponer función globalmente
+        window.toggleComments = toggleComments;
     </script>
 </BaseLayout>
