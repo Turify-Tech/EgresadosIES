@@ -201,7 +201,7 @@ window.addEventListener('dni-agregado', () => {
 - [x] Estadísticas en tiempo real
 - [x] Tarjetas de acceso rápido
 - [x] Navegación a gestión de DNIs
-- [x] Botón de retorno al dashboard de usuario
+- [x] Botón de retorno al inicio (home)
 - [x] Sección de actividad reciente (estática)
 
 ### ✅ Gestión de DNIs
