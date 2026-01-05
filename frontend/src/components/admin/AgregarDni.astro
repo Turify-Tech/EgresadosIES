@@ -1,0 +1,204 @@
+---
+/**
+ * Componente AgregarDni - Formulario para agregar DNIs individualmente
+ */
+---
+
+<div class="agregar-dni-card">
+    <div class="card-header">
+        <h3>
+            <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+            >
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="16"></line>
+                <line x1="8" y1="12" x2="16" y2="12"></line>
+            </svg>
+            Agregar DNI Individual
+        </h3>
+    </div>
+
+    <form id="form-agregar-dni" class="agregar-dni-form">
+        <div class="form-group">
+            <label for="dni-input">DNI *</label>
+            <input
+                type="text"
+                id="dni-input"
+                name="dni"
+                placeholder="Ej: 12345678"
+                required
+                maxlength="8"
+                pattern="[0-9]{7,8}"
+                title="Ingrese un DNI válido de 7 u 8 dígitos numéricos"
+            />
+            <small class="input-hint">7-8 dígitos numéricos</small>
+        </div>
+
+        <div class="form-group">
+            <label for="carrera-select">Carrera *</label>
+            <select id="carrera-select" name="carrera" required>
+                <option value="">Seleccionar carrera...</option>
+            </select>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">
+                <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path
+                        d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
+                    ></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                Agregar DNI
+            </button>
+        </div>
+
+        <div id="mensaje-agregar" class="mensaje" style="display: none;"></div>
+    </form>
+</div>
+
+<script>
+    const API_URL = "http://localhost:3000/api";
+
+    // Cargar carreras disponibles
+    async function cargarCarreras() {
+        try {
+            const token = localStorage.getItem("auth_token");
+            const response = await fetch(`${API_URL}/carreras`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const select = document.getElementById(
+                    "carrera-select"
+                ) as HTMLSelectElement;
+
+                if (data.success && Array.isArray(data.data)) {
+                    data.data.forEach((carrera: { nombre: string }) => {
+                        const option = document.createElement("option");
+                        option.value = carrera.nombre;
+                        option.textContent = carrera.nombre;
+                        select?.appendChild(option);
+                    });
+                }
+            }
+        } catch (error) {
+            console.error("Error cargando carreras:", error);
+        }
+    }
+
+    // Manejar envío del formulario
+    async function handleAgregarDni(e: Event) {
+        e.preventDefault();
+
+        const form = e.target as HTMLFormElement;
+        const formData = new FormData(form);
+        const dni = formData.get("dni") as string;
+        const carrera = formData.get("carrera") as string;
+
+        const submitButton = form.querySelector(
+            'button[type="submit"]'
+        ) as HTMLButtonElement;
+        const mensaje = document.getElementById("mensaje-agregar");
+
+        if (!mensaje) return;
+
+        // Validación básica
+        if (!dni || !carrera) {
+            mostrarMensaje(mensaje, "Todos los campos son requeridos", "error");
+            return;
+        }
+
+        if (!/^\d{7,8}$/.test(dni)) {
+            mostrarMensaje(mensaje, "DNI debe tener 7-8 dígitos", "error");
+            return;
+        }
+
+        // Deshabilitar botón
+        submitButton.disabled = true;
+        submitButton.textContent = "Agregando...";
+
+        try {
+            const token = localStorage.getItem("auth_token");
+            const response = await fetch(`${API_URL}/admin/dnis/agregar`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ dni, carrera }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                mostrarMensaje(
+                    mensaje,
+                    "DNI agregado exitosamente",
+                    "success"
+                );
+                form.reset();
+
+                // Disparar evento para actualizar tabla
+                window.dispatchEvent(new Event("dni-agregado"));
+            } else {
+                mostrarMensaje(
+                    mensaje,
+                    data.message || "Error agregando DNI",
+                    "error"
+                );
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            mostrarMensaje(mensaje, "Error de conexión", "error");
+        } finally {
+            submitButton.disabled = false;
+            submitButton.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                Agregar DNI
+            `;
+        }
+    }
+
+    function mostrarMensaje(
+        elemento: HTMLElement,
+        texto: string,
+        tipo: "success" | "error"
+    ) {
+        elemento.textContent = texto;
+        elemento.className = `mensaje ${tipo}`;
+        elemento.style.display = "block";
+
+        setTimeout(() => {
+            elemento.style.display = "none";
+        }, 5000);
+    }
+
+    // Inicializar
+    document.addEventListener("DOMContentLoaded", () => {
+        cargarCarreras();
+
+        const form = document.getElementById("form-agregar-dni");
+        form?.addEventListener("submit", handleAgregarDni);
+    });
+</script>

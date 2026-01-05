@@ -360,27 +360,37 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         try {
             const data = await authService.login(dni, password);
 
+            console.log("Respuesta del login:", data); // Debug
+
             if (data.success && data.token) {
+                // Guardar token
                 localStorage.setItem("auth_token", data.token);
-                localStorage.setItem(
-                    "user_data",
-                    JSON.stringify({
-                        id: data.user.id,
-                        tipo_usuario: data.user.tipo_usuario,
-                        email: data.user.email,
-                        nombre: data.user.nombre || `Usuario ${data.user.id}`,
-                    })
-                );
+                
+                // Guardar datos de usuario
+                const userData = {
+                    id: data.user.id,
+                    tipo_usuario: data.user.tipo_usuario,
+                    email: data.user.email,
+                    nombre: data.user.nombre || `Usuario ${data.user.id}`,
+                };
+                
+                console.log("Guardando userData:", userData); // Debug
+                localStorage.setItem("user_data", JSON.stringify(userData));
 
                 // Configurar token en API client
                 setAuthToken(data.token);
 
                 // Redirección según tipo de usuario
+                console.log("Tipo de usuario:", data.user.tipo_usuario); // Debug
+                
                 if (data.user.tipo_usuario === "Administrador") {
+                    console.log("Redirigiendo a /admin");
                     window.location.href = "/admin";
                 } else if (data.user.isNewUser) {
+                    console.log("Redirigiendo a /perfil/editar");
                     window.location.href = "/perfil/editar";
                 } else {
+                    console.log("Redirigiendo a /dashboard");
                     window.location.href = "/dashboard";
                 }
             } else {
@@ -389,6 +399,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                 errorMsg.style.display = "block";
             }
         } catch (err: any) {
+            console.error("Error en login:", err); // Debug
             errorMsg.textContent =
                 err.message || "Error de conexión con el servidor";
             errorMsg.style.display = "block";

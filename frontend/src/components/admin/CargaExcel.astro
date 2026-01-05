@@ -1,0 +1,416 @@
+---
+/**
+ * Componente CargaExcel - Permite la carga masiva de DNIs desde archivo Excel
+ */
+---
+
+<div class="carga-excel-card">
+    <div class="card-header">
+        <h3>
+            <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+            >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            Carga Masiva desde Excel
+        </h3>
+    </div>
+
+    <div class="carga-excel-content">
+        <div class="info-section">
+            <p class="info-text">
+                <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                El archivo Excel debe contener columnas <strong>DNI</strong> y <strong>Carrera</strong>
+            </p>
+        </div>
+
+        <form id="form-carga-excel">
+            <div
+                class="dropzone"
+                id="dropzone"
+                role="button"
+                tabindex="0"
+                aria-label="Área para arrastrar y soltar archivo Excel"
+            >
+                <input
+                    type="file"
+                    id="file-input"
+                    name="archivo"
+                    accept=".xlsx,.xls"
+                    hidden
+                />
+
+                <div class="dropzone-content">
+                    <svg
+                        width="48"
+                        height="48"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                    >
+                        <path
+                            d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"
+                        ></path>
+                        <polyline points="13 2 13 9 20 9"></polyline>
+                    </svg>
+                    <p class="dropzone-title">
+                        Arrastra tu archivo Excel aquí
+                    </p>
+                    <p class="dropzone-subtitle">o haz clic para seleccionar</p>
+                    <p class="dropzone-hint">
+                        Formatos: .xlsx, .xls (Máximo 10MB)
+                    </p>
+                </div>
+            </div>
+
+            <div id="file-info" class="file-info" style="display: none;">
+                <div class="file-details">
+                    <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path
+                            d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"
+                        ></path>
+                        <polyline points="13 2 13 9 20 9"></polyline>
+                    </svg>
+                    <div>
+                        <p class="file-name" id="file-name"></p>
+                        <p class="file-size" id="file-size"></p>
+                    </div>
+                </div>
+                <button type="button" id="btn-remover" class="btn-remove">
+                    <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <button
+                type="submit"
+                id="btn-cargar"
+                class="btn-primary"
+                disabled
+                style="display: none;"
+            >
+                <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path
+                        d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                Cargar Excel
+            </button>
+        </form>
+
+        <div id="progreso-container" style="display: none;">
+            <div class="progreso-header">
+                <span id="progreso-texto">Procesando...</span>
+                <span id="progreso-porcentaje">0%</span>
+            </div>
+            <div class="progreso-bar">
+                <div id="progreso-fill" class="progreso-fill"></div>
+            </div>
+        </div>
+
+        <div id="resultado-carga" style="display: none;"></div>
+    </div>
+</div>
+
+<script>
+    const API_URL = "http://localhost:3000/api";
+
+    let selectedFile: File | null = null;
+
+    function initCargaExcel() {
+        const dropzone = document.getElementById("dropzone");
+        const fileInput = document.getElementById(
+            "file-input"
+        ) as HTMLInputElement;
+        const fileInfo = document.getElementById("file-info");
+        const btnCargar = document.getElementById("btn-cargar");
+        const btnRemover = document.getElementById("btn-remover");
+        const form = document.getElementById("form-carga-excel");
+
+        if (!dropzone || !fileInput) return;
+
+        // Click en dropzone
+        dropzone.addEventListener("click", () => {
+            fileInput.click();
+        });
+
+        // Drag & drop
+        dropzone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropzone.classList.add("dragover");
+        });
+
+        dropzone.addEventListener("dragleave", () => {
+            dropzone.classList.remove("dragover");
+        });
+
+        dropzone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropzone.classList.remove("dragover");
+
+            const files = e.dataTransfer?.files;
+            if (files && files.length > 0) {
+                handleFileSelect(files[0]);
+            }
+        });
+
+        // Selección de archivo
+        fileInput.addEventListener("change", (e) => {
+            const target = e.target as HTMLInputElement;
+            if (target.files && target.files.length > 0) {
+                handleFileSelect(target.files[0]);
+            }
+        });
+
+        // Remover archivo
+        btnRemover?.addEventListener("click", () => {
+            selectedFile = null;
+            fileInput.value = "";
+            if (fileInfo) fileInfo.style.display = "none";
+            if (btnCargar) btnCargar.style.display = "none";
+            if (dropzone) dropzone.style.display = "block";
+            ocultarResultado();
+        });
+
+        // Enviar formulario
+        form?.addEventListener("submit", handleSubmit);
+    }
+
+    function handleFileSelect(file: File) {
+        const dropzone = document.getElementById("dropzone");
+        const fileInfo = document.getElementById("file-info");
+        const btnCargar = document.getElementById("btn-cargar");
+
+        // Validar tipo de archivo
+        const validTypes = [
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/vnd.ms-excel",
+        ];
+
+        if (!validTypes.includes(file.type)) {
+            alert("Por favor selecciona un archivo Excel (.xlsx, .xls)");
+            return;
+        }
+
+        // Validar tamaño (10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            alert("El archivo no debe superar los 10MB");
+            return;
+        }
+
+        selectedFile = file;
+
+        // Mostrar información del archivo
+        const fileName = document.getElementById("file-name");
+        const fileSize = document.getElementById("file-size");
+
+        if (fileName) fileName.textContent = file.name;
+        if (fileSize)
+            fileSize.textContent = `${(file.size / 1024).toFixed(2)} KB`;
+
+        if (dropzone) dropzone.style.display = "none";
+        if (fileInfo) fileInfo.style.display = "flex";
+        if (btnCargar) {
+            btnCargar.style.display = "flex";
+            (btnCargar as HTMLButtonElement).disabled = false;
+        }
+
+        ocultarResultado();
+    }
+
+    async function handleSubmit(e: Event) {
+        e.preventDefault();
+
+        if (!selectedFile) return;
+
+        const btnCargar = document.getElementById(
+            "btn-cargar"
+        ) as HTMLButtonElement;
+        const progresoContainer = document.getElementById("progreso-container");
+        const progresoFill = document.getElementById("progreso-fill");
+        const progresoTexto = document.getElementById("progreso-texto");
+        const progresoPorcentaje = document.getElementById(
+            "progreso-porcentaje"
+        );
+
+        // Mostrar progreso
+        if (progresoContainer) progresoContainer.style.display = "block";
+        if (btnCargar) btnCargar.disabled = true;
+
+        // Simular progreso
+        let progreso = 0;
+        const intervalo = setInterval(() => {
+            progreso += 10;
+            if (progreso <= 90) {
+                if (progresoFill)
+                    progresoFill.style.width = `${progreso}%`;
+                if (progresoPorcentaje)
+                    progresoPorcentaje.textContent = `${progreso}%`;
+            }
+        }, 200);
+
+        try {
+            const formData = new FormData();
+            formData.append("archivo", selectedFile);
+
+            const token = localStorage.getItem("auth_token");
+            const response = await fetch(
+                `${API_URL}/admin/dnis/cargar-excel`,
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: formData,
+                }
+            );
+
+            clearInterval(intervalo);
+
+            const data = await response.json();
+
+            // Completar progreso
+            if (progresoFill) progresoFill.style.width = "100%";
+            if (progresoPorcentaje) progresoPorcentaje.textContent = "100%";
+            if (progresoTexto) progresoTexto.textContent = "Completado";
+
+            setTimeout(() => {
+                if (progresoContainer) progresoContainer.style.display = "none";
+                if (progresoFill) progresoFill.style.width = "0%";
+                if (progresoPorcentaje) progresoPorcentaje.textContent = "0%";
+                if (progresoTexto) progresoTexto.textContent = "Procesando...";
+            }, 1000);
+
+            if (response.ok && data.success) {
+                mostrarResultado(data.data, "success");
+
+                // Disparar evento para actualizar estadísticas y tabla
+                window.dispatchEvent(new Event("dni-agregado"));
+
+                // Limpiar archivo seleccionado después de 3 segundos
+                setTimeout(() => {
+                    const btnRemover = document.getElementById("btn-remover");
+                    btnRemover?.click();
+                }, 3000);
+            } else {
+                mostrarResultado(
+                    data,
+                    "error",
+                    data.message || "Error procesando el archivo"
+                );
+            }
+        } catch (error) {
+            clearInterval(intervalo);
+            console.error("Error:", error);
+
+            if (progresoContainer) progresoContainer.style.display = "none";
+            mostrarResultado(null, "error", "Error de conexión con el servidor");
+        } finally {
+            if (btnCargar) btnCargar.disabled = false;
+        }
+    }
+
+    function mostrarResultado(
+        data: any,
+        tipo: "success" | "error",
+        mensaje?: string
+    ) {
+        const resultadoDiv = document.getElementById("resultado-carga");
+        if (!resultadoDiv) return;
+
+        resultadoDiv.className = tipo;
+        resultadoDiv.style.display = "block";
+
+        if (tipo === "success" && data) {
+            resultadoDiv.innerHTML = `
+                <div class="resultado-titulo">✓ Carga completada exitosamente</div>
+                <div class="resultado-stats">
+                    <div class="resultado-stat">
+                        <strong>${data.procesados}</strong>
+                        <span>Procesados</span>
+                    </div>
+                    <div class="resultado-stat">
+                        <strong>${data.exitosos}</strong>
+                        <span>Agregados</span>
+                    </div>
+                    <div class="resultado-stat">
+                        <strong>${data.duplicados}</strong>
+                        <span>Duplicados</span>
+                    </div>
+                    <div class="resultado-stat">
+                        <strong>${data.errores?.length || 0}</strong>
+                        <span>Errores</span>
+                    </div>
+                </div>
+                ${
+                    data.errores && data.errores.length > 0
+                        ? `
+                    <div class="resultado-errores">
+                        <strong>Errores encontrados:</strong>
+                        <ul>
+                            ${data.errores.slice(0, 10).map((err: string) => `<li>${err}</li>`).join("")}
+                            ${data.errores.length > 10 ? `<li>... y ${data.errores.length - 10} más</li>` : ""}
+                        </ul>
+                    </div>
+                `
+                        : ""
+                }
+            `;
+        } else {
+            resultadoDiv.innerHTML = `
+                <div class="resultado-titulo">✗ ${mensaje || "Error en la carga"}</div>
+            `;
+        }
+    }
+
+    function ocultarResultado() {
+        const resultadoDiv = document.getElementById("resultado-carga");
+        if (resultadoDiv) resultadoDiv.style.display = "none";
+    }
+
+    // Inicializar cuando el DOM esté listo
+    document.addEventListener("DOMContentLoaded", initCargaExcel);
+</script>
