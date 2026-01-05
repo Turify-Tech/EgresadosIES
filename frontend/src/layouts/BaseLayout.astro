@@ -102,15 +102,6 @@ import "../styles/components.css";
                     <!-- Navegación -->
                     <nav
                         style="display: flex; gap: 1.5rem; align-items: center;">
-                        <!-- Navegación para usuarios autenticados -->
-                        <a
-                            href="/admin"
-                            id="admin-link"
-                            style="color: #374151; text-decoration: none; font-family: 'Inter', sans-serif; font-weight: 500; transition: color 0.2s ease; display: none;"
-                            onmouseover="this.style.color='#3b82f6'"
-                            onmouseout="this.style.color='#374151'">
-                            Admin
-                        </a>
                     </nav>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1rem;">
@@ -126,6 +117,17 @@ import "../styles/components.css";
                             style="width: 24px; height: 24px;"
                         />
                         <span style="font-size: 0.85rem;">Ver egresados</span>
+                    </a>
+                    
+                    <!-- Admin link -->
+                    <a
+                        href="/admin"
+                        id="admin-link"
+                        style="color: #374151; text-decoration: none; font-family: 'Inter', sans-serif; font-weight: 500; transition: color 0.2s ease; display: none; flex-direction: column; align-items: center; gap: 0.25rem;"
+                        onmouseover="this.style.color='#3b82f6'"
+                        onmouseout="this.style.color='#374151'">
+                        <span style="font-size: 24px; filter: grayscale(100%) brightness(0.3); width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">⚙️</span>
+                        <span style="font-size: 0.85rem;">Admin</span>
                     </a>
                     
                     {
@@ -316,7 +318,7 @@ import "../styles/components.css";
                     if (user.tipo_usuario === "Egresado") {
                         if (adminLink) adminLink.style.display = "none";
                     } else if (user.tipo_usuario === "Administrador") {
-                        if (adminLink) adminLink.style.display = "block";
+                        if (adminLink) adminLink.style.display = "flex";
                     }
 
                     // Setup dropdown functionality

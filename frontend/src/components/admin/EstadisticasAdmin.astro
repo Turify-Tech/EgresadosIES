@@ -1,0 +1,88 @@
+---
+/**
+ * Componente EstadisticasAdmin - Muestra estadísticas del panel de administración
+ * Props:
+ * - stats: objeto con estadísticas
+ */
+
+export interface Props {
+    stats?: {
+        totalDnisValidos?: number;
+        totalEgresadosRegistrados?: number;
+        registrosPendientes?: number;
+    };
+}
+
+const { stats = {} } = Astro.props;
+const {
+    totalDnisValidos = 0,
+    totalEgresadosRegistrados = 0,
+    registrosPendientes = 0,
+} = stats;
+---
+
+<div class="estadisticas-container">
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+            >
+                <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+                <path d="M7 8h4"></path>
+                <path d="M7 12h2"></path>
+                <circle cx="16" cy="11" r="2"></circle>
+            </svg>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-value">{totalDnisValidos}</h3>
+            <p class="stat-label">DNIs Válidos</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+            >
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7" r="4"></circle>
+                <polyline points="17 11 19 13 23 9"></polyline>
+            </svg>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-value">{totalEgresadosRegistrados}</h3>
+            <p class="stat-label">Egresados Registrados</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon warning">
+            <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+            >
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-value">{registrosPendientes}</h3>
+            <p class="stat-label">Pendientes de Validación</p>
+        </div>
+    </div>
+</div>

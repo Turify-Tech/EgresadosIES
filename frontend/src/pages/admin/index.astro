@@ -1,0 +1,304 @@
+---
+import "../../styles/admin.css";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import EstadisticasAdmin from "../../components/admin/EstadisticasAdmin.astro";
+---
+
+<BaseLayout title="Panel de Administración" hideAccederButton={true}>
+    <div class="admin-page">
+        <div class="admin-container">
+            <!-- Header -->
+            <header class="admin-header">
+                <div class="header-content">
+                    <div class="header-title">
+                        <svg
+                            width="32"
+                            height="32"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <rect
+                                x="3"
+                                y="3"
+                                width="7"
+                                height="7"></rect>
+                            <rect
+                                x="14"
+                                y="3"
+                                width="7"
+                                height="7"></rect>
+                            <rect
+                                x="14"
+                                y="14"
+                                width="7"
+                                height="7"></rect>
+                            <rect
+                                x="3"
+                                y="14"
+                                width="7"
+                                height="7"></rect>
+                        </svg>
+                        <div>
+                            <h1>Panel de Administración</h1>
+                            <p class="subtitle">
+                                Sistema de Gestión de Egresados - IES
+                            </p>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <a href="/dashboard" class="btn-back">
+                            <svg
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path
+                                    d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
+                                ></path>
+                                <polyline points="9 22 9 12 15 12 15 22"
+                                ></polyline>
+                            </svg>
+                            Volver al Dashboard
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Estadísticas -->
+            <section class="stats-section">
+                <EstadisticasAdmin />
+            </section>
+
+            <!-- Tarjetas de acceso rápido -->
+            <section class="quick-access">
+                <h2 class="section-title">Acceso Rápido</h2>
+                <div class="cards-grid">
+                    <a href="/admin/dnis" class="access-card">
+                        <div class="card-icon blue">
+                            <svg
+                                width="28"
+                                height="28"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                                <path d="M7 8h5"></path>
+                                <path d="M7 12h3"></path>
+                                <circle cx="16" cy="11" r="2"></circle>
+                            </svg>
+                        </div>
+                        <div class="card-content">
+                            <h3>Gestión de DNIs</h3>
+                            <p>
+                                Administrar DNIs válidos, carga masiva y CRUD
+                                individual
+                            </p>
+                        </div>
+                        <div class="card-arrow">
+                            <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                        </div>
+                    </a>
+
+                    <div class="access-card disabled">
+                        <div class="card-icon gray">
+                            <svg
+                                width="28"
+                                height="28"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <div class="card-content">
+                            <h3>Gestión de Usuarios</h3>
+                            <p>Administrar egresados y validar registros</p>
+                            <span class="badge-pronto">Próximamente</span>
+                        </div>
+                    </div>
+
+                    <div class="access-card disabled">
+                        <div class="card-icon gray">
+                            <svg
+                                width="28"
+                                height="28"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path d="M3 3v18h18"></path>
+                                <path d="M18 17V9"></path>
+                                <path d="M13 17v-5"></path>
+                                <path d="M8 17v-3"></path>
+                            </svg>
+                        </div>
+                        <div class="card-content">
+                            <h3>Reportes</h3>
+                            <p>Estadísticas y análisis del sistema</p>
+                            <span class="badge-pronto">Próximamente</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Actividad reciente -->
+            <section class="activity-section">
+                <h2 class="section-title">Actividad Reciente</h2>
+                <div class="activity-card">
+                    <div id="actividad-lista" class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                >
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"
+                                    ></polyline>
+                                </svg>
+                            </div>
+                            <div class="activity-content">
+                                <p>Bienvenido al panel de administración</p>
+                                <span class="activity-time">Ahora</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</BaseLayout>
+
+<script>
+    const API_URL = "http://localhost:3000/api";
+
+    // Verificar que el usuario sea administrador
+    async function verificarAdmin() {
+        try {
+            const token = localStorage.getItem("auth_token");
+            if (!token) {
+                window.location.href = "/acceso";
+                return;
+            }
+
+            // Verificar token y rol
+            const response = await fetch(`${API_URL}/admin/dnis`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (response.status === 403 || response.status === 401) {
+                alert("No tienes permisos de administrador");
+                window.location.href = "/dashboard";
+                return;
+            }
+
+            // Cargar estadísticas
+            await cargarEstadisticas();
+        } catch (error) {
+            console.error("Error verificando permisos:", error);
+            window.location.href = "/acceso";
+        }
+    }
+
+    async function cargarEstadisticas() {
+        try {
+            const token = localStorage.getItem("auth_token");
+
+            // Obtener total de DNIs válidos
+            const dniResponse = await fetch(`${API_URL}/admin/dnis?limit=1`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            // Obtener total de egresados registrados con limit alto para obtener todos
+            const egresadosResponse = await fetch(`${API_URL}/perfiles/?limit=100`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            let totalDnis = 0;
+            let totalEgresados = 0;
+
+            if (dniResponse.ok) {
+                const dniData = await dniResponse.json();
+                totalDnis = dniData.data?.pagination?.total || 0;
+            }
+
+            if (egresadosResponse.ok) {
+                const egresadosData = await egresadosResponse.json();
+                // El endpoint de perfiles retorna paginación
+                if (egresadosData.pagination) {
+                    totalEgresados = egresadosData.pagination.totalRecords || egresadosData.pagination.total || 0;
+                } else if (Array.isArray(egresadosData.data)) {
+                    totalEgresados = egresadosData.data.length;
+                } else if (Array.isArray(egresadosData)) {
+                    totalEgresados = egresadosData.length;
+                }
+            }
+
+            // Actualizar las tres estadísticas
+            const statsContainer = document.querySelector(
+                ".estadisticas-container"
+            );
+            if (statsContainer) {
+                const statCards = statsContainer.querySelectorAll(".stat-card");
+                
+                // DNIs Válidos (primera tarjeta)
+                if (statCards[0]) {
+                    const statValue = statCards[0].querySelector(".stat-value");
+                    if (statValue) {
+                        statValue.textContent = totalDnis.toString();
+                    }
+                }
+
+                // Egresados Registrados (segunda tarjeta)
+                if (statCards[1]) {
+                    const statValue = statCards[1].querySelector(".stat-value");
+                    if (statValue) {
+                        statValue.textContent = totalEgresados.toString();
+                    }
+                }
+
+                // Pendientes (tercera tarjeta) - por ahora 0
+                if (statCards[2]) {
+                    const statValue = statCards[2].querySelector(".stat-value");
+                    if (statValue) {
+                        statValue.textContent = "0";
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Error cargando estadísticas:", error);
+        }
+    }
+
+    // Inicializar
+    document.addEventListener("DOMContentLoaded", verificarAdmin);
+</script>
