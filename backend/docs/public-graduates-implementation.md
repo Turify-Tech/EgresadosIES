@@ -669,13 +669,195 @@ ORDER BY tipo, nombre
 
 ---
 
-## 🚀 FASE 4: Rutas Públicas (PENDIENTE)
+## 🚀 FASE 4: Rutas Públicas ✅ COMPLETADO
 
 ### **Archivo:** `backend/src/routes/publicRoutes.js`
 
-**Rate Limiting:**
-- 50 requests por IP cada 15 minutos
-- Headers de rate limit en respuestas
+### **Arquitectura de Rate Limiting**
+
+Implementación de **3 niveles de rate limiting** según endpoint:
+
+#### 1. **Rate Limiter General** (`publicApiLimiter`)
+```javascript
+{
+    windowMs: 15 * 60 * 1000,  // 15 minutos
+    max: 50,                    // 50 requests por IP
+    standardHeaders: true        // Headers RateLimit-*
+}
+```
+
+**Propósito:** Protección base para todos los endpoints públicos
+
+---
+
+#### 2. **Rate Limiter para Lista** (`listLimiter`)
+```javascript
+{
+    windowMs: 15 * 60 * 1000,
+    max: 100,                    // MÁS PERMISIVO
+    message: "Demasiadas búsquedas..."
+}
+```
+
+**Razón:** Permite navegación fluida entre páginas
+- Usuario puede ver 100 páginas en 15 minutos
+- Necesario para exploración de catálogo
+
+---
+
+#### 3. **Rate Limiter para Perfil Individual** (`profileLimiter`)
+```javascript
+{
+    windowMs: 15 * 60 * 1000,
+    max: 30,                     // MÁS RESTRICTIVO
+    message: "Demasiadas solicitudes de perfiles..."
+}
+```
+
+**Razón:** Previene scraping masivo de perfiles
+- Solo 30 perfiles en 15 minutos
+- Dificulta extracción automatizada de datos
+
+---
+
+### **Middleware de Sanitización Automático**
+
+```javascript
+router.use(publicDataMiddleware);
+```
+
+**Aplicado a TODAS las rutas públicas:**
+- Intercepta `res.json()` antes de enviar respuesta
+- Elimina campos sensibles automáticamente
+- Garantía extra de seguridad (doble capa)
+
+---
+
+### **Rutas Definidas**
+
+#### ✅ Ruta 1: Lista de Egresados
+```javascript
+GET /api/public/graduates
+Rate Limit: 100 req/15min
+Middleware: publicDataMiddleware, listLimiter
+Controller: PublicController.getPublicGraduates
+```
+
+**Headers de respuesta:**
+```
+RateLimit-Limit: 100
+RateLimit-Remaining: 95
+RateLimit-Reset: 1641234567
+```
+
+---
+
+#### ✅ Ruta 2: Perfil Individual
+```javascript
+GET /api/public/graduates/:id
+Rate Limit: 30 req/15min
+Middleware: publicDataMiddleware, profileLimiter
+Controller: PublicController.getPublicGraduate
+```
+
+---
+
+### **Manejo de Rate Limit Excedido**
+
+**Respuesta cuando se supera el límite:**
+```json
+{
+    "success": false,
+    "message": "Demasiadas solicitudes desde esta IP, intenta nuevamente más tarde",
+    "retryAfter": 856
+}
+```
+
+**Status Code:** 429 Too Many Requests
+
+**Headers incluidos:**
+- `RateLimit-Limit`: Límite total
+- `RateLimit-Remaining`: Requests restantes
+- `RateLimit-Reset`: Timestamp de reset
+- `Retry-After`: Segundos hasta poder reintentar
+
+---
+
+### **Manejo de Rutas No Encontradas**
+
+```javascript
+router.use((req, res) => {
+    res.status(404).json({
+        success: false,
+        message: `Ruta pública ${req.originalUrl} no encontrada`
+    });
+});
+```
+
+**Ejemplos:**
+- `GET /api/public/invalid` → 404
+- `GET /api/public/graduates/abc/xyz` → 404
+
+---
+
+### **Documentación de Endpoints en Código**
+
+Cada ruta incluye JSDoc completo:
+```javascript
+/**
+ * @route   GET /api/public/graduates
+ * @desc    Obtener lista paginada de egresados públicos
+ * @access  Público (sin autenticación)
+ * @query   {number} page - Número de página
+ * @example GET /api/public/graduates?page=1&limit=20
+ */
+```
+
+---
+
+### **Comparación con Rutas Existentes**
+
+| Aspecto | `/api/perfiles` (existente) | `/api/public/graduates` (nuevo) |
+|---------|----------------------------|----------------------------------|
+| Rate Limit | 100 req/15min | 100 (lista) / 30 (perfil) |
+| Auth | Opcional | No requerida |
+| Sanitización | No automática | Automática (middleware) |
+| Filtro público | ❌ No verifica | ✅ Verifica `perfilPublico = 1` |
+| Scraping protection | Limitada | Alta (30 perfiles/15min) |
+
+---
+
+### **Seguridad Implementada**
+
+| Medida | Implementación |
+|--------|----------------|
+| ✅ Rate limiting diferenciado | 3 niveles según endpoint |
+| ✅ Sanitización automática | Middleware en todas las rutas |
+| ✅ Headers estándar | RateLimit-* según RFC |
+| ✅ Manejo de errores | 404 para rutas inválidas |
+| ✅ Anti-scraping | Límite bajo para perfiles |
+
+---
+
+### **Testing de Rate Limiting**
+
+**Probar límite de lista:**
+```bash
+# Request 101 en 15 minutos
+for i in {1..101}; do
+    curl http://localhost:3000/api/public/graduates
+done
+# Request 101 debe retornar 429
+```
+
+**Probar límite de perfil:**
+```bash
+# Request 31 en 15 minutos
+for i in {1..31}; do
+    curl http://localhost:3000/api/public/graduates/1
+done
+# Request 31 debe retornar 429
+```
 
 ---
 
@@ -694,10 +876,10 @@ ORDER BY tipo, nombre
 | **FASE 1** | ✅ Completado | `publicData.js` | 100% |
 | **FASE 2** | ✅ Completado | `publicController.js` | 100% |
 | **FASE 3** | ✅ Completado | `publicController.js` | 100% |
-| **FASE 4** | ⏳ Pendiente | `publicRoutes.js` | 0% |
+| **FASE 4** | ✅ Completado | `publicRoutes.js` | 100% |
 | **FASE 5** | ⏳ Pendiente | `app.js` | 0% |
 
-**Progreso Total:** 60% (3/5 fases)
+**Progreso Total:** 80% (4/5 fases)
 
 ---
 
