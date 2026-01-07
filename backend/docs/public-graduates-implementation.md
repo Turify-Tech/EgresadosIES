@@ -179,17 +179,262 @@ const profile = {
 
 ---
 
-## 🚀 FASE 2: Controlador Público - Lista (PENDIENTE)
+## 🚀 FASE 2: Controlador Público - Lista ✅ COMPLETADO
+
+### **Archivo:** `backend/src/controllers/publicController.js`
 
 ### **Endpoint:** `GET /api/public/graduates`
 
-**Características a implementar:**
-- Paginación (page, limit)
-- Filtro por carrera
-- Filtro por ciudad
-- Búsqueda por nombre/habilidades
-- Ordenamiento configurable
-- Verificación `perfilPublico = 1`
+**Query Parameters:**
+```javascript
+{
+    page: 1,              // Número de página (default: 1)
+    limit: 20,            // Resultados por página (default: 20, max: 50)
+    carrera: "string",    // Filtro por nombre exacto de carrera
+    ciudad: "string",     // Filtro por ciudad (LIKE)
+    search: "string",     // Búsqueda en nombre, apellido, habilidades, empresa
+    orderBy: "nombre|carrera|ciudad",  // Campo de ordenamiento
+    order: "asc|desc"     // Dirección de ordenamiento
+}
+```
+
+### **Características Implementadas:**
+
+#### ✅ 1. Paginación Robusta
+```javascript
+const pageNumber = Math.max(1, parseInt(page));
+const limitNumber = Math.min(50, Math.max(1, parseInt(limit)));
+const offset = (pageNumber - 1) * limitNumber;
+```
+
+**Validaciones:**
+- Página mínima: 1
+- Límite mínimo: 1
+- Límite máximo: 50 (previene sobrecarga)
+
+---
+
+#### ✅ 2. Filtro Crítico de Privacidad
+```sql
+WHERE u.tipo_usuario = 'Egresado' 
+  AND p.perfilPublico = 1  -- CRÍTICO: Solo públicos
+```
+
+**Garantiza:**
+- Solo egresados con `perfilPublico = 1` son visibles
+- Respeta configuración de privacidad del usuario
+
+---
+
+#### ✅ 3. Exclusión de Datos Sensibles en Query
+```sql
+SELECT 
+    u.id,
+    u.nombre,
+    u.apellido,
+    -- NO incluye: u.email, e.telefono, e.dni
+    c.nombre as carrera,
+    p.resumenProfesional,
+    p.situacionLaboral,
+    p.urlPortfolio,
+    p.urlFotoPerfil,
+    p.urlBanner,
+    p.tituloprofesional,
+    p.ciudad,
+    p.provincia
+```
+
+**Campos excluidos desde la query:**
+- ❌ `email`
+- ❌ `telefono`
+- ❌ `dni`
+
+---
+
+#### ✅ 4. Búsqueda Avanzada
+```javascript
+if (search && search.trim()) {
+    const searchTerm = `%${search.trim()}%`;
+    conditions.push(`(
+        u.nombre LIKE ? OR 
+        u.apellido LIKE ? OR
+        EXISTS (SELECT 1 FROM Habilidades h 
+                WHERE h.usuarioId = u.id 
+                AND h.nombre LIKE ?)
+        OR
+        EXISTS (SELECT 1 FROM ExperienciaLaboral el 
+                WHERE el.perfilId = p.id 
+                AND (el.empresa LIKE ? OR el.puesto LIKE ?))
+    )`);
+}
+```
+
+**Busca en:**
+- Nombre del egresado
+- Apellido
+- Habilidades (tabla Habilidades)
+- Empresas (tabla ExperienciaLaboral)
+- Puestos de trabajo
+
+---
+
+#### ✅ 5. Filtros Específicos
+
+**Por Carrera:**
+```javascript
+if (carrera) {
+    conditions.push("c.nombre = ?");
+    params.push(carrera.trim());
+}
+```
+
+**Por Ciudad:**
+```javascript
+if (ciudad) {
+    conditions.push("p.ciudad LIKE ?");
+    params.push(`%${ciudad.trim()}%`);
+}
+```
+
+---
+
+#### ✅ 6. Ordenamiento Configurable
+```javascript
+const validOrderBy = ["nombre", "carrera", "ciudad"].includes(orderBy) 
+    ? orderBy : "nombre";
+const validOrder = order.toLowerCase() === "desc" ? "DESC" : "ASC";
+```
+
+**Opciones:**
+- Por nombre (default)
+- Por carrera
+- Por ciudad
+- Dirección: ASC o DESC
+
+---
+
+#### ✅ 7. Enriquecimiento de Datos
+```javascript
+const enrichedProfiles = await Promise.all(
+    profiles.map(async (profile) => {
+        const [experiencias, formacion, cursos] = await Promise.all([
+            PublicController.getExperienciasLaborales(profile.perfilId),
+            PublicController.getFormacionAcademica(profile.perfilId),
+            PublicController.getCursos(profile.perfilId),
+        ]);
+
+        return {
+            ...profile,
+            experienciasLaborales: experiencias,
+            formacionAcademica: formacion,
+            cursos: cursos,
+        };
+    })
+);
+```
+
+**Incluye:**
+- Experiencias laborales (ordenadas por actual primero)
+- Formación académica (ordenada por año)
+- Cursos (ordenados alfabéticamente)
+
+---
+
+#### ✅ 8. Metadata de Paginación Completa
+```javascript
+{
+    pagination: {
+        currentPage: 1,
+        totalPages: 5,
+        totalRecords: 42,
+        limit: 20,
+        hasNextPage: true,
+        hasPrevPage: false
+    }
+}
+```
+
+---
+
+### **Métodos Auxiliares Implementados**
+
+#### `getExperienciasLaborales(perfilId)`
+- Obtiene experiencias ordenadas (actuales primero)
+- `ORDER BY CASE WHEN fechaFin IS NULL THEN 0 ELSE 1 END`
+
+#### `getFormacionAcademica(perfilId)`
+- Obtiene formación ordenada por año descendente
+
+#### `getCursos(perfilId)`
+- Obtiene cursos ordenados alfabéticamente
+
+---
+
+### **Ejemplo de Respuesta**
+
+```json
+{
+    "success": true,
+    "data": [
+        {
+            "id": 1,
+            "nombre": "Juan",
+            "apellido": "Pérez",
+            "carrera": "Desarrollo Web",
+            "resumenProfesional": "Desarrollador Full Stack...",
+            "situacionLaboral": "Empleado",
+            "ciudad": "Buenos Aires",
+            "provincia": "Buenos Aires",
+            "urlFotoPerfil": "https://...",
+            "experienciasLaborales": [
+                {
+                    "puesto": "Desarrollador Senior",
+                    "empresa": "Tech Corp",
+                    "fechaInicio": "2023-01-15",
+                    "fechaFin": null
+                }
+            ],
+            "formacionAcademica": [...],
+            "cursos": [...]
+        }
+    ],
+    "pagination": {
+        "currentPage": 1,
+        "totalPages": 3,
+        "totalRecords": 42,
+        "limit": 20,
+        "hasNextPage": true,
+        "hasPrevPage": false
+    }
+}
+```
+
+---
+
+### **Validaciones de Seguridad**
+
+| Aspecto | Validación |
+|---------|------------|
+| ✅ Filtro público | `perfilPublico = 1` en WHERE |
+| ✅ Sin email | NO en SELECT |
+| ✅ Sin DNI | NO en SELECT |
+| ✅ Sin teléfono | NO en SELECT |
+| ✅ Límite paginación | Max 50 por request |
+| ✅ Validación orden | Solo valores permitidos |
+
+---
+
+### **Performance**
+
+**Optimizaciones:**
+- ✅ Query con índices en `perfilPublico`, `tipo_usuario`
+- ✅ Queries paralelas (profiles + count)
+- ✅ Enriquecimiento paralelo con `Promise.all()`
+- ✅ Límite máximo de 50 registros por request
+
+**Complejidad:**
+- Query principal: O(n log n) por ORDER BY
+- Enriquecimiento: O(n * m) donde m = promedio de relaciones
 
 ---
 
@@ -228,12 +473,12 @@ const profile = {
 | Fase | Estado | Archivos | Progreso |
 |------|--------|----------|----------|
 | **FASE 1** | ✅ Completado | `publicData.js` | 100% |
-| **FASE 2** | ⏳ Pendiente | `publicController.js` | 0% |
+| **FASE 2** | ✅ Completado | `publicController.js` | 100% |
 | **FASE 3** | ⏳ Pendiente | `publicController.js` | 0% |
 | **FASE 4** | ⏳ Pendiente | `publicRoutes.js` | 0% |
 | **FASE 5** | ⏳ Pendiente | `app.js` | 0% |
 
-**Progreso Total:** 20% (1/5 fases)
+**Progreso Total:** 40% (2/5 fases)
 
 ---
 
@@ -292,6 +537,25 @@ git commit -m "feat: add public data sanitization middleware"
 - `backend/src/middleware/publicData.js` (nuevo)
 
 **Líneas agregadas:** ~100
+
+---
+
+### FASE 2
+```bash
+git commit -m "feat: implement public graduates list controller"
+```
+
+**Archivos modificados:**
+- `backend/src/controllers/publicController.js` (nuevo)
+
+**Líneas agregadas:** ~300
+
+**Funcionalidades:**
+- Lista paginada de egresados públicos
+- Filtros por carrera, ciudad, búsqueda
+- Ordenamiento configurable
+- Enriquecimiento con relaciones
+- Validación `perfilPublico = 1`
 
 ---
 
