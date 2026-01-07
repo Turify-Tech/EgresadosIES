@@ -861,11 +861,196 @@ done
 
 ---
 
-## 🚀 FASE 5: Registro en App.js (PENDIENTE)
+## 🚀 FASE 5: Registro en App.js ✅ COMPLETADO
 
-**Cambios en:** `backend/src/app.js`
-- Import de publicRoutes
-- Registro bajo `/api/public`
+### **Archivo:** `backend/src/app.js`
+
+### **Cambios Realizados**
+
+#### 1. **Import de publicRoutes**
+```javascript
+import publicRoutes from "./routes/publicRoutes.js";
+```
+
+**Ubicación:** Línea 19 (después de likesRoutes)
+
+---
+
+#### 2. **Registro de Ruta**
+```javascript
+app.use("/api/public", publicRoutes);
+```
+
+**Ubicación:** Línea 96 (después de todas las rutas existentes)
+
+**Comentario agregado:** `// Rutas públicas de egresados`
+
+---
+
+#### 3. **Log de Inicio**
+```javascript
+console.log(
+    `🌐 API Pública: http://localhost:${PORT}/api/public/graduates`
+);
+```
+
+**Ubicación:** Línea 159 (en la sección de logs de inicio)
+
+---
+
+### **Estructura Final de Rutas en app.js**
+
+```javascript
+// Rutas principales
+app.use("/api/auth", authRoutes);           // Autenticación
+app.use("/api/buscar", busquedaRoutes);     // Búsqueda interna
+app.use("/api/perfil", perfilRoutes);       // Perfil propio
+app.use("/api/perfiles", perfilesRoutes);   // Perfiles internos
+app.use("/api/carreras", carrerasRoutes);   // Carreras
+app.use("/api/mensajes", mensajesRoutes);   // Mensajería
+app.use("/api/admin", adminRoutes);         // Administración
+app.use("/api/publicaciones", publicacionesRoutes);  // Posts sociales
+app.use("/api/comentarios", comentariosRoutes);      // Comentarios
+app.use("/api/likes", likesRoutes);         // Likes
+app.use("/api/public", publicRoutes);       // 🆕 API Pública
+```
+
+---
+
+### **Endpoints Públicos Disponibles**
+
+Una vez iniciado el servidor, los siguientes endpoints están activos:
+
+#### ✅ Lista de Egresados Públicos
+```
+GET http://localhost:3000/api/public/graduates
+```
+
+**Query params:**
+- `page`, `limit`, `carrera`, `ciudad`, `search`, `orderBy`, `order`
+
+---
+
+#### ✅ Perfil Individual Público
+```
+GET http://localhost:3000/api/public/graduates/:id
+```
+
+**Ejemplo:**
+```
+GET http://localhost:3000/api/public/graduates/1
+```
+
+---
+
+### **Logs de Inicio del Servidor**
+
+Cuando se inicia el servidor con `npm run dev`, se muestra:
+
+```bash
+🔧 Cargando variables de entorno desde: C:\EgresadosIES\backend\.env
+🔍 Environment Check: {
+  nodeEnv: 'development',
+  port: 3000,
+  frontendUrl: 'http://localhost:4321',
+  ...
+}
+✅ Servidor corriendo en http://localhost:3000
+📊 Health check: http://localhost:3000/api/health
+🔐 Auth login: http://localhost:3000/api/auth/login
+👤 Perfil: http://localhost:3000/api/perfil/mi-perfil
+👥 Perfiles públicos: http://localhost:3000/api/perfiles
+🎓 Carreras: http://localhost:3000/api/carreras
+💬 Mensajes: http://localhost:3000/api/mensajes
+⚙️  Admin DNIs: http://localhost:3000/api/admin/dnis
+🌐 API Pública: http://localhost:3000/api/public/graduates  ← 🆕 NUEVO
+🌍 Entorno: development
+```
+
+---
+
+### **Orden de Ejecución**
+
+Al recibir un request a `/api/public/graduates`:
+
+1. **Express recibe:** `GET /api/public/graduates`
+2. **Middleware CORS:** Valida origen
+3. **Middleware Helmet:** Aplica headers de seguridad
+4. **Route matching:** Encuentra `/api/public`
+5. **publicRoutes.js:**
+   - Aplica `publicDataMiddleware` (sanitización)
+   - Aplica `listLimiter` (rate limiting)
+   - Ejecuta `PublicController.getPublicGraduates`
+6. **Controller:**
+   - Query SQL con `perfilPublico = 1`
+   - Excluye datos sensibles
+   - Enriquece con relaciones
+7. **Middleware sanitización:** Doble verificación antes de responder
+8. **Response:** JSON con datos públicos
+
+---
+
+### **Diferencias con Rutas Existentes**
+
+| Ruta | Autenticación | Rate Limit | Filtro público |
+|------|---------------|------------|----------------|
+| `/api/perfiles` | Opcional | 100/15min | ❌ No |
+| `/api/buscar` | No | No específico | ❌ No |
+| `/api/public/graduates` | ❌ No | 100/15min (lista) | ✅ Sí |
+| `/api/public/graduates/:id` | ❌ No | 30/15min (perfil) | ✅ Sí |
+
+---
+
+### **Validación de Integración**
+
+#### ✅ Import correcto
+```javascript
+import publicRoutes from "./routes/publicRoutes.js";
+```
+- Path relativo correcto
+- Extensión `.js` incluida (ES modules)
+
+#### ✅ Registro correcto
+```javascript
+app.use("/api/public", publicRoutes);
+```
+- Prefijo `/api/public` aplicado a todas las rutas del router
+- Ejecutado antes del middleware de errores
+
+#### ✅ No conflictos
+- No sobrescribe rutas existentes
+- Prefijo único `/api/public`
+
+---
+
+### **Testing Post-Integración**
+
+**Iniciar servidor:**
+```bash
+cd backend
+npm run dev
+```
+
+**Verificar en logs:**
+```
+🌐 API Pública: http://localhost:3000/api/public/graduates
+```
+
+**Probar endpoints:**
+```bash
+# Health check
+curl http://localhost:3000/api/health
+
+# Lista pública
+curl http://localhost:3000/api/public/graduates
+
+# Perfil individual
+curl http://localhost:3000/api/public/graduates/1
+```
+
+---
+
+## ✅ IMPLEMENTACIÓN COMPLETA
 
 ---
 
@@ -877,9 +1062,9 @@ done
 | **FASE 2** | ✅ Completado | `publicController.js` | 100% |
 | **FASE 3** | ✅ Completado | `publicController.js` | 100% |
 | **FASE 4** | ✅ Completado | `publicRoutes.js` | 100% |
-| **FASE 5** | ⏳ Pendiente | `app.js` | 0% |
+| **FASE 5** | ✅ Completado | `app.js` | 100% |
 
-**Progreso Total:** 80% (4/5 fases)
+**Progreso Total:** 🎉 100% (5/5 fases COMPLETADAS)
 
 ---
 
@@ -978,4 +1163,43 @@ git commit -m "feat: implement public graduates list controller"
 ---
 
 **Última actualización:** 2026-01-07  
-**Estado:** 🟡 En progreso (20% completado)
+**Estado:** � Completado (100%)
+
+---
+
+## 🎉 RESUMEN FINAL DE IMPLEMENTACIÓN
+
+### **Archivos Creados** (3)
+1. ✅ `backend/src/middleware/publicData.js` - Sanitización de datos
+2. ✅ `backend/src/controllers/publicController.js` - Lógica de negocio
+3. ✅ `backend/src/routes/publicRoutes.js` - Rutas y rate limiting
+
+### **Archivos Modificados** (2)
+1. ✅ `backend/src/app.js` - Registro de rutas
+2. ✅ `backend/docs/public-graduates-implementation.md` - Documentación
+
+### **Líneas de Código**
+- Middleware: ~100 líneas
+- Controller: ~400 líneas
+- Routes: ~120 líneas
+- App.js: +2 líneas
+- Documentación: ~900 líneas
+- **Total:** ~1,520 líneas
+
+### **Endpoints Disponibles**
+- ✅ `GET /api/public/graduates` - Lista paginada
+- ✅ `GET /api/public/graduates/:id` - Perfil individual
+
+### **Seguridad Implementada**
+- ✅ Filtro `perfilPublico = 1` en queries
+- ✅ Exclusión de email, telefono, dni
+- ✅ Rate limiting (100/30 req por 15min)
+- ✅ Sanitización automática de respuestas
+- ✅ Validación de inputs
+- ✅ Headers de seguridad
+
+### **Próximos Pasos**
+1. 🧪 Testing manual con Postman/cURL
+2. 🧪 Suite de tests automatizados (Jest)
+3. 📱 Implementación de frontend
+4. 🚀 Deploy a producción
