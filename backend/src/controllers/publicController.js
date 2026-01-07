@@ -182,6 +182,119 @@ class PublicController {
     }
 
     /**
+     * Obtiene perfil individual de un egresado público
+     * GET /api/public/graduates/:id
+     * 
+     * Params:
+     * - id: ID del egresado
+     */
+    static async getPublicGraduate(req, res) {
+        try {
+            const { id } = req.params;
+
+            // Validar que el ID sea un número válido
+            if (!id || isNaN(parseInt(id))) {
+                return res.status(400).json({
+                    success: false,
+                    message: "ID de egresado inválido",
+                });
+            }
+
+            const graduateId = parseInt(id);
+            const client = database.getClient();
+
+            // Query para obtener perfil específico (SIN datos sensibles)
+            const profileQuery = `
+                SELECT 
+                    u.id,
+                    u.nombre,
+                    u.apellido,
+                    c.nombre as carrera,
+                    p.resumenProfesional,
+                    p.situacionLaboral,
+                    p.urlPortfolio,
+                    p.urlFotoPerfil,
+                    p.urlBanner,
+                    p.tituloprofesional,
+                    p.areaInteres,
+                    p.ciudad,
+                    p.provincia,
+                    p.pais,
+                    p.perfilPublico,
+                    p.id as perfilId
+                FROM Usuario u
+                INNER JOIN Egresado e ON u.id = e.id
+                LEFT JOIN Perfil p ON e.perfilId = p.id
+                LEFT JOIN Carrera c ON e.carreraId = c.id
+                WHERE u.id = ? 
+                  AND u.tipo_usuario = 'Egresado'
+            `;
+
+            const result = await client.execute({
+                sql: profileQuery,
+                args: [graduateId],
+            });
+
+            // Verificar si existe el egresado
+            if (result.rows.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Egresado no encontrado",
+                });
+            }
+
+            const profile = result.rows[0];
+
+            // CRÍTICO: Verificar que el perfil sea público
+            if (profile.perfilPublico !== 1) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Perfil no disponible públicamente",
+                });
+            }
+
+            // Eliminar campo perfilPublico de la respuesta (no es necesario exponerlo)
+            delete profile.perfilPublico;
+
+            // Obtener datos relacionados en paralelo
+            const [
+                experiencias, 
+                formacion, 
+                cursos, 
+                proyectos, 
+                habilidades
+            ] = await Promise.all([
+                PublicController.getExperienciasLaborales(profile.perfilId),
+                PublicController.getFormacionAcademica(profile.perfilId),
+                PublicController.getCursos(profile.perfilId),
+                PublicController.getProyectos(graduateId),
+                PublicController.getHabilidades(graduateId),
+            ]);
+
+            // Enriquecer perfil con todos los datos relacionados
+            const enrichedProfile = {
+                ...profile,
+                experienciasLaborales: experiencias,
+                formacionAcademica: formacion,
+                cursos: cursos,
+                proyectos: proyectos,
+                habilidades: habilidades,
+            };
+
+            res.status(200).json({
+                success: true,
+                data: enrichedProfile,
+            });
+        } catch (error) {
+            console.error("❌ Error obteniendo perfil público:", error);
+            res.status(500).json({
+                success: false,
+                message: "Error interno del servidor al obtener perfil",
+            });
+        }
+    }
+
+    /**
      * Método auxiliar para obtener experiencias laborales de un perfil
      * @private
      */
@@ -283,6 +396,267 @@ class PublicController {
             return [];
         }
     }
-}
+
+    /**
+     * Obtiene perfil individual de un egresado público
+     * GET /api/public/graduates/:id
+     * 
+     * @param {number} id - ID del egresado (URL param)
+     */
+    static async getPublicGraduate(req, res) {
+        try {
+            const { id } = req.params;
+
+            // Validar que el ID sea un número válido
+            const graduateId = parseInt(id);
+            if (isNaN(graduateId) || graduateId <= 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: "ID de egresado inválido",
+                });
+            }
+
+            const client = database.getClient();
+
+            // Query para obtener perfil específico (SIN datos sensibles)
+            const profileQuery = `
+                SELECT 
+                    u.id,
+                    u.nombre,
+                    u.apellido,
+                    c.nombre as carrera,
+                    p.resumenProfesional,
+                    p.situacionLaboral,
+                    p.urlPortfolio,
+                    p.urlFotoPerfil,
+                    p.urlBanner,
+                    p.tituloprofesional,
+                    p.areaInteres,
+                    p.ciudad,
+                    p.provincia,
+                    p.pais,
+                    p.mostrarContacto,
+                    p.disponibleOfertas,
+                    p.id as perfilId
+                FROM Usuario u
+                INNER JOIN Egresado e ON u.id = e.id
+                LEFT JOIN Perfil p ON e.perfilId = p.id
+                LEFT JOIN Carrera c ON e.carreraId = c.id
+                WHERE u.id = ?
+                  AND u.tipo_usuario = 'Egresado'
+                  AND p.perfilPublico = 1
+            `;
+
+            const result = await client.execute({
+                sql: profileQuery,
+                args: [graduateId],
+            });
+
+            // Verificar si el perfil existe y es público
+            if (!result.rows || result.rows.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Perfil no encontrado o no es público",
+                });
+            }
+
+            const profile = result.rows[0];
+
+            // Obtener datos relacionados si existe el perfil
+            if (profile.perfilId) {
+                const [
+                    experiencias,
+                    formacion,
+                    cursos,
+                    proyectos,
+                    habilidades,
+                ] = await Promise.all([
+                    PublicController.getExperienciasLaborales(profile.perfilId),
+                    PublicController.getFormacionAcademica(profile.perfilId),
+                    PublicController.getCursos(profile.perfilId),
+                    PublicController.getProyectos(graduateId), // Los proyectos están ligados a usuarioId
+                    PublicController.getHabilidades(graduateId), // Las habilidades están ligadas a usuarioId
+                ]);
+
+                // Enriquecer perfil con todos los datos relacionados
+                const enrichedProfile = {
+                    ...profile,
+                    experienciasLaborales: experiencias,
+                    formacionAcademica: formacion,
+                    cursos: cursos,
+                    proyectos: proyectos,
+                    habilidades: habilidades,
+                };
+
+                return res.status(200).json({
+                    success: true,
+                    data: enrichedProfile,
+                });
+            }
+
+            // Si no tiene perfil completo, retornar datos básicos
+            res.status(200).json({
+                success: true,
+                data: {
+                    ...profile,
+                    experienciasLaborales: [],
+                    formacionAcademica: [],
+                    cursos: [],
+                    proyectos: [],
+                    habilidades: [],
+                },
+            });
+        } catch (error) {
+            console.error("❌ Error obteniendo perfil público de egresado:", error);
+            res.status(500).json({
+                success: false,
+                message: "Error interno del servidor al obtener perfil",
+            });
+        }
+    }
+
+    /**
+     * Método auxiliar para obtener proyectos de un usuario
+     * @private
+     */
+    static async getProyectos(usuarioId) {
+        try {
+            if (!usuarioId) return [];
+
+            const client = database.getClient();
+
+            const query = `
+                SELECT 
+                    id,
+                    nombre,
+                    descripcion,
+                    enlace,
+                    tecnologias,
+                    fechaProyecto,
+                    imagen
+                FROM Proyectos
+                WHERE usuarioId = ?
+                ORDER BY fechaProyecto DESC, id DESC
+            `;
+
+            const result = await client.execute({
+                sql: query,
+                args: [usuarioId],
+            });
+
+            return result.rows || [];
+        } catch (error) {
+            console.error("❌ Error obteniendo proyectos:", error);
+            return [];
+        }
+    }
+
+    /**
+     * Método auxiliar para obtener habilidades de un usuario
+     * @private
+     */
+    static async getHabilidades(usuarioId) {
+        try {
+            if (!usuarioId) return [];
+
+            const client = database.getClient();
+
+            const query = `
+                SELECT 
+                    id,
+                    nombre,
+                    tipo,
+                    nivel
+                FROM Habilidades
+                WHERE usuarioId = ?
+                ORDER BY 
+                    CASE tipo
+                        WHEN 'tecnica' THEN 1
+                        WHEN 'blanda' THEN 2
+                        WHEN 'idioma' THEN 3
+                        ELSE 4
+                    END,
+                    nombre ASC
+            `;
+
+            const result = await client.execute({
+                sql: query,
+                args: [usuarioId],
+            });
+
+            return result.rows || [];
+        } catch (error) {
+            console.error("❌ Error obteniendo habilidades:", error);
+            return [];
+        }
+    }
+    /**
+     * Método auxiliar para obtener proyectos de un usuario
+     * @private
+     */
+    static async getProyectos(usuarioId) {
+        try {
+            if (!usuarioId) return [];
+
+            const client = database.getClient();
+
+            const query = `
+                SELECT 
+                    id,
+                    nombre,
+                    descripcion,
+                    enlace,
+                    tecnologias,
+                    fechaProyecto,
+                    imagen
+                FROM Proyectos
+                WHERE usuarioId = ?
+                ORDER BY fechaProyecto DESC, id DESC
+            `;
+
+            const result = await client.execute({
+                sql: query,
+                args: [usuarioId],
+            });
+
+            return result.rows || [];
+        } catch (error) {
+            console.error("❌ Error obteniendo proyectos:", error);
+            return [];
+        }
+    }
+
+    /**
+     * Método auxiliar para obtener habilidades de un usuario
+     * @private
+     */
+    static async getHabilidades(usuarioId) {
+        try {
+            if (!usuarioId) return [];
+
+            const client = database.getClient();
+
+            const query = `
+                SELECT 
+                    id,
+                    nombre,
+                    tipo,
+                    nivel
+                FROM Habilidades
+                WHERE usuarioId = ?
+                ORDER BY tipo, nombre
+            `;
+
+            const result = await client.execute({
+                sql: query,
+                args: [usuarioId],
+            });
+
+            return result.rows || [];
+        } catch (error) {
+            console.error("❌ Error obteniendo habilidades:", error);
+            return [];
+        }
+    }}
 
 export default PublicController;
