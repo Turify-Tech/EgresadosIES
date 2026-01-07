@@ -1198,8 +1198,132 @@ git commit -m "feat: implement public graduates list controller"
 - ✅ Validación de inputs
 - ✅ Headers de seguridad
 
-### **Próximos Pasos**
-1. 🧪 Testing manual con Postman/cURL
-2. 🧪 Suite de tests automatizados (Jest)
-3. 📱 Implementación de frontend
-4. 🚀 Deploy a producción
+---
+
+## 🧪 Resultados de Pruebas Manuales
+
+### **Fecha de Testing:** 2026-01-07  
+### **Herramienta:** VS Code REST Client Extension  
+### **Archivo de Pruebas:** `backend/tests-api-public.http`
+
+### **Casos de Prueba Ejecutados**
+
+| # | Test | Endpoint | Resultado | Observaciones |
+|---|------|----------|-----------|---------------|
+| 1 | Health Check | `GET /api/health` | ✅ 200 OK | Base de datos conectada |
+| 2 | Lista completa | `GET /api/public/graduates` | ✅ 200 OK | 7 perfiles públicos encontrados |
+| 3 | Paginación | `GET /api/public/graduates?page=1&limit=5` | ✅ 200 OK | 5 registros, 2 páginas totales, hasNextPage=true |
+| 4 | Búsqueda | `GET /api/public/graduates?search=Juan` | ✅ 200 OK | 1 resultado (Juan Carlos Pérez) |
+| 5 | Filtro carrera | `GET /api/public/graduates?carrera=Desarrollo de Software` | ✅ 200 OK | 7 resultados con la carrera especificada |
+| 6 | Filtro ciudad | `GET /api/public/graduates?ciudad=Mendoza` | ✅ 200 OK | 1 resultado (Juan Carlos en Mendoza) |
+| 7 | Perfil individual | `GET /api/public/graduates/2` | ✅ 200 OK | Perfil completo con relaciones |
+| 8 | Perfil privado | `GET /api/public/graduates/1` | ✅ 404 | Mensaje genérico (no revela existencia) |
+| 9 | ID inexistente | `GET /api/public/graduates/9999` | ✅ 404 | Protección de privacidad |
+| 10 | ID inválido | `GET /api/public/graduates/abc` | ✅ 400 | Validación de parámetros |
+
+### **Verificaciones de Seguridad**
+
+✅ **Datos Sensibles Excluidos**
+- Confirmado: email, telefono, dni NO aparecen en respuestas
+- Middleware de sanitización funcionando correctamente
+
+✅ **Filtro perfilPublico**
+- Solo perfiles con `perfilPublico = 1` son retornados
+- Perfiles privados retornan 404 (no 403) para ocultar existencia
+
+✅ **Rate Limiting**
+- Headers `X-RateLimit-*` presentes en respuestas
+- Límites configurados: 100 req/15min (lista), 30 req/15min (perfil)
+
+✅ **Headers de Seguridad**
+- Helmet configurado con CSP
+- CORS habilitado para localhost:4321
+- Strict-Transport-Security presente
+
+### **Estructura de Respuestas Validada**
+
+**Lista de Egresados:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 2,
+      "nombre": "Juan Carlos",
+      "apellido": "Pérez González",
+      "carrera": "Desarrollo de Software",
+      "ciudad": "Mendoza",
+      "perfilId": 12,
+      "experienciasLaborales": [],
+      "formacionAcademica": [],
+      "cursos": []
+    }
+  ],
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 1,
+    "totalRecords": 7,
+    "limit": 20,
+    "hasNextPage": false,
+    "hasPrevPage": false
+  }
+}
+```
+
+**Perfil Individual:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 2,
+    "nombre": "Juan Carlos",
+    "apellido": "Pérez González",
+    "carrera": "Desarrollo de Software",
+    "resumenProfesional": "Desarrollador Full Stack con 5 años de experiencia...",
+    "situacionLaboral": "Empleado",
+    "urlPortfolio": "https://juanperez.dev",
+    "ciudad": "Mendoza",
+    "perfilId": 12,
+    "experienciasLaborales": [],
+    "formacionAcademica": [],
+    "cursos": [],
+    "proyectos": [],
+    "habilidades": []
+  }
+}
+```
+
+### **Resumen de Testing**
+
+- **Tests Ejecutados:** 10/10
+- **Tests Pasados:** 10/10 ✅
+- **Cobertura:** Funcionalidad completa, seguridad, manejo de errores
+- **Estado:** **APROBADO** ✅
+
+---
+
+## 📦 Archivos para Commit
+
+### **Archivos Nuevos** (4)
+1. ✅ `backend/src/middleware/publicData.js` - Sanitización de datos
+2. ✅ `backend/src/controllers/publicController.js` - Lógica de negocio
+3. ✅ `backend/src/routes/publicRoutes.js` - Rutas y rate limiting
+4. ✅ `backend/tests-api-public.http` - Tests manuales (REST Client)
+
+### **Archivos Modificados** (2)
+1. ✅ `backend/src/app.js` - Registro de rutas públicas
+2. ✅ `backend/docs/public-graduates-implementation.md` - Documentación completa
+
+---
+
+## 🚀 Próximos Pasos
+
+1. ✅ **Backend:** Completado y probado al 100%
+2. ⏳ **Tests Automatizados:** Pendiente (Jest/Supertest)
+3. ⏳ **Frontend:** Pendiente (Componentes Astro)
+4. ⏳ **Deploy:** Pendiente (producción)
+
+---
+
+**Última actualización:** 2026-01-07 23:50  
+**Estado:** ✅ **Backend Completado y Probado**

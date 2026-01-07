@@ -1,0 +1,42 @@
+### Health Check
+GET http://localhost:3000/api/health
+
+###
+
+### Lista de Egresados Públicos
+GET http://localhost:3000/api/public/graduates
+
+###
+
+### Lista Paginada (5 resultados)
+GET http://localhost:3000/api/public/graduates?page=1&limit=5
+
+###
+
+### Buscar por nombre
+GET http://localhost:3000/api/public/graduates?search=Juan
+
+###
+
+### Filtrar por Carrera
+GET http://localhost:3000/api/public/graduates?carrera=Desarrollo Web
+
+###
+
+### Filtrar por Ciudad
+GET http://localhost:3000/api/public/graduates?ciudad=Buenos Aires
+
+###
+
+### Perfil Individual (ID=1)
+GET http://localhost:3000/api/public/graduates/1
+
+###
+
+### Perfil No Existente (debe dar 404)
+GET http://localhost:3000/api/public/graduates/9999
+
+###
+
+### ID Inválido (debe dar 400)
+GET http://localhost:3000/api/public/graduates/abc

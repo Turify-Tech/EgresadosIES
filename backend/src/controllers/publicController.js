@@ -249,7 +249,7 @@ class PublicController {
             if (profile.perfilPublico !== 1) {
                 return res.status(404).json({
                     success: false,
-                    message: "Perfil no disponible públicamente",
+                    message: "Perfil no encontrado o no es público",
                 });
             }
 
