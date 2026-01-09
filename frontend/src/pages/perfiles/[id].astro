@@ -843,7 +843,12 @@ import PerfilDetalle from "../../components/perfil/PerfilDetalle.astro";
             // Avatar
             const avatar = document.getElementById("profile-avatar");
             if (avatar) {
-                avatar.src = perfil.urlFotoPerfil || "/default-avatar.svg";
+                const fotoUrl = perfil.urlFotoPerfil 
+                    ? (perfil.urlFotoPerfil.startsWith('http') 
+                        ? perfil.urlFotoPerfil 
+                        : `http://localhost:3000${perfil.urlFotoPerfil}`)
+                    : "/default-avatar.svg";
+                avatar.src = fotoUrl;
                 avatar.alt = `Foto de ${perfil.nombre}`;
             }
 

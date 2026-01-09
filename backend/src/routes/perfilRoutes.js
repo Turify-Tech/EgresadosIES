@@ -47,6 +47,10 @@ import {
     deleteProyecto,
 } from "../controllers/proyectosController.js";
 import { downloadMiCV } from "../controllers/cvController.js";
+import {
+    uploadFotoPerfil,
+    subirFotoPerfil,
+} from "../controllers/uploadController.js";
 
 const router = express.Router();
 
@@ -78,6 +82,17 @@ router.put(
     logValidation("Actualizar mi perfil"),
     validatePerfil,
     updateMiPerfil
+);
+
+/**
+ * @route   POST /api/perfil/subir-foto
+ * @desc    Sube una foto de perfil
+ * @access  Private (Egresado)
+ */
+router.post(
+    "/subir-foto",
+    uploadFotoPerfil.single("foto"),
+    subirFotoPerfil
 );
 
 /**

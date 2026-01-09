@@ -385,7 +385,7 @@ export async function getStaticPaths() {
           <div class="avatar">
             ${
                 profile.urlFotoPerfil
-                    ? `<img src="${profile.urlFotoPerfil}" alt="${profile.nombre}">`
+                    ? `<img src="${profile.urlFotoPerfil.startsWith('http') ? profile.urlFotoPerfil : 'http://localhost:3000' + profile.urlFotoPerfil}" alt="${profile.nombre}">`
                     : profile.nombre
                       ? profile.nombre.charAt(0).toUpperCase()
                       : "U"

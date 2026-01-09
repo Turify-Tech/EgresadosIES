@@ -318,8 +318,15 @@ export class AdvancedSearchManagerSidebar {
     }
 
     renderPerfilCard(perfil) {
-        const avatar = perfil.urlFotoPerfil
-            ? `<img src="${perfil.urlFotoPerfil}" alt="${perfil.nombre} ${perfil.apellido}">`
+        // Construir la URL completa para la foto de perfil si es una ruta relativa
+        const fotoUrl = perfil.urlFotoPerfil
+            ? (perfil.urlFotoPerfil.startsWith('http') 
+                ? perfil.urlFotoPerfil 
+                : `http://localhost:3000${perfil.urlFotoPerfil}`)
+            : null;
+        
+        const avatar = fotoUrl
+            ? `<img src="${fotoUrl}" alt="${perfil.nombre} ${perfil.apellido}">`
             : `<div class="avatar-icon">👤</div>`;
 
         return `

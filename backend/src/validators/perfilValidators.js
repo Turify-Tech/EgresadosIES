@@ -58,8 +58,9 @@ export function validatePerfil(req, res, next) {
         urlFotoPerfil !== null &&
         urlFotoPerfil.trim()
     ) {
+        // Aceptar URLs completas o rutas relativas
         const urlRegex =
-            /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
+            /^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)|\/[-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
         if (!urlRegex.test(urlFotoPerfil.trim())) {
             errors.push("La URL de la foto de perfil no es válida");
         }
@@ -67,8 +68,9 @@ export function validatePerfil(req, res, next) {
 
     // Validar URL del banner
     if (urlBanner !== undefined && urlBanner !== null && urlBanner.trim()) {
+        // Aceptar URLs completas o rutas relativas
         const urlRegex =
-            /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
+            /^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)|\/[-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
         if (!urlRegex.test(urlBanner.trim())) {
             errors.push("La URL del banner no es válida");
         }

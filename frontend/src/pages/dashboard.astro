@@ -253,8 +253,13 @@ import "../styles/dashboard.css";
             ` : '';
             
             // Avatar con foto de perfil si existe
-            const avatarHTML = autor.urlFotoPerfil 
-                ? `<div class="avatar"><img src="${autor.urlFotoPerfil}" alt="${nombreAutor}" /></div>`
+            const fotoUrl = autor.urlFotoPerfil 
+                ? (autor.urlFotoPerfil.startsWith('http') 
+                    ? autor.urlFotoPerfil 
+                    : `http://localhost:3000${autor.urlFotoPerfil}`)
+                : null;
+            const avatarHTML = fotoUrl 
+                ? `<div class="avatar"><img src="${fotoUrl}" alt="${nombreAutor}" /></div>`
                 : `<div class="avatar"></div>`;
             
             return `
@@ -877,7 +882,10 @@ import "../styles/dashboard.css";
                     // Actualizar foto de perfil
                     const profileAvatar = document.getElementById('profile-avatar');
                     if (profileAvatar && perfil.urlFotoPerfil) {
-                        profileAvatar.innerHTML = `<img src="${perfil.urlFotoPerfil}" alt="Foto de perfil" />`;
+                        const fotoUrl = perfil.urlFotoPerfil.startsWith('http') 
+                            ? perfil.urlFotoPerfil 
+                            : `http://localhost:3000${perfil.urlFotoPerfil}`;
+                        profileAvatar.innerHTML = `<img src="${fotoUrl}" alt="Foto de perfil" />`;
                     }
                     
                     // Actualizar nombre

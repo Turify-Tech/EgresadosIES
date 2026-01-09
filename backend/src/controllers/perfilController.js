@@ -150,6 +150,7 @@ export async function getMiPerfil(req, res) {
             usuario: {
                 id: perfil.userId,
                 nombre: perfil.nombre,
+                apellido: perfil.apellido,
                 email: perfil.email,
                 dni: perfil.dni,
                 telefono: perfil.telefono,
@@ -215,6 +216,8 @@ export async function updateMiPerfil(req, res) {
             contacto, // Se mapea a telefono
             dni,
             telefono,
+            carreraId,
+            anioEgreso,
             // Campos del perfil
             resumenProfesional,
             urlPortfolio,
@@ -277,6 +280,13 @@ export async function updateMiPerfil(req, res) {
                 WHERE id = ?
             `;
 
+            console.log('📝 Actualizando Usuario con valores:', {
+                nombre: nombre || null,
+                apellido: apellido || null,
+                correo: correo || null,
+                usuarioId
+            });
+
             await client.execute({
                 sql: updateUsuarioQuery,
                 args: [
@@ -288,16 +298,18 @@ export async function updateMiPerfil(req, res) {
             });
         }
 
-        // 2. Actualizar datos del Egresado (dni, telefono)
+        // 2. Actualizar datos del Egresado (dni, telefono, carreraId)
         if (
             dni !== undefined ||
             contacto !== undefined ||
-            telefono !== undefined
+            telefono !== undefined ||
+            carreraId !== undefined
         ) {
             const updateEgresadoQuery = `
                 UPDATE Egresado 
                 SET dni = COALESCE(?, dni), 
-                    telefono = COALESCE(?, ?, telefono)
+                    telefono = COALESCE(?, ?, telefono),
+                    carreraId = COALESCE(?, carreraId)
                 WHERE id = ?
             `;
 
@@ -307,6 +319,7 @@ export async function updateMiPerfil(req, res) {
                     dni || null,
                     contacto || null, // contacto del form → telefono en BD
                     telefono || null, // telefono adicional
+                    carreraId || null,
                     usuarioId,
                 ],
             });
