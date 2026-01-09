@@ -126,7 +126,11 @@ import "../styles/components.css";
                         style="color: #374151; text-decoration: none; font-family: 'Inter', sans-serif; font-weight: 500; transition: color 0.2s ease; display: none; flex-direction: column; align-items: center; gap: 0.25rem;"
                         onmouseover="this.style.color='#3b82f6'"
                         onmouseout="this.style.color='#374151'">
-                        <span style="font-size: 24px; filter: grayscale(100%) brightness(0.3); width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">⚙️</span>
+                        <img
+                            src="/images/Icono Admin.png"
+                            alt="Admin"
+                            style="width: 24px; height: 24px;"
+                        />
                         <span style="font-size: 0.85rem;">Admin</span>
                     </a>
                     
@@ -215,7 +219,7 @@ import "../styles/components.css";
                         educativa
                     </p>
                     <p style="color: var(--color-gray-400); font-size: 0.8rem;">
-                        &copy; 2025 Instituto de Educación Superior. Todos los
+                        &copy; <span id="current-year"></span> Instituto de Educación Superior. Todos los
                         derechos reservados.
                     </p>
                 </div>
@@ -225,6 +229,12 @@ import "../styles/components.css";
         <!-- Scripts -->
         <script>
             document.addEventListener("DOMContentLoaded", () => {
+                // Actualizar año en el footer
+                const currentYearElement = document.getElementById("current-year");
+                if (currentYearElement) {
+                    currentYearElement.textContent = new Date().getFullYear().toString();
+                }
+
                 // Referencias a elementos
                 const accederBtn = document.getElementById(
                     "acceder-btn"

@@ -6,45 +6,12 @@ import EstadisticasAdmin from "../../components/admin/EstadisticasAdmin.astro";
 
 <BaseLayout title="Panel de Administración" hideAccederButton={true}>
     <div class="admin-page">
-        <div class="admin-container">
             <!-- Header -->
-            <header class="admin-header">
+            <header class="admin-header-full">
                 <div class="header-content">
                     <div class="header-title">
-                        <svg
-                            width="32"
-                            height="32"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <rect
-                                x="3"
-                                y="3"
-                                width="7"
-                                height="7"></rect>
-                            <rect
-                                x="14"
-                                y="3"
-                                width="7"
-                                height="7"></rect>
-                            <rect
-                                x="14"
-                                y="14"
-                                width="7"
-                                height="7"></rect>
-                            <rect
-                                x="3"
-                                y="14"
-                                width="7"
-                                height="7"></rect>
-                        </svg>
                         <div>
                             <h1>Panel de Administración</h1>
-                            <p class="subtitle">
-                                Sistema de Gestión de Egresados - IES
-                            </p>
                         </div>
                     </div>
                     <div class="header-actions">
@@ -69,6 +36,7 @@ import EstadisticasAdmin from "../../components/admin/EstadisticasAdmin.astro";
                 </div>
             </header>
 
+        <div class="admin-container">
             <!-- Estadísticas -->
             <section class="stats-section">
                 <EstadisticasAdmin />
