@@ -43,6 +43,7 @@ export const buscarPerfiles = async (req, res) => {
             SELECT DISTINCT 
                 u.id,
                 u.nombre,
+                u.apellido,
                 u.email,
                 p.resumenProfesional,
                 p.situacionLaboral,
@@ -52,6 +53,7 @@ export const buscarPerfiles = async (req, res) => {
                 c.nombre as carrera,
                 e.dni,
                 e.telefono,
+                e.anioEgreso,
                 (
                     SELECT GROUP_CONCAT(el.puesto || ' en ' || el.empresa, ', ')
                     FROM ExperienciaLaboral el 
