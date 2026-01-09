@@ -53,7 +53,6 @@ export const buscarPerfiles = async (req, res) => {
                 c.nombre as carrera,
                 e.dni,
                 e.telefono,
-                e.anioEgreso,
                 (
                     SELECT GROUP_CONCAT(el.puesto || ' en ' || el.empresa, ', ')
                     FROM ExperienciaLaboral el 
