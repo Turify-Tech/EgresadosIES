@@ -343,7 +343,7 @@ export class AdvancedSearchManager {
             </div>
             
             <div class="card-actions">
-                <a href="/perfiles/${
+                <a href="/perfil/${
                     perfil.id
                 }" class="btn-ver-perfil">Ver perfil completo</a>
                 ${
