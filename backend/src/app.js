@@ -16,6 +16,7 @@ import adminRoutes from "./routes/adminRoutes.js";
 import publicacionesRoutes from "./routes/publicacionesRoutes.js";
 import comentariosRoutes from "./routes/comentariosRoutes.js";
 import likesRoutes from "./routes/likesRoutes.js";
+import publicRoutes from "./routes/publicRoutes.js";
 
 // Configurar dotenv con ruta absoluta
 const __filename = fileURLToPath(import.meta.url);
@@ -107,6 +108,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/publicaciones", publicacionesRoutes);
 app.use("/api/comentarios", comentariosRoutes);
 app.use("/api/likes", likesRoutes);
+app.use("/api/public", publicRoutes); // Rutas públicas de egresados
 
 // Middleware de manejo de errores globales
 app.use((err, req, res, next) => {
@@ -169,7 +171,10 @@ if (process.env.NODE_ENV !== "test") {
                     `⚙️  Admin DNIs: http://localhost:${PORT}/api/admin/dnis`
                 );
                 console.log(
-                    `🌍 Entorno: ${process.env.NODE_ENV || "development"}`
+                    `� API Pública: http://localhost:${PORT}/api/public/graduates`
+                );
+                console.log(
+                    `�🌍 Entorno: ${process.env.NODE_ENV || "development"}`
                 );
             });
         })
