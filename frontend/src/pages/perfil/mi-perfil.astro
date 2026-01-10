@@ -899,7 +899,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
                 }
             }
 
-            const formData = {
+            const formData: any = {
                 nombre,
                 apellido,
                 correo: email,
@@ -955,8 +955,9 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     window.cancelarEdicion = cancelarEdicion;
     window.guardarCambios = guardarCambios;
     
-    window.handleFotoChange = function(event) {
-        const file = event.target.files?.[0];
+    (window as any).handleFotoChange = function(event: Event) {
+        const target = event.target as HTMLInputElement;
+        const file = target.files?.[0];
         if (!file) return;
 
         // Validar tipo de archivo
@@ -975,7 +976,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
         const reader = new FileReader();
         reader.onload = function(e) {
             if (e.target?.result) {
-                abrirModalRecorte(e.target.result);
+                (window as any).abrirModalRecorte(e.target.result);
             }
         };
         reader.readAsDataURL(file);
@@ -983,9 +984,9 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
         console.log('📷 Nueva foto seleccionada:', file.name, 'Tamaño:', (file.size / 1024).toFixed(2), 'KB');
     };
 
-    window.abrirModalRecorte = function(imageSrc) {
+    (window as any).abrirModalRecorte = function(imageSrc: string) {
         const modal = document.getElementById('crop-modal');
-        const image = document.getElementById('image-to-crop');
+        const image = document.getElementById('image-to-crop') as HTMLImageElement;
         
         if (modal && image) {
             image.src = imageSrc;
@@ -993,11 +994,11 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
             
             // Inicializar Cropper.js
             setTimeout(() => {
-                if (window.cropper) {
-                    window.cropper.destroy();
+                if ((window as any).cropper) {
+                    (window as any).cropper.destroy();
                 }
                 
-                window.cropper = new Cropper(image, {
+                (window as any).cropper = new (window as any).Cropper(image, {
                     aspectRatio: 1,
                     viewMode: 2,
                     dragMode: 'move',
@@ -1014,29 +1015,29 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
         }
     };
 
-    window.cerrarModalRecorte = function() {
+    (window as any).cerrarModalRecorte = function() {
         const modal = document.getElementById('crop-modal');
         if (modal) {
             modal.style.display = 'none';
         }
         
-        if (window.cropper) {
-            window.cropper.destroy();
-            window.cropper = null;
+        if ((window as any).cropper) {
+            (window as any).cropper.destroy();
+            (window as any).cropper = null;
         }
         
         // Limpiar input
-        const input = document.getElementById('input-foto-perfil');
+        const input = document.getElementById('input-foto-perfil') as HTMLInputElement;
         if (input) {
             input.value = '';
         }
     };
 
-    window.aplicarRecorte = function() {
-        if (!window.cropper) return;
+    (window as any).aplicarRecorte = function() {
+        if (!(window as any).cropper) return;
         
         // Obtener imagen recortada como blob
-        window.cropper.getCroppedCanvas({
+        (window as any).cropper.getCroppedCanvas({
             width: 400,
             height: 400,
             imageSmoothingQuality: 'high'
@@ -1056,7 +1057,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
                 }
                 
                 console.log('✅ Imagen recortada lista para subir');
-                cerrarModalRecorte();
+                (window as any).cerrarModalRecorte();
             }
         }, 'image/jpeg', 0.9);
     };

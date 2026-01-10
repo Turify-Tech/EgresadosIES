@@ -60,6 +60,25 @@ const { perfil } = Astro.props;
                             }
                         </div>
                         <div class="profile-actions">
+                            <!-- Botón de contacto -->
+                            <button
+                                class="btn-primary contact-btn"
+                                id="contactar-btn"
+                                data-egresado-id={perfil.id}
+                                data-egresado-nombre={perfil.nombre}>
+                                <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2">
+                                    <path
+                                        d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                                    ></path>
+                                </svg>
+                                Contactar
+                            </button>
                             {
                                 perfil.urlPortfolio && (
                                     <a
@@ -804,3 +823,35 @@ const { perfil } = Astro.props;
         }
     }
 </style>
+
+<script>
+    // Manejar click en botón de contacto
+    document.addEventListener("DOMContentLoaded", () => {
+        const contactarBtn = document.getElementById("contactar-btn");
+        
+        if (contactarBtn) {
+            contactarBtn.addEventListener("click", () => {
+                const egresadoId = contactarBtn.dataset.egresadoId;
+                const egresadoNombre = contactarBtn.dataset.egresadoNombre;
+                
+                // Actualizar datos del modal
+                const modal = document.getElementById("contacto-modal");
+                const egresadoIdInput = document.getElementById("egresadoId") as HTMLInputElement;
+                const modalHeader = modal?.querySelector(".contacto-modal-header h2");
+                
+                if (egresadoIdInput) {
+                    egresadoIdInput.value = egresadoId || "";
+                }
+                
+                if (modalHeader) {
+                    modalHeader.textContent = `Contactar a ${egresadoNombre}`;
+                }
+                
+                // Abrir modal
+                if ((window as any).abrirContactoModal) {
+                    (window as any).abrirContactoModal();
+                }
+            });
+        }
+    });
+</script>
