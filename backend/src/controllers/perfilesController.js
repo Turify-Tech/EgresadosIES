@@ -163,6 +163,7 @@ class PerfilesController {
                 SELECT 
                     e.id,
                     u.nombre,
+                    u.apellido,
                     u.email,
                     c.nombre as carrera,
                     pf.resumenProfesional,
