@@ -66,46 +66,43 @@ export async function getStaticPaths() {
 
     .header-banner {
         height: 200px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: url('/images/Fondo Azul card.jpg') center/cover no-repeat;
         position: relative;
     }
 
     .profile-header {
-        padding: 2rem 3rem;
-        margin-top: -60px;
-        position: relative;
-        z-index: 1;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 3rem;
         display: flex;
-        align-items: center;
-        gap: 2rem;
-        background: white;
-        margin-left: 2rem;
-        margin-right: 2rem;
-        border-radius: var(--radius);
-        box-shadow: var(--shadow-md);
+        align-items: flex-end;
+        gap: 1.5rem;
+        margin-top: 2rem;
+        position: relative;
+        z-index: 10;
     }
 
     .profile-main-info {
-        flex: 1;
         display: flex;
-        align-items: center;
-        gap: 2rem;
+        align-items: flex-end;
+        gap: 1.5rem;
     }
 
     .avatar {
-        width: 120px;
-        height: 120px;
+        width: 180px;
+        height: 180px;
         border-radius: 50%;
         overflow: hidden;
-        border: 6px solid white;
-        background: #e6eefc;
+        border: 5px solid white;
+        background: white;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 48px;
-        color: #2563eb;
-        box-shadow: var(--shadow-md);
+        font-size: 72px;
+        color: #000;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         flex-shrink: 0;
+        margin-top: -100px;
     }
 
     .avatar img {
@@ -114,77 +111,474 @@ export async function getStaticPaths() {
         object-fit: cover;
     }
 
+    .profile-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        margin-top: -0.5rem;
+    }
+
     .profile-info h2 {
         margin: 0;
-        font-size: 2rem;
+        font-size: 2.5rem;
         font-weight: 700;
-        color: var(--text-primary);
+        color: #000;
         line-height: 1.2;
+    }
+
+    .profile-career {
+        font-size: 1.125rem;
+        color: #666;
+        margin: 0;
+    }
+
+    .info-card {
+        max-width: 1200px;
+        margin: 1.5rem auto;
+        padding: 0 3rem;
+    }
+
+    .info-card-content {
+        background: #5B7FDB;
+        border-radius: 12px;
+        padding: 1.5rem 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 2rem;
+        justify-content: space-between;
+    }
+
+    .info-left {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
     }
 
     .career-badge {
         display: inline-block;
-        background: #4f46e5;
+        background: transparent;
         color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        font-size: 0.9rem;
+        padding: 0;
+        border-radius: 0;
+        font-size: 1.75rem;
         font-weight: 600;
-        margin: 1rem 0;
+        width: fit-content;
     }
 
     .graduation-info {
-        color: var(--text-secondary);
-        font-size: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    .btn-contactar {
-        margin-top: 0.5rem;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.6rem 1.2rem;
-        background: var(--primary-color);
         color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
-        text-decoration: none;
+        font-size: 1.125rem;
     }
 
-    .btn-contactar:hover {
-        background: #4338ca;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
-        color: white;
-    }
-
-    .btn-contactar svg {
-        width: 16px;
-        height: 16px;
-    }
-
-    .contact-info {
+    .info-buttons {
         display: flex;
         flex-direction: column;
         gap: 0.75rem;
-        padding: 1rem;
-        background: #f8fafc;
-        border-radius: var(--radius);
-        min-width: 300px;
+        min-width: 200px;
+    }
+
+    .btn-portfolio,
+    .btn-contactar {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: white;
+        color: #5B7FDB;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-portfolio:hover,
+    .btn-contactar:hover {
+        background: #f0f4ff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        color: #4A6BC9;
+    }
+
+    .btn-contactar svg,
+    .btn-portfolio svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .contact-info {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.3);
+        margin-top: 1rem;
+    }
+
+    .info-cards-section {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 3rem;
+    }
+
+    .info-cards-top {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-small-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .info-small-card h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .info-small-card-icon {
+        display: none;
+    }
+
+    .info-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.875rem;
+    }
+
+    .info-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .info-row-icon {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+    }
+
+    .info-row-icon.location-icon {
+        color: #EF4444;
+    }
+
+    .info-row-icon.email-icon {
+        color: #3B82F6;
+    }
+
+    .info-row-icon.phone-icon {
+        color: #10B981;
+    }
+
+    .info-row-icon.work-icon {
+        color: #333;
+    }
+
+    .info-row-icon.briefcase-icon {
+        color: #B45309;
+    }
+
+    .info-row-icon.user-icon {
+        color: #F59E0B;
+    }
+
+    .info-row-text {
+        color: #333;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    .info-large-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .info-large-card h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1rem;
+    }
+
+    .info-large-card p {
+        color: #555;
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+
+    .section-cards-top {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .section-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .section-card h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-card-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .section-card-icon.exp-icon {
+        color: #B45309;
+    }
+
+    .section-card-icon.edu-icon {
+        color: #333;
+    }
+
+    .section-card-icon.course-icon {
+        color: #5B7FDB;
+    }
+
+    .exp-item,
+    .edu-item {
+        margin-bottom: 1.5rem;
+    }
+
+    .exp-item:last-child,
+    .edu-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .exp-title,
+    .edu-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.25rem;
+    }
+
+    .exp-subtitle,
+    .edu-subtitle {
+        font-size: 1rem;
+        color: #555;
+        margin-bottom: 0.5rem;
+    }
+
+    .exp-dates,
+    .edu-dates {
+        font-size: 0.9rem;
+        color: #333;
+        font-weight: 500;
+        text-align: right;
+    }
+
+    .course-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .course-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .course-item:first-child {
+        padding-top: 0;
+    }
+
+    .course-left {
+        flex: 1;
+    }
+
+    .course-right {
+        text-align: right;
+        min-width: 120px;
+    }
+
+    .course-name {
+        font-size: 1rem;
+        color: #333;
+        margin-bottom: 0.25rem;
+    }
+
+    .course-link {
+        color: #5B7FDB;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+
+    .course-link:hover {
+        text-decoration: underline;
+    }
+
+    .course-hours {
+        font-size: 1rem;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .skills-card,
+    .projects-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-top: 1.5rem;
+    }
+
+    .skills-card h3,
+    .projects-card h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .skills-icon,
+    .projects-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .skills-icon {
+        color: #10B981;
+    }
+
+    .projects-icon {
+        color: #8B5CF6;
+    }
+
+    .skill-item {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .skill-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .skill-item:first-child {
+        padding-top: 0;
+    }
+
+    .skill-text {
+        font-size: 1rem;
+        color: #333;
+        line-height: 1.6;
+    }
+
+    .project-item-large {
+        display: flex;
+        gap: 2rem;
+        align-items: flex-start;
+        padding: 1rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .project-item-large:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .project-item-large:first-child {
+        padding-top: 0;
+    }
+
+    .project-image {
+        width: 200px;
+        height: 150px;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        background: #f9fafb;
+        flex-shrink: 0;
+        object-fit: cover;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .project-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .project-image svg {
+        width: 80px;
+        height: 80px;
+        color: #d1d5db;
+    }
+
+    .project-content {
+        flex: 1;
+    }
+
+    .project-name {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .project-desc {
+        font-size: 0.95rem;
+        color: #555;
+        margin-bottom: 0.5rem;
+        line-height: 1.5;
+    }
+
+    .project-url {
+        color: #5B7FDB;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+
+    .project-url:hover {
+        text-decoration: underline;
     }
 
     .main-content {
-        padding: 2rem 3rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.5rem 3rem 3rem;
         display: grid;
         grid-template-columns: 2fr 1fr;
         gap: 2rem;
-        margin: 0 2rem;
     }
 
     .left-column {
@@ -205,13 +599,13 @@ export async function getStaticPaths() {
         gap: 0.5rem;
         margin-bottom: 0.5rem;
         font-size: 0.875rem;
-        color: var(--text-secondary);
+        color: white;
     }
 
     .contact-icon {
         width: 16px;
         height: 16px;
-        color: var(--primary-color);
+        color: white;
     }
 
     .section {
@@ -336,10 +730,8 @@ export async function getStaticPaths() {
     @media (max-width: 768px) {
         .profile-header {
             flex-direction: column;
+            padding: 0 2rem;
             text-align: center;
-            padding: 2rem;
-            margin-left: 1rem;
-            margin-right: 1rem;
         }
 
         .profile-main-info {
@@ -347,16 +739,38 @@ export async function getStaticPaths() {
             gap: 1rem;
         }
 
+        .info-card {
+            padding: 0 2rem;
+        }
+
+        .info-card-content {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .info-left {
+            align-items: center;
+        }
+
         .contact-info {
-            min-width: auto;
-            width: 100%;
+            justify-content: center;
+        }
+
+        .info-cards-section {
+            padding: 0 2rem;
+        }
+
+        .info-cards-top {
+            grid-template-columns: 1fr;
+        }
+
+        .section-cards-top {
+            grid-template-columns: 1fr;
         }
 
         .main-content {
             grid-template-columns: 1fr;
-            padding: 2rem;
-            margin: 0 1rem;
-            gap: 2rem;
+            padding: 1.5rem 2rem;
         }
     }
 
@@ -395,9 +809,11 @@ export async function getStaticPaths() {
             email: `<svg fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>`,
             phone: `<svg fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path></svg>`,
             briefcase: `<svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>`,
+            user: `<svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>`,
             academic: `<svg fill="currentColor" viewBox="0 0 20 20"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"></path></svg>`,
             certificate: `<svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"></path></svg>`,
             folder: `<svg fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path></svg>`,
+            lightbulb: `<svg fill="currentColor" viewBox="0 0 20 20"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z"></path></svg>`,
         };
         return icons[type] || "";
     }
@@ -427,17 +843,33 @@ export async function getStaticPaths() {
           </div>
           
           <div class="profile-info">
-            <h2>${profile.nombre || "Sin nombre"}</h2>
-            ${profile.carrera ? `<div class="career-badge">${profile.carrera}</div>` : ""}
+            <h2>${profile.nombre || "Sin nombre"}${profile.apellido ? " " + profile.apellido : ""}</h2>
+            <p class="profile-career">${profile.carrera || ""}</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="info-card">
+        <div class="info-card-content">
+          <div class="info-left">
+            ${profile.carrera ? `<div class="career-badge">Técnico en ${profile.carrera}</div>` : ""}
             <div class="graduation-info">Graduado en 2026</div>
-            
-            <!-- Botón de Contactar por Gmail -->
+          </div>
+          
+          <div class="info-buttons">
+            <a href="#" class="btn-portfolio">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              Portfolio
+            </a>
             ${profile.email ? `
-            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=${profile.email}&su=${encodeURIComponent('Contacto desde Portal de Egresados')}&body=${encodeURIComponent('Hola ' + (profile.nombre || '') + ',\n\n')}" 
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=${profile.email}&su=${encodeURIComponent('Contacto desde Portal de Egresados')}&body=${encodeURIComponent('Hola ' + (profile.nombre || '') + ',\\n\\n')}" 
                target="_blank" 
                rel="noopener noreferrer" 
                class="btn-contactar">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
               </svg>
               Contactar por Gmail
@@ -445,229 +877,181 @@ export async function getStaticPaths() {
             ` : ''}
           </div>
         </div>
-        
-        <div class="contact-info">
-          ${
-              profile.direccion
-                  ? `
-            <div class="contact-row">
-              <div class="contact-icon">${createIcon("location")}</div>
-              <span>${profile.direccion}</span>
-            </div>
-          `
-                  : ""
-          }
-          
-          ${
-              profile.situacionLaboral
-                  ? `
-            <div class="contact-row">
-              <div class="contact-icon">${createIcon("work")}</div>
-              <span>${profile.situacionLaboral}</span>
-            </div>
-          `
-                  : ""
-          }
-          
-          ${
-              profile.email
-                  ? `
-            <div class="contact-row">
-              <div class="contact-icon">${createIcon("email")}</div>
-              <span>${profile.email}</span>
-            </div>
-          `
-                  : ""
-          }
-          
-          ${
-              profile.telefono
-                  ? `
-            <div class="contact-row">
-              <div class="contact-icon">${createIcon("phone")}</div>
-              <span>${profile.telefono}</span>
-            </div>
-          `
-                  : ""
-          }
-        </div>
       </div>
       
-      <div class="main-content">
-        <div class="left-column">
-          <div class="section">
-            <h3 class="section-title">Acerca de</h3>
-            ${
-                profile.resumenProfesional
-                    ? `<div class="description">${profile.resumenProfesional}</div>`
-                    : `<div class="empty-state">No hay descripción disponible</div>`
-            }
+      <div class="info-cards-section">
+        <!-- 2 Cards pequeñas arriba -->
+        <div class="info-cards-top">
+          <!-- Card 1: Información de contacto -->
+          <div class="info-small-card">
+            <div class="info-row">
+              <div class="info-row-icon location-icon">${createIcon("location")}</div>
+              <div class="info-row-text">${profile.direccion || "Sin ubicación"}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-row-icon email-icon">${createIcon("email")}</div>
+              <div class="info-row-text">${profile.email || "Sin correo"}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-row-icon phone-icon">${createIcon("phone")}</div>
+              <div class="info-row-text">${profile.telefono || "Sin teléfono"}</div>
+            </div>
           </div>
           
-          <div class="section">
-            <h3 class="section-title">
-              <div class="section-icon">${createIcon("briefcase")}</div>
+          <!-- Card 2: Información laboral -->
+          <div class="info-small-card">
+            <div class="info-row">
+              <div class="info-row-icon work-icon">${createIcon("work")}</div>
+              <div class="info-row-text">${profile.situacionLaboral || "Sin situación laboral"}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-row-icon briefcase-icon">${createIcon("briefcase")}</div>
+              <div class="info-row-text">${profile.experienciasLaborales && profile.experienciasLaborales.length > 0 && profile.experienciasLaborales[0].empresa ? `Empleado en ${profile.experienciasLaborales[0].empresa}` : "Sin empresa registrada"}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-row-icon user-icon">${createIcon("user")}</div>
+              <div class="info-row-text">${profile.experienciasLaborales && profile.experienciasLaborales.length > 0 && profile.experienciasLaborales[0].puesto ? profile.experienciasLaborales[0].puesto : profile.carrera || "Sin puesto"}</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Card grande: Descripción -->
+        <div class="info-large-card">
+          <h3>Acerca de mí</h3>
+          ${
+              profile.resumenProfesional
+                  ? `<p>${profile.resumenProfesional}</p>`
+                  : `<div class="empty-state">No hay descripción disponible</div>`
+          }
+        </div>
+        
+        <!-- 2 Cards: Experiencias y Formación -->
+        <div class="section-cards-top">
+          <!-- Card Experiencias -->
+          <div class="section-card">
+            <h3>
+              <div class="section-card-icon exp-icon">${createIcon("briefcase")}</div>
               Experiencias
             </h3>
             ${
-                profile.experienciasLaborales &&
-                profile.experienciasLaborales.length > 0
-                    ? profile.experienciasLaborales
-                          .map(
-                              (exp) => `
-                <div class="experience-item">
-                  <div class="item-title">${exp.empresa || exp.puesto || ""}</div>
-                  <div class="item-subtitle">
-                    ${exp.puesto ? exp.puesto + " • " : ""}${exp.fechaInicio || ""} - ${exp.fechaFin || "Actual"}
-                  </div>
-                  ${exp.descripcion ? `<div class="item-description">${exp.descripcion}</div>` : ""}
+                profile.experienciasLaborales && profile.experienciasLaborales.length > 0
+                    ? profile.experienciasLaborales.map(exp => `
+                <div class="exp-item">
+                  <div class="exp-title">${exp.empresa || "Sin empresa"}</div>
+                  <div class="exp-subtitle">${exp.puesto || "Sin puesto"}</div>
+                  <div class="exp-dates">${exp.fechaInicio || ""} - ${exp.fechaFin || "Actual"}</div>
                 </div>
-              `
-                          )
-                          .join("")
-                    : `<div class="empty-state">No hay experiencias laborales registradas</div>`
+              `).join("")
+                    : `<div class="empty-state">No hay experiencias registradas</div>`
             }
           </div>
           
-          <div class="section">
-            <h3 class="section-title">
-              <div class="section-icon">${createIcon("academic")}</div>
+          <!-- Card Formación -->
+          <div class="section-card">
+            <h3>
+              <div class="section-card-icon edu-icon">${createIcon("academic")}</div>
               Formación
             </h3>
             ${
-                profile.formacionAcademica &&
-                profile.formacionAcademica.length > 0
-                    ? profile.formacionAcademica
-                          .map(
-                              (edu) => `
-                <div class="education-item">
-                  <div class="item-title">${edu.titulo || edu.institucion || ""}</div>
-                  <div class="item-subtitle">
-                    ${edu.institucion || ""}${edu.anioFinalizacion ? " • " + edu.anioFinalizacion : ""}
-                  </div>
+                profile.formacionAcademica && profile.formacionAcademica.length > 0
+                    ? profile.formacionAcademica.map(edu => `
+                <div class="edu-item">
+                  <div class="edu-title">${edu.institucion || "Sin institución"}</div>
+                  <div class="edu-subtitle">${edu.titulo || ""}</div>
+                  <div class="edu-dates">${edu.anioInicio || ""} - ${edu.anioFinalizacion || ""}</div>
                 </div>
-              `
-                          )
-                          .join("")
-                    : `<div class="empty-state">No hay formación académica registrada</div>`
+              `).join("")
+                    : `<div class="empty-state">No hay formación registrada</div>`
             }
           </div>
         </div>
         
-        <div class="right-column">
-          <div class="section">
-            <h3 class="section-title">
-              <div class="section-icon">${createIcon("certificate")}</div>
-              Cursos
-            </h3>
-            ${
-                profile.cursos && profile.cursos.length > 0
-                    ? profile.cursos
-                          .map(
-                              (curso) => `
-                <div class="course-item">
-                  <div class="item-title">${curso.nombre || ""}</div>
-                  <div class="item-subtitle">
-                    ${curso.institucion || ""}${curso.horasDuracion ? " • " + curso.horasDuracion + " Horas" : ""}
-                  </div>
-                </div>
-              `
-                          )
-                          .join("")
-                    : `<div class="empty-state">No hay cursos registrados</div>`
-            }
-          </div>
-          
-          <div class="section">
-            <h3 class="section-title">Habilidades</h3>
-            ${
-                profile.habilidades && profile.habilidades.length > 0
-                    ? (() => {
-                          const habilidadesTecnicas =
-                              profile.habilidades.filter(
-                                  (h) => h.tipo === "tecnica"
-                              );
-                          const habilidadesBlandas = profile.habilidades.filter(
-                              (h) => h.tipo === "blanda"
-                          );
-                          const habilidadesIdiomas = profile.habilidades.filter(
-                              (h) => h.tipo === "idioma"
-                          );
-
-                          let html = '<div class="skills-list">';
-
-                          if (habilidadesTecnicas.length > 0) {
-                              html +=
-                                  '<div style="margin-bottom: 0.75rem;"><strong>Técnicas:</strong> ' +
-                                  habilidadesTecnicas
-                                      .map(
-                                          (h) =>
-                                              h.nombre +
-                                              (h.nivel ? ` (${h.nivel})` : "")
-                                      )
-                                      .join(", ") +
-                                  "</div>";
-                          }
-
-                          if (habilidadesBlandas.length > 0) {
-                              html +=
-                                  '<div style="margin-bottom: 0.75rem;"><strong>Habilidades Blandas:</strong> ' +
-                                  habilidadesBlandas
-                                      .map(
-                                          (h) =>
-                                              h.nombre +
-                                              (h.nivel ? ` (${h.nivel})` : "")
-                                      )
-                                      .join(", ") +
-                                  "</div>";
-                          }
-
-                          if (habilidadesIdiomas.length > 0) {
-                              html +=
-                                  '<div style="margin-bottom: 0.75rem;"><strong>Idiomas:</strong> ' +
-                                  habilidadesIdiomas
-                                      .map(
-                                          (h) =>
-                                              h.nombre +
-                                              (h.nivel ? ` (${h.nivel})` : "")
-                                      )
-                                      .join(", ") +
-                                  "</div>";
-                          }
-
-                          html += "</div>";
-                          return html;
-                      })()
-                    : `<div class="empty-state">No hay habilidades registradas</div>`
-            }
-          </div>
-          
-          <div class="section">
-            <h3 class="section-title">
-              <div class="section-icon">${createIcon("folder")}</div>
-              Proyectos
-            </h3>
-            ${
-                profile.proyectos && profile.proyectos.length > 0
-                    ? profile.proyectos
-                          .map(
-                              (proyecto) => `
-                <div class="project-item">
-                  <div class="project-icon">📁</div>
-                  <div class="project-info">
-                    <div class="item-title">${proyecto.nombre || ""}</div>
-                    ${proyecto.descripcion ? `<div class="item-subtitle">${proyecto.descripcion}</div>` : ""}
-                    ${proyecto.tecnologias ? `<div class="item-subtitle"><strong>Tecnologías:</strong> ${proyecto.tecnologias}</div>` : ""}
-                    ${proyecto.enlace ? `<a href="${proyecto.enlace}" target="_blank" class="project-link">${proyecto.enlace}</a>` : ""}
-                    ${proyecto.fechaProyecto ? `<div class="item-subtitle" style="font-size: 0.85rem; color: var(--text-secondary);"><strong>Fecha:</strong> ${proyecto.fechaProyecto}</div>` : ""}
-                  </div>
-                </div>
-              `
-                          )
-                          .join("")
-                    : `<div class="empty-state">No hay proyectos registrados</div>`
-            }
-          </div>
+        <!-- Card Cursos -->
+        <div class="section-card">
+          <h3>
+            <div class="section-card-icon course-icon">${createIcon("certificate")}</div>
+            Cursos
+          </h3>
+          ${
+              profile.cursos && profile.cursos.length > 0
+                  ? profile.cursos.map(curso => `
+            <div class="course-item">
+              <div class="course-left">
+                <div class="course-name">${curso.nombre || "Sin nombre"}</div>
+                ${curso.urlCertificado ? `<a href="${curso.urlCertificado}" target="_blank" class="course-link">Certificado</a>` : ""}
+              </div>
+              <div class="course-right">
+                <div class="course-hours">${curso.horasDuracion ? curso.horasDuracion + " Horas" : ""}</div>
+                ${curso.urlCertificado ? `<a href="${curso.urlCertificado}" target="_blank" class="course-link">${curso.urlCertificado}</a>` : ""}
+              </div>
+            </div>
+          `).join("")
+                  : `<div class="empty-state">No hay cursos registrados</div>`
+          }
+        </div>
+        
+        <!-- Card Habilidades -->
+        <div class="skills-card">
+          <h3>
+            <div class="skills-icon">${createIcon("lightbulb")}</div>
+            Habilidades
+          </h3>
+          ${
+              profile.habilidades && profile.habilidades.length > 0
+                  ? (() => {
+                      const tecnicas = profile.habilidades.filter(h => h.tipo === 'tecnica');
+                      const blandas = profile.habilidades.filter(h => h.tipo === 'blanda');
+                      const idiomas = profile.habilidades.filter(h => h.tipo === 'idioma');
+                      
+                      let html = '';
+                      
+                      if (blandas.length > 0) {
+                          html += `<div class="skills-description">${blandas.map(h => h.nombre).join(', ')}</div>`;
+                      }
+                      
+                      html += '<div class="skills-categories">';
+                      
+                      if (tecnicas.length > 0) {
+                          html += `<div class="skill-category"><strong>Frontend:</strong> ${tecnicas.map(h => h.nombre).join(', ')}.</div>`;
+                      }
+                      
+                      if (idiomas.length > 0) {
+                          html += `<div class="skill-category"><strong>Idiomas:</strong> ${idiomas.map(h => h.nombre + (h.nivel ? ' (' + h.nivel + ')' : '')).join(', ')}.</div>`;
+                      }
+                      
+                      html += '</div>';
+                      return html;
+                  })()
+                  : `<div class="empty-state">No hay habilidades registradas</div>`
+          }
+        </div>
+        
+        <!-- Card Proyectos -->
+        <div class="projects-card">
+          <h3>
+            <div class="projects-icon">${createIcon("folder")}</div>
+            Proyectos
+          </h3>
+          ${
+              profile.proyectos && profile.proyectos.length > 0
+                  ? profile.proyectos.map(proyecto => `
+            <div class="project-item-large">
+              <div class="project-image">
+                ${proyecto.imagenUrl ? `<img src="${proyecto.imagenUrl}" alt="${proyecto.nombre}">` : `
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                `}
+              </div>
+              <div class="project-content">
+                <div class="project-name">${proyecto.nombre || "Sin nombre"}</div>
+                <div class="project-desc">${proyecto.descripcion || ""}${proyecto.tecnologias ? ` - ${proyecto.tecnologias}` : ""}</div>
+                ${proyecto.enlace ? `<a href="${proyecto.enlace}" target="_blank" class="project-url">${proyecto.enlace}</a>` : ""}
+              </div>
+            </div>
+          `).join("")
+                  : `<div class="empty-state">No hay proyectos registrados</div>`
+          }
         </div>
       </div>
     </div>
