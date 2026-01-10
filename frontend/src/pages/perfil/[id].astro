@@ -139,6 +139,36 @@ export async function getStaticPaths() {
         margin-bottom: 1rem;
     }
 
+    .btn-contactar {
+        margin-top: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1.2rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+        text-decoration: none;
+    }
+
+    .btn-contactar:hover {
+        background: #4338ca;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
+        color: white;
+    }
+
+    .btn-contactar svg {
+        width: 16px;
+        height: 16px;
+    }
+
     .contact-info {
         display: flex;
         flex-direction: column;
@@ -376,6 +406,10 @@ export async function getStaticPaths() {
         const wrap = document.createElement("div");
         wrap.className = "perfil-wrap";
 
+        // Debug: verificar datos del perfil
+        console.log("Datos del perfil:", profile);
+        console.log("Email disponible:", profile.email);
+
         wrap.innerHTML = `    
     <div class="profile-card">
       <div class="header-banner"></div>
@@ -396,6 +430,19 @@ export async function getStaticPaths() {
             <h2>${profile.nombre || "Sin nombre"}</h2>
             ${profile.carrera ? `<div class="career-badge">${profile.carrera}</div>` : ""}
             <div class="graduation-info">Graduado en 2026</div>
+            
+            <!-- Botón de Contactar por Gmail -->
+            ${profile.email ? `
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=${profile.email}&su=${encodeURIComponent('Contacto desde Portal de Egresados')}&body=${encodeURIComponent('Hola ' + (profile.nombre || '') + ',\n\n')}" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="btn-contactar">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              Contactar por Gmail
+            </a>
+            ` : ''}
           </div>
         </div>
         
