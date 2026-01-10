@@ -44,11 +44,12 @@ class PerfilesController {
                 whereClause = "WHERE " + conditions.join(" AND ");
             }
 
-            // Query principal para obtener perfiles con datos públicos únicamente
+            // Query principal para obtener perfiles con email para contacto
             const profilesQuery = `
                 SELECT 
                     e.id,
                     u.nombre,
+                    u.email,
                     c.nombre as carrera,
                     pf.resumenProfesional,
                     pf.situacionLaboral,
@@ -157,11 +158,12 @@ class PerfilesController {
 
             const client = database.getClient();
 
-            // Query para obtener perfil específico sin datos sensibles
+            // Query para obtener perfil específico incluyendo email para contacto
             const profileQuery = `
                 SELECT 
                     e.id,
                     u.nombre,
+                    u.email,
                     c.nombre as carrera,
                     pf.resumenProfesional,
                     pf.situacionLaboral,
