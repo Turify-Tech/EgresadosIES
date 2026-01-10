@@ -12,7 +12,6 @@
     grid-template-columns: 300px 1fr;
     gap: 2.5rem;
     padding-top: 1.5rem;
-    align-items: start;
 }
 
 /* Sidebar */
@@ -21,8 +20,10 @@
     flex-direction: column;
     gap: 1rem;
     position: sticky;
-    top: calc(82px + 1rem);
-    align-self: start;
+    top: 6.5rem;
+    align-self: flex-start;
+    max-height: calc(100vh - 7rem);
+    overflow-y: auto;
 }
 
 /* Profile Card */
