@@ -481,6 +481,161 @@ export async function eliminarPublicacion(req, res) {
 }
 
 /**
+ * Mis publicaciones (del usuario autenticado)
+ * @route GET /api/publicaciones/mis-publicaciones
+ * @desc Obtener todas las publicaciones del usuario autenticado
+ * @access Privado (solo egresados autenticados)
+ */
+export async function misPublicaciones(req, res) {
+    try {
+        const usuarioId = req.user.id;
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(
+            SECURITY_LIMITS.PUBLICACIONES.MAX_PER_PAGE,
+            parseInt(req.query.limit) || SECURITY_LIMITS.PUBLICACIONES.DEFAULT_LIMIT
+        );
+        const offset = (page - 1) * limit;
+
+        const client = database.getClient();
+
+        // Obtener publicaciones del usuario
+        const publicacionesQuery = `
+            SELECT 
+                p.id,
+                p.contenido,
+                p.fechaCreacion,
+                p.autorId
+            FROM Publicacion p
+            WHERE p.autorId = ?
+            ORDER BY p.fechaCreacion DESC
+            LIMIT ? OFFSET ?
+        `;
+
+        const publicacionesResult = await client.execute({
+            sql: publicacionesQuery,
+            args: [usuarioId, limit, offset]
+        });
+
+        // Obtener total de publicaciones del usuario
+        const totalQuery = `SELECT COUNT(*) as total FROM Publicacion WHERE autorId = ?`;
+        const totalResult = await client.execute({
+            sql: totalQuery,
+            args: [usuarioId]
+        });
+        const total = Number(totalResult.rows[0].total);
+
+        // Procesar cada publicación
+        const publicaciones = [];
+        for (const row of publicacionesResult.rows) {
+            const publicacion = convertBigIntToNumber(row);
+            
+            // Obtener datos del autor (yo)
+            const autorQuery = `
+                SELECT 
+                    u.nombre as nombreUsuario, 
+                    u.apellido,
+                    p.urlFotoPerfil,
+                    p.tituloprofesional
+                FROM Usuario u
+                LEFT JOIN Egresado e ON u.id = e.id
+                LEFT JOIN Perfil p ON e.perfilId = p.id
+                WHERE u.id = ?
+            `;
+            const autorResult = await client.execute({
+                sql: autorQuery,
+                args: [usuarioId]
+            });
+            
+            let nombreCompleto = 'Usuario desconocido';
+            let urlFotoPerfil = null;
+            let tituloprofesional = null;
+            
+            if (autorResult.rows.length > 0) {
+                const autor = autorResult.rows[0];
+                urlFotoPerfil = autor.urlFotoPerfil;
+                tituloprofesional = autor.tituloprofesional;
+                
+                if (autor.nombreUsuario && autor.apellido) {
+                    nombreCompleto = `${autor.nombreUsuario} ${autor.apellido}`;
+                } else if (autor.nombreUsuario) {
+                    nombreCompleto = autor.nombreUsuario;
+                } else if (autor.tituloprofesional) {
+                    nombreCompleto = autor.tituloprofesional;
+                }
+            }
+
+            // Obtener imágenes de esta publicación
+            const imagenesQuery = `
+                SELECT url FROM ImagenPublicacion 
+                WHERE publicacionId = ? 
+                ORDER BY id
+            `;
+            const imagenesResult = await client.execute({
+                sql: imagenesQuery,
+                args: [publicacion.id]
+            });
+
+            publicacion.imagenes = imagenesResult.rows.map(img => img.url);
+            publicacion.autor = {
+                id: usuarioId,
+                nombre: nombreCompleto,
+                urlFotoPerfil: urlFotoPerfil,
+                tituloprofesional: tituloprofesional
+            };
+            
+            // Obtener total de comentarios
+            const comentariosQuery = `
+                SELECT COUNT(*) as total FROM Comentario 
+                WHERE publicacionId = ?
+            `;
+            const comentariosResult = await client.execute({
+                sql: comentariosQuery,
+                args: [publicacion.id]
+            });
+            publicacion.totalComentarios = Number(comentariosResult.rows[0]?.total || 0);
+            
+            // Obtener total de likes
+            const likesQuery = `
+                SELECT COUNT(*) as total FROM LikePublicacion 
+                WHERE publicacionId = ?
+            `;
+            const likesResult = await client.execute({
+                sql: likesQuery,
+                args: [publicacion.id]
+            });
+            publicacion.totalLikes = Number(likesResult.rows[0]?.total || 0);
+            
+            // Limpiar campos temporales
+            delete publicacion.autorId;
+
+            publicaciones.push(publicacion);
+        }
+
+        res.status(200).json({
+            success: true,
+            data: {
+                publicaciones,
+                pagination: {
+                    page,
+                    limit,
+                    total,
+                    totalPages: Math.ceil(total / limit),
+                    hasNext: page < Math.ceil(total / limit),
+                    hasPrev: page > 1
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error("Error obteniendo mis publicaciones:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error interno del servidor"
+        });
+    }
+}
+
+/**
  * Publicaciones de un usuario específico
  * @route GET /api/publicaciones/usuario/:userId
  * @desc Obtener todas las publicaciones de un usuario específico

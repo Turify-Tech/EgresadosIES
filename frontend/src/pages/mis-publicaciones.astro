@@ -1,82 +1,28 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ComentariosModal from "../components/ComentariosModal.astro";
-import "../styles/index.css";
+import "../styles/mis-publicaciones.css";
 ---
 
-<BaseLayout title="Inicio | Feed">
-    <div class="feed-page">
-        <div class="feed-container">
-            <!-- Sidebar izquierdo -->
-            <aside class="sidebar-left">
-                <img src="/images/Fondo Azul card.jpg" alt="Banner" class="sidebar-banner" />
-                <h3>Tecnicaturas</h3>
-                <ul>
-                    <li>Administración de Empresas</li>
-                    <li>Análisis y Programación de Sistemas</li>
-                    <li>Computación y Redes</li>
-                    <li>Construcciones Livianas</li>
-                    <li>Desarrollo de Software</li>
-                    <li>Higiene y Seguridad Laboral</li>
-                    <li>Logística</li>
-                    <li>Obras Viales</li>
-                    <li>Redes y Ciberseguridad</li>
-                    <li>Recursos Humanos</li>
-                    <li>Tecnología Biomédica</li>
-                </ul>
-            </aside>
+<BaseLayout title="Mis publicaciones">
+    <div class="mis-publicaciones-page">
+        <div class="container">
+            <header class="page-header">
+                <h1>Mis publicaciones</h1>
+            </header>
 
-            <!-- Contenido principal -->
-            <main class="feed-main">
-                <section class="page-header">
-                    <h1>Perfiles Profesionales del IES</h1>
-                    <p>El Instituto de Educación Superior N°9-012 "San Rafael en Informática" es un establecimiento educativo técnico de nivel superior ubicado en San Rafael, Mendoza.</p>
-                </section>
-
-                <!-- Desplegable de Tecnicaturas (solo móvil) -->
-                <details class="tecnicaturas-mobile">
-                    <summary>Ver las tecnicaturas del I.E.S 9-012</summary>
-                    <ul>
-                        <li>Administración de Empresas</li>
-                        <li>Análisis y Programación de Sistemas</li>
-                        <li>Computación y Redes</li>
-                        <li>Construcciones Livianas</li>
-                        <li>Desarrollo de Software</li>
-                        <li>Higiene y Seguridad Laboral</li>
-                        <li>Logística</li>
-                        <li>Obras Viales</li>
-                        <li>Redes y Ciberseguridad</li>
-                        <li>Recursos Humanos</li>
-                        <li>Tecnología Biomédica</li>
-                    </ul>
-                </details>
-
-                <div class="feed-intro">
-                    <h2>Feed de la comunidad</h2>
-                    </div>
-
-                <!-- Formulario crear publicación (solo visible para egresados autenticados) -->
-                <form class="crear-post" id="crear-form" style="display:none;">
-                    <textarea placeholder="¿Qué estás pensando?" rows="3"></textarea>
-                    <div class="form-actions">
-                        <input type="file" accept="image/*" multiple />
-                        <button type="submit">Publicar</button>
-                    </div>
-                </form>
-
-                <!-- Feed de publicaciones -->
-                <div id="feed-list">
-                    <!-- Aquí se cargarán las publicaciones dinámicamente -->
-                    <div class="loading-posts">
-                        <div class="loading-spinner"></div>
-                        <p>Cargando publicaciones...</p>
-                    </div>
+            <!-- Feed de mis publicaciones -->
+            <div id="mis-publicaciones-list">
+                <!-- Aquí se cargarán las publicaciones dinámicamente -->
+                <div class="loading-posts">
+                    <div class="loading-spinner"></div>
+                    <p>Cargando tus publicaciones...</p>
                 </div>
+            </div>
 
-                <div class="load-more" style="display: none;">
-                    <button id="load-more-btn">Cargar más</button>
-                </div>
-            </main>
+            <div class="load-more" style="display: none;">
+                <button id="load-more-btn">Cargar más</button>
+            </div>
         </div>
     </div>
 
@@ -88,6 +34,11 @@ import "../styles/index.css";
         let currentPage = 1;
         let isLoading = false;
         let hasMorePages = true;
+
+        // Función para obtener el token
+        function getAuthToken() {
+            return localStorage.getItem('auth_token');
+        }
 
         // Función para formatear fecha relativa
         function formatearFechaRelativa(fechaString) {
@@ -110,16 +61,32 @@ import "../styles/index.css";
         function crearPostCard(publicacion) {
             const { id, contenido, autor, fechaCreacion, totalComentarios, totalLikes, imagenes } = publicacion;
             
-            console.log(`Post ${id} - Comentarios: ${totalComentarios}, Likes: ${totalLikes}`);
-            
             return `
                 <article class="post-card" data-post-id="${id}">
                     <header class="post-header">
-                        <div class="avatar"></div>
-                        <div class="post-meta">
-                            <strong>${autor.nombre}</strong>
-                            <time>${formatearFechaRelativa(fechaCreacion)}</time>
+                        <div class="post-header-left">
+                            <div class="avatar">
+                                ${autor.urlFotoPerfil ? 
+                                    `<img src="${autor.urlFotoPerfil}" alt="${autor.nombre}" />` : 
+                                    `<svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                    </svg>`
+                                }
+                            </div>
+                            <div class="post-meta">
+                                <strong>${autor.nombre}</strong>
+                                ${autor.tituloprofesional ? `<p class="subtitle">${autor.tituloprofesional}</p>` : ''}
+                                <time>${formatearFechaRelativa(fechaCreacion)}</time>
+                            </div>
                         </div>
+                        <button class="delete-btn" onclick="eliminarPublicacion(${id})" title="Eliminar publicación">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                            </svg>
+                        </button>
                     </header>
                     <div class="post-body">
                         <p>${contenido}</p>
@@ -148,8 +115,8 @@ import "../styles/index.css";
             `;
         }
 
-        // Función para cargar publicaciones
-        async function cargarPublicaciones(page = 1) {
+        // Función para cargar mis publicaciones
+        async function cargarMisPublicaciones(page = 1) {
             if (isLoading) return;
             
             isLoading = true;
@@ -159,31 +126,53 @@ import "../styles/index.css";
                 loadMoreBtn.disabled = true;
             }
 
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+
             try {
-                const response = await fetch(`${API_URL}/publicaciones?page=${page}&limit=10`);
+                const response = await fetch(`${API_URL}/publicaciones/mis-publicaciones?page=${page}&limit=10`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
                 const result = await response.json();
                 
-                console.log('API Response index.astro:', result);
+                console.log('Mis publicaciones:', result);
 
                 if (result.success && result.data.publicaciones) {
-                    const feedList = document.getElementById('feed-list');
+                    const feedList = document.getElementById('mis-publicaciones-list');
                     
-                    console.log('Publicaciones recibidas:', result.data.publicaciones);
-                    
-                    // Si es la primera página, limpiar el contenido de ejemplo
+                    // Si es la primera página, limpiar el contenido
                     if (page === 1) {
                         feedList.innerHTML = '';
                     }
 
+                    // Si no hay publicaciones
+                    if (result.data.publicaciones.length === 0 && page === 1) {
+                        feedList.innerHTML = `
+                            <div class="no-publicaciones">
+                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                                <h2>No tienes publicaciones</h2>
+                                <p>Aún no has creado ninguna publicación. Ve al feed principal para crear tu primera publicación.</p>
+                                <a href="/" class="btn-primary">Ir al feed</a>
+                            </div>
+                        `;
+                        return;
+                    }
+
                     // Agregar las nuevas publicaciones
                     result.data.publicaciones.forEach(publicacion => {
-                        console.log('Procesando publicación:', publicacion);
                         const cardHTML = crearPostCard(publicacion);
-                        console.log('HTML generado:', cardHTML);
                         feedList.insertAdjacentHTML('beforeend', cardHTML);
                     });
 
-                    // Actualizar estado de paginaciónes
+                    // Actualizar estado de paginación
                     hasMorePages = result.data.pagination.hasNext;
                     
                     // Mostrar/ocultar botón de cargar más
@@ -193,13 +182,13 @@ import "../styles/index.css";
                     }
                 }
             } catch (error) {
-                console.error('Error cargando publicaciones:', error);
-                // Mostrar mensaje de error
-                const feedList = document.getElementById('feed-list');
+                console.error('Error cargando mis publicaciones:', error);
+                const feedList = document.getElementById('mis-publicaciones-list');
                 if (page === 1) {
                     feedList.innerHTML = `
-                        <div style="text-align: center; padding: 2rem; color: #666;">
+                        <div class="error-publicaciones">
                             <p>Error al cargar las publicaciones. Por favor, intenta de nuevo.</p>
+                            <button onclick="location.reload()" class="btn-secondary">Reintentar</button>
                         </div>
                     `;
                 }
@@ -212,29 +201,68 @@ import "../styles/index.css";
             }
         }
 
-        // Variables para el modal de comentarios
-        let currentPublicacionId = null;
+        // Función para eliminar publicación
+        async function eliminarPublicacion(publicacionId) {
+            if (!confirm('¿Estás seguro de que quieres eliminar esta publicación?')) {
+                return;
+            }
 
-        // Función para obtener el token
-        function getAuthToken() {
-            return localStorage.getItem('auth_token');
-        }
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
 
-        // Función para verificar si el usuario es egresado
-        function isEgresado() {
-            const userData = localStorage.getItem('user_data');
-            if (!userData) return false;
             try {
-                const user = JSON.parse(userData);
-                return user.tipo_usuario === 'Egresado';
-            } catch {
-                return false;
+                const response = await fetch(`${API_URL}/publicaciones/${publicacionId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Eliminar la tarjeta del DOM con animación
+                    const postCard = document.querySelector(`[data-post-id="${publicacionId}"]`);
+                    if (postCard) {
+                        postCard.style.opacity = '0';
+                        postCard.style.transform = 'scale(0.9)';
+                        setTimeout(() => {
+                            postCard.remove();
+                            
+                            // Verificar si quedan publicaciones
+                            const feedList = document.getElementById('mis-publicaciones-list');
+                            if (feedList && feedList.children.length === 0) {
+                                feedList.innerHTML = `
+                                    <div class="no-publicaciones">
+                                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                        </svg>
+                                        <h2>No tienes publicaciones</h2>
+                                        <p>Aún no has creado ninguna publicación. Ve al feed principal para crear tu primera publicación.</p>
+                                        <a href="/" class="btn-primary">Ir al feed</a>
+                                    </div>
+                                `;
+                            }
+                        }, 300);
+                    }
+                } else {
+                    alert(result.message || 'Error al eliminar la publicación');
+                }
+            } catch (error) {
+                console.error('Error eliminando publicación:', error);
+                alert('Error al eliminar la publicación. Por favor, intenta de nuevo.');
             }
         }
 
+        // Variables para el modal de comentarios
+        let currentPublicacionId = null;
+
         // Función para formatear tiempo relativo
         function formatearTiempoRelativo(fechaString) {
-            const fecha = new Date(fechaString + 'Z'); // Agregar Z para UTC
+            const fecha = new Date(fechaString + 'Z');
             const ahora = new Date();
             const diffMs = ahora - fecha;
             const diffMins = Math.floor(diffMs / 60000);
@@ -327,30 +355,20 @@ import "../styles/index.css";
             } else {
                 modal.style.display = 'flex';
                 cargarComentarios(publicacionId, 1);
-                
-                // Ocultar el formulario si no es egresado
-                const comentarioForm = document.getElementById('comentario-form');
-                if (comentarioForm) {
-                    if (isEgresado()) {
-                        comentarioForm.style.display = 'flex';
-                    } else {
-                        comentarioForm.style.display = 'none';
-                    }
-                }
             }
         }
 
-        // Event listener para el botón de cargar más
+        // Event listener para inicialización
         document.addEventListener('DOMContentLoaded', () => {
             // Cargar primera página al cargar la página
-            cargarPublicaciones(1);
+            cargarMisPublicaciones(1);
 
             // Configurar botón de cargar más
             const loadMoreBtn = document.getElementById('load-more-btn');
             if (loadMoreBtn) {
                 loadMoreBtn.addEventListener('click', () => {
                     currentPage++;
-                    cargarPublicaciones(currentPage);
+                    cargarMisPublicaciones(currentPage);
                 });
             }
 
@@ -391,7 +409,8 @@ import "../styles/index.css";
             }
         });
 
-        // Exponer función globalmente
+        // Exponer funciones globalmente
         window.toggleComments = toggleComments;
+        window.eliminarPublicacion = eliminarPublicacion;
     </script>
 </BaseLayout>

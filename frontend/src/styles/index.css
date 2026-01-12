@@ -248,6 +248,20 @@
     transition: all 0.2s;
 }
 
+.action-text {
+    font-weight: 500;
+}
+
+.comment-count,
+.like-count {
+    font-weight: 600;
+    color: #1a1a1a;
+    background: #f3f4f6;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
+
 .action-btn:hover {
     background: transparent;
 }

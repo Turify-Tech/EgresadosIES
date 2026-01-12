@@ -39,6 +39,14 @@ const crearPublicacionLimiter = rateLimit({
 router.get("/", publicacionesLimiter, publicacionesController.listarPublicaciones);
 
 /**
+ * @route   GET /api/publicaciones/mis-publicaciones
+ * @desc    Mis publicaciones (del usuario autenticado)
+ * @access  Privado (solo egresados autenticados)
+ * @query   { "page": number, "limit": number }
+ */
+router.get("/mis-publicaciones", authenticateToken, requireEgresado, publicacionesLimiter, publicacionesController.misPublicaciones);
+
+/**
  * @route   GET /api/publicaciones/usuario/:userId
  * @desc    Publicaciones de un usuario específico
  * @access  Público
