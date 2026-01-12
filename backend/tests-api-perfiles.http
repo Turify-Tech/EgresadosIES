@@ -1,0 +1,119 @@
+###
+### Tests para API Pública de Perfiles de Egresados
+### Issue #14 - Perfiles Públicos de Egresados
+### Endpoint: /api/perfiles
+###
+### SEGURIDAD:
+### - Solo perfiles con perfilPublico = 1
+### - Sin datos sensibles: email, telefono, dni
+### - Rate limiting: 100 req/15min (lista), 30 req/15min (perfil)
+###
+
+### 1. Health Check
+GET http://localhost:3000/api/health
+
+###
+
+### 2. Lista Completa de Egresados Públicos
+GET http://localhost:3000/api/perfiles
+
+###
+
+### 3. Lista Paginada (5 resultados por página)
+GET http://localhost:3000/api/perfiles?page=1&limit=5
+
+###
+
+### 4. Buscar por nombre "Juan"
+GET http://localhost:3000/api/perfiles?search=Juan
+
+###
+
+### 5. Filtrar por Carrera
+GET http://localhost:3000/api/perfiles?carrera=Desarrollo de Software
+
+###
+
+### 6. Filtrar por Ciudad "Mendoza"
+GET http://localhost:3000/api/perfiles?ciudad=Mendoza
+
+###
+
+### 7. Ordenar por Ciudad Descendente
+GET http://localhost:3000/api/perfiles?orderBy=ciudad&order=desc
+
+###
+
+### 8. Búsqueda Avanzada (nombre + carrera + ciudad)
+GET http://localhost:3000/api/perfiles?search=desarrollo&ciudad=Mendoza&orderBy=nombre
+
+###
+
+### 9. Perfil Individual - Usuario ID 2 (Juan Carlos)
+GET http://localhost:3000/api/perfiles/2
+
+###
+
+### 10. Perfil Privado - Usuario ID 1 (debe dar 404)
+GET http://localhost:3000/api/perfiles/1
+
+###
+
+### 11. Perfil No Existente (debe dar 404)
+GET http://localhost:3000/api/perfiles/9999
+
+###
+
+### 12. ID Inválido (debe dar 400)
+GET http://localhost:3000/api/perfiles/abc
+
+###
+
+###
+### TESTS DE SEGURIDAD
+###
+
+### 13. Verificar Exclusión de Email (no debe aparecer en respuesta)
+GET http://localhost:3000/api/perfiles
+
+###
+
+### 14. Verificar Rate Limiting (ejecutar 101 veces para lista)
+# Debería retornar 429 después del request 101
+
+###
+
+### 15. Verificar Rate Limiting en Perfil Individual (ejecutar 31 veces)
+# Debería retornar 429 después del request 31
+GET http://localhost:3000/api/perfiles/2
+
+###
+
+###
+### TESTS DE FUNCIONALIDAD
+###
+
+### 16. Paginación - Página 2
+GET http://localhost:3000/api/perfiles?page=2&limit=5
+
+###
+
+### 17. Límite Máximo (50 por página)
+GET http://localhost:3000/api/perfiles?limit=100
+# Debería respetar máximo de 50
+
+###
+
+### 18. Búsqueda por Empresa (en experiencias laborales)
+GET http://localhost:3000/api/perfiles?search=Microsoft
+
+###
+
+### 19. Combinación de Filtros
+GET http://localhost:3000/api/perfiles?carrera=Desarrollo de Software&ciudad=Mendoza&orderBy=nombre&order=asc
+
+###
+
+### 20. Perfil con Todas las Relaciones
+# Debería incluir: experienciasLaborales, formacionAcademica, cursos, proyectos, habilidades
+GET http://localhost:3000/api/perfiles/2
