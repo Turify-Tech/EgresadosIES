@@ -1,4 +1,5 @@
 import database from "../config/database.js";
+import notificationService from "../services/notificationService.js";
 
 /**
  * Controlador para el sistema de comentarios en publicaciones
@@ -58,9 +59,9 @@ export async function crearComentario(req, res) {
 
         const client = database.getClient();
 
-        // Verificar que la publicación existe
+        // Verificar que la publicación existe y obtener el autor
         const publicacion = await client.execute({
-            sql: `SELECT id FROM Publicacion WHERE id = ?`,
+            sql: `SELECT id, autorId FROM Publicacion WHERE id = ?`,
             args: [publicacionId]
         });
 
@@ -71,6 +72,8 @@ export async function crearComentario(req, res) {
             });
         }
 
+        const publicacionAutorId = publicacion.rows[0].autorId;
+
         // Crear el comentario
         const insertResult = await client.execute({
             sql: `INSERT INTO Comentario (contenido, autorId, publicacionId) 
@@ -79,6 +82,25 @@ export async function crearComentario(req, res) {
         });
 
         const comentarioId = insertResult.lastInsertRowid;
+
+        // Notificar al autor de la publicación (en background)
+        notificationService.notificarComentario({
+            publicacionAutorId: Number(publicacionAutorId),
+            comentarioAutorId: usuarioId,
+            comentarioTexto: contenido.trim(),
+            publicacionId: Number(publicacionId)
+        }).catch(err => console.error('Error al enviar notificación:', err));
+
+        // Detectar y notificar menciones (en background)
+        const usuariosMencionados = await notificationService.detectarMenciones(contenido.trim());
+        for (const usuarioMencionadoId of usuariosMencionados) {
+            notificationService.notificarMencion({
+                usuarioMencionadoId,
+                autorMencionId: usuarioId,
+                comentarioTexto: contenido.trim(),
+                publicacionId: Number(publicacionId)
+            }).catch(err => console.error('Error al notificar mención:', err));
+        }
 
         // Obtener el comentario completo con datos del autor
         const comentarioCompleto = await client.execute({

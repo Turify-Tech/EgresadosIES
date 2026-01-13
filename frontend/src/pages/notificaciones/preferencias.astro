@@ -1,0 +1,646 @@
+---
+/**
+ * Página de Preferencias de Notificaciones - Diseño Moderno
+ * Permite al usuario configurar qué notificaciones recibir por email
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Preferencias de Notificaciones | Egresados IES" hideAccederButton={true}>
+    <div class="preferencias-page">
+        <div class="preferencias-container">
+            <!-- Header con gradiente -->
+            <div class="preferencias-header">
+                <div class="preferencias-header-content">
+                    <a href="javascript:history.back()" class="btn-back">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                    </a>
+                    <div>
+                        <h1>Configuración de Notificaciones</h1>
+                        <p>Personaliza cómo quieres recibir tus notificaciones</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenido -->
+            <div class="preferencias-content">
+                <!-- Alert informativo -->
+                <div class="alert-info">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="16" x2="12" y2="12"/>
+                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                    </svg>
+                    <div>
+                        <strong>Sobre las notificaciones</strong>
+                        <p>Siempre verás las notificaciones en la plataforma. Aquí puedes elegir si también quieres recibirlas por correo electrónico.</p>
+                    </div>
+                </div>
+
+                <!-- Loading -->
+                <div id="preferencias-loading" class="loading-container">
+                    <div class="loading-spinner"></div>
+                    <p>Cargando preferencias...</p>
+                </div>
+
+                <!-- Formulario -->
+                <form id="form-preferencias" style="display: none;">
+                    <div class="preferencias-section">
+                        <h2 class="section-title">Notificaciones por Email</h2>
+                        
+                        <div class="preferencias-grid">
+                            <!-- Comentarios -->
+                            <div class="preferencia-card">
+                                <div class="preferencia-icon blue">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                                    </svg>
+                                </div>
+                                <div class="preferencia-info">
+                                    <h3>Comentarios</h3>
+                                    <p>Cuando alguien comente en tus publicaciones</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="email_comentarios" />
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+
+                            <!-- Likes -->
+                            <div class="preferencia-card">
+                                <div class="preferencia-icon pink">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                    </svg>
+                                </div>
+                                <div class="preferencia-info">
+                                    <h3>Me gusta</h3>
+                                    <p>Cuando alguien reaccione a tus publicaciones</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="email_likes" />
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+
+                            <!-- Menciones -->
+                            <div class="preferencia-card">
+                                <div class="preferencia-icon orange">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                                    </svg>
+                                </div>
+                                <div class="preferencia-info">
+                                    <h3>Menciones</h3>
+                                    <p>Cuando alguien te mencione en un comentario</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="email_menciones" />
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botón guardar -->
+                    <div class="preferencias-actions">
+                        <button type="submit" class="btn-save">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            Guardar cambios
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Mensaje de éxito -->
+                <div id="mensaje-exito" class="mensaje-toast success" style="display: none;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    ¡Preferencias guardadas correctamente!
+                </div>
+
+                <!-- Mensaje de error -->
+                <div id="mensaje-error" class="mensaje-toast error" style="display: none;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="15" y1="9" x2="9" y2="15"/>
+                        <line x1="9" y1="9" x2="15" y2="15"/>
+                    </svg>
+                    Error al guardar las preferencias
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .preferencias-page {
+            min-height: 100vh;
+            background-image: url('/images/imgen_de_fondo.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            padding: 2rem 1rem;
+            position: relative;
+        }
+
+        .preferencias-page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(2px);
+            z-index: 0;
+        }
+
+        .preferencias-container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .preferencias-header {
+            background-image: url('/images/Fondo%20Azul%20card.jpg');
+            background-size: cover;
+            background-position: center;
+            border-radius: 20px 20px 0 0;
+            padding: 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .preferencias-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.1);
+            z-index: 0;
+        }
+
+        .preferencias-header-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #ffffff;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-2px);
+        }
+
+        .preferencias-header h1 {
+            font-size: 1.75rem;
+            color: #ffffff;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .preferencias-header p {
+            color: #e8eaed;
+            font-size: 0.95rem;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Contenido */
+        .preferencias-content {
+            background: white;
+            border-radius: 0 0 20px 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Alert info */
+        .alert-info {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            background: linear-gradient(135deg, #e3f2fd 0%, #e8eaf6 100%);
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 2rem;
+        }
+
+        .alert-info svg {
+            color: #667eea;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .alert-info strong {
+            display: block;
+            color: #1c1e21;
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .alert-info p {
+            color: #65676b;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        /* Loading */
+        .loading-container {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #f0f2f5;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-container p {
+            color: #65676b;
+            font-size: 0.95rem;
+        }
+
+        /* Sección */
+        .preferencias-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            color: #1c1e21;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Grid de preferencias */
+        .preferencias-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        /* Card de preferencia */
+        .preferencia-card {
+            background: #f9fafb;
+            border: 2px solid #e4e6eb;
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            transition: all 0.2s;
+        }
+
+        .preferencia-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+
+        .preferencia-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .preferencia-icon.blue {
+            background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
+            color: white;
+        }
+
+        .preferencia-icon.pink {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+        }
+
+        .preferencia-icon.orange {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+
+        .preferencia-icon.purple {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .preferencia-info {
+            flex: 1;
+        }
+
+        .preferencia-info h3 {
+            font-size: 1rem;
+            color: #1c1e21;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .preferencia-info p {
+            font-size: 0.875rem;
+            color: #65676b;
+            line-height: 1.4;
+        }
+
+        /* Toggle switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 28px;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            border-radius: 28px;
+            transition: all 0.3s;
+        }
+
+        .toggle-slider:before {
+            content: "";
+            position: absolute;
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        /* Acciones */
+        .preferencias-actions {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e4e6eb;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.875rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-save:active {
+            transform: translateY(0);
+        }
+
+        /* Mensajes toast */
+        .mensaje-toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            animation: slideInUp 0.3s ease-out;
+            z-index: 10000;
+        }
+
+        .mensaje-toast.success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .mensaje-toast.error {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .preferencias-page {
+                padding: 1rem 0.5rem;
+            }
+
+            .preferencias-header {
+                border-radius: 16px 16px 0 0;
+                padding: 1.5rem;
+            }
+
+            .preferencias-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .preferencias-content {
+                padding: 1.5rem;
+            }
+
+            .preferencias-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .preferencias-actions {
+                flex-direction: column;
+            }
+
+            .btn-save {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .mensaje-toast {
+                bottom: 1rem;
+                right: 1rem;
+                left: 1rem;
+            }
+        }
+    </style>
+
+    <script is:inline>
+        const API_URL = 'http://localhost:3000/api';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const loading = document.getElementById('preferencias-loading');
+            const form = document.getElementById('form-preferencias');
+            const mensajeExito = document.getElementById('mensaje-exito');
+            const mensajeError = document.getElementById('mensaje-error');
+
+            // Cargar preferencias
+            await cargarPreferencias();
+
+            async function cargarPreferencias() {
+                try {
+                    const token = localStorage.getItem('auth_token');
+                    if (!token) {
+                        window.location.href = '/acceso';
+                        return;
+                    }
+
+                    const response = await fetch(`${API_URL}/notificaciones/preferencias`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Error al cargar preferencias');
+                    }
+
+                    const preferencias = await response.json();
+
+                    // Llenar formulario con los nombres correctos del backend
+                    document.querySelector('input[name="email_comentarios"]').checked = Boolean(preferencias.email_comentarios);
+                    document.querySelector('input[name="email_likes"]').checked = Boolean(preferencias.email_likes);
+                    document.querySelector('input[name="email_menciones"]').checked = Boolean(preferencias.email_menciones);
+
+                    loading.style.display = 'none';
+                    form.style.display = 'block';
+                } catch (error) {
+                    console.error('Error al cargar preferencias:', error);
+                    loading.innerHTML = `
+                        <div style="color: #ef4444; text-align: center;">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin: 0 auto 1rem;">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="15" y1="9" x2="9" y2="15"/>
+                                <line x1="9" y1="9" x2="15" y2="15"/>
+                            </svg>
+                            <p style="font-weight: 600; margin-bottom: 0.5rem;">Error al cargar las preferencias</p>
+                            <p style="font-size: 0.875rem; color: #65676b;">Por favor, intenta de nuevo más tarde</p>
+                        </div>
+                    `;
+                }
+            }
+
+            // Guardar preferencias
+            form?.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                try {
+                    const formData = new FormData(form);
+                    const preferencias = {
+                        email_comentarios: formData.get('email_comentarios') === 'on',
+                        email_likes: formData.get('email_likes') === 'on',
+                        email_menciones: formData.get('email_menciones') === 'on'
+                    };
+
+                    const token = localStorage.getItem('auth_token');
+
+                    const response = await fetch(`${API_URL}/notificaciones/preferencias`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(preferencias)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Error al guardar');
+                    }
+
+                    // Mostrar mensaje de éxito
+                    mensajeExito.style.display = 'flex';
+                    setTimeout(() => {
+                        mensajeExito.style.display = 'none';
+                    }, 3000);
+
+                } catch (error) {
+                    console.error('Error al guardar preferencias:', error);
+                    mensajeError.style.display = 'flex';
+                    setTimeout(() => {
+                        mensajeError.style.display = 'none';
+                    }, 3000);
+                }
+            });
+        });
+    </script>
+</BaseLayout>

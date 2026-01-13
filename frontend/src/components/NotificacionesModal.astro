@@ -1,0 +1,125 @@
+---
+/**
+ * Modal de Notificaciones
+ * Modal con header azul y lista de notificaciones
+ */
+import NotificacionesList from './NotificacionesList.astro';
+import '../styles/notificaciones.css';
+---
+
+<!-- Modal overlay -->
+<div class="notificaciones-modal-overlay" id="notificaciones-modal-overlay">
+    <div class="notificaciones-modal">
+        <!-- Header con fondo azul -->
+        <div class="notificaciones-modal-header">
+            <div class="notificaciones-modal-header-content">
+                <h2>Notificaciones</h2>
+                <div class="notificaciones-modal-header-buttons">
+                    <a href="/notificaciones/preferencias" class="btn-settings-modal" title="Configuración">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/>
+                            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+                        </svg>
+                    </a>
+                    <button class="btn-close-modal" id="btn-close-modal" title="Cerrar">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="notificaciones-modal-actions">
+                <button class="btn-modal-action" id="btn-modal-marcar-todas">
+                    Marcar todas leídas
+                </button>
+                <button class="btn-modal-action" id="btn-modal-limpiar">
+                    Limpiar leídas
+                </button>
+            </div>
+        </div>
+
+        <!-- Contenido con lista de notificaciones -->
+        <div class="notificaciones-modal-content">
+            <NotificacionesList limit={5} showFilters={true} />
+        </div>
+    </div>
+</div>
+
+<script is:inline>
+    document.addEventListener('DOMContentLoaded', () => {
+        const API_URL = 'http://localhost:3000/api';
+        const overlay = document.getElementById('notificaciones-modal-overlay');
+        const btnClose = document.getElementById('btn-close-modal');
+        const btnMarcarTodas = document.getElementById('btn-modal-marcar-todas');
+        const btnLimpiar = document.getElementById('btn-modal-limpiar');
+
+        // Cerrar modal
+        btnClose?.addEventListener('click', () => {
+            overlay?.classList.remove('show');
+        });
+
+        // Cerrar al hacer click fuera del modal
+        overlay?.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.classList.remove('show');
+            }
+        });
+
+        // Cerrar con tecla Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && overlay?.classList.contains('show')) {
+                overlay.classList.remove('show');
+            }
+        });
+
+        // Marcar todas como leídas
+        btnMarcarTodas?.addEventListener('click', async () => {
+            try {
+                const token = localStorage.getItem('auth_token');
+                if (!token) return;
+
+                const response = await fetch(`${API_URL}/notificaciones/leer-todas`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    // Recargar notificaciones
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Error al marcar todas como leídas:', error);
+            }
+        });
+
+        // Limpiar notificaciones leídas
+        btnLimpiar?.addEventListener('click', async () => {
+            if (!confirm('¿Estás seguro de que deseas eliminar todas las notificaciones leídas?')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('auth_token');
+                if (!token) return;
+
+                const response = await fetch(`${API_URL}/notificaciones/limpiar-leidas`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    // Recargar notificaciones
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Error al limpiar notificaciones:', error);
+            }
+        });
+    });
+</script>
