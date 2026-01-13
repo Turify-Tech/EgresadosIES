@@ -1,0 +1,774 @@
+/* ==========================================
+   ESTILOS DE NOTIFICACIONES - DISEÑO SIMPLE
+   ========================================== */
+
+/* Contenedor principal de notificaciones */
+.notificaciones-page {
+    min-height: 100vh;
+    background: #f5f5f5;
+    padding: var(--spacing-lg) 0;
+}
+
+.notificaciones-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+}
+
+.notificaciones-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--color-gray-200);
+}
+
+.notificaciones-header h1 {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+.notificaciones-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.btn-secondary {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid #d1d5db;
+    background-color: #ffffff;
+    color: #374151;
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    text-decoration: none;
+}
+
+.btn-secondary:hover {
+    background-color: #f3f4f6;
+    border-color: #9ca3af;
+    color: #1f2937;
+}
+
+.btn-danger {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: none;
+    background-color: var(--color-error);
+    color: var(--color-white);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.btn-danger:hover {
+    background-color: #dc2626;
+}
+
+/* Filtros simplificados */
+.notificaciones-filtros {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+    overflow-x: auto;
+    padding-bottom: var(--spacing-sm);
+}
+
+.filtro-btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid #e5e7eb;
+    background-color: #ffffff;
+    color: #374151;
+    border-radius: var(--radius-xl);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    white-space: nowrap;
+}
+
+.filtro-btn.active {
+    background-color: #1f2937;
+    color: #ffffff;
+    border-color: #1f2937;
+}
+
+.filtro-btn:hover:not(.active) {
+    background-color: #f9fafb;
+}
+
+/* Lista de notificaciones - estilo Instagram */
+.notificaciones-lista {
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: var(--radius-lg);
+}
+
+.notificacion-item {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--color-gray-100);
+    transition: var(--transition-fast);
+    cursor: pointer;
+    position: relative;
+}
+
+.notificacion-item:last-child {
+    border-bottom: none;
+}
+
+.notificacion-item.no-leida {
+    background-color: #eff6ff;
+}
+
+.notificacion-item:hover {
+    background-color: #f9fafb;
+}
+
+/* Avatar/Icono simplificado */
+.notificacion-icono {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin-right: var(--spacing-md);
+    background-color: var(--color-gray-100);
+    color: var(--color-gray-600);
+}
+
+.notificacion-icono.comentario {
+    background-color: #dbeafe;
+    color: var(--color-primary);
+}
+
+.notificacion-icono.like {
+    background-color: #fee2e2;
+    color: var(--color-error);
+}
+
+.notificacion-icono.mencion {
+    background-color: #fef3c7;
+    color: var(--color-warning);
+}
+
+.notificacion-icono.comentario {
+    background-color: #dbeafe;
+    color: var(--color-primary);
+}
+
+.notificacion-icono.like {
+    background-color: #fee2e2;
+    color: var(--color-error);
+}
+
+.notificacion-icono.mencion {
+    background-color: #fef3c7;
+    color: var(--color-warning);
+}
+
+/* Contenido de la notificación */
+.notificacion-contenido {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Avatar y nombre del usuario - estilo Instagram */
+.notificacion-autor {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+}
+
+.notificacion-avatar-wrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.notificacion-avatar {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-gray-200);
+    color: var(--color-gray-600);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    overflow: hidden;
+}
+
+.notificacion-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Badge de tipo de notificación - estilo Facebook */
+.notificacion-badge {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    border: 2px solid #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.notificacion-badge.comentario {
+    background-color: #3b82f6;
+}
+
+.notificacion-badge.like {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+}
+
+.notificacion-badge.mencion {
+    background-color: #f59e0b;
+}
+
+.notificacion-nombre {
+    font-weight: 600;
+    color: #1f2937;
+    font-size: var(--font-size-sm);
+}
+
+.notificacion-titulo {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+}
+
+.notificacion-mensaje {
+    color: #374151;
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-xs);
+    line-height: 1.5;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.notificacion-fecha {
+    font-size: var(--font-size-xs);
+    color: #6b7280;
+}
+
+/* Acciones simplificadas */
+.notificacion-acciones {
+    display: flex;
+    gap: var(--spacing-xs);
+    margin-left: var(--spacing-sm);
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background-color: transparent;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-500);
+}
+
+.btn-icon:hover {
+    background-color: var(--color-gray-100);
+    color: var(--color-gray-700);
+}
+
+.btn-icon.eliminar:hover {
+    background-color: #fee2e2;
+    color: var(--color-error);
+}
+
+/* Badge de contador */
+.notificaciones-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #dc3545;
+    color: #fff;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* Indicador de notificaciones en el navbar */
+.notificaciones-indicator {
+    position: relative;
+    display: inline-block;
+}
+
+.notificaciones-indicator .badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: #dc3545;
+    color: #fff;
+    border-radius: 50%;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 0 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Dropdown de notificaciones en el navbar */
+.notificaciones-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 360px;
+    max-height: 500px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    margin-top: 10px;
+    overflow: hidden;
+    z-index: 1000;
+    display: none;
+}
+
+.notificaciones-dropdown.show {
+    display: block;
+}
+
+.notificaciones-dropdown-header {
+    padding: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.notificaciones-dropdown-body {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notificaciones-dropdown-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notificaciones-dropdown-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.notificaciones-dropdown-body::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.notificaciones-dropdown-body::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.notificacion-dropdown-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.notificacion-dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+
+.notificacion-dropdown-item.no-leida {
+    background-color: #f0f4ff;
+}
+
+.notificaciones-dropdown-footer {
+    padding: 10px 15px;
+    text-align: center;
+    border-top: 1px solid #e0e0e0;
+}
+
+.notificaciones-dropdown-footer a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.notificaciones-dropdown-footer a:hover {
+    text-decoration: underline;
+}
+
+
+/* Estado vacío - estilo simple */
+.notificaciones-empty {
+    text-align: center;
+    padding: var(--spacing-2xl) var(--spacing-md);
+    color: #6b7280;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: var(--radius-lg);
+}
+
+.notificaciones-empty-icon {
+    font-size: 48px;
+    color: #d1d5db;
+    margin-bottom: var(--spacing-md);
+}
+
+.notificaciones-empty h3 {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+    color: #1f2937;
+}
+
+.notificaciones-empty p {
+    font-size: var(--font-size-sm);
+    color: #6b7280;
+}
+
+/* Loading skeleton simplificado */
+.notificaciones-skeleton {
+    display: flex;
+    flex-direction: column;
+}
+
+.skeleton-item {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--color-gray-100);
+}
+
+.skeleton-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(90deg, var(--color-gray-200) 25%, var(--color-gray-100) 50%, var(--color-gray-200) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    margin-right: var(--spacing-md);
+}
+
+.skeleton-content {
+    flex: 1;
+}
+
+.skeleton-line {
+    height: 12px;
+    background: linear-gradient(90deg, var(--color-gray-200) 25%, var(--color-gray-100) 50%, var(--color-gray-200) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.skeleton-line.title {
+    width: 70%;
+    height: 14px;
+}
+
+.skeleton-line.text {
+    width: 90%;
+}
+
+.skeleton-line.date {
+    width: 40%;
+    height: 10px;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Botón "Cargar más" - estilo Instagram */
+.notificaciones-load-more {
+    display: flex;
+    justify-content: center;
+    padding: var(--spacing-lg) 0;
+    margin-top: var(--spacing-md);
+}
+
+.btn-load-more {
+    padding: var(--spacing-sm) var(--spacing-xl);
+    border: 1px solid #e5e7eb;
+    background-color: #ffffff;
+    color: #1f2937;
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    min-width: 120px;
+}
+
+.btn-load-more:hover:not(:disabled) {
+    background-color: #f9fafb;
+    border-color: #9ca3af;
+}
+
+.btn-load-more:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #f3f4f6;
+}
+
+/* ==========================================
+   ESTILOS DEL MODAL DE NOTIFICACIONES
+   ========================================== */
+
+/* Overlay del modal */
+.notificaciones-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    padding: 1rem;
+}
+
+.notificaciones-modal-overlay.show {
+    display: flex;
+}
+
+/* Modal container */
+.notificaciones-modal {
+    background-color: #ffffff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+/* Header con fondo azul */
+.notificaciones-modal-header {
+    background-image: url('/images/Fondo%20Azul%20card.jpg');
+    background-size: cover;
+    background-position: center;
+    color: #ffffff;
+    padding: 1.5rem;
+}
+
+.notificaciones-modal-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.notificaciones-modal-header-buttons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.notificaciones-modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.btn-settings-modal {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: #ffffff;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    text-decoration: none;
+}
+
+.btn-settings-modal:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.btn-close-modal {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: #ffffff;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.btn-close-modal:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Botones de acción en el header */
+.notificaciones-modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.btn-modal-action {
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    backdrop-filter: blur(10px);
+}
+
+.btn-modal-action:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Contenido del modal */
+.notificaciones-modal-content {
+    flex: 1;
+    overflow-y: auto;
+    background-image: url('/images/imgen_de_fondo.jpg');
+    background-size: cover;
+    background-position: center;
+    padding: 1rem;
+}
+
+/* Responsive - Modal */
+@media (max-width: 768px) {
+    .notificaciones-modal {
+        max-width: 100%;
+        max-height: 100vh;
+        border-radius: 0;
+    }
+
+    .notificaciones-modal-header {
+        padding: 1rem;
+    }
+
+    .notificaciones-modal-header h2 {
+        font-size: 1.25rem;
+    }
+
+    .notificaciones-modal-actions {
+        flex-direction: column;
+    }
+
+    .btn-modal-action {
+        width: 100%;
+    }
+}
+
+/* Responsive - General */
+@media (max-width: 768px) {
+    .notificaciones-container {
+        padding: 0 var(--spacing-sm);
+    }
+
+    .notificaciones-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-md);
+    }
+
+    .notificaciones-header h1 {
+        font-size: var(--font-size-xl);
+    }
+
+    .notificaciones-actions {
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .notificaciones-actions button,
+    .notificaciones-actions a {
+        flex: 1;
+        min-width: fit-content;
+    }
+
+    .notificacion-item {
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+
+    .notificacion-icono {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+
+    .notificacion-mensaje {
+        -webkit-line-clamp: 3;
+    }
+}
+
+@media (max-width: 480px) {
+    .notificaciones-actions {
+        flex-direction: column;
+    }
+
+    .notificaciones-actions button,
+    .notificaciones-actions a {
+        width: 100%;
+    }
+
+    .pagination-btn {
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: var(--font-size-xs);
+    }
+}

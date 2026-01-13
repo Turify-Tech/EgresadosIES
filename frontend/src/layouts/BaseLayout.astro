@@ -14,6 +14,7 @@ const {
 // Importar estilos CSS
 import "../styles/global.css";
 import "../styles/components.css";
+import NotificacionesModal from "../components/NotificacionesModal.astro";
 ---
 
 <!doctype html>
@@ -133,6 +134,23 @@ import "../styles/components.css";
                         />
                         <span style="font-size: 0.85rem;">Admin</span>
                     </a>
+
+                    <!-- Notificaciones -->
+                    <button
+                        id="notificaciones-btn"
+                        style="color: #374151; text-decoration: none; font-family: 'Inter', sans-serif; font-weight: 500; transition: color 0.2s ease; display: none; flex-direction: column; align-items: center; gap: 0.25rem; position: relative; background: none; border: none; cursor: pointer; padding: 0;"
+                        onmouseover="this.style.color='#3b82f6'"
+                        onmouseout="this.style.color='#374151'">
+                        <div style="position: relative;">
+                            <img
+                                src="/images/notificaciones.png"
+                                alt="Notificaciones"
+                                style="width: 24px; height: 24px; display: block;"
+                            />
+                            <span id="notificaciones-badge" style="display: none; position: absolute; top: -5px; right: -5px; background-color: #dc3545; color: white; border-radius: 50%; min-width: 16px; height: 16px; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></span>
+                        </div>
+                        <span style="font-size: 0.85rem;">Notificaciones</span>
+                    </button>
                     
                     {
                         !hideAccederButton && (
@@ -226,6 +244,9 @@ import "../styles/components.css";
             </div>
         </footer>
 
+        <!-- Modal de Notificaciones -->
+        <NotificacionesModal />
+
         <!-- Scripts -->
         <script>
             document.addEventListener("DOMContentLoaded", () => {
@@ -258,6 +279,14 @@ import "../styles/components.css";
                 // Enlaces de navegación
                 const adminLink = document.getElementById(
                     "admin-link"
+                ) as HTMLElement;
+                
+                const notificacionesBtn = document.getElementById(
+                    "notificaciones-btn"
+                ) as HTMLElement;
+                
+                const notificacionesBadge = document.getElementById(
+                    "notificaciones-badge"
                 ) as HTMLElement;
                 
                 const logoLink = document.getElementById(
@@ -327,12 +356,64 @@ import "../styles/components.css";
                     // Mostrar navegación según el tipo de usuario
                     if (user.tipo_usuario === "Egresado") {
                         if (adminLink) adminLink.style.display = "none";
+                        if (notificacionesBtn) {
+                            notificacionesBtn.style.display = "flex";
+                            // Cargar contador de notificaciones
+                            cargarContadorNotificaciones();
+                            
+                            // Agregar evento click para abrir modal
+                            notificacionesBtn.addEventListener('click', () => {
+                                const modal = document.getElementById("notificaciones-modal-overlay");
+                                if (modal) {
+                                    modal.classList.add('show');
+                                    // Cargar notificaciones cuando se abra el modal
+                                    if (typeof window.cargarNotificacionesModal === 'function') {
+                                        window.cargarNotificacionesModal();
+                                    }
+                                }
+                            });
+                        }
                     } else if (user.tipo_usuario === "Administrador") {
                         if (adminLink) adminLink.style.display = "flex";
+                        if (notificacionesBtn) notificacionesBtn.style.display = "none";
                     }
 
                     // Setup dropdown functionality
                     setupDropdown();
+                }
+
+                // Función para cargar el contador de notificaciones
+                async function cargarContadorNotificaciones() {
+                    try {
+                        const token = localStorage.getItem("auth_token");
+                        if (!token) return;
+
+                        const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/notificaciones/no-leidas/contador`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (notificacionesBadge) {
+                                if (data.noLeidas > 0) {
+                                    notificacionesBadge.textContent = data.noLeidas > 99 ? '99+' : data.noLeidas.toString();
+                                    notificacionesBadge.style.display = 'flex';
+                                } else {
+                                    notificacionesBadge.style.display = 'none';
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error al cargar contador de notificaciones:', error);
+                    }
+                }
+
+                // Actualizar contador cada 30 segundos si el usuario está autenticado
+                if (token) {
+                    setInterval(cargarContadorNotificaciones, 30000);
                 }
 
                 function setupUnauthenticatedUI() {
@@ -359,6 +440,7 @@ import "../styles/components.css";
 
                     // Ocultar navegación autenticada
                     if (adminLink) adminLink.style.display = "none";
+                    if (notificacionesLink) notificacionesLink.style.display = "none";
                 }
 
                 function setupDropdown() {
