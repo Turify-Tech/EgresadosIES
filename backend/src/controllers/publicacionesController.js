@@ -1,4 +1,10 @@
 import database from "../config/database.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Controlador para el sistema de publicaciones sociales
@@ -39,7 +45,7 @@ function convertBigIntToNumber(obj) {
 export async function crearPublicacion(req, res) {
     try {
         const usuarioId = req.user.id;
-        const { contenido, imagenes = [] } = req.body;
+        const { contenido } = req.body;
 
         // Validaciones
         if (!contenido || contenido.trim() === '') {
@@ -66,13 +72,20 @@ export async function crearPublicacion(req, res) {
 
         const publicacionId = insertResult.lastInsertRowid;
 
-        // Insertar imágenes si las hay
-        if (imagenes.length > 0) {
-            for (const imagenUrl of imagenes) {
+        // Procesar imágenes subidas
+        const imagenesUrls = [];
+        if (req.files && req.files.length > 0) {
+            for (const file of req.files) {
+                // Construir URL relativa para acceder a la imagen
+                const imageUrl = `/uploads/publicaciones/${file.filename}`;
+                
+                // Guardar en base de datos
                 await client.execute({
                     sql: `INSERT INTO ImagenPublicacion (url, publicacionId) VALUES (?, ?)`,
-                    args: [imagenUrl, publicacionId]
+                    args: [imageUrl, publicacionId]
                 });
+                
+                imagenesUrls.push(imageUrl);
             }
         }
 
@@ -82,7 +95,7 @@ export async function crearPublicacion(req, res) {
             data: {
                 id: Number(publicacionId),
                 contenido: contenido.trim(),
-                imagenes
+                imagenes: imagenesUrls
             }
         });
 
@@ -460,11 +473,40 @@ export async function eliminarPublicacion(req, res) {
             });
         }
 
+        // Obtener URLs de las imágenes antes de eliminar
+        const imagenesQuery = `SELECT url FROM ImagenPublicacion WHERE publicacionId = ?`;
+        const imagenesResult = await client.execute({
+            sql: imagenesQuery,
+            args: [publicacionId]
+        });
+
         // Eliminar publicación (las imágenes, comentarios y likes se eliminan por CASCADE)
         await client.execute({
             sql: `DELETE FROM Publicacion WHERE id = ?`,
             args: [publicacionId]
         });
+
+        // Eliminar archivos físicos de las imágenes
+        if (imagenesResult.rows.length > 0) {
+            imagenesResult.rows.forEach(row => {
+                try {
+                    // Convertir URL relativa a ruta absoluta
+                    // URL: /uploads/publicaciones/imagen.jpg
+                    // Ruta: backend/uploads/publicaciones/imagen.jpg
+                    const relativePath = row.url.replace(/^\//, ''); // Quitar el / inicial
+                    const filePath = path.join(__dirname, '../../', relativePath);
+                    
+                    // Verificar si el archivo existe antes de eliminarlo
+                    if (fs.existsSync(filePath)) {
+                        fs.unlinkSync(filePath);
+                        console.log(`Archivo eliminado: ${filePath}`);
+                    }
+                } catch (fileError) {
+                    console.error(`Error eliminando archivo ${row.url}:`, fileError);
+                    // No lanzamos el error para que no falle la eliminación de la publicación
+                }
+            });
+        }
 
         res.status(200).json({
             success: true,

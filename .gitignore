@@ -147,3 +147,10 @@ settings.json
 # Package lock files (generated automatically)
 package-lock.json
 **/package-lock.json
+
+# Uploads - archivos de usuario (imágenes, documentos, etc.)
+backend/uploads/publicaciones/*
+backend/uploads/profiles/*
+# Mantener las carpetas pero no su contenido
+!backend/uploads/publicaciones/.gitkeep
+!backend/uploads/profiles/.gitkeep

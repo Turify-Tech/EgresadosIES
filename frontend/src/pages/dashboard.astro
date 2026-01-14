@@ -2,6 +2,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ComentariosModal from "../components/ComentariosModal.astro";
 import "../styles/dashboard.css";
+import "../styles/publicaciones-imagenes.css";
 ---
 
 <BaseLayout title="Dashboard | Feed" hideAccederButton={true}>
@@ -184,6 +185,34 @@ import "../styles/dashboard.css";
         </div>
     </div>
 
+    <!-- Modal de visor de imágenes -->
+    <div id="imagen-modal" class="imagen-modal">
+        <button class="btn-cerrar" id="cerrar-modal-imagen" aria-label="Cerrar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+        
+        <button class="btn-nav btn-prev" id="btn-imagen-prev" aria-label="Anterior">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
+        
+        <div class="imagen-modal-content">
+            <img id="modal-imagen" src="" alt="Imagen en vista completa" />
+        </div>
+        
+        <button class="btn-nav btn-next" id="btn-imagen-next" aria-label="Siguiente">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </button>
+        
+        <div class="contador-imagenes" id="contador-imagenes">1 / 1</div>
+    </div>
+
     <script>
         const API_URL = 'http://localhost:3000/api';
         let currentPage = 1;
@@ -192,6 +221,11 @@ import "../styles/dashboard.css";
         let currentUser = null;
         let currentPublicacionId = null;
         let currentComentariosPage = 1;
+        let selectedImages = [];
+        
+        // Variables para el modal de imágenes
+        let modalImagenes = [];
+        let modalImagenIndex = 0;
 
         // Obtener datos del usuario autenticado
         function getUserData() {
@@ -246,11 +280,32 @@ import "../styles/dashboard.css";
                 </div>
             ` : '';
 
-            const imagenesHTML = imagenes && imagenes.length > 0 ? `
-                <div class="post-images">
-                    ${imagenes.map(img => `<img src="${img}" alt="Imagen de publicación" />`).join('')}
-                </div>
-            ` : '';
+            // Renderizar imágenes con el nuevo sistema de galería
+            let imagenesHTML = '';
+            if (imagenes && imagenes.length > 0) {
+                const numImagenes = Math.min(imagenes.length, 5);
+                const imagenesJSON = JSON.stringify(imagenes.map(img => 
+                    img.startsWith('http') ? img : `http://localhost:3000${img}`
+                )).replace(/"/g, '&quot;');
+                
+                imagenesHTML = `<div class="publicacion-imagenes imagenes-${numImagenes}" data-imagenes='${imagenesJSON}'>`;
+                
+                // Mostrar hasta 4 imágenes (si hay 5, solo mostramos 4 con +1 en la última)
+                const maxDisplay = imagenes.length === 5 ? 4 : Math.min(4, imagenes.length);
+                
+                for (let i = 0; i < maxDisplay; i++) {
+                    const imgUrl = imagenes[i].startsWith('http') ? imagenes[i] : `http://localhost:3000${imagenes[i]}`;
+                    // Agregar clase especial a la última imagen si hay 5 en total
+                    const extraClass = (imagenes.length === 5 && i === 3) ? ' imagen-con-indicador' : '';
+                    imagenesHTML += `
+                        <div class="imagen-container${extraClass}" data-imagen-index="${i}">
+                            <img src="${imgUrl}" alt="Imagen ${i + 1}" loading="lazy" />
+                        </div>
+                    `;
+                }
+                
+                imagenesHTML += '</div>';
+            }
             
             // Avatar con foto de perfil si existe
             const fotoUrl = autor.urlFotoPerfil 
@@ -421,7 +476,7 @@ import "../styles/dashboard.css";
         }
 
         // Función para crear nueva publicación
-        async function crearPublicacion(contenido, imagenes = []) {
+        async function crearPublicacion(contenido, imageFiles = []) {
             const token = getAuthToken();
             if (!token) {
                 window.location.href = '/acceso';
@@ -429,13 +484,22 @@ import "../styles/dashboard.css";
             }
 
             try {
+                // Usar FormData para enviar archivos
+                const formData = new FormData();
+                formData.append('contenido', contenido);
+                
+                // Agregar archivos de imagen
+                imageFiles.forEach(file => {
+                    formData.append('imagenes', file);
+                });
+
                 const response = await fetch(`${API_URL}/publicaciones`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
+                        // NO enviar Content-Type, el navegador lo configura automáticamente con el boundary
                     },
-                    body: JSON.stringify({ contenido, imagenes })
+                    body: formData
                 });
 
                 if (response.status === 401) {
@@ -450,9 +514,15 @@ import "../styles/dashboard.css";
                     currentPage = 1;
                     await cargarPublicaciones(1);
                     
-                    // Limpiar el formulario
-                    document.getElementById('post-content').value = '';
-                    document.getElementById('image-preview').innerHTML = '';
+                    // Limpiar el formulario completamente
+                    const postContent = document.getElementById('post-content');
+                    const imagePreview = document.getElementById('image-preview');
+                    const postImagesInput = document.getElementById('post-images');
+                    
+                    if (postContent) postContent.value = '';
+                    if (imagePreview) imagePreview.innerHTML = '';
+                    if (postImagesInput) postImagesInput.value = ''; // Limpiar el input de archivos
+                    selectedImages = []; // Limpiar el array de imágenes
                     
                     showNotification('Publicación creada exitosamente', 'success');
                 } else {
@@ -462,6 +532,66 @@ import "../styles/dashboard.css";
                 console.error('Error creando publicación:', error);
                 showNotification('Error al crear la publicación', 'error');
             }
+        }
+
+        // ========================================
+        // Funciones para el modal de imágenes
+        // ========================================
+        
+        function abrirModalImagen(imagenes, index) {
+            modalImagenes = imagenes;
+            modalImagenIndex = index;
+            
+            const modal = document.getElementById('imagen-modal');
+            const modalImg = document.getElementById('modal-imagen');
+            const contador = document.getElementById('contador-imagenes');
+            const btnPrev = document.getElementById('btn-imagen-prev');
+            const btnNext = document.getElementById('btn-imagen-next');
+            
+            if (modal && modalImg) {
+                modal.classList.add('active');
+                actualizarImagenModal();
+                document.body.style.overflow = 'hidden'; // Prevenir scroll del body
+                
+                // Actualizar estado de botones de navegación
+                if (btnPrev) btnPrev.disabled = modalImagenes.length <= 1;
+                if (btnNext) btnNext.disabled = modalImagenes.length <= 1;
+            }
+        }
+        
+        function cerrarModalImagen() {
+            const modal = document.getElementById('imagen-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = ''; // Restaurar scroll
+                modalImagenes = [];
+                modalImagenIndex = 0;
+            }
+        }
+        
+        function actualizarImagenModal() {
+            const modalImg = document.getElementById('modal-imagen');
+            const contador = document.getElementById('contador-imagenes');
+            
+            if (modalImg && modalImagenes.length > 0) {
+                modalImg.src = modalImagenes[modalImagenIndex];
+                
+                if (contador) {
+                    contador.textContent = `${modalImagenIndex + 1} / ${modalImagenes.length}`;
+                }
+            }
+        }
+        
+        function navegarImagenModal(direccion) {
+            if (modalImagenes.length <= 1) return;
+            
+            if (direccion === 'prev') {
+                modalImagenIndex = (modalImagenIndex - 1 + modalImagenes.length) % modalImagenes.length;
+            } else if (direccion === 'next') {
+                modalImagenIndex = (modalImagenIndex + 1) % modalImagenes.length;
+            }
+            
+            actualizarImagenModal();
         }
 
         // Función para eliminar publicación
@@ -983,7 +1113,7 @@ import "../styles/dashboard.css";
                         submitBtn.textContent = 'Publicando...';
                     }
 
-                    await crearPublicacion(contenido);
+                    await crearPublicacion(contenido, selectedImages);
 
                     if (submitBtn) {
                         submitBtn.disabled = false;
@@ -992,11 +1122,75 @@ import "../styles/dashboard.css";
                 });
             }
 
-            // Preview de imágenes (funcionalidad futura)
+            // Manejo de selección de imágenes
             const postImages = document.getElementById('post-images');
-            if (postImages) {
+            const imagePreview = document.getElementById('image-preview');
+            
+            if (postImages && imagePreview) {
                 postImages.addEventListener('change', (e) => {
-                    showNotification('La subida de imágenes estará disponible próximamente', 'info');
+                    const files = Array.from(e.target.files);
+                    const maxFiles = 5;
+                    const maxSize = 5 * 1024 * 1024; // 5MB
+
+                    // Validar cantidad
+                    if (selectedImages.length + files.length > maxFiles) {
+                        showNotification(`Máximo ${maxFiles} imágenes permitidas`, 'error');
+                        return;
+                    }
+
+                    // Procesar cada archivo
+                    files.forEach(file => {
+                        if (file.size > maxSize) {
+                            showNotification(`${file.name} es demasiado grande. Máximo 5MB`, 'error');
+                            return;
+                        }
+
+                        if (!file.type.startsWith('image/')) {
+                            showNotification(`${file.name} no es una imagen válida`, 'error');
+                            return;
+                        }
+
+                        selectedImages.push(file);
+                    });
+
+                    // Mostrar preview
+                    renderImagePreview();
+                    
+                    // Limpiar input
+                    e.target.value = '';
+                });
+            }
+
+            function renderImagePreview() {
+                if (!imagePreview) return;
+                
+                imagePreview.innerHTML = '';
+                
+                selectedImages.forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const div = document.createElement('div');
+                        div.className = 'preview-item';
+                        div.innerHTML = `
+                            <img src="${e.target.result}" alt="Preview ${index + 1}">
+                            <button type="button" class="remove-image" data-index="${index}">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        `;
+                        imagePreview.appendChild(div);
+                        
+                        // Agregar evento de eliminar
+                        const removeBtn = div.querySelector('.remove-image');
+                        removeBtn.addEventListener('click', () => {
+                            const idx = parseInt(removeBtn.getAttribute('data-index'));
+                            selectedImages.splice(idx, 1);
+                            renderImagePreview();
+                        });
+                    };
+                    reader.readAsDataURL(file);
                 });
             }
 
@@ -1171,6 +1365,75 @@ import "../styles/dashboard.css";
                     const comentarioId = parseInt(target.getAttribute('data-comentario-id') || '0');
                     if (comentarioId) {
                         eliminarComentario(comentarioId);
+                    }
+                }
+            });
+
+            // ========================================
+            // Event listeners para el modal de imágenes
+            // ========================================
+            
+            // Cerrar modal
+            const cerrarModalBtn = document.getElementById('cerrar-modal-imagen');
+            if (cerrarModalBtn) {
+                cerrarModalBtn.addEventListener('click', cerrarModalImagen);
+            }
+            
+            // Navegación
+            const btnPrev = document.getElementById('btn-imagen-prev');
+            const btnNext = document.getElementById('btn-imagen-next');
+            
+            if (btnPrev) {
+                btnPrev.addEventListener('click', () => navegarImagenModal('prev'));
+            }
+            
+            if (btnNext) {
+                btnNext.addEventListener('click', () => navegarImagenModal('next'));
+            }
+            
+            // Cerrar con click en el fondo
+            const modal = document.getElementById('imagen-modal');
+            if (modal) {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        cerrarModalImagen();
+                    }
+                });
+            }
+            
+            // Cerrar con tecla ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modal && modal.classList.contains('active')) {
+                    cerrarModalImagen();
+                }
+            });
+            
+            // Navegar con flechas del teclado
+            document.addEventListener('keydown', (e) => {
+                if (modal && modal.classList.contains('active')) {
+                    if (e.key === 'ArrowLeft') {
+                        navegarImagenModal('prev');
+                    } else if (e.key === 'ArrowRight') {
+                        navegarImagenModal('next');
+                    }
+                }
+            });
+            
+            // Event delegation para clicks en imágenes de publicaciones
+            document.addEventListener('click', (e) => {
+                const imagenContainer = e.target.closest('.imagen-container');
+                if (imagenContainer && imagenContainer.closest('.publicacion-imagenes')) {
+                    const galeriaElement = imagenContainer.closest('.publicacion-imagenes');
+                    const imagenesData = galeriaElement.getAttribute('data-imagenes');
+                    const imagenIndex = parseInt(imagenContainer.getAttribute('data-imagen-index') || '0');
+                    
+                    if (imagenesData) {
+                        try {
+                            const imagenes = JSON.parse(imagenesData.replace(/&quot;/g, '"'));
+                            abrirModalImagen(imagenes, imagenIndex);
+                        } catch (error) {
+                            console.error('Error al parsear las imágenes:', error);
+                        }
                     }
                 }
             });
