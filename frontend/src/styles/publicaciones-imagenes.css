@@ -1,0 +1,441 @@
+/* ============================================
+   Estilos para CrearPublicacion.astro
+   ============================================ */
+
+/* Contenedor de imágenes preview */
+.imagenes-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.preview-item {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: 1;
+    background: #f3f4f6;
+    border: 2px solid #e5e7eb;
+}
+
+.preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.btn-eliminar-preview {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.btn-eliminar-preview:hover {
+    background: rgba(220, 38, 38, 1);
+    transform: scale(1.1);
+}
+
+.btn-eliminar-preview svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Botón de agregar imágenes */
+.left-actions {
+    display: flex;
+    align-items: center;
+}
+
+.btn-imagen {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-imagen:hover {
+    background: #e5e7eb;
+    border-color: #9ca3af;
+}
+
+.btn-imagen svg {
+    flex-shrink: 0;
+}
+
+.btn-imagen span {
+    white-space: nowrap;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .imagenes-preview {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 0.5rem;
+    }
+
+    .btn-imagen span {
+        display: none;
+    }
+
+    .btn-imagen {
+        padding: 0.5rem;
+        width: 40px;
+        height: 40px;
+        justify-content: center;
+    }
+}
+
+/* ============================================
+   Estilos para PublicacionCard.astro
+   ============================================ */
+
+/* Galería de imágenes en publicaciones */
+.publicacion-imagenes {
+    margin-top: 1rem;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Una sola imagen */
+.publicacion-imagenes.imagenes-1 {
+    max-height: 500px;
+}
+
+.publicacion-imagenes.imagenes-1 img {
+    width: 100%;
+    height: auto;
+    max-height: 500px;
+    object-fit: contain;
+    display: block;
+    background: #f9fafb;
+}
+
+/* Dos imágenes */
+.publicacion-imagenes.imagenes-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    max-height: 400px;
+}
+
+.publicacion-imagenes.imagenes-2 .imagen-container {
+    width: 100%;
+    height: 100%;
+}
+
+.publicacion-imagenes.imagenes-2 img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Tres imágenes */
+.publicacion-imagenes.imagenes-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 4px;
+    max-height: 400px;
+}
+
+.publicacion-imagenes.imagenes-3 .imagen-container:first-child {
+    grid-row: 1 / 3;
+}
+
+.publicacion-imagenes.imagenes-3 .imagen-container {
+    width: 100%;
+    height: 100%;
+}
+
+.publicacion-imagenes.imagenes-3 img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Cuatro o más imágenes */
+.publicacion-imagenes.imagenes-4,
+.publicacion-imagenes.imagenes-5 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 4px;
+    max-height: 400px;
+}
+
+/* Contenedores de imágenes */
+.publicacion-imagenes .imagen-container {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+
+.publicacion-imagenes.imagenes-4 img,
+.publicacion-imagenes.imagenes-5 img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Indicador de más imágenes (+1 cuando hay 5 imágenes) */
+.publicacion-imagenes .imagen-container.imagen-con-indicador::after {
+    content: '+1' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(0, 0, 0, 0.6) !important;
+    color: white !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    z-index: 10 !important;
+}
+
+/* Hover en imágenes */
+.publicacion-imagenes img {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.publicacion-imagenes img:hover {
+    opacity: 0.9;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .publicacion-imagenes.imagenes-1 {
+        max-height: 350px;
+    }
+
+    .publicacion-imagenes.imagenes-2,
+    .publicacion-imagenes.imagenes-3,
+    .publicacion-imagenes.imagenes-4,
+    .publicacion-imagenes.imagenes-5 {
+        max-height: 300px;
+    }
+}
+
+/* ============================================
+   Modal de Visor de Imágenes (estilo LinkedIn)
+   ============================================ */
+
+.imagen-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+.imagen-modal.active {
+    display: flex;
+}
+
+.imagen-modal-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 80px;
+}
+
+.imagen-modal-content img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* Botón cerrar */
+.imagen-modal .btn-cerrar {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 10001;
+}
+
+.imagen-modal .btn-cerrar:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.imagen-modal .btn-cerrar svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Botones de navegación */
+.imagen-modal .btn-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 10001;
+}
+
+.imagen-modal .btn-nav:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.imagen-modal .btn-nav:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.imagen-modal .btn-nav:disabled:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-50%);
+}
+
+.imagen-modal .btn-prev {
+    left: 1.5rem;
+}
+
+.imagen-modal .btn-next {
+    right: 1.5rem;
+}
+
+.imagen-modal .btn-nav svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Contador de imágenes */
+.imagen-modal .contador-imagenes {
+    position: absolute;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    z-index: 10001;
+}
+
+/* Animación de fade */
+.imagen-modal.active .imagen-modal-content img {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .imagen-modal-content {
+        padding: 80px 20px 20px 20px;
+    }
+
+    .imagen-modal .btn-nav {
+        width: 40px;
+        height: 40px;
+    }
+
+    .imagen-modal .btn-prev {
+        left: 0.5rem;
+    }
+
+    .imagen-modal .btn-next {
+        right: 0.5rem;
+    }
+
+    .imagen-modal .btn-cerrar {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Cursor pointer para imágenes clickeables */
+.publicacion-imagenes .imagen-container {
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.publicacion-imagenes .imagen-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0);
+    transition: background 0.2s ease;
+    pointer-events: none;
+}
+
+.publicacion-imagenes .imagen-container:hover::after {
+    background: rgba(0, 0, 0, 0.1);
+}
