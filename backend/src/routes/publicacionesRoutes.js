@@ -3,7 +3,7 @@ import rateLimit from "express-rate-limit";
 import { authenticateToken } from "../middleware/auth.js";
 import { requireEgresado } from "../middleware/roles.js";
 import * as publicacionesController from "../controllers/publicacionesController.js";
-import { uploadPublicacionImages, handleMulterError } from "../middleware/uploadImages.js";
+import { uploadPublicacionImages, handleMulterError } from "../middleware/uploadImagesCloudinary.js";
 
 const router = express.Router();
 
