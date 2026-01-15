@@ -1,10 +1,5 @@
 import database from "../config/database.js";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import cloudinary from "../config/cloudinary.js";
 
 /**
  * Controlador para el sistema de publicaciones sociales
@@ -72,12 +67,12 @@ export async function crearPublicacion(req, res) {
 
         const publicacionId = insertResult.lastInsertRowid;
 
-        // Procesar imágenes subidas
+        // Procesar imágenes subidas (Cloudinary)
         const imagenesUrls = [];
         if (req.files && req.files.length > 0) {
             for (const file of req.files) {
-                // Construir URL relativa para acceder a la imagen
-                const imageUrl = `/uploads/publicaciones/${file.filename}`;
+                // Cloudinary devuelve la URL segura en file.path
+                const imageUrl = file.path;
                 
                 // Guardar en base de datos
                 await client.execute({
@@ -486,26 +481,41 @@ export async function eliminarPublicacion(req, res) {
             args: [publicacionId]
         });
 
-        // Eliminar archivos físicos de las imágenes
+        // Eliminar imágenes de Cloudinary
         if (imagenesResult.rows.length > 0) {
-            imagenesResult.rows.forEach(row => {
+            for (const row of imagenesResult.rows) {
                 try {
-                    // Convertir URL relativa a ruta absoluta
-                    // URL: /uploads/publicaciones/imagen.jpg
-                    // Ruta: backend/uploads/publicaciones/imagen.jpg
-                    const relativePath = row.url.replace(/^\//, ''); // Quitar el / inicial
-                    const filePath = path.join(__dirname, '../../', relativePath);
+                    // Extraer public_id de la URL de Cloudinary
+                    // URL ejemplo: https://res.cloudinary.com/djgrfq6oi/image/upload/v1768491223/egresados-ies/publicaciones/pub-123456.jpg
+                    const urlParts = row.url.split('/');
+                    const uploadIndex = urlParts.indexOf('upload');
                     
-                    // Verificar si el archivo existe antes de eliminarlo
-                    if (fs.existsSync(filePath)) {
-                        fs.unlinkSync(filePath);
-                        console.log(`Archivo eliminado: ${filePath}`);
+                    if (uploadIndex === -1) {
+                        console.error(`URL de Cloudinary inválida: ${row.url}`);
+                        continue;
                     }
-                } catch (fileError) {
-                    console.error(`Error eliminando archivo ${row.url}:`, fileError);
+                    
+                    // Obtener path después de la versión (v1768491223)
+                    // urlParts[uploadIndex + 1] = versión (v1768491223)
+                    // urlParts.slice(uploadIndex + 2) = ['egresados-ies', 'publicaciones', 'pub-123456.jpg']
+                    const pathAfterVersion = urlParts.slice(uploadIndex + 2).join('/');
+                    
+                    // Quitar extensión (.jpg, .png, etc)
+                    const publicId = pathAfterVersion.replace(/\.[^/.]+$/, "");
+                    
+                    // Eliminar de Cloudinary
+                    const result = await cloudinary.uploader.destroy(publicId);
+                    
+                    if (result.result === 'ok') {
+                        console.log(`✅ Imagen eliminada de Cloudinary: ${publicId}`);
+                    } else {
+                        console.warn(`⚠️ Cloudinary no encontró la imagen: ${publicId} (resultado: ${result.result})`);
+                    }
+                } catch (cloudinaryError) {
+                    console.error(`❌ Error eliminando imagen de Cloudinary ${row.url}:`, cloudinaryError.message);
                     // No lanzamos el error para que no falle la eliminación de la publicación
                 }
-            });
+            }
         }
 
         res.status(200).json({

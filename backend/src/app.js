@@ -64,15 +64,7 @@ if (process.env.NODE_ENV !== "test") {
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-// Servir archivos estáticos (uploads) con CORS
-const uploadsPath = path.join(__dirname, "../uploads");
-app.use("/uploads", (req, res, next) => {
-    res.header("Access-Control-Allow-Origin", process.env.FRONTEND_URL || "http://localhost:4321");
-    res.header("Access-Control-Allow-Methods", "GET");
-    res.header("Cross-Origin-Resource-Policy", "cross-origin");
-    next();
-}, express.static(uploadsPath));
-console.log("📁 Sirviendo archivos estáticos desde:", uploadsPath);
+// Nota: Las imágenes se almacenan en Cloudinary, no en filesystem local
 
 // Health check endpoint
 app.get("/api/health", async (req, res) => {

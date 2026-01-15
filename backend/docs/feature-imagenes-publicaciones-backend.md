@@ -2,7 +2,16 @@
 
 ## 📋 Descripción
 
-Implementación del backend para permitir que los egresados agreguen imágenes a sus publicaciones. El sistema permite subir hasta 5 imágenes por publicación con un tamaño máximo de 5MB cada una.
+Implementación del backend para permitir que los egresados agreguen imágenes a sus publicaciones. El sistema utiliza **Cloudinary** como almacenamiento en la nube, permitiendo subir hasta 5 imágenes por publicación con un tamaño máximo de 5MB cada una.
+
+### ☁️ Cloudinary Integration
+
+Las imágenes se almacenan en **Cloudinary CDN**, proporcionando:
+- ✅ Acceso global desde cualquier dispositivo/computadora
+- ✅ URLs públicas permanentes
+- ✅ Transformaciones automáticas (optimización de calidad/formato)
+- ✅ Límite de resolución (1920x1080 máximo)
+- ✅ No requiere almacenamiento local en el servidor
 
 ## 🗄️ Base de Datos
 
@@ -21,7 +30,7 @@ CREATE INDEX idx_imagen_publicacion_id ON ImagenPublicacion(publicacionId);
 
 **Campos:**
 - `id`: Identificador único de la imagen
-- `url`: Ruta relativa de la imagen (ej: `/uploads/publicaciones/pub-1234567890-123456789.jpg`)
+- `url`: URL completa de Cloudinary (ej: `https://res.cloudinary.com/djgrfq6oi/image/upload/v1768491223/egresados-ies/publicaciones/pub-123.jpg`)
 - `publicacionId`: ID de la publicación a la que pertenece la imagen
 
 **Relaciones:**
@@ -43,36 +52,97 @@ El script:
 - Crea índice sobre `publicacionId` para optimizar queries
 - Es idempotente (se puede ejecutar múltiples veces sin problemas)
 
-## 🔧 Middleware
+## ☁️ Cloudinary Configuration
 
-### uploadImages.js
+### cloudinary.js
 
-**Ubicación**: `backend/src/middleware/uploadImages.js`
+**Ubicación**: `backend/src/config/cloudinary.js`
 
-**Función**: Maneja la subida de archivos usando `multer`
+**Función**: Inicializa el SDK de Cloudinary v2
 
 **Configuración:**
 
 ```javascript
-const storage = multer.diskStorage({
-    destination: 'backend/uploads/publicaciones',
-    filename: 'pub-{timestamp}-{random}.{extension}'
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true,
 });
 
-const upload = multer({
-    storage: storage,
-    fileFilter: allowedMimes,
-    limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB
-        files: 5                    // Máximo 5 archivos
-    }
+export default cloudinary;
+```
+
+**Variables de entorno (.env):**
+```
+CLOUDINARY_CLOUD_NAME=djgrfq6oi
+CLOUDINARY_API_KEY=975256742522911
+CLOUDINARY_API_SECRET=ct3KvJqkbEBtUPItrW8Nl26uqD4
+```
+
+## 🔧 Middleware
+
+### uploadImagesCloudinary.js
+
+**Ubicación**: `backend/src/middleware/uploadImagesCloudinary.js`
+
+**Función**: Maneja la subida de archivos directamente a Cloudinary usando `multer` + `multer-storage-cloudinary`
+
+**Dependencias:**
+```bash
+npm install cloudinary@2.8.0 multer-storage-cloudinary@4.0.0 --legacy-peer-deps
+```
+
+**Configuración:**
+
+```javascript
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "../config/cloudinary.js";
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "egresados-ies/publicaciones",
+    allowed_formats: ["jpg", "jpeg", "png", "gif", "webp"],
+    transformation: [
+      { width: 1920, height: 1080, crop: "limit" },
+      { quality: "auto" },
+      { fetch_format: "auto" }
+    ],
+    public_id: (req, file) => `pub-${Date.now()}-${Math.floor(Math.random() * 1000000000)}`
+  }
+});
+
+const upload = multer({ a Cloudinary**
+   ```javascript
+   if (req.files && req.files.length > 0) {
+       for (const file of req.files) {
+           // file.path contiene la URL completa de Cloudinary
+           const imageUrl = file.path;
+           await client.execute({
+               sql: `INSERT INTO ImagenPublicacion (url, publicacionId) VALUES (?, ?)`,
+               args: [imageUrl, publicacionId]
+           });
+       }
+   }
+   ```
+   
+   **Nota**: `file.path` devuelto por `multer-storage-cloudinary` contiene la URL completa de Cloudinary (ej: `https://res.cloudinary.com/djgrfq6oi/image/upload/v1768491223/egresados-ies/publicaciones/pub-123.jpg`)leSize: 5 * 1024 * 1024, // 5MB por archivo
+    files: 5                    // Máximo 5 archivos
+  }
 });
 ```
 
 **Validaciones:**
-- **Tipos MIME permitidos**: `image/jpeg`, `image/jpg`, `image/png`, `image/gif`, `image/webp`
+- **Tipos permitidos**: `jpg`, `jpeg`, `png`, `gif`, `webp`
 - **Tamaño máximo**: 5MB por imagen
 - **Cantidad máxima**: 5 imágenes por request
+- **Transformaciones automáticas**:
+  - Límite de resolución: 1920x1080 (crop: "limit" mantiene aspect ratio)
+  - Calidad automática (quality: "auto")
+  - Formato automático (fetch_format: "auto" - WebP para navegadores compatibles)
 
 **Exports:**
 - `uploadPublicacionImages`: Middleware configurado para múltiples archivos
@@ -82,6 +152,7 @@ const upload = multer({
 - `LIMIT_FILE_SIZE`: Archivo demasiado grande
 - `LIMIT_FILE_COUNT`: Demasiados archivos
 - Tipo de archivo no permitido
+- Error de conexión con Cloudinary
 
 ## 🎮 Controlador
 
@@ -123,10 +194,52 @@ const upload = multer({
    ```javascript
    res.status(201).json({
        success: true,
-       data: {
-           id: Number(publicacionId),
-           contenido: contenido.trim(),
-           imagenes: imagenesUrls
+       data: { // URLs completas de Cloudinary
+       }
+   });
+   ```
+
+**Modificación**: Función `eliminarPublicacion`
+
+Ahora incluye eliminación de imágenes desde Cloudinary:
+
+```javascript
+// Obtener URLs de las imágenes antes de eliminar
+const imagenesQuery = `SELECT url FROM ImagenPublicacion WHERE publicacionId = ?`;
+const imagenesResult = await client.execute({
+    sql: imagenesQuery,
+    args: [publicacionId]
+});
+
+// Eliminar publicación (CASCADE elimina registros de ImagenPublicacion)
+await client.execute({
+    sql: `DELETE FROM Publicacion WHERE id = ?`,
+    args: [publicacionId]
+});
+
+// Eliminar imágenes de Cloudinary
+if (imagenesResult.rows.length > 0) {
+    for (const row of imagenesResult.rows) {
+        try {
+            // Extraer public_id de la URL
+            // URL: https://res.cloudinary.com/djgrfq6oi/image/upload/v1768491223/egresados-ies/publicaciones/pub-123.jpg
+            const urlParts = row.url.split('/');
+            const uploadIndex = urlParts.indexOf('upload');
+            const pathAfterVersion = urlParts.slice(uploadIndex + 2).join('/');
+            const publicId = pathAfterVersion.replace(/\.[^/.]+$/, ""); // Quitar extensión
+            
+            // Eliminar de Cloudinary
+            const result = await cloudinary.uploader.destroy(publicId);
+            
+            if (result.result === 'ok') {
+                console.log(`✅ Imagen eliminada de Cloudinary: ${publicId}`);
+            }
+        } catch (error) {
+            console.error(`❌ Error eliminando imagen de Cloudinary:`, error.message);
+        }
+    }
+}
+        imagenes: imagenesUrls
        }
    });
    ```
@@ -135,8 +248,8 @@ const upload = multer({
 
 Ya incluye el query para obtener las imágenes asociadas:
 
-```javascript
-const imagenesQuery = `
+```javascripthttps://res.cloudinary.com/djgrfq6oi/image/upload/v1768491223/egresados-ies/publicaciones/pub-1768491223303-323692830.jpg",
+            "https://res.cloudinary.com/djgrfq6oi/image/upload/v1768491223/egresados-ies/publicaciones/pub-1768491223304
     SELECT url FROM ImagenPublicacion 
     WHERE publicacionId = ${publicacion.id}
     ORDER BY id
@@ -192,80 +305,60 @@ router.post(
 }
 ```
 
-## 📁 Archivos Estáticos
+## ☁️ Almacenamiento en la Nube
 
-### Configuración en app.js
+### ¿Por qué Cloudinary en lugar de filesystem local?
 
-```javascript
-const uploadsPath = path.join(__dirname, "../uploads");
-app.use("/uploads", (req, res, next) => {
-    res.header("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
-    res.header("Access-Control-Allow-Methods", "GET");
-    res.header("Cross-Origin-Resource-Policy", "cross-origin");
-    next();
-}, express.static(uploadsPath));
-```
+**Problema con filesystem local:**
+- ❌ Las imágenes solo son accesibles desde el servidor donde se almacenan
+- ❌ Si un usuario desde otra computadora sube una imagen, otros no pueden verla
+- ❌ No escalable para aplicaciones multi-usuario
+- ❌ Requiere servir archivos estáticos con Express
+- ❌ No se pueden acceder desde múltiples servidores (deployment distribuido)
 
-**Estructura de directorios:**
-```
-backend/
-└── uploads/
-    ├── profiles/          (existente)
-    │   └── .gitkeep
-    └── publicaciones/     (nuevo)
-        ├── .gitkeep
-        ├── pub-1234567890-123456789.jpg
-        ├── pub-1234567890-987654321.png
-        └── ...
-```
+**Solución con Cloudinary:**
+- ✅ URLs públicas accesibles desde cualquier dispositivo/computadora
+- ✅ CDN global con alta disponibilidad
+- ✅ Transformaciones automáticas (optimización, redimensionamiento)
+- ✅ No requiere almacenamiento en el servidor
+- ✅ Fácil escalabilidad
+- ✅ Gestión centralizada de assets
 
-**URL de acceso**: `http://localhost:3000/uploads/publicaciones/{filename}`
-
-### Gestión de Archivos
+### Gestión de Imágenes
 
 **Almacenamiento:**
-- **Filesystem**: Archivos físicos en `backend/uploads/publicaciones/`
-- **Base de datos**: Solo la URL/ruta relativa (ej: `/uploads/publicaciones/imagen.jpg`)
-
-**¿Por qué no guardar en la BD?**
-- ❌ Las BD no están optimizadas para archivos binarios grandes
-- ❌ Degrada el rendimiento de queries
-- ❌ Aumenta exponencialmente el tamaño de la BD
-- ✅ El filesystem está diseñado para archivos
-- ✅ Más fácil de escalar (CDN, object storage)
-- ✅ Mejor performance al servir imágenes
+- **Cloudinary CDN**: Archivos almacenados en la nube de Cloudinary
+- **Base de datos**: URL completa de Cloudinary (ej: `https://res.cloudinary.com/djgrfq6oi/image/upload/...`)
 
 **Limpieza automática:**
 Cuando se elimina una publicación, el controlador:
 1. Consulta las URLs de las imágenes asociadas
-2. Elimina la publicación (CASCADE elimina registros de ImagenPublicacion)
-3. Elimina los archivos físicos del filesystem
+2. Extrae el `public_id` de cada URL
+3. Elimina la publicación (CASCADE elimina registros de ImagenPublicacion)
+4. Elimina las imágenes de Cloudinary usando `cloudinary.uploader.destroy(publicId)`
 
-```javascript
-// En eliminarPublicacion()
-const imagenesQuery = `SELECT url FROM ImagenPublicacion WHERE publicacionId = ?`;
-const imagenesResult = await client.execute({ sql: imagenesQuery, args: [publicacionId] });
-
-// Eliminar archivos físicos
-imagenesResult.rows.forEach(row => {
-    const filePath = path.join(__dirname, '../../', row.url.replace(/^\//, ''));
-    if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-    }
-});
+**Estructura en Cloudinary:**
 ```
+djgrfq6oi (cloud_name)
+└── egresados-ies/
+    └── publicaciones/
+        ├── pub-1768491223303-323692830.jpg
+        ├── pub-1768491223304-987654321.png
+        └── ...
+```
+
+**Dashboard de Cloudinary:**
+- URL: https://console.cloudinary.com/
+- Media Library: Ver todas las imágenes subidas
+- Carpeta: `egresados-ies/publicaciones/`
 
 ### .gitignore
 
-Las imágenes de prueba/desarrollo NO se suben al repositorio:
+Ya no es necesario excluir carpetas `uploads/` porque las imágenes se almacenan en Cloudinary:
 
 ```gitignore
-# Uploads - archivos de usuario
-backend/uploads/publicaciones/*
-backend/uploads/profiles/*
-# Mantener las carpetas vacías
-!backend/uploads/publicaciones/.gitkeep
-!backend/uploads/profiles/.gitkeep
+# Las imágenes ahora se almacenan en Cloudinary, no en filesystem local
+# backend/uploads/ eliminado
 ```
 
 ## 🔒 Seguridad
@@ -327,16 +420,47 @@ curl http://localhost:3000/api/publicaciones \
 1. **Índice en publicacionId**: Acelera queries de imágenes por publicación
 2. **Lazy loading**: Las imágenes se cargan bajo demanda
 3. **Límite de archivos**: Previene sobrecarga del servidor
-4. **Streaming de archivos**: Multer usa streams para eficiencia
+4. 
 
-### Consideraciones
+**Respuesta esperada:**
+```json
+{
+  "success": true,
+  "data": {
+    "publicaciones": [
+      {
+        "id": 8,
+   ✅ **CDN**: ~~Mover a servicio externo~~ → **Implementado con Cloudinary**
+2. ✅ **Image optimization**: ~~Optimizar antes de guardar~~ → **Automático con Cloudinary (quality: auto)**
+3. ✅ **WebP conversion**: ~~Convertir a formato más eficiente~~ → **Automático con Cloudinary (fetch_format: auto)**
+4. ✅ **Compresión de imágenes**: ~~Reducir tamaño automáticamente~~ → **Límite de 1920x1080 con Cloudinary**
+5. **Miniaturas**: Generar thumbnails para listados (Cloudinary permite transformaciones on-the-fly)
+6. **Validación de contenido**: Detectar imágenes inapropiadas (usar Cloudinary AI Moderation)
+7. **Watermarking**: Agregar marca de agua opcional (soportado por Cloudinary)
+}
+```**CDN de Cloudinary**: Entrega rápida desde servidores distribuidos globalmente
+3. **Transformaciones automáticas**: Cloudinary optimiza formato/calidad automáticamente
+4. **Límite drror conectando a Cloudinary"
+**Solución**: Verificar que las variables de entorno `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` y `CLOUDINARY_API_SECRET` estén configuradas correctamente en `.env`.
 
-- **Almacenamiento**: ~25MB por publicación (5 imágenes × 5MB)
-- **Tiempo de upload**: Depende de la conexión del usuario
-- **Procesamiento**: Mínimo (solo guardar referencia)
+### Error: "File too large"
+**Solución**: El archivo excede 5MB. Validar en el cliente antes de enviar.
 
-## 🔄 Futuras Mejoras
+### Error: "Too many files"
+**Solución**: Se intentaron subir más de 5 archivos. Validar en el cliente.
 
+### Las imágenes no se ven en el frontend
+**Solución**: Las URLs de Cloudinary son públicas y no requieren CORS. Verificar que la URL completa esté guardada en la base de datos.
+
+### Error: "Invalid public_id" al eliminar
+**Solución**: Verificar que la extracción del `public_id` desde la URL de Cloudinary sea correcta. El formato debe ser `egresados-ies/publicaciones/pub-123` (sin extensión).
+
+### Las imágenes antiguas (filesystem local) no se ven
+**Solución**: Ejecutar script de limpieza para eliminar referencias a URLs `/uploads/...`:
+```bash
+cd backend
+node scripts/cleanup-old-uploads.js
+```
 1. **Compresión de imágenes**: Reducir tamaño automáticamente
 2. **Miniaturas**: Generar thumbnails para listados
 3. **CDN**: Mover a servicio externo (Cloudinary, S3)
@@ -349,14 +473,19 @@ curl http://localhost:3000/api/publicaciones \
 
 ### Error: "ENOENT: no such file or directory"
 **Solución**: El directorio `uploads/publicaciones` no existe. Multer lo crea automáticamente, pero verifica permisos.
+Cloudinary SDK**: 2.8.0
+- **multer-storage-cloudinary**: 4.0.0
+- **Storage**: Cloudinary CDN (no filesystem local)
+- **Formato de URL**: URL completa de Cloudinary (`https://res.cloudinary.com/...`)
+- **Eliminación**: Automática desde Cloudinary cuando se elimina la publicación
+- **Transformaciones**: Aplicadas automáticamente por Cloudinary (optimización, límite de resolución)
 
-### Error: "File too large"
-**Solución**: El archivo excede 5MB. Validar en el cliente antes de enviar.
+## 🔗 Referencias
 
-### Error: "Too many files"
-**Solución**: Se intentaron subir más de 5 archivos. Validar en el cliente.
-
-### Las imágenes no se ven en el frontend
+- [Multer Documentation](https://github.com/expressjs/multer)
+- [Cloudinary Node.js SDK](https://cloudinary.com/documentation/node_integration)
+- [multer-storage-cloudinary](https://github.com/affanshahid/multer-storage-cloudinary)
+- [Cloudinary Transformations](https://cloudinary.com/documentation/image_transformations
 **Solución**: Verificar que la configuración de CORS en app.js incluya los headers correctos.
 
 ## 📝 Notas de Implementación
