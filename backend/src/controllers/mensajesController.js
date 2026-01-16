@@ -142,18 +142,17 @@ export async function enviarMensaje(req, res) {
 
         const mensajeId = Number(mensajeResult.lastInsertRowid);
 
-        // 4. Crear notificación para el destinatario
-        const notificacionQuery = `
-            INSERT INTO Notificacion (contenido, fechaEnvio, egresadoId)
-            VALUES (?, CURRENT_TIMESTAMP, ?)
-        `;
-
-        const notificacionContenido = `Tienes un nuevo mensaje de ${remitenteResult.rows[0].nombre}`;
-
-        await client.execute({
-            sql: notificacionQuery,
-            args: [notificacionContenido, destinatarioId],
-        });
+        // 4. Crear notificación para el destinatario (DESHABILITADO temporalmente)
+        // TODO: Implementar cuando se actualice el schema de Notificacion en Turso
+        // const notificacionQuery = `
+        //     INSERT INTO Notificacion (contenido, fechaEnvio, egresadoId)
+        //     VALUES (?, CURRENT_TIMESTAMP, ?)
+        // `;
+        // const notificacionContenido = `Tienes un nuevo mensaje de ${remitenteResult.rows[0].nombre}`;
+        // await client.execute({
+        //     sql: notificacionQuery,
+        //     args: [notificacionContenido, destinatarioId],
+        // });
 
         // 5. Obtener el mensaje completo para la respuesta
         const mensajeCompletoQuery = `

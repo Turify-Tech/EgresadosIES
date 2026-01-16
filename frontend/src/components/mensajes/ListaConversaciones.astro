@@ -1,0 +1,360 @@
+---
+/**
+ * Componente ListaConversaciones
+ * Muestra la lista de conversaciones activas del usuario
+ */
+---
+
+<div class="conversaciones-container">
+    <!-- Header con búsqueda -->
+    <div class="conversaciones-header">
+        <h2>Mensajes</h2>
+        <button id="btn-nueva-conversacion" class="btn-nuevo" title="Nueva conversación">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 5v14M5 12h14"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Barra de búsqueda -->
+    <div class="search-bar">
+        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input 
+            type="text" 
+            id="search-conversaciones" 
+            placeholder="Buscar contactos" 
+            class="search-input"
+        />
+    </div>
+
+    <!-- Lista de conversaciones -->
+    <div id="lista-conversaciones" class="conversaciones-lista">
+        <!-- Loading state -->
+        <div id="conversaciones-loading" class="loading-state">
+            <div class="spinner"></div>
+            <p>Cargando conversaciones...</p>
+        </div>
+
+        <!-- Empty state -->
+        <div id="conversaciones-empty" class="empty-state" style="display: none;">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <h3>No hay conversaciones</h3>
+            <p>Inicia una nueva conversación para comenzar</p>
+            <button class="btn-primary" onclick="document.getElementById('btn-nueva-conversacion').click()">
+                Nueva conversación
+            </button>
+        </div>
+
+        <!-- Conversaciones se cargan aquí dinámicamente -->
+    </div>
+</div>
+
+<style>
+    .conversaciones-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: white;
+        border-right: 1px solid #e5e7eb;
+    }
+
+    .conversaciones-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .conversaciones-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .btn-nuevo {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .btn-nuevo:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.05);
+    }
+
+    .search-bar {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid #e5e7eb;
+        position: relative;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        pointer-events: none;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 3rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 24px;
+        font-size: 0.9rem;
+        background: #f9fafb;
+        transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #667eea;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .conversaciones-lista {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    /* Estilos globales para conversaciones dinámicas */
+    :global(.conversacion-item) {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        cursor: pointer;
+        transition: background 0.15s ease;
+        border-bottom: 1px solid #f3f4f6;
+        position: relative;
+    }
+
+    :global(.conversacion-item:hover) {
+        background: #f9fafb;
+    }
+
+    :global(.conversacion-item.active) {
+        background: #eff6ff;
+        border-left: 3px solid #667eea;
+    }
+
+    :global(.conversacion-item.no-leido) {
+        background: #f0f9ff;
+    }
+
+    :global(.conversacion-avatar) {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+        position: relative;
+    }
+
+    :global(.conversacion-avatar img) {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+    :global(.avatar-status) {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #10b981;
+        border: 2px solid white;
+    }
+
+    :global(.conversacion-info) {
+        flex: 1;
+        min-width: 0;
+    }
+
+    :global(.conversacion-header) {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 0.25rem;
+    }
+
+    :global(.conversacion-nombre) {
+        font-weight: 600;
+        color: #1f2937;
+        font-size: 0.95rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    :global(.conversacion-item.no-leido .conversacion-nombre) {
+        font-weight: 700;
+    }
+
+    :global(.conversacion-tiempo) {
+        font-size: 0.75rem;
+        color: #9ca3af;
+        flex-shrink: 0;
+        margin-left: 0.5rem;
+    }
+
+    :global(.conversacion-item.no-leido .conversacion-tiempo) {
+        color: #667eea;
+        font-weight: 600;
+    }
+
+    :global(.conversacion-ultimo) {
+        font-size: 0.85rem;
+        color: #6b7280;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    :global(.conversacion-item.no-leido .conversacion-ultimo) {
+        color: #374151;
+        font-weight: 500;
+    }
+
+    :global(.badge-no-leidos) {
+        background: #667eea;
+        color: white;
+        border-radius: 12px;
+        padding: 0.125rem 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: auto;
+        flex-shrink: 0;
+    }
+
+    .loading-state,
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 2rem;
+        text-align: center;
+        color: #6b7280;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid #f3f4f6;
+        border-top-color: #667eea;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin-bottom: 1rem;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .empty-state svg {
+        color: #d1d5db;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+        margin: 0 0 0.5rem 0;
+        color: #374151;
+        font-size: 1.1rem;
+    }
+
+    .empty-state p {
+        margin: 0 0 1.5rem 0;
+        font-size: 0.9rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-1px);
+    }
+
+    /* Scrollbar personalizado */
+    .conversaciones-lista::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .conversaciones-lista::-webkit-scrollbar-track {
+        background: #f9fafb;
+    }
+
+    .conversaciones-lista::-webkit-scrollbar-thumb {
+        background: #d1d5db;
+        border-radius: 3px;
+    }
+
+    .conversaciones-lista::-webkit-scrollbar-thumb:hover {
+        background: #9ca3af;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .conversaciones-header {
+            padding: 0.875rem 1rem;
+        }
+
+        .conversaciones-header h2 {
+            font-size: 1.25rem;
+        }
+
+        .search-bar {
+            padding: 0.875rem 1rem;
+        }
+
+        .conversacion-item {
+            padding: 0.875rem 1rem;
+        }
+
+        .conversacion-avatar {
+            width: 44px;
+            height: 44px;
+            font-size: 1rem;
+        }
+    }
+</style>

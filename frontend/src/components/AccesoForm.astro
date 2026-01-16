@@ -275,6 +275,14 @@
                         })
                     );
 
+                    // Verificar si hay una redirección pendiente desde otra página
+                    const redirectAfterLogin = sessionStorage.getItem('redirectAfterLogin');
+                    if (redirectAfterLogin) {
+                        sessionStorage.removeItem('redirectAfterLogin');
+                        window.location.href = redirectAfterLogin;
+                        return;
+                    }
+
                     // Redirección según tipo de usuario
                     if (data.tipoUsuario === "administrador") {
                         window.location.href = "/admin";

@@ -14,6 +14,7 @@ const {
 // Importar estilos CSS
 import "../styles/global.css";
 import "../styles/components.css";
+import MensajesSidebar from "../components/mensajes/MensajesSidebar.astro";
 import NotificacionesModal from "../components/NotificacionesModal.astro";
 ---
 
@@ -40,6 +41,73 @@ import NotificacionesModal from "../components/NotificacionesModal.astro";
             }
             #acceder-btn.show {
                 visibility: visible;
+            }
+
+            /* Animaciones para el badge de mensajes */
+            @keyframes pulse-badge {
+                0%, 100% {
+                    transform: scale(1);
+                    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+                }
+                50% {
+                    transform: scale(1.1);
+                    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.6);
+                }
+            }
+
+            @keyframes slide-in-badge {
+                from {
+                    transform: scale(0) translateY(-10px);
+                    opacity: 0;
+                }
+                to {
+                    transform: scale(1) translateY(0);
+                    opacity: 1;
+                }
+            }
+
+            .mensajes-badge {
+                animation: slide-in-badge 0.3s ease-out;
+            }
+
+            .mensajes-badge.pulse {
+                animation: pulse-badge 2s ease-in-out infinite;
+            }
+
+            .mensajes-btn:has(.mensajes-badge[style*="display: flex"]) svg {
+                animation: pulse-icon 2s ease-in-out infinite;
+            }
+
+            @keyframes pulse-icon {
+                0%, 100% {
+                    transform: scale(1);
+                }
+                50% {
+                    transform: scale(1.05);
+                }
+            }
+
+            /* Efecto de brillo en el botón cuando hay notificaciones */
+            .mensajes-btn.has-notifications {
+                position: relative;
+            }
+
+            .mensajes-btn.has-notifications::after {
+                content: '';
+                position: absolute;
+                top: -2px;
+                left: -2px;
+                right: -2px;
+                bottom: -2px;
+                background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+                border-radius: 8px;
+                opacity: 0;
+                z-index: -1;
+                transition: opacity 0.3s ease;
+            }
+
+            .mensajes-btn.has-notifications:hover::after {
+                opacity: 0.1;
             }
 
             /* Responsive header */
@@ -106,6 +174,24 @@ import NotificacionesModal from "../components/NotificacionesModal.astro";
                     </nav>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1rem;">
+                    <!-- Mensajes link -->
+                    <button
+                        id="navbar-mensajes-link"
+                        style="background: none; border: none; cursor: pointer; color: #374151; text-decoration: none; font-family: 'Inter', sans-serif; font-weight: 500; transition: all 0.3s ease; display: none; flex-direction: column; align-items: center; gap: 0.25rem; position: relative; padding: 0;"
+                        class="mensajes-btn"
+                        onmouseover="this.style.color='#3b82f6'"
+                        onmouseout="this.style.color='#374151'">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: inherit; transition: transform 0.3s ease;">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        <span style="font-size: 0.85rem;">Mensajes</span>
+                        <span 
+                            id="navbar-mensajes-badge" 
+                            class="mensajes-badge"
+                            style="display: none; position: absolute; top: -6px; right: -10px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border-radius: 12px; padding: 0.2rem 0.45rem; font-size: 0.7rem; font-weight: 700; min-width: 20px; text-align: center; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4); border: 2px solid white;">
+                        </span>
+                    </button>
+                    
                     <!-- Ver egresados link -->
                     <a
                         href="/perfiles"
@@ -250,6 +336,9 @@ import NotificacionesModal from "../components/NotificacionesModal.astro";
         <!-- Scripts -->
         <script>
             document.addEventListener("DOMContentLoaded", () => {
+                // API URL
+                const API_URL = "http://localhost:3000/api";
+                
                 // Actualizar año en el footer
                 const currentYearElement = document.getElementById("current-year");
                 if (currentYearElement) {
@@ -279,6 +368,10 @@ import NotificacionesModal from "../components/NotificacionesModal.astro";
                 // Enlaces de navegación
                 const adminLink = document.getElementById(
                     "admin-link"
+                ) as HTMLElement;
+                
+                const mensajesLink = document.getElementById(
+                    "navbar-mensajes-link"
                 ) as HTMLElement;
                 
                 const notificacionesBtn = document.getElementById(
@@ -356,10 +449,16 @@ import NotificacionesModal from "../components/NotificacionesModal.astro";
                     // Mostrar navegación según el tipo de usuario
                     if (user.tipo_usuario === "Egresado") {
                         if (adminLink) adminLink.style.display = "none";
+                        if (mensajesLink) {
+                            mensajesLink.style.display = "flex";
+                            // Redirigir a /mensajes (no abrir sidebar)
+                            mensajesLink.addEventListener("click", (e) => {
+                                e.preventDefault();
+                                window.location.href = '/mensajes';
+                            });
+                        }
                         if (notificacionesBtn) {
                             notificacionesBtn.style.display = "flex";
-                            // Cargar contador de notificaciones
-                            cargarContadorNotificaciones();
                             
                             // Agregar evento click para abrir modal
                             notificacionesBtn.addEventListener('click', () => {
@@ -372,9 +471,16 @@ import NotificacionesModal from "../components/NotificacionesModal.astro";
                                     }
                                 }
                             });
+                            
+                            // Iniciar polling de notificaciones
+                            iniciarPollingNotificaciones();
                         }
+                        
+                        // Iniciar actualización de mensajes no leídos
+                        iniciarActualizacionMensajes();
                     } else if (user.tipo_usuario === "Administrador") {
                         if (adminLink) adminLink.style.display = "flex";
+                        if (mensajesLink) mensajesLink.style.display = "none";
                         if (notificacionesBtn) notificacionesBtn.style.display = "none";
                     }
 
@@ -388,7 +494,7 @@ import NotificacionesModal from "../components/NotificacionesModal.astro";
                         const token = localStorage.getItem("auth_token");
                         if (!token) return;
 
-                        const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/notificaciones/no-leidas/contador`, {
+                        const response = await fetch(`${API_URL}/notificaciones/no-leidas/contador`, {
                             headers: {
                                 'Authorization': `Bearer ${token}`,
                                 'Content-Type': 'application/json'
@@ -407,13 +513,18 @@ import NotificacionesModal from "../components/NotificacionesModal.astro";
                             }
                         }
                     } catch (error) {
-                        console.error('Error al cargar contador de notificaciones:', error);
+                        console.debug('Error al cargar contador de notificaciones:', error);
                     }
                 }
 
-                // Actualizar contador cada 30 segundos si el usuario está autenticado
-                if (token) {
-                    setInterval(cargarContadorNotificaciones, 30000);
+                // Iniciar polling de notificaciones para egresados
+                let notificacionesPolling = null;
+                async function iniciarPollingNotificaciones() {
+                    // Actualizar inmediatamente
+                    await cargarContadorNotificaciones();
+                    
+                    // Actualizar cada 30 segundos
+                    notificacionesPolling = setInterval(cargarContadorNotificaciones, 30000);
                 }
 
                 function setupUnauthenticatedUI() {
@@ -440,7 +551,8 @@ import NotificacionesModal from "../components/NotificacionesModal.astro";
 
                     // Ocultar navegación autenticada
                     if (adminLink) adminLink.style.display = "none";
-                    if (notificacionesLink) notificacionesLink.style.display = "none";
+                    if (mensajesLink) mensajesLink.style.display = "none";
+                    if (notificacionesBtn) notificacionesBtn.style.display = "none";
                 }
 
                 function setupDropdown() {
@@ -479,7 +591,97 @@ import NotificacionesModal from "../components/NotificacionesModal.astro";
                     localStorage.removeItem("auth_token");
                     localStorage.removeItem("user_data");
                 }
+
+                // Sistema de actualización de mensajes no leídos
+                let mensajesPolling: ReturnType<typeof setInterval> | null = null;
+
+                async function iniciarActualizacionMensajes() {
+                    // Esperar 500ms antes de la primera petición para evitar conflictos
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    // Actualizar inmediatamente
+                    await actualizarMensajesNoLeidos();
+
+                    // Actualizar cada 30 segundos
+                    mensajesPolling = setInterval(actualizarMensajesNoLeidos, 30000);
+                }
+
+                async function actualizarMensajesNoLeidos() {
+                    try {
+                        const token = localStorage.getItem("auth_token");
+                        if (!token) return;
+
+                        const API_URL = "http://localhost:3000/api";
+                        const response = await fetch(`${API_URL}/mensajes/no-leidos`, {
+                            headers: {
+                                "Authorization": `Bearer ${token}`
+                            }
+                        });
+
+                        // Si es rate limit, esperar y no mostrar error
+                        if (response.status === 429) {
+                            console.debug("[NAVBAR] Rate limit alcanzado, esperando...");
+                            return;
+                        }
+
+                        if (!response.ok) return;
+
+                        const data = await response.json();
+                        const total = data.data?.totalNoLeidos || 0;
+
+                        const badge = document.getElementById("navbar-mensajes-badge");
+                        const mensajesBtn = document.getElementById("navbar-mensajes-link");
+                        
+                        if (badge && mensajesBtn) {
+                            const anteriorTotal = badge.textContent ? parseInt(badge.textContent) : 0;
+                            const huboNuevosMensajes = total > anteriorTotal && anteriorTotal > 0;
+
+                            if (total > 0) {
+                                badge.textContent = total > 99 ? "99+" : total.toString();
+                                badge.style.display = "flex";
+                                
+                                // Agregar clase pulse al badge
+                                badge.classList.add("pulse");
+                                
+                                // Agregar clase al botón
+                                mensajesBtn.classList.add("has-notifications");
+                                
+                                // Si hay nuevos mensajes, hacer una animación extra
+                                if (huboNuevosMensajes) {
+                                    // Remover y volver a agregar la animación
+                                    badge.style.animation = "none";
+                                    setTimeout(() => {
+                                        badge.style.animation = "";
+                                    }, 10);
+                                }
+                            } else {
+                                badge.style.display = "none";
+                                badge.classList.remove("pulse");
+                                mensajesBtn.classList.remove("has-notifications");
+                            }
+                        }
+                    } catch (error) {
+                        // Silenciar errores de polling para no molestar al usuario
+                        console.debug("Error actualizando mensajes:", error);
+                    }
+                }
+
+                // Cleanup al salir
+                window.addEventListener("beforeunload", () => {
+                    if (mensajesPolling) {
+                        clearInterval(mensajesPolling);
+                    }
+                    if (notificacionesPolling) {
+                        clearInterval(notificacionesPolling);
+                    }
+                });
             });
         </script>
+
+        <!-- Modal de Notificaciones -->
+        <NotificacionesModal />
+        
+        <!-- Sidebar de Mensajes Global -->
+        <MensajesSidebar />
     </body>
 </html>
