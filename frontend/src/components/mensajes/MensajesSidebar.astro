@@ -1,0 +1,994 @@
+---
+/**
+ * Componente MensajesSidebar
+ * Sidebar deslizable para mensajería que se abre desde otras páginas
+ * Usa los mismos componentes que /mensajes pero en un overlay
+ */
+import ListaConversaciones from "./ListaConversaciones.astro";
+import Chat from "./Chat.astro";
+import BuscarUsuario from "./BuscarUsuario.astro";
+---
+
+<!-- Overlay oscuro de fondo -->
+<div id="mensajes-overlay" class="mensajes-overlay"></div>
+
+<!-- Panel lateral deslizable -->
+<div id="mensajes-sidebar" class="mensajes-sidebar">
+    <!-- Botón cerrar -->
+    <button id="btn-cerrar-sidebar" class="btn-cerrar-sidebar" title="Cerrar">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+    </button>
+
+    <div class="mensajes-container">
+        <!-- Panel izquierdo: Lista de conversaciones -->
+        <aside id="panel-conversaciones-sidebar" class="panel-conversaciones">
+            <ListaConversaciones />
+        </aside>
+
+        <!-- Panel derecho: Chat activo -->
+        <main id="panel-chat-sidebar" class="panel-chat">
+            <Chat />
+        </main>
+    </div>
+
+    <!-- Modal de búsqueda -->
+    <BuscarUsuario />
+</div>
+
+<style>
+    .mensajes-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 998;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .mensajes-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .mensajes-sidebar {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 90%;
+        max-width: 1200px;
+        height: 100vh;
+        background: white;
+        z-index: 999;
+        box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+    }
+
+    .mensajes-sidebar.active {
+        right: 0;
+    }
+
+    .btn-cerrar-sidebar {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 1000;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.05);
+        border: none;
+        color: #6b7280;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .btn-cerrar-sidebar:hover {
+        background: rgba(0, 0, 0, 0.1);
+        color: #111827;
+        transform: scale(1.05);
+    }
+
+    .mensajes-container {
+        display: grid;
+        grid-template-columns: 380px 1fr;
+        height: 100%;
+        background: #f9fafb;
+        overflow: hidden;
+    }
+
+    .panel-conversaciones {
+        border-right: 1px solid #e5e7eb;
+        background: white;
+        overflow: hidden;
+    }
+
+    .panel-chat {
+        background: white;
+        overflow: hidden;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .mensajes-container {
+            grid-template-columns: 320px 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .mensajes-sidebar {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .mensajes-container {
+            grid-template-columns: 1fr;
+        }
+
+        .panel-conversaciones {
+            display: block;
+        }
+
+        .panel-chat {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 100;
+        }
+
+        .panel-chat.active {
+            display: block;
+        }
+
+        .panel-conversaciones.oculto {
+            display: none;
+        }
+    }
+</style>
+
+<script>
+    import { mensajesService, startNoLeidosPolling } from "../../utils/mensajesApi.js";
+
+    // Estado global de la aplicación
+    let estado = {
+        conversaciones: [] as any[],
+        conversacionActual: null as number | null,
+        mensajes: [] as any[],
+        usuarioActual: null as { id: number; nombre: string; rol: string } | null,
+        noLeidosTotal: 0,
+        isLoading: false,
+        pollingInterval: null as any,
+        chatPollingInterval: null as any,
+        sidebarAbierto: false,
+    };
+
+    // Elementos del DOM
+    let elementos: any = {};
+
+    /**
+     * Inicializar sidebar
+     */
+    function inicializarSidebar() {
+        console.log("🔧 Inicializando sidebar de mensajes...");
+
+        // Obtener referencias a elementos del sidebar
+        elementos = {
+            sidebar: document.getElementById("mensajes-sidebar"),
+            overlay: document.getElementById("mensajes-overlay"),
+            btnCerrar: document.getElementById("btn-cerrar-sidebar"),
+            
+            // Lista de conversaciones
+            listaConversaciones: document.getElementById("lista-conversaciones"),
+            conversacionesLoading: document.getElementById("conversaciones-loading"),
+            conversacionesEmpty: document.getElementById("conversaciones-empty"),
+            searchConversaciones: document.getElementById("search-conversaciones"),
+            btnNuevaConversacion: document.getElementById("btn-nueva-conversacion"),
+
+            // Chat
+            chatMensajes: document.getElementById("chat-mensajes"),
+            chatEmpty: document.getElementById("chat-empty"),
+            chatLoading: document.getElementById("chat-loading"),
+            chatAvatar: document.getElementById("chat-avatar"),
+            chatUsuarioNombre: document.getElementById("chat-usuario-nombre"),
+            chatUsuarioEstado: document.getElementById("chat-usuario-estado"),
+            chatFormContainer: document.getElementById("chat-form-container"),
+            mensajeInput: document.getElementById("mensaje-input"),
+            btnEnviar: document.getElementById("btn-enviar"),
+            btnVolverMovil: document.getElementById("btn-volver-movil"),
+
+            // Modal buscar usuario
+            modalBuscarUsuario: document.getElementById("modal-buscar-usuario"),
+            btnCerrarModal: document.getElementById("btn-cerrar-modal"),
+            buscarUsuarioInput: document.getElementById("buscar-usuario-input"),
+            searchSpinner: document.getElementById("search-spinner"),
+            busquedaInicial: document.getElementById("busqueda-inicial"),
+            busquedaSinResultados: document.getElementById("busqueda-sin-resultados"),
+            listaUsuarios: document.getElementById("lista-usuarios"),
+
+            // Paneles responsive
+            panelConversaciones: document.getElementById("panel-conversaciones-sidebar"),
+            panelChat: document.getElementById("panel-chat-sidebar"),
+        };
+
+        // Event listeners del sidebar
+        elementos.btnCerrar?.addEventListener("click", cerrarSidebar);
+        elementos.overlay?.addEventListener("click", cerrarSidebar);
+        
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && estado.sidebarAbierto) {
+                cerrarSidebar();
+            }
+        });
+
+        // Configurar event listeners de mensajería
+        configurarEventListeners();
+
+        // Exponer funciones globales
+        (window as any).abrirMensajesSidebar = abrirSidebar;
+        (window as any).abrirChatConUsuario = abrirChatConUsuario;
+        (window as any).cerrarMensajesSidebar = cerrarSidebar;
+
+        console.log("✅ Sidebar de mensajes inicializado");
+    }
+
+    /**
+     * Abrir sidebar
+     */
+    async function abrirSidebar() {
+        if (estado.sidebarAbierto) return;
+
+        console.log("📩 Abriendo sidebar de mensajes...");
+        
+        // Mostrar el sidebar
+        elementos.sidebar?.classList.add("active");
+        elementos.overlay?.classList.add("active");
+        document.body.style.overflow = "hidden";
+        estado.sidebarAbierto = true;
+
+        // Cargar usuario si no está cargado
+        if (!estado.usuarioActual) {
+            const usuarioValido = await cargarUsuarioActual();
+            if (!usuarioValido) {
+                cerrarSidebar();
+                return;
+            }
+        }
+
+        // Cargar conversaciones si no hay
+        if (estado.conversaciones.length === 0) {
+            await cargarConversaciones();
+        }
+
+        // Iniciar polling si no está activo
+        if (!estado.pollingInterval) {
+            estado.pollingInterval = startNoLeidosPolling(actualizarNoLeidos, 30000);
+        }
+    }
+
+    /**
+     * Abrir chat con un usuario específico desde tarjetas de perfiles
+     */
+    async function abrirChatConUsuario(userId: number, userName: string) {
+        console.log(`📩 Abriendo chat con usuario ${userName} (ID: ${userId})`);
+        
+        // Abrir el sidebar primero
+        await abrirSidebar();
+        
+        // Esperar un momento para que el sidebar se abra completamente
+        setTimeout(() => {
+            abrirConversacion(userId, userName);
+        }, 400);
+    }
+
+    /**
+     * Cerrar sidebar
+     */
+    function cerrarSidebar() {
+        elementos.sidebar?.classList.remove("active");
+        elementos.overlay?.classList.remove("active");
+        document.body.style.overflow = "";
+        estado.sidebarAbierto = false;
+        
+        // Detener polling al cerrar
+        detenerPollingChat();
+        
+        console.log("🔒 Sidebar de mensajes cerrado");
+    }
+
+    /**
+     * Cargar usuario actual
+     */
+    async function cargarUsuarioActual() {
+        try {
+            const token = localStorage.getItem("auth_token") || localStorage.getItem("token");
+            if (!token) {
+                console.warn("[SIDEBAR] No hay token");
+                return false;
+            }
+
+            const payload = JSON.parse(atob(token.split(".")[1]));
+            
+            // Verificar expiración
+            const now = Math.floor(Date.now() / 1000);
+            if (payload.exp && payload.exp < now) {
+                console.warn("[SIDEBAR] Token expirado");
+                return false;
+            }
+            
+            estado.usuarioActual = {
+                id: payload.id,
+                nombre: payload.nombre,
+                rol: payload.rol,
+            };
+            
+            console.log("[SIDEBAR] Usuario cargado:", estado.usuarioActual);
+            return true;
+        } catch (error) {
+            console.error("[SIDEBAR] Error cargando usuario:", error);
+            return false;
+        }
+    }
+
+    /**
+     * Cargar lista de conversaciones
+     */
+    async function cargarConversaciones() {
+        try {
+            mostrarLoading(true);
+
+            const response = await mensajesService.obtenerConversaciones();
+            const conversacionesBackend = response.data?.conversaciones || [];
+            
+            estado.conversaciones = conversacionesBackend.map(conv => ({
+                contactoId: conv.usuario.id,
+                nombreContacto: conv.usuario.nombre,
+                fotoContacto: null,
+                carrera: null,
+                ultimoMensaje: conv.ultimoMensaje?.contenido || null,
+                fechaUltimoMensaje: conv.ultimoMensaje?.fechaEnvio || null,
+                noLeidos: conv.noLeidos || 0
+            }));
+
+            renderizarConversaciones();
+        } catch (error: any) {
+            console.error("[SIDEBAR] Error cargando conversaciones:", error);
+            
+            if (error.message?.includes("Demasiadas solicitudes")) {
+                setTimeout(() => cargarConversaciones(), 3000);
+                return;
+            }
+            
+            mostrarError("No se pudieron cargar las conversaciones");
+        } finally {
+            mostrarLoading(false);
+        }
+    }
+
+    /**
+     * Renderizar lista de conversaciones
+     */
+    function renderizarConversaciones(filtro = "") {
+        const container = elementos.listaConversaciones;
+        if (!container) return;
+
+        if (elementos.conversacionesLoading) {
+            elementos.conversacionesLoading.style.display = "none";
+        }
+
+        let conversacionesFiltradas = estado.conversaciones;
+        if (filtro) {
+            const filtroLower = filtro.toLowerCase();
+            conversacionesFiltradas = estado.conversaciones.filter((conv) =>
+                conv.nombreContacto?.toLowerCase().includes(filtroLower)
+            );
+        }
+
+        if (conversacionesFiltradas.length === 0) {
+            if (elementos.conversacionesEmpty) {
+                elementos.conversacionesEmpty.style.display = "flex";
+            }
+            container.innerHTML = "";
+            return;
+        }
+
+        if (elementos.conversacionesEmpty) {
+            elementos.conversacionesEmpty.style.display = "none";
+        }
+
+        container.innerHTML = conversacionesFiltradas
+            .map((conv) => crearElementoConversacion(conv))
+            .join("");
+
+        container.querySelectorAll(".conversacion-item").forEach((item) => {
+            item.addEventListener("click", () => {
+                const userId = (item as HTMLElement).dataset.userId;
+                if (userId) {
+                    abrirConversacion(parseInt(userId));
+                }
+            });
+        });
+    }
+
+    /**
+     * Crear HTML de un elemento de conversación
+     */
+    function crearElementoConversacion(conv) {
+        const isActive = estado.conversacionActual === conv.contactoId;
+        const tieneNoLeidos = conv.noLeidos > 0;
+        const avatarInicial = conv.nombreContacto?.charAt(0).toUpperCase() || "?";
+        const avatarUrl = conv.fotoContacto || "";
+
+        return `
+            <div class="conversacion-item ${isActive ? "active" : ""} ${tieneNoLeidos ? "no-leido" : ""}" 
+                 data-user-id="${conv.contactoId}">
+                <div class="conversacion-avatar">
+                    ${avatarUrl ? `<img src="${avatarUrl}" alt="${conv.nombreContacto}" />` : `<span>${avatarInicial}</span>`}
+                </div>
+                <div class="conversacion-info">
+                    <div class="conversacion-header">
+                        <span class="conversacion-nombre">${conv.nombreContacto || "Usuario"}</span>
+                        <span class="conversacion-tiempo">${formatearTiempo(conv.fechaUltimoMensaje)}</span>
+                    </div>
+                    <div class="conversacion-ultimo">
+                        ${conv.ultimoMensaje || "No hay mensajes"}
+                        ${tieneNoLeidos ? `<span class="badge-no-leidos">${conv.noLeidos}</span>` : ""}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * Abrir una conversación específica
+     */
+    async function abrirConversacion(userId: number, nombreUsuario: string | null = null) {
+        if (estado.isLoading) return;
+
+        try {
+            // Detener polling anterior si existe
+            detenerPollingChat();
+            
+            estado.conversacionActual = userId;
+            estado.isLoading = true;
+
+            // Responsive: mostrar panel de chat en móvil
+            if (window.innerWidth <= 768) {
+                elementos.panelConversaciones?.classList.add("oculto");
+                elementos.panelChat?.classList.add("active");
+            }
+
+            // Mostrar loading
+            if (elementos.chatEmpty) elementos.chatEmpty.style.display = "none";
+            if (elementos.chatLoading) elementos.chatLoading.style.display = "flex";
+            if (elementos.chatFormContainer) elementos.chatFormContainer.style.display = "none";
+
+            // Cargar mensajes
+            const response = await mensajesService.obtenerConversacion(userId);
+            estado.mensajes = response.data?.mensajes || [];
+
+            // Obtener info del contacto
+            let conversacion = estado.conversaciones.find((c) => c.contactoId === userId);
+            
+            if (!conversacion && response.data?.otroUsuario) {
+                conversacion = {
+                    contactoId: response.data.otroUsuario.id,
+                    nombreContacto: response.data.otroUsuario.nombre,
+                    fotoContacto: null,
+                    carrera: null,
+                    ultimoMensaje: null,
+                    fechaUltimoMensaje: null,
+                    noLeidos: 0
+                };
+            } else if (!conversacion && nombreUsuario) {
+                conversacion = {
+                    contactoId: userId,
+                    nombreContacto: nombreUsuario,
+                    fotoContacto: null,
+                    carrera: null,
+                    ultimoMensaje: null,
+                    fechaUltimoMensaje: null,
+                    noLeidos: 0
+                };
+            }
+
+            // Actualizar header del chat
+            actualizarHeaderChat(conversacion);
+
+            // Renderizar mensajes
+            renderizarMensajes();
+
+            // Mostrar formulario
+            if (elementos.chatFormContainer) {
+                elementos.chatFormContainer.style.display = "block";
+            }
+
+            // Marcar conversación como leída
+            if (estado.mensajes.length > 0) {
+                await mensajesService.marcarConversacionLeida(userId);
+            }
+
+            // Actualizar conversaciones
+            await cargarConversaciones();
+
+            // Scroll al final
+            scrollToBottom();
+            
+            // Iniciar polling para actualizar mensajes automáticamente
+            iniciarPollingChat();
+        } catch (error) {
+            console.error("Error cargando conversación:", error);
+            mostrarError("No se pudo cargar la conversación");
+        } finally {
+            estado.isLoading = false;
+            if (elementos.chatLoading) elementos.chatLoading.style.display = "none";
+        }
+    }
+
+    /**
+     * Iniciar polling para actualizar mensajes en tiempo real
+     */
+    function iniciarPollingChat() {
+        // Actualizar cada 3 segundos
+        estado.chatPollingInterval = setInterval(async () => {
+            if (!estado.conversacionActual) return;
+            
+            try {
+                const response = await mensajesService.obtenerConversacion(estado.conversacionActual);
+                const nuevosMensajes = response.data?.mensajes || [];
+                
+                // Verificar si hay mensajes nuevos
+                if (nuevosMensajes.length > estado.mensajes.length) {
+                    console.log('[SIDEBAR POLLING] Nuevos mensajes detectados');
+                    
+                    // Guardar posición de scroll actual
+                    const chatContainer = elementos.chatMensajes;
+                    const estabaCercaDelFinal = chatContainer && 
+                        (chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight) < 100;
+                    
+                    // Actualizar mensajes
+                    estado.mensajes = nuevosMensajes;
+                    renderizarMensajes();
+                    
+                    // Hacer scroll solo si estaba cerca del final o si es un mensaje del otro usuario
+                    const ultimoMensaje = nuevosMensajes[nuevosMensajes.length - 1];
+                    if (estabaCercaDelFinal || !ultimoMensaje.esPropio) {
+                        scrollToBottom();
+                    }
+                    
+                    // Marcar como leído
+                    await mensajesService.marcarConversacionLeida(estado.conversacionActual);
+                    
+                    // Actualizar lista de conversaciones
+                    await cargarConversaciones();
+                }
+            } catch (error) {
+                console.error('[SIDEBAR POLLING] Error actualizando mensajes:', error);
+            }
+        }, 3000); // Cada 3 segundos
+    }
+
+    /**
+     * Detener polling de chat
+     */
+    function detenerPollingChat() {
+        if (estado.chatPollingInterval) {
+            clearInterval(estado.chatPollingInterval);
+            estado.chatPollingInterval = null;
+            console.log('[SIDEBAR POLLING] Polling de chat detenido');
+        }
+    }
+
+    /**
+     * Actualizar header del chat
+     */
+    function actualizarHeaderChat(conversacion) {
+        if (!conversacion) return;
+
+        const avatarInicial = conversacion.nombreContacto?.charAt(0).toUpperCase() || "?";
+        const avatarUrl = conversacion.fotoContacto || "";
+
+        if (elementos.chatAvatar) {
+            if (avatarUrl) {
+                elementos.chatAvatar.innerHTML = `<img src="${avatarUrl}" alt="${conversacion.nombreContacto}" />`;
+            } else {
+                elementos.chatAvatar.innerHTML = `<span>${avatarInicial}</span>`;
+            }
+        }
+
+        if (elementos.chatUsuarioNombre) {
+            elementos.chatUsuarioNombre.textContent = conversacion.nombreContacto || "Usuario";
+        }
+
+        if (elementos.chatUsuarioEstado) {
+            elementos.chatUsuarioEstado.textContent = conversacion.carrera || "";
+        }
+    }
+
+    /**
+     * Renderizar mensajes del chat
+     */
+    function renderizarMensajes() {
+        const container = elementos.chatMensajes;
+        if (!container) return;
+
+        if (estado.mensajes.length === 0) {
+            container.innerHTML = `
+                <div class="chat-empty">
+                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <h3>Inicia la conversación</h3>
+                    <p>Envía el primer mensaje</p>
+                </div>
+            `;
+            return;
+        }
+
+        let html = "";
+        let fechaActual = "";
+
+        estado.mensajes.forEach((mensaje) => {
+            const fechaMensaje = formatearFecha(mensaje.fechaEnvio);
+
+            if (fechaMensaje !== fechaActual) {
+                html += `<div class="fecha-separador"><span>${fechaMensaje}</span></div>`;
+                fechaActual = fechaMensaje;
+            }
+
+            const esEnviado = mensaje.esPropio === true;
+            const hora = formatearHora(mensaje.fechaEnvio);
+
+            html += `
+                <div class="mensaje-grupo ${esEnviado ? "enviado" : "recibido"}">
+                    <div class="mensaje">
+                        <p class="mensaje-texto">${escapeHtml(mensaje.contenido)}</p>
+                        <div class="mensaje-meta">
+                            <span>${hora}</span>
+                            ${esEnviado && mensaje.estado === "LEIDO" ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ""}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    /**
+     * Enviar mensaje
+     */
+    async function enviarMensaje() {
+        const contenido = (elementos.mensajeInput as HTMLTextAreaElement)?.value.trim();
+        
+        if (!contenido || !estado.conversacionActual || estado.isLoading) {
+            return;
+        }
+
+        // Guardar el contenido y limpiar input inmediatamente
+        const contenidoAEnviar = contenido;
+        (elementos.mensajeInput as HTMLTextAreaElement).value = "";
+        ajustarAlturaTextarea();
+
+        try {
+            (elementos.btnEnviar as HTMLButtonElement).disabled = true;
+
+            // Crear mensaje temporal para mostrar en la UI (Optimistic UI)
+            const mensajeTemporal = {
+                id: Date.now(), // ID temporal
+                contenido: contenidoAEnviar,
+                fechaEnvio: new Date().toISOString(),
+                estado: "NO_LEIDO",
+                esPropio: true,
+                remitente: {
+                    id: estado.usuarioActual?.id || 0,
+                    nombre: estado.usuarioActual?.nombre || "Tú"
+                },
+                destinatario: {
+                    id: estado.conversacionActual,
+                    nombre: ""
+                }
+            };
+
+            // Agregar mensaje temporal al estado y renderizar inmediatamente
+            estado.mensajes.push(mensajeTemporal);
+            renderizarMensajes();
+            scrollToBottom();
+
+            // Enviar mensaje al servidor
+            const response = await mensajesService.enviarMensaje(estado.conversacionActual, contenidoAEnviar);
+            
+            // Reemplazar mensaje temporal con el real del servidor
+            const indexTemporal = estado.mensajes.findIndex(m => m.id === mensajeTemporal.id);
+            if (indexTemporal !== -1 && response.data) {
+                // Agregar el campo esPropio que no viene del backend
+                response.data.esPropio = response.data.remitente.id === estado.usuarioActual?.id;
+                estado.mensajes[indexTemporal] = response.data;
+                renderizarMensajes();
+            }
+
+            // Recargar conversaciones para actualizar último mensaje (sin await para no bloquear)
+            cargarConversaciones().catch(err => console.error("Error recargando conversaciones:", err));
+        } catch (error) {
+            console.error("Error enviando mensaje:", error);
+            mostrarError("No se pudo enviar el mensaje");
+            
+            // Eliminar mensaje temporal si falló
+            const indexFallido = estado.mensajes.findIndex(m => m.contenido === contenidoAEnviar && m.id >= Date.now() - 5000);
+            if (indexFallido !== -1) {
+                estado.mensajes.splice(indexFallido, 1);
+                renderizarMensajes();
+            }
+            
+            // Restaurar el contenido en el input si falló
+            (elementos.mensajeInput as HTMLTextAreaElement).value = contenidoAEnviar;
+        } finally {
+            (elementos.btnEnviar as HTMLButtonElement).disabled = false;
+            (elementos.mensajeInput as HTMLTextAreaElement)?.focus();
+        }
+    }
+
+    /**
+     * Abrir modal de nueva conversación
+     */
+    function abrirModalNuevaConversacion() {
+        if (elementos.modalBuscarUsuario) {
+            elementos.modalBuscarUsuario.style.display = "flex";
+            setTimeout(() => {
+                elementos.buscarUsuarioInput?.focus();
+            }, 100);
+        }
+    }
+
+    /**
+     * Cerrar modal de nueva conversación
+     */
+    function cerrarModalNuevaConversacion() {
+        if (elementos.modalBuscarUsuario) {
+            elementos.modalBuscarUsuario.style.display = "none";
+        }
+        if (elementos.buscarUsuarioInput) {
+            (elementos.buscarUsuarioInput as HTMLInputElement).value = "";
+        }
+        if (elementos.listaUsuarios) {
+            elementos.listaUsuarios.innerHTML = "";
+        }
+        if (elementos.busquedaInicial) {
+            elementos.busquedaInicial.style.display = "flex";
+        }
+        if (elementos.busquedaSinResultados) {
+            elementos.busquedaSinResultados.style.display = "none";
+        }
+    }
+
+    /**
+     * Buscar usuarios
+     */
+    let searchTimeout: ReturnType<typeof setTimeout>;
+    async function buscarUsuarios(query: string) {
+        if (searchTimeout) clearTimeout(searchTimeout);
+
+        if (!query || query.length < 2) {
+            if (elementos.listaUsuarios) elementos.listaUsuarios.innerHTML = "";
+            if (elementos.busquedaInicial) elementos.busquedaInicial.style.display = "flex";
+            if (elementos.busquedaSinResultados) elementos.busquedaSinResultados.style.display = "none";
+            return;
+        }
+
+        if (elementos.searchSpinner) elementos.searchSpinner.style.display = "block";
+        if (elementos.busquedaInicial) elementos.busquedaInicial.style.display = "none";
+
+        searchTimeout = setTimeout(async () => {
+            try {
+                const response = await mensajesService.buscarEgresados(query);
+                const usuarios = response.data || [];
+
+                if (elementos.searchSpinner) elementos.searchSpinner.style.display = "none";
+
+                if (usuarios.length === 0) {
+                    if (elementos.listaUsuarios) elementos.listaUsuarios.innerHTML = "";
+                    if (elementos.busquedaSinResultados) elementos.busquedaSinResultados.style.display = "flex";
+                    return;
+                }
+
+                if (elementos.busquedaSinResultados) elementos.busquedaSinResultados.style.display = "none";
+                renderizarUsuarios(usuarios);
+            } catch (error) {
+                console.error("Error buscando usuarios:", error);
+                if (elementos.searchSpinner) elementos.searchSpinner.style.display = "none";
+            }
+        }, 500);
+    }
+
+    /**
+     * Renderizar lista de usuarios encontrados
+     */
+    function renderizarUsuarios(usuarios: any[]) {
+        if (!elementos.listaUsuarios) return;
+
+        elementos.listaUsuarios.innerHTML = usuarios
+            .map((usuario) => {
+                const avatarInicial = usuario.nombre?.charAt(0).toUpperCase() || "?";
+                const avatarUrl = usuario.urlFotoPerfil || "";
+
+                return `
+                    <div class="usuario-item" data-user-id="${usuario.id}">
+                        <div class="usuario-avatar">
+                            ${avatarUrl ? `<img src="${avatarUrl}" alt="${usuario.nombre}" />` : `<span>${avatarInicial}</span>`}
+                        </div>
+                        <div class="usuario-info">
+                            <div class="usuario-nombre">${usuario.nombre}</div>
+                            <div class="usuario-carrera">${usuario.carrera || "Egresado"}</div>
+                        </div>
+                        <button class="btn-mensaje">Mensaje</button>
+                    </div>
+                `;
+            })
+            .join("");
+
+        elementos.listaUsuarios.querySelectorAll(".usuario-item").forEach((item) => {
+            item.addEventListener("click", () => {
+                const userId = parseInt((item as HTMLElement).dataset.userId!);
+                cerrarModalNuevaConversacion();
+                abrirConversacion(userId);
+            });
+        });
+    }
+
+    /**
+     * Actualizar contador de no leídos
+     */
+    function actualizarNoLeidos(data: any) {
+        if (!data) return;
+        estado.noLeidosTotal = data.total || 0;
+
+        const badge = document.querySelector("#navbar-mensajes-badge");
+        if (badge) {
+            if (estado.noLeidosTotal > 0) {
+                badge.textContent = estado.noLeidosTotal > 99 ? "99+" : estado.noLeidosTotal.toString();
+                (badge as HTMLElement).style.display = "flex";
+            } else {
+                (badge as HTMLElement).style.display = "none";
+            }
+        }
+
+        if (estado.noLeidosTotal > 0) {
+            cargarConversaciones().catch(err => console.error("Error recargando conversaciones:", err));
+        }
+    }
+
+    /**
+     * Configurar event listeners
+     */
+    function configurarEventListeners() {
+        elementos.searchConversaciones?.addEventListener("input", (e) => {
+            renderizarConversaciones((e.target as HTMLInputElement).value);
+        });
+
+        elementos.btnNuevaConversacion?.addEventListener("click", abrirModalNuevaConversacion);
+        elementos.btnCerrarModal?.addEventListener("click", cerrarModalNuevaConversacion);
+        
+        elementos.modalBuscarUsuario?.addEventListener("click", (e) => {
+            if (e.target === elementos.modalBuscarUsuario) {
+                cerrarModalNuevaConversacion();
+            }
+        });
+
+        elementos.buscarUsuarioInput?.addEventListener("input", (e) => {
+            buscarUsuarios((e.target as HTMLInputElement).value.trim());
+        });
+
+        elementos.btnEnviar?.addEventListener("click", enviarMensaje);
+        
+        elementos.mensajeInput?.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                enviarMensaje();
+            }
+        });
+
+        elementos.mensajeInput?.addEventListener("input", ajustarAlturaTextarea);
+
+        elementos.btnVolverMovil?.addEventListener("click", () => {
+            elementos.panelConversaciones?.classList.remove("oculto");
+            elementos.panelChat?.classList.remove("active");
+            estado.conversacionActual = null;
+        });
+    }
+
+    /**
+     * Utilidades
+     */
+    function ajustarAlturaTextarea() {
+        if (!elementos.mensajeInput) return;
+        elementos.mensajeInput.style.height = "auto";
+        elementos.mensajeInput.style.height = elementos.mensajeInput.scrollHeight + "px";
+    }
+
+    function scrollToBottom() {
+        setTimeout(() => {
+            if (elementos.chatMensajes) {
+                elementos.chatMensajes.scrollTop = elementos.chatMensajes.scrollHeight;
+            }
+        }, 100);
+    }
+
+    function mostrarLoading(show: boolean) {
+        if (elementos.conversacionesLoading) {
+            elementos.conversacionesLoading.style.display = show ? "flex" : "none";
+        }
+    }
+
+    function mostrarError(mensaje: string) {
+        alert(mensaje);
+    }
+
+    function formatearTiempo(fecha: string | null) {
+        if (!fecha) return "";
+        const date = new Date(fecha);
+        const ahora = new Date();
+        const diff = ahora.getTime() - date.getTime();
+
+        if (diff < 60000) return "Ahora";
+        if (diff < 3600000) return `${Math.floor(diff / 60000)}m`;
+        if (diff < 86400000) return `${Math.floor(diff / 3600000)}h`;
+        if (diff < 604800000) return `${Math.floor(diff / 86400000)}d`;
+
+        return date.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit" });
+    }
+
+    function formatearFecha(fecha: string | null) {
+        if (!fecha) return "";
+        const date = new Date(fecha);
+        const ahora = new Date();
+
+        if (date.toDateString() === ahora.toDateString()) return "Hoy";
+
+        const ayer = new Date(ahora);
+        ayer.setDate(ayer.getDate() - 1);
+        if (date.toDateString() === ayer.toDateString()) return "Ayer";
+
+        return date.toLocaleDateString("es-ES", {
+            day: "numeric",
+            month: "long",
+            year: date.getFullYear() !== ahora.getFullYear() ? "numeric" : undefined,
+        });
+    }
+
+    function formatearHora(fecha: string | null) {
+        if (!fecha) return "";
+        return new Date(fecha).toLocaleTimeString("es-ES", {
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+    }
+
+    function escapeHtml(text: string) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Inicializar cuando el DOM esté listo
+    document.addEventListener("DOMContentLoaded", inicializarSidebar);
+
+    // Cleanup al salir
+    window.addEventListener("beforeunload", () => {
+        if (estado.pollingInterval && typeof estado.pollingInterval === 'function') {
+            estado.pollingInterval();
+        }
+    });
+</script>

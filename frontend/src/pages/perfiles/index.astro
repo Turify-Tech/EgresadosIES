@@ -564,6 +564,47 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
         flex: 1;
     }
 
+    /* Footer de la tarjeta */
+    .card-footer {
+        margin-top: 1.5rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .btn-enviar-mensaje {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        background: #5284e0;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        font-family: 'Pontano Sans', sans-serif;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 6px rgba(82, 132, 224, 0.2);
+    }
+
+    .btn-enviar-mensaje:hover {
+        background: #4070d0;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(82, 132, 224, 0.3);
+    }
+
+    .btn-enviar-mensaje:active {
+        transform: translateY(0);
+    }
+
+    .btn-enviar-mensaje svg {
+        width: 18px;
+        height: 18px;
+    }
+
     /* Eliminar estilos no utilizados */
     .situacion-badge,
     .btn-ver-perfil {
@@ -783,6 +824,77 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
                     }
                 });
             }
+
+            // Event delegation para botones de enviar mensaje
+            document.addEventListener("click", (e) => {
+                const btnMensaje = e.target.closest(".btn-enviar-mensaje");
+                if (btnMensaje) {
+                    e.preventDefault();
+                    const userId = parseInt(btnMensaje.dataset.userId);
+                    const userName = btnMensaje.dataset.userName;
+                    
+                    console.log("[PERFILES] Click en enviar mensaje:", { userId, userName });
+                    
+                    // Verificar si hay token válido antes de redirigir
+                    // Intentar ambos nombres de token para compatibilidad
+                    const token = localStorage.getItem("auth_token") || localStorage.getItem("token");
+                    console.log("[PERFILES] Token encontrado:", !!token);
+                    
+                    if (!token) {
+                        console.warn("[PERFILES] No hay token, redirigiendo al login primero");
+                        // Guardar la intención para después del login
+                        sessionStorage.setItem('redirectAfterLogin', '/mensajes');
+                        sessionStorage.setItem('openConversationUserId', userId.toString());
+                        sessionStorage.setItem('openConversationUserName', userName);
+                        window.location.href = '/acceso';
+                        return;
+                    }
+                    
+                    // Verificar si el token está expirado
+                    try {
+                        const payload = JSON.parse(atob(token.split(".")[1]));
+                        const now = Math.floor(Date.now() / 1000);
+                        console.log("[PERFILES] Token exp:", payload.exp, "Now:", now, "Expiró:", payload.exp < now);
+                        
+                        if (payload.exp && payload.exp < now) {
+                            console.warn("[PERFILES] Token expirado, redirigiendo al login");
+                            localStorage.removeItem("token");
+                            localStorage.removeItem("auth_token");
+                            localStorage.removeItem("user");
+                            localStorage.removeItem("user_data");
+                            // Guardar la intención para después del login
+                            sessionStorage.setItem('redirectAfterLogin', '/mensajes');
+                            sessionStorage.setItem('openConversationUserId', userId.toString());
+                            sessionStorage.setItem('openConversationUserName', userName);
+                            window.location.href = '/acceso';
+                            return;
+                        }
+                    } catch (err) {
+                        console.error("[PERFILES] Error decodificando token:", err);
+                        localStorage.removeItem("token");
+                        localStorage.removeItem("auth_token");
+                        localStorage.removeItem("user");
+                        localStorage.removeItem("user_data");
+                        sessionStorage.setItem('redirectAfterLogin', '/mensajes');
+                        sessionStorage.setItem('openConversationUserId', userId.toString());
+                        sessionStorage.setItem('openConversationUserName', userName);
+                        window.location.href = '/acceso';
+                        return;
+                    }
+                    
+                    console.log("[PERFILES] Token válido, abriendo sidebar de mensajes");
+                    
+                    // Abrir el sidebar de mensajes con el usuario específico
+                    if ((window as any).abrirChatConUsuario) {
+                        (window as any).abrirChatConUsuario(userId, userName);
+                    } else {
+                        console.warn("[PERFILES] Función abrirChatConUsuario no disponible, redirigiendo a /mensajes");
+                        sessionStorage.setItem('openConversationUserId', userId.toString());
+                        sessionStorage.setItem('openConversationUserName', userName);
+                        window.location.href = '/mensajes';
+                    }
+                }
+            });
         }
 
         bindMobileEvents() {
