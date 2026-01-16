@@ -147,3 +147,5 @@ settings.json
 # Package lock files (generated automatically)
 package-lock.json
 **/package-lock.json
+
+# Nota: Las imágenes ahora se almacenan en Cloudinary, no en filesystem local

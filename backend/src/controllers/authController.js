@@ -279,6 +279,22 @@ async function handleNewUserRegistration(res, client, dni, password, req) {
             args: [usuarioId, dni, null, perfilId, carrera.id],
         });
 
+        // Crear preferencias de notificaciones con valores por defecto
+        const preferenciasQuery = `
+            INSERT INTO PreferenciasNotificacion (
+                usuario_id, 
+                email_comentarios, 
+                email_likes, 
+                email_menciones
+            )
+            VALUES (?, 1, 1, 1)
+        `;
+
+        await client.execute({
+            sql: preferenciasQuery,
+            args: [usuarioId],
+        });
+
         // Generar token JWT
         const token = generateToken({
             id: usuarioId,

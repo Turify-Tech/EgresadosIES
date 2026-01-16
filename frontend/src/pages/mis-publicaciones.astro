@@ -1,0 +1,570 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ComentariosModal from "../components/ComentariosModal.astro";
+import "../styles/mis-publicaciones.css";
+import "../styles/publicaciones-imagenes.css";
+---
+
+<BaseLayout title="Mis publicaciones">
+    <div class="mis-publicaciones-page">
+        <div class="container">
+            <header class="page-header">
+                <h1>Mis publicaciones</h1>
+            </header>
+
+            <!-- Feed de mis publicaciones -->
+            <div id="mis-publicaciones-list">
+                <!-- Aquí se cargarán las publicaciones dinámicamente -->
+                <div class="loading-posts">
+                    <div class="loading-spinner"></div>
+                    <p>Cargando tus publicaciones...</p>
+                </div>
+            </div>
+
+            <div class="load-more" style="display: none;">
+                <button id="load-more-btn">Cargar más</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de comentarios -->
+    <ComentariosModal />
+
+    <!-- Modal de visor de imágenes -->
+    <div id="imagen-modal" class="imagen-modal">
+        <button class="btn-cerrar" id="cerrar-modal-imagen" aria-label="Cerrar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+        
+        <button class="btn-nav btn-prev" id="btn-imagen-prev" aria-label="Anterior">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
+        
+        <div class="imagen-modal-content">
+            <img id="modal-imagen" src="" alt="Imagen en vista completa" />
+        </div>
+        
+        <button class="btn-nav btn-next" id="btn-imagen-next" aria-label="Siguiente">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </button>
+        
+        <div class="contador-imagenes" id="contador-imagenes">1 / 1</div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let currentPage = 1;
+        let isLoading = false;
+        let hasMorePages = true;
+        
+        // Variables para el modal de imágenes
+        let modalImagenes = [];
+        let modalImagenIndex = 0;
+
+        // Función para abrir el modal de imagen
+        function abrirModalImagen(imagenes, index) {
+            modalImagenes = imagenes;
+            modalImagenIndex = index;
+            
+            const modal = document.getElementById('imagen-modal');
+            if (modal) {
+                modal.style.display = 'flex';
+                actualizarImagenModal();
+            }
+        }
+
+        // Función para cerrar el modal de imagen
+        function cerrarModalImagen() {
+            const modal = document.getElementById('imagen-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Función para actualizar la imagen mostrada en el modal
+        function actualizarImagenModal() {
+            const imgElement = document.getElementById('modal-imagen');
+            const contador = document.getElementById('modal-contador');
+            const btnPrev = document.getElementById('modal-prev');
+            const btnNext = document.getElementById('modal-next');
+            
+            if (imgElement && modalImagenes.length > 0) {
+                imgElement.src = modalImagenes[modalImagenIndex];
+            }
+            
+            if (contador) {
+                contador.textContent = `${modalImagenIndex + 1} / ${modalImagenes.length}`;
+                contador.style.display = modalImagenes.length > 1 ? 'block' : 'none';
+            }
+            
+            if (btnPrev) {
+                btnPrev.style.display = modalImagenes.length > 1 ? 'flex' : 'none';
+            }
+            
+            if (btnNext) {
+                btnNext.style.display = modalImagenes.length > 1 ? 'flex' : 'none';
+            }
+        }
+
+        // Función para navegar entre imágenes del modal
+        function navegarImagenModal(direccion) {
+            if (direccion === 'prev') {
+                modalImagenIndex = (modalImagenIndex - 1 + modalImagenes.length) % modalImagenes.length;
+            } else if (direccion === 'next') {
+                modalImagenIndex = (modalImagenIndex + 1) % modalImagenes.length;
+            }
+            actualizarImagenModal();
+        }
+
+        // Función para obtener el token
+        function getAuthToken() {
+            return localStorage.getItem('auth_token');
+        }
+
+        // Función para formatear fecha relativa
+        function formatearFechaRelativa(fechaString) {
+            const fecha = new Date(fechaString);
+            const ahora = new Date();
+            const diffMs = ahora - fecha;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHoras = Math.floor(diffMs / 3600000);
+            const diffDias = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Ahora';
+            if (diffMins < 60) return `${diffMins}m`;
+            if (diffHoras < 24) return `${diffHoras}h`;
+            if (diffDias < 7) return `${diffDias}d`;
+            
+            return fecha.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' });
+        }
+
+        // Función para crear el HTML de una publicación
+        function crearPostCard(publicacion) {
+            const { id, contenido, autor, fechaCreacion, totalComentarios, totalLikes, imagenes } = publicacion;
+            
+            return `
+                <article class="post-card" data-post-id="${id}">
+                    <header class="post-header">
+                        <div class="post-header-left">
+                            <div class="avatar">
+                                ${autor.urlFotoPerfil ? 
+                                    `<img src="${autor.urlFotoPerfil}" alt="${autor.nombre}" />` : 
+                                    `<svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                    </svg>`
+                                }
+                            </div>
+                            <div class="post-meta">
+                                <strong>${autor.nombre}</strong>
+                                ${autor.tituloprofesional ? `<p class="subtitle">${autor.tituloprofesional}</p>` : ''}
+                                <time>${formatearFechaRelativa(fechaCreacion)}</time>
+                            </div>
+                        </div>
+                        <button class="delete-btn" onclick="eliminarPublicacion(${id})" title="Eliminar publicación">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                            </svg>
+                        </button>
+                    </header>
+                    <div class="post-body">
+                        <p>${contenido}</p>
+                        ${imagenes && imagenes.length > 0 ? `
+                            <div class="publicacion-imagenes imagenes-${Math.min(imagenes.length, 5)}" data-imagenes='${JSON.stringify(imagenes).replace(/'/g, "&apos;")}'>
+                                ${imagenes.slice(0, imagenes.length === 5 ? 4 : imagenes.length).map((img, index) => `
+                                    <div class="imagen-container${imagenes.length === 5 && index === 3 ? ' imagen-con-indicador' : ''}" data-imagen-index="${index}">
+                                        <img src="${img}" alt="Imagen de publicación ${index + 1}" />
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                    <footer class="post-actions">
+                        <button class="action-btn comment-btn" onclick="toggleComments(${id})">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                            <span class="action-text">Comentarios</span>
+                            ${totalComentarios > 0 ? `<span class="comment-count">${totalComentarios}</span>` : ''}
+                        </button>
+                        <button class="action-btn like-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                            ${totalLikes > 0 ? `<span class="like-count">${totalLikes > 999 ? (totalLikes / 1000).toFixed(1) + 'k' : totalLikes}</span>` : ''}
+                        </button>
+                    </footer>
+                </article>
+            `;
+        }
+
+        // Función para cargar mis publicaciones
+        async function cargarMisPublicaciones(page = 1) {
+            if (isLoading) return;
+            
+            isLoading = true;
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            if (loadMoreBtn) {
+                loadMoreBtn.textContent = 'Cargando...';
+                loadMoreBtn.disabled = true;
+            }
+
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/publicaciones/mis-publicaciones?page=${page}&limit=10`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const result = await response.json();
+                
+                console.log('Mis publicaciones:', result);
+
+                if (result.success && result.data.publicaciones) {
+                    const feedList = document.getElementById('mis-publicaciones-list');
+                    
+                    // Si es la primera página, limpiar el contenido
+                    if (page === 1) {
+                        feedList.innerHTML = '';
+                    }
+
+                    // Si no hay publicaciones
+                    if (result.data.publicaciones.length === 0 && page === 1) {
+                        feedList.innerHTML = `
+                            <div class="no-publicaciones">
+                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                                <h2>No tienes publicaciones</h2>
+                                <p>Aún no has creado ninguna publicación. Ve al dashboard para crear tu primera publicación.</p>
+                                <a href="/dashboard" class="btn-primary">Ir al dashboard</a>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    // Agregar las nuevas publicaciones
+                    result.data.publicaciones.forEach(publicacion => {
+                        const cardHTML = crearPostCard(publicacion);
+                        feedList.insertAdjacentHTML('beforeend', cardHTML);
+                    });
+
+                    // Actualizar estado de paginación
+                    hasMorePages = result.data.pagination.hasNext;
+                    
+                    // Mostrar/ocultar botón de cargar más
+                    const loadMoreSection = document.querySelector('.load-more');
+                    if (loadMoreSection) {
+                        loadMoreSection.style.display = hasMorePages ? 'block' : 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error cargando mis publicaciones:', error);
+                const feedList = document.getElementById('mis-publicaciones-list');
+                if (page === 1) {
+                    feedList.innerHTML = `
+                        <div class="error-publicaciones">
+                            <p>Error al cargar las publicaciones. Por favor, intenta de nuevo.</p>
+                            <button onclick="location.reload()" class="btn-secondary">Reintentar</button>
+                        </div>
+                    `;
+                }
+            } finally {
+                isLoading = false;
+                if (loadMoreBtn) {
+                    loadMoreBtn.textContent = 'Cargar más';
+                    loadMoreBtn.disabled = false;
+                }
+            }
+        }
+
+        // Función para eliminar publicación
+        async function eliminarPublicacion(publicacionId) {
+            if (!confirm('¿Estás seguro de que quieres eliminar esta publicación?')) {
+                return;
+            }
+
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/publicaciones/${publicacionId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Eliminar la tarjeta del DOM con animación
+                    const postCard = document.querySelector(`[data-post-id="${publicacionId}"]`);
+                    if (postCard) {
+                        postCard.style.opacity = '0';
+                        postCard.style.transform = 'scale(0.9)';
+                        setTimeout(() => {
+                            postCard.remove();
+                            
+                            // Verificar si quedan publicaciones
+                            const feedList = document.getElementById('mis-publicaciones-list');
+                            if (feedList && feedList.children.length === 0) {
+                                feedList.innerHTML = `
+                                    <div class="no-publicaciones">
+                                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                        </svg>
+                                        <h2>No tienes publicaciones</h2>
+                                        <p>Aún no has creado ninguna publicación. Ve al feed principal para crear tu primera publicación.</p>
+                                        <a href="/" class="btn-primary">Ir al feed</a>
+                                    </div>
+                                `;
+                            }
+                        }, 300);
+                    }
+                } else {
+                    alert(result.message || 'Error al eliminar la publicación');
+                }
+            } catch (error) {
+                console.error('Error eliminando publicación:', error);
+                alert('Error al eliminar la publicación. Por favor, intenta de nuevo.');
+            }
+        }
+
+        // Variables para el modal de comentarios
+        let currentPublicacionId = null;
+
+        // Función para formatear tiempo relativo
+        function formatearTiempoRelativo(fechaString) {
+            const fecha = new Date(fechaString + 'Z');
+            const ahora = new Date();
+            const diffMs = ahora - fecha;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHoras = Math.floor(diffMs / 3600000);
+            const diffDias = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Ahora';
+            if (diffMins < 60) return `${diffMins}m`;
+            if (diffHoras < 24) return `${diffHoras}h`;
+            if (diffDias < 7) return `${diffDias}d`;
+            
+            return fecha.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' });
+        }
+
+        // Función para crear HTML de comentario
+        function crearComentarioHTML(comentario) {
+            const avatarUrl = comentario.autor?.urlFotoPerfil || '';
+            const nombreCompleto = `${comentario.autor?.nombre || ''} ${comentario.autor?.apellido || ''}`.trim();
+            const tituloCarrera = comentario.autor?.tituloCarrera || '';
+            
+            return `
+                <div class="comentario-item" data-comentario-id="${comentario.id}">
+                    <div class="comentario-avatar">
+                        ${avatarUrl ? 
+                            `<img src="${avatarUrl}" alt="${nombreCompleto}" />` : 
+                            `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`
+                        }
+                    </div>
+                    <div class="comentario-content">
+                        <div class="comentario-header">
+                            <strong class="comentario-autor">${nombreCompleto}</strong>
+                            ${tituloCarrera ? `<p class="comentario-subtitle">${tituloCarrera}</p>` : ''}
+                        </div>
+                        <p class="comentario-texto">${comentario.contenido}</p>
+                        <div class="comentario-footer">
+                            <span class="comentario-tiempo">${formatearTiempoRelativo(comentario.fechaCreacion)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Función para cargar comentarios
+        async function cargarComentarios(publicacionId, page = 1) {
+            const comentariosList = document.getElementById('comentarios-list');
+            if (!comentariosList) return;
+
+            try {
+                const response = await fetch(`${API_URL}/comentarios/publicacion/${publicacionId}?page=${page}&limit=10`);
+                const result = await response.json();
+
+                if (result.success) {
+                    if (page === 1) {
+                        comentariosList.innerHTML = '';
+                    }
+
+                    const comentarios = result.data || [];
+
+                    if (comentarios.length === 0 && page === 1) {
+                        comentariosList.innerHTML = '<p class="no-comentarios">No hay comentarios en esta publicación.</p>';
+                    } else {
+                        comentarios.forEach(comentario => {
+                            const comentarioHTML = crearComentarioHTML(comentario);
+                            comentariosList.insertAdjacentHTML('beforeend', comentarioHTML);
+                        });
+                    }
+
+                    const pagination = document.getElementById('comentarios-pagination');
+                    if (pagination && result.pagination) {
+                        pagination.style.display = result.pagination.hasNextPage ? 'block' : 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error cargando comentarios:', error);
+                comentariosList.innerHTML = '<p class="error-comentarios">Error al cargar comentarios</p>';
+            }
+        }
+
+        // Función para mostrar/ocultar modal de comentarios
+        function toggleComments(publicacionId) {
+            currentPublicacionId = publicacionId;
+            const modal = document.getElementById('comentarios-modal');
+            if (!modal) return;
+
+            const isVisible = modal.style.display === 'flex';
+            
+            if (isVisible) {
+                modal.style.display = 'none';
+                currentPublicacionId = null;
+            } else {
+                modal.style.display = 'flex';
+                cargarComentarios(publicacionId, 1);
+            }
+        }
+
+        // Event listener para inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            // Cargar primera página al cargar la página
+            cargarMisPublicaciones(1);
+
+            // Configurar botón de cargar más
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            if (loadMoreBtn) {
+                loadMoreBtn.addEventListener('click', () => {
+                    currentPage++;
+                    cargarMisPublicaciones(currentPage);
+                });
+            }
+
+            // Cerrar modal de comentarios
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', () => {
+                    const modal = document.getElementById('comentarios-modal');
+                    if (modal) {
+                        modal.style.display = 'none';
+                        currentPublicacionId = null;
+                    }
+                });
+            }
+
+            // Cerrar modal al hacer clic fuera
+            const modal = document.getElementById('comentarios-modal');
+            if (modal) {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                        currentPublicacionId = null;
+                    }
+                });
+            }
+
+            // Cargar más comentarios
+            const loadMoreCommentsBtn = document.getElementById('load-more-comments-btn');
+            if (loadMoreCommentsBtn) {
+                loadMoreCommentsBtn.addEventListener('click', () => {
+                    if (currentPublicacionId) {
+                        const comentariosList = document.getElementById('comentarios-list');
+                        const currentCount = comentariosList?.children.length || 0;
+                        const page = Math.floor(currentCount / 10) + 1;
+                        cargarComentarios(currentPublicacionId, page);
+                    }
+                });
+            }
+
+            // Event listeners para el modal de imágenes
+            const imagenModal = document.getElementById('imagen-modal');
+            const modalCerrar = document.getElementById('modal-cerrar');
+            const modalPrev = document.getElementById('modal-prev');
+            const modalNext = document.getElementById('modal-next');
+            
+            // Cerrar modal con botón X
+            if (modalCerrar) {
+                modalCerrar.addEventListener('click', cerrarModalImagen);
+            }
+            
+            // Navegación con botones
+            if (modalPrev) {
+                modalPrev.addEventListener('click', () => navegarImagenModal('prev'));
+            }
+            
+            if (modalNext) {
+                modalNext.addEventListener('click', () => navegarImagenModal('next'));
+            }
+            
+            // Cerrar modal al hacer clic en el fondo
+            if (imagenModal) {
+                imagenModal.addEventListener('click', (e) => {
+                    if (e.target === imagenModal) {
+                        cerrarModalImagen();
+                    }
+                });
+            }
+            
+            // Navegación con teclado
+            document.addEventListener('keydown', (e) => {
+                if (imagenModal && imagenModal.style.display === 'flex') {
+                    if (e.key === 'Escape') {
+                        cerrarModalImagen();
+                    } else if (e.key === 'ArrowLeft') {
+                        navegarImagenModal('prev');
+                    } else if (e.key === 'ArrowRight') {
+                        navegarImagenModal('next');
+                    }
+                }
+            });
+            
+            // Event delegation para clicks en imágenes de publicaciones
+            document.addEventListener('click', (e) => {
+                const container = e.target.closest('.imagen-container');
+                if (container) {
+                    const publicacionImagenes = container.closest('.publicacion-imagenes');
+                    if (publicacionImagenes) {
+                        const imagenesJSON = publicacionImagenes.getAttribute('data-imagenes');
+                        if (imagenesJSON) {
+                            try {
+                                const imagenes = JSON.parse(imagenesJSON);
+                                const index = parseInt(container.getAttribute('data-imagen-index')) || 0;
+                                abrirModalImagen(imagenes, index);
+                            } catch (error) {
+                                console.error('Error parseando imágenes:', error);
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        // Exponer funciones globalmente
+        window.toggleComments = toggleComments;
+        window.eliminarPublicacion = eliminarPublicacion;
+    </script>
+</BaseLayout>

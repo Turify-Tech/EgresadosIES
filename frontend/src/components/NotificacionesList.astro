@@ -1,0 +1,361 @@
+---
+/**
+ * Componente de Lista de Notificaciones
+ * Muestra las notificaciones del usuario con paginación y filtros
+ */
+
+export interface Props {
+    limit?: number;
+    showFilters?: boolean;
+}
+
+const { limit = 20, showFilters = true } = Astro.props;
+---
+
+<div class="notificaciones-wrapper">
+    <!-- Filtros simplificados -->
+    {showFilters && (
+        <div class="notificaciones-filtros">
+            <button class="filtro-btn active" data-filtro="todas">
+                Todas
+            </button>
+            <button class="filtro-btn" data-filtro="no-leidas">
+                No leídas
+            </button>
+        </div>
+    )}
+
+    <!-- Lista de notificaciones -->
+    <div class="notificaciones-lista" id="notificaciones-lista">
+        <!-- Loading skeleton -->
+        <div class="notificaciones-skeleton" id="notificaciones-loading">
+            {Array(5).fill(0).map(() => (
+                <div class="skeleton-item">
+                    <div class="skeleton-avatar"></div>
+                    <div class="skeleton-content">
+                        <div class="skeleton-line title"></div>
+                        <div class="skeleton-line text"></div>
+                        <div class="skeleton-line date"></div>
+                    </div>
+                </div>
+            ))}
+        </div>
+
+        <!-- Contenido real se carga con JavaScript -->
+    </div>
+
+    <!-- Estado vacío -->
+    <div class="notificaciones-empty" id="notificaciones-empty" style="display: none;">
+        <div class="notificaciones-empty-icon">🔔</div>
+        <h3>No hay notificaciones</h3>
+        <p>Aquí verás cuando alguien interactúe con tus publicaciones</p>
+    </div>
+
+    <!-- Botón cargar más -->
+    <div class="notificaciones-load-more" id="notificaciones-load-more" style="display: none;">
+        <button class="btn-load-more" id="btn-load-more">
+            Cargar más
+        </button>
+    </div>
+</div>
+
+<script is:inline data-limit="5">
+    (function() {
+        const API_URL = 'http://localhost:3000/api';
+        const limit = parseInt(document.currentScript.getAttribute('data-limit')) || 5;
+    
+    // Estado de la lista
+    let offset = 0;
+    let currentFilter = 'todas';
+    let hasMore = true;
+    let isLoading = false;
+
+    // Elementos del DOM
+    const lista = document.getElementById('notificaciones-lista');
+    const loading = document.getElementById('notificaciones-loading');
+    const empty = document.getElementById('notificaciones-empty');
+    const loadMoreContainer = document.getElementById('notificaciones-load-more');
+    const btnLoadMore = document.getElementById('btn-load-more');
+
+    // Cargar notificaciones
+    async function cargarNotificaciones(append = false) {
+        if (isLoading) return;
+        
+        try {
+            isLoading = true;
+            
+            if (!append) {
+                loading.style.display = 'flex';
+                lista.innerHTML = '';
+                offset = 0;
+            } else {
+                btnLoadMore.disabled = true;
+                btnLoadMore.textContent = 'Cargando...';
+            }
+            
+            empty.style.display = 'none';
+
+            const token = localStorage.getItem('auth_token');
+            if (!token) {
+                loading.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+
+            const soloNoLeidas = currentFilter === 'no-leidas';
+            
+            const url = new URL(`${API_URL}/notificaciones`);
+            url.searchParams.append('limit', limit.toString());
+            url.searchParams.append('offset', offset.toString());
+            if (soloNoLeidas) {
+                url.searchParams.append('solo_no_leidas', 'true');
+            }
+
+            const response = await fetch(url, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al cargar notificaciones');
+            }
+
+            const data = await response.json();
+            loading.style.display = 'none';
+
+            const notificaciones = data.notificaciones || [];
+
+            if (notificaciones.length === 0 && !append) {
+                empty.style.display = 'block';
+                loadMoreContainer.style.display = 'none';
+                isLoading = false;
+                return;
+            }
+
+            // Renderizar notificaciones (append o replace)
+            renderizarNotificaciones(notificaciones, append);
+
+            // Actualizar estado
+            hasMore = data.hasMore;
+            offset += notificaciones.length;
+            
+            // Mostrar/ocultar botón cargar más
+            if (hasMore && lista.children.length > 0) {
+                loadMoreContainer.style.display = 'flex';
+                btnLoadMore.disabled = false;
+                btnLoadMore.textContent = 'Cargar más';
+            } else {
+                loadMoreContainer.style.display = 'none';
+            }
+
+            isLoading = false;
+
+        } catch (error) {
+            console.error('Error al cargar notificaciones:', error);
+            loading.style.display = 'none';
+            if (!append) {
+                lista.innerHTML = '<div class="error-message">Error al cargar las notificaciones. Por favor, intenta de nuevo.</div>';
+            }
+            btnLoadMore.disabled = false;
+            btnLoadMore.textContent = 'Cargar más';
+            isLoading = false;
+        }
+    }
+
+    // Renderizar lista de notificaciones
+    function renderizarNotificaciones(notificaciones, append = false) {
+        const html = notificaciones.map(notif => {
+            const iconos = {
+                'comentario': '💬',
+                'like': '❤️',
+                'mencion': '@'
+            };
+
+            const fecha = formatearFecha(notif.fechaCreacion);
+            const leida = notif.leida ? '' : 'no-leida';
+            const icono = iconos[notif.tipo] || '🔔';
+
+            let avatar = '';
+            if (notif.origenFotoPerfil) {
+                avatar = `<img src="${notif.origenFotoPerfil}" alt="${notif.origenNombre}" />`;
+            } else if (notif.origenNombre) {
+                const inicial = notif.origenNombre.charAt(0).toUpperCase();
+                avatar = inicial;
+            }
+
+            return `
+                <div class="notificacion-item ${leida}" data-id="${notif.id}" data-url="${notif.urlDestino || '#'}" data-fecha="${notif.fechaCreacion}">
+                    <div class="notificacion-contenido">
+                        ${notif.origenNombre ? `
+                            <div class="notificacion-autor">
+                                <div class="notificacion-avatar-wrapper">
+                                    <div class="notificacion-avatar">${avatar}</div>
+                                    <div class="notificacion-badge ${notif.tipo}">${icono}</div>
+                                </div>
+                                <span class="notificacion-nombre">${notif.origenNombre} ${notif.origenApellido || ''}</span>
+                            </div>
+                        ` : ''}
+                        <div class="notificacion-titulo">${notif.titulo}</div>
+                        <div class="notificacion-mensaje">${notif.mensaje}</div>
+                        <div class="notificacion-fecha">${fecha}</div>
+                    </div>
+                    <div class="notificacion-acciones">
+                        ${!notif.leida ? `<button class="btn-icon marcar-leida" data-id="${notif.id}" title="Marcar como leída">✓</button>` : ''}
+                        <button class="btn-icon eliminar" data-id="${notif.id}" title="Eliminar">🗑️</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        if (append) {
+            lista.insertAdjacentHTML('beforeend', html);
+        } else {
+            lista.innerHTML = html;
+        }
+
+        // Agregar event listeners
+        agregarEventListeners();
+        
+        // Actualizar fechas inmediatamente después de renderizar
+        actualizarFechasRelativas();
+    }
+
+    // Agregar event listeners a los elementos de notificación
+    function agregarEventListeners() {
+        // Click en notificación
+        document.querySelectorAll('.notificacion-item').forEach(item => {
+            item.addEventListener('click', async (e) => {
+                if (e.target.closest('.notificacion-acciones')) return;
+
+                const id = item.dataset.id;
+                const url = item.dataset.url;
+
+                // Marcar como leída
+                await marcarComoLeida(id);
+
+                // Redirigir
+                if (url && url !== '#') {
+                    window.location.href = url;
+                }
+            });
+        });
+
+        // Botones de marcar como leída
+        document.querySelectorAll('.marcar-leida').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const id = btn.dataset.id;
+                await marcarComoLeida(id);
+                await cargarNotificaciones();
+            });
+        });
+
+        // Botones de eliminar
+        document.querySelectorAll('.eliminar').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const id = btn.dataset.id;
+                if (confirm('¿Estás seguro de eliminar esta notificación?')) {
+                    await eliminarNotificacion(id);
+                    await cargarNotificaciones();
+                }
+            });
+        });
+    }
+
+    // Marcar notificación como leída
+    async function marcarComoLeida(id) {
+        try {
+            const token = localStorage.getItem('auth_token');
+            await fetch(`${API_URL}/notificaciones/${id}/leer`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+        } catch (error) {
+            console.error('Error al marcar como leída:', error);
+        }
+    }
+
+    // Eliminar notificación
+    async function eliminarNotificacion(id) {
+        try {
+            const token = localStorage.getItem('auth_token');
+            await fetch(`${API_URL}/notificaciones/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+        } catch (error) {
+            console.error('Error al eliminar notificación:', error);
+        }
+    }
+
+    // Formatear fecha relativa
+    function formatearFecha(fechaStr) {
+        const fecha = new Date(fechaStr);
+        const ahora = new Date();
+        const diferencia = ahora - fecha;
+        const segundos = Math.floor(diferencia / 1000);
+        const minutos = Math.floor(segundos / 60);
+        const horas = Math.floor(minutos / 60);
+        const dias = Math.floor(horas / 24);
+
+        if (segundos < 60) return 'Hace un momento';
+        if (minutos < 60) return `Hace ${minutos} ${minutos === 1 ? 'minuto' : 'minutos'}`;
+        if (horas < 24) return `Hace ${horas} ${horas === 1 ? 'hora' : 'horas'}`;
+        if (dias < 7) return `Hace ${dias} ${dias === 1 ? 'día' : 'días'}`;
+        
+        return fecha.toLocaleDateString('es-ES', { 
+            day: 'numeric', 
+            month: 'short', 
+            year: fecha.getFullYear() !== ahora.getFullYear() ? 'numeric' : undefined 
+        });
+    }
+
+    // Actualizar las fechas mostradas sin recargar toda la lista
+    function actualizarFechasRelativas() {
+        document.querySelectorAll('.notificacion-item').forEach(item => {
+            const fechaStr = item.dataset.fecha;
+            if (fechaStr) {
+                const fechaElement = item.querySelector('.notificacion-fecha');
+                if (fechaElement) {
+                    fechaElement.textContent = formatearFecha(fechaStr);
+                }
+            }
+        });
+    }
+
+    // Event listeners de filtros
+    document.querySelectorAll('.filtro-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentFilter = btn.dataset.filtro;
+            offset = 0;
+            cargarNotificaciones(false);
+        });
+    });
+
+    // Event listener del botón cargar más
+    btnLoadMore?.addEventListener('click', () => {
+        if (hasMore && !isLoading) {
+            cargarNotificaciones(true);
+        }
+    });
+
+    // Exponer función para cargar desde fuera (cuando se abra el modal)
+    window.cargarNotificacionesModal = function() {
+        cargarNotificaciones(false);
+    };
+
+    // Actualizar las fechas relativas cada 10 segundos para mostrar "Hace un momento" rápidamente
+    setInterval(actualizarFechasRelativas, 10000);
+    })();
+</script>

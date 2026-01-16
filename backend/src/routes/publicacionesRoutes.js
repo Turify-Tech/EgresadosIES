@@ -3,6 +3,7 @@ import rateLimit from "express-rate-limit";
 import { authenticateToken } from "../middleware/auth.js";
 import { requireEgresado } from "../middleware/roles.js";
 import * as publicacionesController from "../controllers/publicacionesController.js";
+import { uploadPublicacionImages, handleMulterError } from "../middleware/uploadImagesCloudinary.js";
 
 const router = express.Router();
 
@@ -39,6 +40,14 @@ const crearPublicacionLimiter = rateLimit({
 router.get("/", publicacionesLimiter, publicacionesController.listarPublicaciones);
 
 /**
+ * @route   GET /api/publicaciones/mis-publicaciones
+ * @desc    Mis publicaciones (del usuario autenticado)
+ * @access  Privado (solo egresados autenticados)
+ * @query   { "page": number, "limit": number }
+ */
+router.get("/mis-publicaciones", authenticateToken, requireEgresado, publicacionesLimiter, publicacionesController.misPublicaciones);
+
+/**
  * @route   GET /api/publicaciones/usuario/:userId
  * @desc    Publicaciones de un usuario específico
  * @access  Público
@@ -59,9 +68,18 @@ router.get("/:id", publicacionesLimiter, publicacionesController.verPublicacion)
  * @route   POST /api/publicaciones
  * @desc    Crear nueva publicación
  * @access  Privado (solo egresados autenticados)
- * @body    { "contenido": string, "imagenes": ["url1", "url2"] }
+ * @body    { "contenido": string }
+ * @files   imagenes[] - Array de imágenes (opcional, máximo 5 imágenes de 5MB cada una)
  */
-router.post("/", authenticateToken, requireEgresado, crearPublicacionLimiter, publicacionesController.crearPublicacion);
+router.post(
+    "/", 
+    authenticateToken, 
+    requireEgresado, 
+    crearPublicacionLimiter, 
+    uploadPublicacionImages,
+    handleMulterError,
+    publicacionesController.crearPublicacion
+);
 
 /**
  * @route   POST /api/publicaciones

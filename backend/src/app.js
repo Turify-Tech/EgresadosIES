@@ -1,10 +1,20 @@
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Configurar dotenv PRIMERO, antes de cualquier otra importación
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const envPath = path.join(__dirname, "../.env");
+
+console.log("🔧 Cargando variables de entorno desde:", envPath);
+dotenv.config({ path: envPath });
+
+// Ahora sí importar el resto
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
-import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
 import database from "./config/database.js";
 import authRoutes from "./routes/authRoutes.js";
 import busquedaRoutes from "./routes/busquedaRoutes.js";
@@ -16,14 +26,7 @@ import adminRoutes from "./routes/adminRoutes.js";
 import publicacionesRoutes from "./routes/publicacionesRoutes.js";
 import comentariosRoutes from "./routes/comentariosRoutes.js";
 import likesRoutes from "./routes/likesRoutes.js";
-
-// Configurar dotenv con ruta absoluta
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const envPath = path.join(__dirname, "../.env");
-
-console.log("🔧 Cargando variables de entorno desde:", envPath);
-dotenv.config({ path: envPath });
+import notificacionesRoutes from "./routes/notificacionesRoutes.js";
 
 // Debug: Verificar configuración básica
 console.log("🔍 Environment Check:", {
@@ -61,15 +64,7 @@ if (process.env.NODE_ENV !== "test") {
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-// Servir archivos estáticos (uploads) con CORS
-const uploadsPath = path.join(__dirname, "../uploads");
-app.use("/uploads", (req, res, next) => {
-    res.header("Access-Control-Allow-Origin", process.env.FRONTEND_URL || "http://localhost:4321");
-    res.header("Access-Control-Allow-Methods", "GET");
-    res.header("Cross-Origin-Resource-Policy", "cross-origin");
-    next();
-}, express.static(uploadsPath));
-console.log("📁 Sirviendo archivos estáticos desde:", uploadsPath);
+// Nota: Las imágenes se almacenan en Cloudinary, no en filesystem local
 
 // Health check endpoint
 app.get("/api/health", async (req, res) => {
@@ -107,6 +102,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/publicaciones", publicacionesRoutes);
 app.use("/api/comentarios", comentariosRoutes);
 app.use("/api/likes", likesRoutes);
+app.use("/api/notificaciones", notificacionesRoutes);
 
 // Middleware de manejo de errores globales
 app.use((err, req, res, next) => {

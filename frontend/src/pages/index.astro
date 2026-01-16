@@ -110,6 +110,8 @@ import "../styles/index.css";
         function crearPostCard(publicacion) {
             const { id, contenido, autor, fechaCreacion, totalComentarios, totalLikes, imagenes } = publicacion;
             
+            console.log(`Post ${id} - Comentarios: ${totalComentarios}, Likes: ${totalLikes}`);
+            
             return `
                 <article class="post-card" data-post-id="${id}">
                     <header class="post-header">
@@ -132,11 +134,14 @@ import "../styles/index.css";
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                             </svg>
-                            <span class="comment-count">${totalComentarios}</span>
+                            <span class="action-text">Comentarios</span>
+                            ${totalComentarios > 0 ? `<span class="comment-count">${totalComentarios}</span>` : ''}
                         </button>
                         <button class="action-btn like-btn">
-                            <span>🤍</span>
-                            <span class="like-count">${totalLikes}</span>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                            ${totalLikes > 0 ? `<span class="like-count">${totalLikes > 999 ? (totalLikes / 1000).toFixed(1) + 'k' : totalLikes}</span>` : ''}
                         </button>
                     </footer>
                 </article>
@@ -178,7 +183,7 @@ import "../styles/index.css";
                         feedList.insertAdjacentHTML('beforeend', cardHTML);
                     });
 
-                    // Actualizar estado de paginación
+                    // Actualizar estado de paginaciónes
                     hasMorePages = result.data.pagination.hasNext;
                     
                     // Mostrar/ocultar botón de cargar más

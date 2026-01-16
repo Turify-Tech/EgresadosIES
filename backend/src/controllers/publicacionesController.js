@@ -1,4 +1,5 @@
 import database from "../config/database.js";
+import cloudinary from "../config/cloudinary.js";
 
 /**
  * Controlador para el sistema de publicaciones sociales
@@ -39,7 +40,7 @@ function convertBigIntToNumber(obj) {
 export async function crearPublicacion(req, res) {
     try {
         const usuarioId = req.user.id;
-        const { contenido, imagenes = [] } = req.body;
+        const { contenido } = req.body;
 
         // Validaciones
         if (!contenido || contenido.trim() === '') {
@@ -66,13 +67,20 @@ export async function crearPublicacion(req, res) {
 
         const publicacionId = insertResult.lastInsertRowid;
 
-        // Insertar imágenes si las hay
-        if (imagenes.length > 0) {
-            for (const imagenUrl of imagenes) {
+        // Procesar imágenes subidas (Cloudinary)
+        const imagenesUrls = [];
+        if (req.files && req.files.length > 0) {
+            for (const file of req.files) {
+                // Cloudinary devuelve la URL segura en file.path
+                const imageUrl = file.path;
+                
+                // Guardar en base de datos
                 await client.execute({
                     sql: `INSERT INTO ImagenPublicacion (url, publicacionId) VALUES (?, ?)`,
-                    args: [imagenUrl, publicacionId]
+                    args: [imageUrl, publicacionId]
                 });
+                
+                imagenesUrls.push(imageUrl);
             }
         }
 
@@ -82,7 +90,7 @@ export async function crearPublicacion(req, res) {
             data: {
                 id: Number(publicacionId),
                 contenido: contenido.trim(),
-                imagenes
+                imagenes: imagenesUrls
             }
         });
 
@@ -460,11 +468,55 @@ export async function eliminarPublicacion(req, res) {
             });
         }
 
+        // Obtener URLs de las imágenes antes de eliminar
+        const imagenesQuery = `SELECT url FROM ImagenPublicacion WHERE publicacionId = ?`;
+        const imagenesResult = await client.execute({
+            sql: imagenesQuery,
+            args: [publicacionId]
+        });
+
         // Eliminar publicación (las imágenes, comentarios y likes se eliminan por CASCADE)
         await client.execute({
             sql: `DELETE FROM Publicacion WHERE id = ?`,
             args: [publicacionId]
         });
+
+        // Eliminar imágenes de Cloudinary
+        if (imagenesResult.rows.length > 0) {
+            for (const row of imagenesResult.rows) {
+                try {
+                    // Extraer public_id de la URL de Cloudinary
+                    // URL ejemplo: https://res.cloudinary.com/djgrfq6oi/image/upload/v1768491223/egresados-ies/publicaciones/pub-123456.jpg
+                    const urlParts = row.url.split('/');
+                    const uploadIndex = urlParts.indexOf('upload');
+                    
+                    if (uploadIndex === -1) {
+                        console.error(`URL de Cloudinary inválida: ${row.url}`);
+                        continue;
+                    }
+                    
+                    // Obtener path después de la versión (v1768491223)
+                    // urlParts[uploadIndex + 1] = versión (v1768491223)
+                    // urlParts.slice(uploadIndex + 2) = ['egresados-ies', 'publicaciones', 'pub-123456.jpg']
+                    const pathAfterVersion = urlParts.slice(uploadIndex + 2).join('/');
+                    
+                    // Quitar extensión (.jpg, .png, etc)
+                    const publicId = pathAfterVersion.replace(/\.[^/.]+$/, "");
+                    
+                    // Eliminar de Cloudinary
+                    const result = await cloudinary.uploader.destroy(publicId);
+                    
+                    if (result.result === 'ok') {
+                        console.log(`✅ Imagen eliminada de Cloudinary: ${publicId}`);
+                    } else {
+                        console.warn(`⚠️ Cloudinary no encontró la imagen: ${publicId} (resultado: ${result.result})`);
+                    }
+                } catch (cloudinaryError) {
+                    console.error(`❌ Error eliminando imagen de Cloudinary ${row.url}:`, cloudinaryError.message);
+                    // No lanzamos el error para que no falle la eliminación de la publicación
+                }
+            }
+        }
 
         res.status(200).json({
             success: true,
@@ -473,6 +525,161 @@ export async function eliminarPublicacion(req, res) {
 
     } catch (error) {
         console.error("Error eliminando publicación:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error interno del servidor"
+        });
+    }
+}
+
+/**
+ * Mis publicaciones (del usuario autenticado)
+ * @route GET /api/publicaciones/mis-publicaciones
+ * @desc Obtener todas las publicaciones del usuario autenticado
+ * @access Privado (solo egresados autenticados)
+ */
+export async function misPublicaciones(req, res) {
+    try {
+        const usuarioId = req.user.id;
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(
+            SECURITY_LIMITS.PUBLICACIONES.MAX_PER_PAGE,
+            parseInt(req.query.limit) || SECURITY_LIMITS.PUBLICACIONES.DEFAULT_LIMIT
+        );
+        const offset = (page - 1) * limit;
+
+        const client = database.getClient();
+
+        // Obtener publicaciones del usuario
+        const publicacionesQuery = `
+            SELECT 
+                p.id,
+                p.contenido,
+                p.fechaCreacion,
+                p.autorId
+            FROM Publicacion p
+            WHERE p.autorId = ?
+            ORDER BY p.fechaCreacion DESC
+            LIMIT ? OFFSET ?
+        `;
+
+        const publicacionesResult = await client.execute({
+            sql: publicacionesQuery,
+            args: [usuarioId, limit, offset]
+        });
+
+        // Obtener total de publicaciones del usuario
+        const totalQuery = `SELECT COUNT(*) as total FROM Publicacion WHERE autorId = ?`;
+        const totalResult = await client.execute({
+            sql: totalQuery,
+            args: [usuarioId]
+        });
+        const total = Number(totalResult.rows[0].total);
+
+        // Procesar cada publicación
+        const publicaciones = [];
+        for (const row of publicacionesResult.rows) {
+            const publicacion = convertBigIntToNumber(row);
+            
+            // Obtener datos del autor (yo)
+            const autorQuery = `
+                SELECT 
+                    u.nombre as nombreUsuario, 
+                    u.apellido,
+                    p.urlFotoPerfil,
+                    p.tituloprofesional
+                FROM Usuario u
+                LEFT JOIN Egresado e ON u.id = e.id
+                LEFT JOIN Perfil p ON e.perfilId = p.id
+                WHERE u.id = ?
+            `;
+            const autorResult = await client.execute({
+                sql: autorQuery,
+                args: [usuarioId]
+            });
+            
+            let nombreCompleto = 'Usuario desconocido';
+            let urlFotoPerfil = null;
+            let tituloprofesional = null;
+            
+            if (autorResult.rows.length > 0) {
+                const autor = autorResult.rows[0];
+                urlFotoPerfil = autor.urlFotoPerfil;
+                tituloprofesional = autor.tituloprofesional;
+                
+                if (autor.nombreUsuario && autor.apellido) {
+                    nombreCompleto = `${autor.nombreUsuario} ${autor.apellido}`;
+                } else if (autor.nombreUsuario) {
+                    nombreCompleto = autor.nombreUsuario;
+                } else if (autor.tituloprofesional) {
+                    nombreCompleto = autor.tituloprofesional;
+                }
+            }
+
+            // Obtener imágenes de esta publicación
+            const imagenesQuery = `
+                SELECT url FROM ImagenPublicacion 
+                WHERE publicacionId = ? 
+                ORDER BY id
+            `;
+            const imagenesResult = await client.execute({
+                sql: imagenesQuery,
+                args: [publicacion.id]
+            });
+
+            publicacion.imagenes = imagenesResult.rows.map(img => img.url);
+            publicacion.autor = {
+                id: usuarioId,
+                nombre: nombreCompleto,
+                urlFotoPerfil: urlFotoPerfil,
+                tituloprofesional: tituloprofesional
+            };
+            
+            // Obtener total de comentarios
+            const comentariosQuery = `
+                SELECT COUNT(*) as total FROM Comentario 
+                WHERE publicacionId = ?
+            `;
+            const comentariosResult = await client.execute({
+                sql: comentariosQuery,
+                args: [publicacion.id]
+            });
+            publicacion.totalComentarios = Number(comentariosResult.rows[0]?.total || 0);
+            
+            // Obtener total de likes
+            const likesQuery = `
+                SELECT COUNT(*) as total FROM LikePublicacion 
+                WHERE publicacionId = ?
+            `;
+            const likesResult = await client.execute({
+                sql: likesQuery,
+                args: [publicacion.id]
+            });
+            publicacion.totalLikes = Number(likesResult.rows[0]?.total || 0);
+            
+            // Limpiar campos temporales
+            delete publicacion.autorId;
+
+            publicaciones.push(publicacion);
+        }
+
+        res.status(200).json({
+            success: true,
+            data: {
+                publicaciones,
+                pagination: {
+                    page,
+                    limit,
+                    total,
+                    totalPages: Math.ceil(total / limit),
+                    hasNext: page < Math.ceil(total / limit),
+                    hasPrev: page > 1
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error("Error obteniendo mis publicaciones:", error);
         res.status(500).json({
             success: false,
             message: "Error interno del servidor"

@@ -256,3 +256,45 @@ CREATE TABLE Proyectos (
   fechaActualizacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (usuarioId) REFERENCES Egresado (id) ON DELETE CASCADE
 );
+
+-- -----------------------------------------------------------------
+-- Tabla: Notificacion
+-- -----------------------------------------------------------------
+-- Propósito: Almacena las notificaciones internas del sistema para cada usuario.
+--            Soporta diferentes tipos de notificaciones y tracking de emails.
+-- -----------------------------------------------------------------
+CREATE TABLE Notificacion (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  usuario_id INTEGER NOT NULL,
+  tipo TEXT NOT NULL CHECK (tipo IN ('comentario', 'like', 'mencion')),
+  titulo TEXT NOT NULL,
+  mensaje TEXT NOT NULL,
+  url_destino TEXT,
+  leida BOOLEAN DEFAULT 0,
+  enviada_email BOOLEAN DEFAULT 0,
+  fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+  origen_usuario_id INTEGER,
+  FOREIGN KEY (usuario_id) REFERENCES Usuario (id) ON DELETE CASCADE,
+  FOREIGN KEY (origen_usuario_id) REFERENCES Usuario (id) ON DELETE CASCADE
+);
+
+-- Índice para mejorar el rendimiento de consultas de notificaciones
+CREATE INDEX idx_notificacion_usuario 
+ON Notificacion(usuario_id, leida, fecha_creacion DESC);
+
+-- -----------------------------------------------------------------
+-- Tabla: PreferenciasNotificacion
+-- -----------------------------------------------------------------
+-- Propósito: Almacena las preferencias de notificación de cada usuario.
+--            Permite configurar qué tipos de notificaciones recibir por email.
+-- -----------------------------------------------------------------
+CREATE TABLE PreferenciasNotificacion (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  usuario_id INTEGER NOT NULL UNIQUE,
+  email_comentarios BOOLEAN DEFAULT 1,
+  email_likes BOOLEAN DEFAULT 1,
+  email_menciones BOOLEAN DEFAULT 1,
+  email_resumen_diario BOOLEAN DEFAULT 0,
+  fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (usuario_id) REFERENCES Usuario (id) ON DELETE CASCADE
+);

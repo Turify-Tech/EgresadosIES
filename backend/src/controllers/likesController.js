@@ -1,4 +1,5 @@
 import database from "../config/database.js";
+import notificationService from "../services/notificationService.js";
 
 /**
  * Controlador para el sistema de likes en publicaciones
@@ -42,9 +43,9 @@ export async function toggleLike(req, res) {
 
         const client = database.getClient();
 
-        // Verificar que la publicación existe
+        // Verificar que la publicación existe y obtener el autor
         const publicacion = await client.execute({
-            sql: `SELECT id FROM Publicacion WHERE id = ?`,
+            sql: `SELECT id, autorId FROM Publicacion WHERE id = ?`,
             args: [publicacionId]
         });
 
@@ -54,6 +55,8 @@ export async function toggleLike(req, res) {
                 message: "La publicación no existe"
             });
         }
+
+        const publicacionAutorId = publicacion.rows[0].autorId;
 
         // Verificar si el usuario ya dio like
         const likeExistente = await client.execute({
@@ -83,6 +86,13 @@ export async function toggleLike(req, res) {
             });
             accion = 'agregado';
             liked = true;
+
+            // Notificar al autor de la publicación (en background, solo al dar like)
+            notificationService.notificarLike({
+                publicacionAutorId: Number(publicacionAutorId),
+                likeAutorId: usuarioId,
+                publicacionId: Number(publicacionId)
+            }).catch(err => console.error('Error al enviar notificación de like:', err));
         }
 
         // Contar likes actuales
