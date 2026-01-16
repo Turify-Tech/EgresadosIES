@@ -336,6 +336,9 @@ import NotificacionesModal from "../components/NotificacionesModal.astro";
         <!-- Scripts -->
         <script>
             document.addEventListener("DOMContentLoaded", () => {
+                // API URL
+                const API_URL = "http://localhost:3000/api";
+                
                 // Actualizar año en el footer
                 const currentYearElement = document.getElementById("current-year");
                 if (currentYearElement) {
@@ -456,8 +459,6 @@ import NotificacionesModal from "../components/NotificacionesModal.astro";
                         }
                         if (notificacionesBtn) {
                             notificacionesBtn.style.display = "flex";
-                            // Cargar contador de notificaciones
-                            cargarContadorNotificaciones();
                             
                             // Agregar evento click para abrir modal
                             notificacionesBtn.addEventListener('click', () => {
@@ -470,6 +471,9 @@ import NotificacionesModal from "../components/NotificacionesModal.astro";
                                     }
                                 }
                             });
+                            
+                            // Iniciar polling de notificaciones
+                            iniciarPollingNotificaciones();
                         }
                         
                         // Iniciar actualización de mensajes no leídos
@@ -490,7 +494,7 @@ import NotificacionesModal from "../components/NotificacionesModal.astro";
                         const token = localStorage.getItem("auth_token");
                         if (!token) return;
 
-                        const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/notificaciones/no-leidas/contador`, {
+                        const response = await fetch(`${API_URL}/notificaciones/no-leidas/contador`, {
                             headers: {
                                 'Authorization': `Bearer ${token}`,
                                 'Content-Type': 'application/json'
@@ -509,13 +513,18 @@ import NotificacionesModal from "../components/NotificacionesModal.astro";
                             }
                         }
                     } catch (error) {
-                        console.error('Error al cargar contador de notificaciones:', error);
+                        console.debug('Error al cargar contador de notificaciones:', error);
                     }
                 }
 
-                // Actualizar contador cada 30 segundos si el usuario está autenticado
-                if (token) {
-                    setInterval(cargarContadorNotificaciones, 30000);
+                // Iniciar polling de notificaciones para egresados
+                let notificacionesPolling = null;
+                async function iniciarPollingNotificaciones() {
+                    // Actualizar inmediatamente
+                    await cargarContadorNotificaciones();
+                    
+                    // Actualizar cada 30 segundos
+                    notificacionesPolling = setInterval(cargarContadorNotificaciones, 30000);
                 }
 
                 function setupUnauthenticatedUI() {
@@ -661,6 +670,9 @@ import NotificacionesModal from "../components/NotificacionesModal.astro";
                 window.addEventListener("beforeunload", () => {
                     if (mensajesPolling) {
                         clearInterval(mensajesPolling);
+                    }
+                    if (notificacionesPolling) {
+                        clearInterval(notificacionesPolling);
                     }
                 });
             });
