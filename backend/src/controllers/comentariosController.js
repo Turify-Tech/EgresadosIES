@@ -40,7 +40,7 @@ function convertBigIntToNumber(obj) {
 export async function crearComentario(req, res) {
     try {
         const usuarioId = req.user.id;
-        const { contenido, publicacionId } = req.body;
+        const { contenido, publicacionId, comentarioPadreId } = req.body;
 
         // Validaciones
         if (!contenido || contenido.trim() === '') {
@@ -74,11 +74,26 @@ export async function crearComentario(req, res) {
 
         const publicacionAutorId = publicacion.rows[0].autorId;
 
-        // Crear el comentario
+        // Si es una respuesta, verificar que el comentario padre existe
+        if (comentarioPadreId) {
+            const comentarioPadre = await client.execute({
+                sql: `SELECT id, autorId FROM Comentario WHERE id = ?`,
+                args: [comentarioPadreId]
+            });
+
+            if (comentarioPadre.rows.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: "El comentario al que intentas responder no existe"
+                });
+            }
+        }
+
+        // Crear el comentario (con o sin comentarioPadreId)
         const insertResult = await client.execute({
-            sql: `INSERT INTO Comentario (contenido, autorId, publicacionId) 
-                  VALUES (?, ?, ?)`,
-            args: [contenido.trim(), usuarioId, publicacionId]
+            sql: `INSERT INTO Comentario (contenido, autorId, publicacionId, comentarioPadreId) 
+                  VALUES (?, ?, ?, ?)`,
+            args: [contenido.trim(), usuarioId, publicacionId, comentarioPadreId || null]
         });
 
         const comentarioId = insertResult.lastInsertRowid;
@@ -102,7 +117,7 @@ export async function crearComentario(req, res) {
             }).catch(err => console.error('Error al notificar mención:', err));
         }
 
-        // Obtener el comentario completo con datos del autor
+        // Obtener el comentario completo con datos del autor y contador de likes
         const comentarioCompleto = await client.execute({
             sql: `
                 SELECT 
@@ -112,10 +127,12 @@ export async function crearComentario(req, res) {
                     c.fueEditado,
                     c.autorId,
                     c.publicacionId,
+                    c.comentarioPadreId,
                     u.nombre,
                     u.apellido,
                     p.urlFotoPerfil,
-                    car.nombre as tituloCarrera
+                    car.nombre as tituloCarrera,
+                    (SELECT COUNT(*) FROM LikeComentario WHERE comentarioId = c.id) as totalLikes
                 FROM Comentario c
                 INNER JOIN Usuario u ON c.autorId = u.id
                 LEFT JOIN Egresado e ON u.id = e.id
@@ -144,7 +161,9 @@ export async function crearComentario(req, res) {
                     tituloCarrera: comentario.tituloCarrera
                 },
                 publicacionId: comentario.publicacionId,
-                totalLikes: 0
+                comentarioPadreId: comentario.comentarioPadreId,
+                totalLikes: comentario.totalLikes || 0,
+                totalRespuestas: 0
             }
         });
 
@@ -199,7 +218,7 @@ export async function obtenerComentariosPorPublicacion(req, res) {
 
         const total = Number(countResult.rows[0].total);
 
-        // Obtener comentarios con datos del autor
+        // Obtener comentarios principales (sin comentarioPadreId) con datos del autor
         const comentariosResult = await client.execute({
             sql: `
                 SELECT 
@@ -209,16 +228,19 @@ export async function obtenerComentariosPorPublicacion(req, res) {
                     c.fueEditado,
                     c.autorId,
                     c.publicacionId,
+                    c.comentarioPadreId,
                     u.nombre,
                     u.apellido,
                     p.urlFotoPerfil,
-                    car.nombre as tituloCarrera
+                    car.nombre as tituloCarrera,
+                    (SELECT COUNT(*) FROM Comentario WHERE comentarioPadreId = c.id) as totalRespuestas,
+                    (SELECT COUNT(*) FROM LikeComentario WHERE comentarioId = c.id) as totalLikes
                 FROM Comentario c
                 INNER JOIN Usuario u ON c.autorId = u.id
                 LEFT JOIN Egresado e ON u.id = e.id
                 LEFT JOIN Perfil p ON e.perfilId = p.id
                 LEFT JOIN Carrera car ON e.carreraId = car.id
-                WHERE c.publicacionId = ?
+                WHERE c.publicacionId = ? AND c.comentarioPadreId IS NULL
                 ORDER BY c.fechaCreacion DESC
                 LIMIT ? OFFSET ?
             `,
@@ -240,7 +262,9 @@ export async function obtenerComentariosPorPublicacion(req, res) {
                     tituloCarrera: converted.tituloCarrera
                 },
                 publicacionId: converted.publicacionId,
-                totalLikes: 0
+                comentarioPadreId: converted.comentarioPadreId,
+                totalLikes: converted.totalLikes || 0,
+                totalRespuestas: converted.totalRespuestas || 0
             };
         });
 
@@ -379,8 +403,115 @@ export async function editarComentario(req, res) {
     }
 }
 
-/**
- * Eliminar comentario propio
+/** * Obtener respuestas de un comentario
+ * @route GET /api/comentarios/:comentarioId/respuestas
+ * @desc Obtener todas las respuestas de un comentario específico
+ * @access Público
+ */
+export async function obtenerRespuestasComentario(req, res) {
+    try {
+        const { comentarioId } = req.params;
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(
+            parseInt(req.query.limit) || 20,
+            50 // Máximo 50 respuestas por página
+        );
+        const offset = (page - 1) * limit;
+
+        const client = database.getClient();
+
+        // Verificar que el comentario padre existe
+        const comentarioPadre = await client.execute({
+            sql: `SELECT id FROM Comentario WHERE id = ?`,
+            args: [comentarioId]
+        });
+
+        if (comentarioPadre.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "El comentario no existe"
+            });
+        }
+
+        // Contar total de respuestas
+        const countResult = await client.execute({
+            sql: `SELECT COUNT(*) as total FROM Comentario WHERE comentarioPadreId = ?`,
+            args: [comentarioId]
+        });
+
+        const total = Number(countResult.rows[0].total);
+
+        // Obtener respuestas con datos del autor
+        const respuestasResult = await client.execute({
+            sql: `
+                SELECT 
+                    c.id,
+                    c.contenido,
+                    c.fechaCreacion,
+                    c.fueEditado,
+                    c.autorId,
+                    c.publicacionId,
+                    c.comentarioPadreId,
+                    u.nombre,
+                    u.apellido,
+                    p.urlFotoPerfil,
+                    car.nombre as tituloCarrera,
+                    (SELECT COUNT(*) FROM LikeComentario WHERE comentarioId = c.id) as totalLikes
+                FROM Comentario c
+                INNER JOIN Usuario u ON c.autorId = u.id
+                LEFT JOIN Egresado e ON u.id = e.id
+                LEFT JOIN Perfil p ON e.perfilId = p.id
+                LEFT JOIN Carrera car ON e.carreraId = car.id
+                WHERE c.comentarioPadreId = ?
+                ORDER BY c.fechaCreacion ASC
+                LIMIT ? OFFSET ?
+            `,
+            args: [comentarioId, limit, offset]
+        });
+
+        const respuestas = respuestasResult.rows.map(r => {
+            const converted = convertBigIntToNumber(r);
+            return {
+                id: converted.id,
+                contenido: converted.contenido,
+                fechaCreacion: converted.fechaCreacion,
+                fueEditado: Boolean(converted.fueEditado),
+                autor: {
+                    id: converted.autorId,
+                    nombre: converted.nombre,
+                    apellido: converted.apellido,
+                    urlFotoPerfil: converted.urlFotoPerfil,
+                    tituloCarrera: converted.tituloCarrera
+                },
+                publicacionId: converted.publicacionId,
+                comentarioPadreId: converted.comentarioPadreId,
+                totalLikes: converted.totalLikes || 0
+            };
+        });
+
+        const totalPages = Math.ceil(total / limit);
+
+        res.json({
+            success: true,
+            data: respuestas,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages
+            }
+        });
+
+    } catch (error) {
+        console.error("Error obteniendo respuestas:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error interno del servidor"
+        });
+    }
+}
+
+/** * Eliminar comentario propio
  * @route DELETE /api/comentarios/:id
  * @desc Eliminar un comentario propio
  * @access Privado (solo el autor del comentario)

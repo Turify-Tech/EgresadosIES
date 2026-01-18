@@ -35,3 +35,20 @@ import "../styles/comentarios-modal.css";
         </div>
     </div>
 </div>
+
+<!-- Template para formulario de respuesta (se clonará dinámicamente) -->
+<template id="respuesta-form-template">
+    <div class="respuesta-form-container">
+        <form class="respuesta-form">
+            <input 
+                type="text"
+                class="respuesta-input"
+                placeholder="Escribe tu respuesta..." 
+            />
+            <div class="respuesta-form-actions">
+                <button type="submit" class="btn-responder-enviar">Responder</button>
+                <button type="button" class="btn-responder-cancelar">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</template>
