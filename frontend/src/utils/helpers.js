@@ -363,6 +363,89 @@ export const storage = {
 };
 
 /**
+ * Formatea fecha relativa (tiempo transcurrido)
+ * @param {string|Date} fechaStr - Fecha a formatear
+ * @returns {string} Tiempo transcurrido en formato legible
+ * @example
+ * formatTimeAgo('2024-01-19T10:00:00Z') // "Hace 5 minutos"
+ */
+export function formatTimeAgo(fechaStr) {
+    if (!fechaStr) return 'Fecha desconocida';
+
+    try {
+        // El backend envía fechas en formato "YYYY-MM-DD HH:MM:SS" sin zona horaria
+        // Estas fechas están en UTC, así que agregamos 'Z' para interpretarlas correctamente
+        let fecha;
+        if (typeof fechaStr === 'string' && !fechaStr.includes('Z') && !fechaStr.includes('+')) {
+            // Reemplazar espacio por 'T' y agregar 'Z' para indicar UTC
+            const fechaISO = fechaStr.replace(' ', 'T') + 'Z';
+            fecha = new Date(fechaISO);
+        } else {
+            fecha = new Date(fechaStr);
+        }
+        
+        const ahora = new Date();
+        
+        // Validar que la fecha sea válida
+        if (isNaN(fecha.getTime())) {
+            console.error('Fecha inválida:', fechaStr);
+            return 'Fecha inválida';
+        }
+
+        // Calcular diferencia en milisegundos
+        const diferenciaMilisegundos = ahora.getTime() - fecha.getTime();
+        
+        // Si la diferencia es negativa (fecha futura), mostrar "Hace un momento"
+        if (diferenciaMilisegundos < 0) {
+            return 'Hace un momento';
+        }
+
+        // Convertir a unidades de tiempo
+        const segundos = Math.floor(diferenciaMilisegundos / 1000);
+        const minutos = Math.floor(segundos / 60);
+        const horas = Math.floor(minutos / 60);
+        const dias = Math.floor(horas / 24);
+        const semanas = Math.floor(dias / 7);
+        const meses = Math.floor(dias / 30);
+        const años = Math.floor(dias / 365);
+
+        // Retornar el formato apropiado según el tiempo transcurrido
+        if (segundos < 10) {
+            return 'Hace unos segundos';
+        } else if (segundos < 60) {
+            return 'Hace un momento';
+        } else if (minutos === 1) {
+            return 'Hace 1 minuto';
+        } else if (minutos < 60) {
+            return `Hace ${minutos} minutos`;
+        } else if (horas === 1) {
+            return 'Hace 1 hora';
+        } else if (horas < 24) {
+            return `Hace ${horas} horas`;
+        } else if (dias === 1) {
+            return 'Hace 1 día';
+        } else if (dias < 7) {
+            return `Hace ${dias} días`;
+        } else if (semanas === 1) {
+            return 'Hace 1 semana';
+        } else if (semanas < 4) {
+            return `Hace ${semanas} semanas`;
+        } else if (meses === 1) {
+            return 'Hace 1 mes';
+        } else if (meses < 12) {
+            return `Hace ${meses} meses`;
+        } else if (años === 1) {
+            return 'Hace 1 año';
+        } else {
+            return `Hace ${años} años`;
+        }
+    } catch (error) {
+        console.error('Error al formatear fecha:', error, fechaStr);
+        return 'Fecha inválida';
+    }
+}
+
+/**
  * Constantes útiles
  */
 export const CONSTANTS = {
