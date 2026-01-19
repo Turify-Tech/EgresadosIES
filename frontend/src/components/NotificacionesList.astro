@@ -64,6 +64,91 @@ const { limit = 20, showFilters = true } = Astro.props;
         const API_URL = 'http://localhost:3000/api';
         const limit = parseInt(document.currentScript.getAttribute('data-limit')) || 5;
     
+    // Importar la función de formateo de tiempo desde helpers.js
+    // Como estamos en un script inline, vamos a reimplementar la función aquí
+    // basándonos en la versión mejorada de helpers.js
+    
+    /**
+     * Formatea fecha relativa (tiempo transcurrido)
+     * @param {string|Date} fechaStr - Fecha a formatear
+     * @returns {string} Tiempo transcurrido en formato legible
+     */
+    function formatTimeAgo(fechaStr) {
+        if (!fechaStr) return 'Fecha desconocida';
+
+        try {
+            // El backend envía fechas en formato "YYYY-MM-DD HH:MM:SS" sin zona horaria
+            // Estas fechas están en UTC, así que agregamos 'Z' para interpretarlas correctamente
+            let fecha;
+            if (typeof fechaStr === 'string' && !fechaStr.includes('Z') && !fechaStr.includes('+')) {
+                // Reemplazar espacio por 'T' y agregar 'Z' para indicar UTC
+                const fechaISO = fechaStr.replace(' ', 'T') + 'Z';
+                fecha = new Date(fechaISO);
+            } else {
+                fecha = new Date(fechaStr);
+            }
+            
+            const ahora = new Date();
+            
+            // Validar que la fecha sea válida
+            if (isNaN(fecha.getTime())) {
+                console.error('❌ Fecha inválida:', fechaStr);
+                return 'Fecha inválida';
+            }
+
+            // Calcular diferencia en milisegundos
+            const diferenciaMilisegundos = ahora.getTime() - fecha.getTime();
+            
+            // Si la diferencia es negativa (fecha futura), mostrar "Hace un momento"
+            if (diferenciaMilisegundos < 0) {
+                return 'Hace un momento';
+            }
+
+            // Convertir a unidades de tiempo
+            const segundos = Math.floor(diferenciaMilisegundos / 1000);
+            const minutos = Math.floor(segundos / 60);
+            const horas = Math.floor(minutos / 60);
+            const dias = Math.floor(horas / 24);
+            const semanas = Math.floor(dias / 7);
+            const meses = Math.floor(dias / 30);
+            const años = Math.floor(dias / 365);
+
+            // Retornar el formato apropiado según el tiempo transcurrido
+            if (segundos < 10) {
+                return 'Hace unos segundos';
+            } else if (segundos < 60) {
+                return 'Hace un momento';
+            } else if (minutos === 1) {
+                return 'Hace 1 minuto';
+            } else if (minutos < 60) {
+                return `Hace ${minutos} minutos`;
+            } else if (horas === 1) {
+                return 'Hace 1 hora';
+            } else if (horas < 24) {
+                return `Hace ${horas} horas`;
+            } else if (dias === 1) {
+                return 'Hace 1 día';
+            } else if (dias < 7) {
+                return `Hace ${dias} días`;
+            } else if (semanas === 1) {
+                return 'Hace 1 semana';
+            } else if (semanas < 4) {
+                return `Hace ${semanas} semanas`;
+            } else if (meses === 1) {
+                return 'Hace 1 mes';
+            } else if (meses < 12) {
+                return `Hace ${meses} meses`;
+            } else if (años === 1) {
+                return 'Hace 1 año';
+            } else {
+                return `Hace ${años} años`;
+            }
+        } catch (error) {
+            console.error('❌ Error al formatear fecha:', error, fechaStr);
+            return 'Fecha inválida';
+        }
+    }
+    
     // Estado de la lista
     let offset = 0;
     let currentFilter = 'todas';
@@ -173,7 +258,7 @@ const { limit = 20, showFilters = true } = Astro.props;
                 'mencion': '@'
             };
 
-            const fecha = formatearFecha(notif.fechaCreacion);
+            const fecha = formatTimeAgo(notif.fechaCreacion);
             const leida = notif.leida ? '' : 'no-leida';
             const icono = iconos[notif.tipo] || '🔔';
 
@@ -297,36 +382,17 @@ const { limit = 20, showFilters = true } = Astro.props;
         }
     }
 
-    // Formatear fecha relativa
-    function formatearFecha(fechaStr) {
-        const fecha = new Date(fechaStr);
-        const ahora = new Date();
-        const diferencia = ahora - fecha;
-        const segundos = Math.floor(diferencia / 1000);
-        const minutos = Math.floor(segundos / 60);
-        const horas = Math.floor(minutos / 60);
-        const dias = Math.floor(horas / 24);
-
-        if (segundos < 60) return 'Hace un momento';
-        if (minutos < 60) return `Hace ${minutos} ${minutos === 1 ? 'minuto' : 'minutos'}`;
-        if (horas < 24) return `Hace ${horas} ${horas === 1 ? 'hora' : 'horas'}`;
-        if (dias < 7) return `Hace ${dias} ${dias === 1 ? 'día' : 'días'}`;
-        
-        return fecha.toLocaleDateString('es-ES', { 
-            day: 'numeric', 
-            month: 'short', 
-            year: fecha.getFullYear() !== ahora.getFullYear() ? 'numeric' : undefined 
-        });
-    }
-
     // Actualizar las fechas mostradas sin recargar toda la lista
     function actualizarFechasRelativas() {
-        document.querySelectorAll('.notificacion-item').forEach(item => {
+        const items = document.querySelectorAll('.notificacion-item');
+        if (items.length === 0) return;
+        
+        items.forEach(item => {
             const fechaStr = item.dataset.fecha;
             if (fechaStr) {
                 const fechaElement = item.querySelector('.notificacion-fecha');
                 if (fechaElement) {
-                    fechaElement.textContent = formatearFecha(fechaStr);
+                    fechaElement.textContent = formatTimeAgo(fechaStr);
                 }
             }
         });
@@ -355,7 +421,12 @@ const { limit = 20, showFilters = true } = Astro.props;
         cargarNotificaciones(false);
     };
 
-    // Actualizar las fechas relativas cada 10 segundos para mostrar "Hace un momento" rápidamente
-    setInterval(actualizarFechasRelativas, 10000);
+    // Actualizar las fechas relativas cada 10 segundos
+    const intervaloActualizacion = setInterval(actualizarFechasRelativas, 10000);
+    
+    // Limpiar intervalo cuando se destruya el componente
+    window.addEventListener('beforeunload', () => {
+        clearInterval(intervaloActualizacion);
+    });
     })();
 </script>
