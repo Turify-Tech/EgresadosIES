@@ -456,6 +456,7 @@ export async function obtenerRespuestasComentario(req, res) {
                     u.apellido,
                     p.urlFotoPerfil,
                     car.nombre as tituloCarrera,
+                    (SELECT COUNT(*) FROM Comentario WHERE comentarioPadreId = c.id) as totalRespuestas,
                     (SELECT COUNT(*) FROM LikeComentario WHERE comentarioId = c.id) as totalLikes
                 FROM Comentario c
                 INNER JOIN Usuario u ON c.autorId = u.id
@@ -485,7 +486,8 @@ export async function obtenerRespuestasComentario(req, res) {
                 },
                 publicacionId: converted.publicacionId,
                 comentarioPadreId: converted.comentarioPadreId,
-                totalLikes: converted.totalLikes || 0
+                totalLikes: converted.totalLikes || 0,
+                totalRespuestas: converted.totalRespuestas || 0
             };
         });
 
