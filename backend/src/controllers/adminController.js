@@ -2,6 +2,7 @@ import database from "../config/database.js";
 import xlsx from "xlsx";
 import path from "path";
 import fs from "fs";
+import { registrarActividad, obtenerActividadesRecientes, TIPOS_ACCION } from "../services/actividadAdminService.js";
 
 /**
  * Controlador de administración para gestión de DNIs válidos
@@ -202,6 +203,14 @@ export async function cargarExcel(req, res) {
             errores: errores.length
         });
 
+        // Registrar actividad
+        await registrarActividad(
+            req.user.id,
+            TIPOS_ACCION.CARGAR_EXCEL,
+            `Cargó ${exitosos} DNIs desde archivo Excel`,
+            { archivo: req.file.originalname, procesados, exitosos, duplicados }
+        );
+
         res.status(200).json({
             success: true,
             message: 'Carga masiva completada',
@@ -279,6 +288,14 @@ export async function agregarDNI(req, res) {
 
         // Log de la operación
         await logAdminOperation(req.user.id, 'Agregar DNI individual', { dni, carrera });
+
+        // Registrar actividad
+        await registrarActividad(
+            req.user.id,
+            TIPOS_ACCION.AGREGAR_DNI,
+            `Agregó DNI ${dni} para ${carrera}`,
+            { dni, carrera }
+        );
 
         res.status(201).json({
             success: true,
@@ -434,6 +451,14 @@ export async function eliminarDNI(req, res) {
             carrera: existente.rows[0].carrera 
         });
 
+        // Registrar actividad
+        await registrarActividad(
+            req.user.id,
+            TIPOS_ACCION.ELIMINAR_DNI,
+            `Eliminó DNI ${dni}`,
+            { dni, carrera: existente.rows[0].carrera }
+        );
+
         res.status(200).json({
             success: true,
             message: 'DNI eliminado exitosamente',
@@ -512,6 +537,14 @@ export async function editarDNI(req, res) {
             carreraNueva: carrera 
         });
 
+        // Registrar actividad
+        await registrarActividad(
+            req.user.id,
+            TIPOS_ACCION.EDITAR_DNI,
+            `Editó DNI ${dni}: ${carreraAnterior} → ${carrera}`,
+            { dni, carreraAnterior, carreraNueva: carrera }
+        );
+
         res.status(200).json({
             success: true,
             message: 'DNI actualizado exitosamente',
@@ -547,6 +580,14 @@ export async function obtenerEstadisticas(req, res) {
             ORDER BY cantidad DESC
         `);
 
+        // Registrar actividad
+        await registrarActividad(
+            req.user.id,
+            TIPOS_ACCION.VER_ESTADISTICAS,
+            'Consultó las estadísticas del sistema',
+            { totalDNIs: total }
+        );
+
         res.status(200).json({
             success: true,
             data: {
@@ -560,6 +601,39 @@ export async function obtenerEstadisticas(req, res) {
         res.status(500).json({
             success: false,
             message: 'Error interno obteniendo estadísticas'
+        });
+    }
+}
+
+/**
+ * Obtener actividades recientes del administrador
+ * GET /api/admin/actividades-recientes
+ */
+export async function obtenerActividadesRecientesController(req, res) {
+    try {
+        const adminId = req.user.id;
+        const limite = parseInt(req.query.limite) || 10;
+
+        // Validar límite
+        if (limite < 1 || limite > 50) {
+            return res.status(400).json({
+                success: false,
+                message: 'El límite debe estar entre 1 y 50'
+            });
+        }
+
+        const actividades = await obtenerActividadesRecientes(adminId, limite);
+
+        res.status(200).json({
+            success: true,
+            data: actividades
+        });
+
+    } catch (error) {
+        console.error('Error obteniendo actividades recientes:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error interno obteniendo actividades recientes'
         });
     }
 }

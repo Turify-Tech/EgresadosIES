@@ -135,27 +135,36 @@ import EstadisticasAdmin from "../../components/admin/EstadisticasAdmin.astro";
             <section class="activity-section">
                 <h2 class="section-title">Actividad Reciente</h2>
                 <div class="activity-card">
-                    <div id="actividad-lista" class="activity-list">
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <svg
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                >
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"
-                                    ></polyline>
-                                </svg>
-                            </div>
-                            <div class="activity-content">
-                                <p>Bienvenido al panel de administración</p>
-                                <span class="activity-time">Ahora</span>
-                            </div>
-                        </div>
+                    <!-- Estado de carga -->
+                    <div id="actividad-loading" class="activity-loading" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>Cargando actividades...</p>
+                    </div>
+
+                    <!-- Estado de error -->
+                    <div id="actividad-error" class="activity-error" style="display: none;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <p id="actividad-error-mensaje">Error al cargar actividades</p>
+                        <button id="actividad-retry" class="btn-retry">Reintentar</button>
+                    </div>
+
+                    <!-- Estado vacío -->
+                    <div id="actividad-vacio" class="activity-empty" style="display: none;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                            <path d="M9 9h6v6H9z"></path>
+                        </svg>
+                        <p>No hay actividades recientes</p>
+                        <span class="activity-hint">Las acciones que realices aparecerán aquí</span>
+                    </div>
+
+                    <!-- Lista de actividades -->
+                    <div id="actividad-lista" class="activity-list" style="display: none;">
+                        <!-- Se llenarán dinámicamente desde JavaScript -->
                     </div>
                 </div>
             </section>
@@ -164,6 +173,13 @@ import EstadisticasAdmin from "../../components/admin/EstadisticasAdmin.astro";
 </BaseLayout>
 
 <script>
+    import { 
+        obtenerActividadesRecientes, 
+        formatearFechaActividad, 
+        obtenerIconoAccion,
+        obtenerColorAccion 
+    } from "../../utils/actividadesAdminApi.js";
+
     const API_URL = "http://localhost:3000/api";
 
     // Verificar que el usuario sea administrador
@@ -189,11 +205,140 @@ import EstadisticasAdmin from "../../components/admin/EstadisticasAdmin.astro";
                 return;
             }
 
-            // Cargar estadísticas
-            await cargarEstadisticas();
+            // Cargar estadísticas y actividades en paralelo
+            await Promise.all([
+                cargarEstadisticas(),
+                cargarActividadesRecientes()
+            ]);
         } catch (error) {
             console.error("Error verificando permisos:", error);
             window.location.href = "/acceso";
+        }
+    }
+
+    // Estado de paginación
+    let paginaActual = 1;
+    const actividadesPorPagina = 5;
+    let todasLasActividades = [];
+
+    /**
+     * Carga las actividades recientes del administrador
+     */
+    async function cargarActividadesRecientes() {
+        const loadingEl = document.getElementById("actividad-loading");
+        const errorEl = document.getElementById("actividad-error");
+        const vacioEl = document.getElementById("actividad-vacio");
+        const listaEl = document.getElementById("actividad-lista");
+
+        try {
+            // Mostrar loading
+            loadingEl.style.display = "flex";
+            errorEl.style.display = "none";
+            vacioEl.style.display = "none";
+            listaEl.style.display = "none";
+
+            // Obtener todas las actividades (límite alto para tener suficientes para paginar)
+            todasLasActividades = await obtenerActividadesRecientes(50);
+
+            // Ocultar loading
+            loadingEl.style.display = "none";
+
+            // Verificar si hay actividades
+            if (!todasLasActividades || todasLasActividades.length === 0) {
+                vacioEl.style.display = "flex";
+                return;
+            }
+
+            // Renderizar primera página
+            renderizarActividades();
+            listaEl.style.display = "block";
+
+        } catch (error) {
+            console.error("Error cargando actividades:", error);
+            
+            // Mostrar error
+            loadingEl.style.display = "none";
+            errorEl.style.display = "flex";
+            
+            const errorMensaje = document.getElementById("actividad-error-mensaje");
+            errorMensaje.textContent = error.message || "Error al cargar actividades";
+        }
+    }
+
+    /**
+     * Renderiza las actividades de la página actual
+     */
+    function renderizarActividades() {
+        const listaEl = document.getElementById("actividad-lista");
+        const inicio = (paginaActual - 1) * actividadesPorPagina;
+        const fin = inicio + actividadesPorPagina;
+        const actividadesPagina = todasLasActividades.slice(inicio, fin);
+        const totalPaginas = Math.ceil(todasLasActividades.length / actividadesPorPagina);
+
+        // Renderizar actividades
+        const actividadesHTML = actividadesPagina.map(actividad => `
+            <div class="activity-item" data-tipo="${actividad.tipoAccion}">
+                <div class="activity-icon ${obtenerColorAccion(actividad.tipoAccion)}">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        ${obtenerIconoAccion(actividad.tipoAccion)}
+                    </svg>
+                </div>
+                <div class="activity-content">
+                    <p>${actividad.descripcion}</p>
+                    <span class="activity-time">${formatearFechaActividad(actividad.fechaCreacion)}</span>
+                </div>
+            </div>
+        `).join('');
+
+        // Renderizar controles de paginación si hay más de una página
+        const paginacionHTML = totalPaginas > 1 ? `
+            <div class="activity-pagination">
+                <button 
+                    class="pagination-btn" 
+                    id="btn-anterior" 
+                    ${paginaActual === 1 ? 'disabled' : ''}
+                >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    Anterior
+                </button>
+                <span class="pagination-info">
+                    Página ${paginaActual} de ${totalPaginas}
+                </span>
+                <button 
+                    class="pagination-btn" 
+                    id="btn-siguiente" 
+                    ${paginaActual === totalPaginas ? 'disabled' : ''}
+                >
+                    Siguiente
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+        ` : '';
+
+        listaEl.innerHTML = actividadesHTML + paginacionHTML;
+
+        // Agregar event listeners a los botones de paginación
+        if (totalPaginas > 1) {
+            const btnAnterior = document.getElementById('btn-anterior');
+            const btnSiguiente = document.getElementById('btn-siguiente');
+
+            btnAnterior?.addEventListener('click', () => {
+                if (paginaActual > 1) {
+                    paginaActual--;
+                    renderizarActividades();
+                }
+            });
+
+            btnSiguiente?.addEventListener('click', () => {
+                if (paginaActual < totalPaginas) {
+                    paginaActual++;
+                    renderizarActividades();
+                }
+            });
         }
     }
 
@@ -267,6 +412,14 @@ import EstadisticasAdmin from "../../components/admin/EstadisticasAdmin.astro";
         }
     }
 
-    // Inicializar
-    document.addEventListener("DOMContentLoaded", verificarAdmin);
+    // Event listener para el botón de reintentar
+    document.addEventListener("DOMContentLoaded", () => {
+        verificarAdmin();
+
+        // Botón de reintentar en caso de error
+        const retryBtn = document.getElementById("actividad-retry");
+        if (retryBtn) {
+            retryBtn.addEventListener("click", cargarActividadesRecientes);
+        }
+    });
 </script>
