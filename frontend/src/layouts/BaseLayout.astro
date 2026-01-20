@@ -516,6 +516,9 @@ import NotificacionesModal from "../components/NotificacionesModal.astro";
                         console.debug('Error al cargar contador de notificaciones:', error);
                     }
                 }
+                
+                // Exponer función globalmente para uso en modal
+                window.cargarContadorNotificaciones = cargarContadorNotificaciones;
 
                 // Iniciar polling de notificaciones para egresados
                 let notificacionesPolling = null;

@@ -87,8 +87,15 @@ import '../styles/notificaciones.css';
                 });
 
                 if (response.ok) {
-                    // Recargar notificaciones
-                    window.location.reload();
+                    // Recargar solo el contenido del modal (sin reload de página)
+                    if (typeof window.cargarNotificacionesModal === 'function') {
+                        window.cargarNotificacionesModal();
+                    }
+                    
+                    // Actualizar contador del badge en navbar
+                    if (typeof window.cargarContadorNotificaciones === 'function') {
+                        await window.cargarContadorNotificaciones();
+                    }
                 }
             } catch (error) {
                 console.error('Error al marcar todas como leídas:', error);
@@ -114,8 +121,15 @@ import '../styles/notificaciones.css';
                 });
 
                 if (response.ok) {
-                    // Recargar notificaciones
-                    window.location.reload();
+                    // Recargar solo el contenido del modal (sin reload de página)
+                    if (typeof window.cargarNotificacionesModal === 'function') {
+                        window.cargarNotificacionesModal();
+                    }
+                    
+                    // Actualizar contador del badge en navbar
+                    if (typeof window.cargarContadorNotificaciones === 'function') {
+                        await window.cargarContadorNotificaciones();
+                    }
                 }
             } catch (error) {
                 console.error('Error al limpiar notificaciones:', error);

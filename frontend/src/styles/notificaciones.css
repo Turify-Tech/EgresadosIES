@@ -300,9 +300,18 @@
     color: var(--color-gray-500);
 }
 
+.btn-icon svg {
+    display: block;
+}
+
 .btn-icon:hover {
     background-color: var(--color-gray-100);
     color: var(--color-gray-700);
+}
+
+.btn-icon.marcar-leida:hover {
+    background-color: #d1fae5;
+    color: #059669;
 }
 
 .btn-icon.eliminar:hover {
