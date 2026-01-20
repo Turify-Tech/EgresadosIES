@@ -6,109 +6,75 @@
 ---
 
 <script is:inline>
-    console.log('[EMOJI PICKER] Script cargado');
-    
     // Manejo del emoji picker
-    function initEmojiPicker() {
-        console.log('[EMOJI PICKER] Intentando inicializar...');
-        console.log('[EMOJI PICKER] readyState:', document.readyState);
+    (function() {
+        var retryCount = 0;
+        var MAX_RETRIES = 3;
         
-        const btnEmoji = document.getElementById('btn-emoji');
-        const emojiPicker = document.getElementById('emoji-picker');
-        const btnCerrarPicker = document.querySelector('.btn-cerrar-picker');
-        const emojiButtons = document.querySelectorAll('.emoji-btn');
-        const mensajeInput = document.getElementById('mensaje-input');
+        function initEmojiPicker() {
+            var btnEmoji = document.getElementById('btn-emoji');
+            var emojiPicker = document.getElementById('emoji-picker');
+            var btnCerrarPicker = document.querySelector('.btn-cerrar-picker');
+            var emojiButtons = document.querySelectorAll('.emoji-btn');
+            var mensajeInput = document.getElementById('mensaje-input');
 
-        console.log('[EMOJI PICKER] Elementos encontrados:', {
-            btnEmoji: !!btnEmoji,
-            emojiPicker: !!emojiPicker,
-            btnCerrarPicker: !!btnCerrarPicker,
-            emojiButtons: emojiButtons.length,
-            mensajeInput: !!mensajeInput
-        });
+            if (!btnEmoji || !emojiPicker || !btnCerrarPicker || !mensajeInput) {
+                retryCount++;
+                if (retryCount < MAX_RETRIES) {
+                    setTimeout(initEmojiPicker, 200);
+                }
+                return;
+            }
 
-        if (!btnEmoji || !emojiPicker || !btnCerrarPicker || !mensajeInput) {
-            console.warn('[EMOJI PICKER] Elementos no encontrados, reintentando en 200ms...');
-            setTimeout(initEmojiPicker, 200);
-            return;
-        }
+            if (btnEmoji._emojiInitialized) {
+                return;
+            }
+            btnEmoji._emojiInitialized = true;
 
-        // Verificar si ya está inicializado
-        if (btnEmoji._emojiInitialized) {
-            console.log('[EMOJI PICKER] Ya está inicializado, saliendo...');
-            return;
-        }
-        btnEmoji._emojiInitialized = true;
+            btnEmoji.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var isVisible = emojiPicker.style.display === 'flex';
+                emojiPicker.style.display = isVisible ? 'none' : 'flex';
+            });
 
-        console.log('[EMOJI PICKER] ✅ Inicializado correctamente, agregando event listeners');
-
-        // Toggle del emoji picker
-        btnEmoji.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('[EMOJI PICKER] Click en botón emoji detectado');
-            console.log('[EMOJI PICKER] Display actual:', emojiPicker.style.display);
-            
-            const isVisible = emojiPicker.style.display === 'flex';
-            emojiPicker.style.display = isVisible ? 'none' : 'flex';
-            
-            console.log('[EMOJI PICKER] Nuevo display:', emojiPicker.style.display);
-        });
-
-        // Cerrar con botón X
-        btnCerrarPicker.addEventListener('click', function() {
-            console.log('[EMOJI PICKER] Cerrando con botón X');
-            emojiPicker.style.display = 'none';
-        });
-
-        // Insertar emoji al hacer click
-        emojiButtons.forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                const emoji = btn.textContent || '';
-                console.log('[EMOJI PICKER] Emoji seleccionado:', emoji);
-                
-                const cursorPos = mensajeInput.selectionStart;
-                const textBefore = mensajeInput.value.substring(0, cursorPos);
-                const textAfter = mensajeInput.value.substring(mensajeInput.selectionEnd);
-                
-                mensajeInput.value = textBefore + emoji + textAfter;
-                mensajeInput.focus();
-                
-                // Posicionar cursor después del emoji
-                const newCursorPos = cursorPos + emoji.length;
-                mensajeInput.setSelectionRange(newCursorPos, newCursorPos);
-                
-                // Cerrar el picker
+            btnCerrarPicker.addEventListener('click', function() {
                 emojiPicker.style.display = 'none';
             });
-        });
 
-        // Cerrar al hacer click fuera
-        document.addEventListener('click', function(e) {
-            const target = e.target;
-            if (!btnEmoji.contains(target) && !emojiPicker.contains(target)) {
-                if (emojiPicker.style.display === 'flex') {
-                    console.log('[EMOJI PICKER] Cerrando por click fuera');
+            emojiButtons.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var emoji = btn.textContent || '';
+                    var cursorPos = mensajeInput.selectionStart;
+                    var textBefore = mensajeInput.value.substring(0, cursorPos);
+                    var textAfter = mensajeInput.value.substring(mensajeInput.selectionEnd);
+                    
+                    mensajeInput.value = textBefore + emoji + textAfter;
+                    mensajeInput.focus();
+                    
+                    var newCursorPos = cursorPos + emoji.length;
+                    mensajeInput.setSelectionRange(newCursorPos, newCursorPos);
+                    
                     emojiPicker.style.display = 'none';
+                });
+            });
+
+            document.addEventListener('click', function(e) {
+                var target = e.target;
+                if (!btnEmoji.contains(target) && !emojiPicker.contains(target)) {
+                    if (emojiPicker.style.display === 'flex') {
+                        emojiPicker.style.display = 'none';
+                    }
                 }
-            }
-        });
-    }
+            });
+        }
 
-    // Ejecutar inmediatamente y también después de DOMContentLoaded
-    if (document.readyState === 'loading') {
-        console.log('[EMOJI PICKER] DOM aún cargando, esperando DOMContentLoaded');
-        document.addEventListener('DOMContentLoaded', initEmojiPicker);
-    } else {
-        console.log('[EMOJI PICKER] DOM ya listo, ejecutando inmediatamente');
-        initEmojiPicker();
-    }
-
-    // También intentar después de un delay para SSR/hydration
-    setTimeout(function() {
-        console.log('[EMOJI PICKER] Retry por timeout');
-        initEmojiPicker();
-    }, 500);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initEmojiPicker);
+        } else {
+            initEmojiPicker();
+        }
+    })();
 </script>
 
 <div class="chat-container">

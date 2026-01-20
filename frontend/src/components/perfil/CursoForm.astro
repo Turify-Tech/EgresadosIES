@@ -220,6 +220,7 @@
         background: white;
         border: 1px solid #e5e7eb;
         border-radius: 6px;
+        color: #1f2937;
     }
 
     .habilidad-item {
@@ -232,18 +233,20 @@
         border: 1px solid #cbd5e1;
         border-radius: 20px;
         font-size: 0.875rem;
+        color: #1f2937;
+        font-weight: 500;
     }
 
     .habilidad-item.tecnica {
-        background: #dbeafe;
-        border-color: #93c5fd;
-        color: #1e40af;
+        background: #e0f2fe;
+        border-color: #7dd3fc;
+        color: #0c4a6e;
     }
 
     .habilidad-item.blanda {
         background: #dcfce7;
         border-color: #86efac;
-        color: #166534;
+        color: #14532d;
     }
 
     .habilidad-nivel {
@@ -255,25 +258,25 @@
     }
 
     .habilidad-remove {
-        background: none;
-        border: none;
-        color: #ef4444;
+        background: #fee2e2;
+        border: 1px solid #fca5a5;
+        color: #dc2626;
         cursor: pointer;
-        padding: 0;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
+        padding: 4px;
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 14px;
-        line-height: 1;
         transition: all 0.2s;
     }
 
     .habilidad-remove:hover {
-        background: #ef4444;
+        background: #dc2626;
+        border-color: #dc2626;
         color: white;
+        transform: scale(1.1);
     }
 
     /* Formulario para agregar habilidades */
@@ -353,6 +356,7 @@
             border-color 0.2s,
             box-shadow 0.2s;
         background: white;
+        color: #1f2937;
         font-family: inherit;
         width: 100%;
     }
@@ -669,7 +673,10 @@
                             class="habilidad-remove" 
                             onclick="window.habilidadesManager.removeHabilidad('tecnica', ${index})"
                             title="Eliminar habilidad">
-                            ×
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
                         </button>
                     </div>
                 `
@@ -702,7 +709,10 @@
                             class="habilidad-remove" 
                             onclick="window.habilidadesManager.removeHabilidad('blanda', ${index})"
                             title="Eliminar habilidad">
-                            ×
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
                         </button>
                     </div>
                 `
@@ -721,55 +731,33 @@
         }
 
         populateForm(profileData) {
-            if (!profileData || this.isInitialized) return;
+            if (!profileData) return;
 
             console.log("Poblando habilidades con:", profileData);
 
-            // Extraer habilidades del perfil
-            const perfil = profileData.data?.perfil || profileData.perfil || {};
+            // Extraer habilidades - pueden venir en diferentes lugares
+            const data = profileData.data || profileData;
+            const habilidadesArray = data.habilidades || [];
+            
+            console.log("Habilidades recibidas:", habilidadesArray);
 
-            // Procesar habilidades técnicas (pueden venir como string o array)
-            if (perfil.habilidadesTecnicas) {
-                if (typeof perfil.habilidadesTecnicas === "string") {
-                    // Si es string, dividir por comas
-                    this.habilidadesTecnicas = perfil.habilidadesTecnicas
-                        .split(",")
-                        .map((h) => h.trim())
-                        .filter((h) => h)
-                        .map((h) => ({
-                            id: null,
-                            nombre: h,
-                            categoria: "otras",
-                            nivel: "intermedio",
-                            tipo: "tecnica",
-                        }));
-                } else if (Array.isArray(perfil.habilidadesTecnicas)) {
-                    this.habilidadesTecnicas = perfil.habilidadesTecnicas;
-                }
+            // Filtrar y organizar habilidades por tipo
+            const tecnicas = habilidadesArray.filter(h => h.tipo === 'tecnica');
+            const blandas = habilidadesArray.filter(h => h.tipo === 'blanda');
+            
+            if (tecnicas.length > 0) {
+                this.habilidadesTecnicas = tecnicas;
             }
-
-            // Procesar habilidades blandas
-            if (perfil.habilidadesBlandas) {
-                if (typeof perfil.habilidadesBlandas === "string") {
-                    // Si es string, dividir por comas
-                    this.habilidadesBlandas = perfil.habilidadesBlandas
-                        .split(",")
-                        .map((h) => h.trim())
-                        .filter((h) => h)
-                        .map((h) => ({
-                            id: null,
-                            nombre: h,
-                            descripcion: "",
-                            tipo: "blanda",
-                        }));
-                } else if (Array.isArray(perfil.habilidadesBlandas)) {
-                    this.habilidadesBlandas = perfil.habilidadesBlandas;
-                }
+            
+            if (blandas.length > 0) {
+                this.habilidadesBlandas = blandas;
             }
+            
+            console.log("Habilidades técnicas cargadas:", this.habilidadesTecnicas.length);
+            console.log("Habilidades blandas cargadas:", this.habilidadesBlandas.length);
 
             this.renderHabilidades();
-            this.isInitialized = true;
-            console.log("✅ Habilidades inicializadas correctamente");
+            console.log("✅ Habilidades pobladas correctamente");
         }
 
         getFormData() {

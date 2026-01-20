@@ -688,7 +688,7 @@
         }
 
         populateForm(profileData) {
-            if (!profileData || this.isInitialized) return;
+            if (!profileData) return;
 
             console.log("Poblando experiencias con:", profileData);
 
@@ -719,8 +719,7 @@
             this.updateNavigationUI();
             this.loadCurrentExperiencia();
 
-            this.isInitialized = true;
-            console.log("✅ Experiencias inicializadas correctamente");
+            console.log("✅ Experiencias pobladas correctamente");
         }
 
         getFormData() {

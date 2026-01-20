@@ -12,39 +12,32 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
 
 <BaseLayout title="Editar Perfil" hideAccederButton={true}>
     <main class="profile-edit-container">
-        <!-- Hero banner en la parte superior -->
-        <div class="profile-hero-banner">
-            <div class="hero-background">
-                <div class="hero-pattern"></div>
-            </div>
-            <div class="hero-content">
-                <div class="profile-avatar">
-                    <img
-                        id="profile-image"
-                        src="/default-avatar.svg"
-                        alt="Foto de perfil"
-                    />
+        <!-- Banner superior -->
+        <div class="profile-banner">
+            <img src="/images/Fondo Azul card.jpg" alt="Banner" class="banner-image"/>
+        </div>
+
+        <!-- Header con avatar y nombre -->
+        <div class="profile-header-wrapper">
+            <div class="profile-header-content">
+                <div class="profile-avatar-container">
+                    <div class="profile-avatar" id="profile-avatar">
+                        <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <circle cx="12" cy="10" r="3"></circle>
+                            <path d="M6.168 18.849A4 4 0 0 1 10 16h4a4 4 0 0 1 3.834 2.855"></path>
+                        </svg>
+                    </div>
                     <button class="change-photo-btn" id="change-photo-btn">
-                        <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor">
-                            <path
-                                d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
-                            ></path>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                             <circle cx="12" cy="13" r="4"></circle>
                         </svg>
                     </button>
                 </div>
                 <div class="profile-info">
-                    <h1 class="profile-name" id="profile-name">
-                        Nombre Usuario
-                    </h1>
-                    <p class="profile-subtitle" id="profile-subtitle">
-                        Desarrollador de Software
-                    </p>
+                    <h1 class="profile-name" id="profile-name">Nombre Usuario</h1>
+                    <p class="profile-subtitle" id="profile-subtitle">Egresado de Desarrollo de Software</p>
                 </div>
             </div>
         </div>
@@ -225,142 +218,135 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
             overflow-x: hidden;
         }
 
-        /* Hero banner superior */
-        .profile-hero-banner {
-            position: relative;
+        /* Banner superior */
+        .profile-banner {
             width: 100%;
+            height: 200px;
             overflow: hidden;
-        }
-
-        /* Layout principal con sidebar y contenido */
-        .main-layout {
-            display: flex;
-            flex: 1;
-        }
-
-        /* Sidebar izquierdo */
-        .sidebar-navigation {
-            width: 280px;
-            background: rgba(248, 250, 252, 0.95);
-            backdrop-filter: blur(10px);
-            border-right: 1px solid #e5e7eb;
-            display: flex;
-            flex-direction: column;
-            padding: 2rem;
-        }
-
-        .hero-background {
             position: relative;
-            background: linear-gradient(
-                135deg,
-                #3b82f6 0%,
-                #1d4ed8 50%,
-                #1e40af 100%
-            );
-            padding: 2rem;
-            max-width: 1200px;
+        }
+
+        .banner-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Header wrapper */
+        .profile-header-wrapper {
+            max-width: 1400px;
             margin: 0 auto;
-        }
-
-        .hero-background::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: radial-gradient(
-                    circle at 20% 20%,
-                    rgba(255, 255, 255, 0.1) 0%,
-                    transparent 50%
-                ),
-                radial-gradient(
-                    circle at 80% 80%,
-                    rgba(255, 255, 255, 0.1) 0%,
-                    transparent 50%
-                ),
-                radial-gradient(
-                    circle at 40% 40%,
-                    rgba(255, 255, 255, 0.05) 0%,
-                    transparent 50%
-                );
-            pointer-events: none;
-        }
-
-        .hero-pattern {
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            width: 60%;
-            background-image: repeating-linear-gradient(
-                    45deg,
-                    rgba(255, 255, 255, 0.03) 0px,
-                    rgba(255, 255, 255, 0.03) 1px,
-                    transparent 1px,
-                    transparent 20px
-                ),
-                repeating-linear-gradient(
-                    -45deg,
-                    rgba(255, 255, 255, 0.03) 0px,
-                    rgba(255, 255, 255, 0.03) 1px,
-                    transparent 1px,
-                    transparent 20px
-                );
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            gap: 2rem;
+            padding: 0 1rem;
             width: 100%;
         }
 
-        .profile-avatar {
+        .profile-header-content {
+            display: flex;
+            align-items: flex-end;
+            gap: 1.5rem;
+            margin-top: -90px;
             position: relative;
-            width: 100px;
-            height: 100px;
+            z-index: 10;
+            margin-bottom: 1rem;
+        }
+
+        .profile-avatar-container {
+            position: relative;
             flex-shrink: 0;
         }
 
-        .profile-avatar img {
-            width: 100%;
-            height: 100%;
+        .profile-avatar {
+            width: 180px;
+            height: 180px;
             border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 5px solid white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .profile-avatar svg {
+            color: #000;
+        }
+
+        .profile-avatar img {
+            width: 100% !important;
+            height: 100% !important;
             object-fit: cover;
-            border: 3px solid rgba(255, 255, 255, 0.2);
+            object-position: center;
+            display: block;
         }
 
         .change-photo-btn {
             position: absolute;
-            bottom: -2px;
-            right: -2px;
-            width: 24px;
-            height: 24px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 2px solid #3b82f6;
+            bottom: 5px;
+            right: 5px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            color: #3b82f6;
-            cursor: pointer;
+            background: #5B7FDB;
+            color: white;
+            border: 3px solid white;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
         }
 
         .change-photo-btn:hover:not(:disabled) {
-            background: white;
+            background: #4A6BC9;
             transform: scale(1.1);
         }
 
         .change-photo-btn:disabled {
-            background: #e5e7eb;
-            border-color: #9ca3af;
+            background: #9ca3af;
+            border-color: white;
             cursor: not-allowed;
-            transform: none;
+        }
+
+        .profile-info {
+            flex: 1;
+            padding-bottom: 0.5rem;
+        }
+
+        .profile-name {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0 0 0.5rem 0;
+            line-height: 1.2;
+        }
+
+        .profile-subtitle {
+            font-size: 1.125rem;
+            color: #64748b;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        /* Layout principal con sidebar y contenido */
+        .main-layout {
+            width: 100%;
+            padding: 2rem 1rem 2rem 3.5rem;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2.5rem;
+            max-width: 1400px;
+        }
+
+        /* Sidebar izquierdo */
+        .sidebar-navigation {
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 6.5rem;
+            align-self: flex-start;
+            max-height: calc(100vh - 7rem);
         }
 
         .loading-spinner {
@@ -376,44 +362,15 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
             }
         }
 
-        .profile-avatar img {
-            transition: opacity 0.3s ease;
-        }
-
-        .profile-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .profile-name {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: white;
-            margin: 0 0 0.5rem 0;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .profile-subtitle {
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.9);
-            margin: 0 0 0.25rem 0;
-            font-weight: 500;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        }
-
-        .profile-email {
-            color: rgba(255, 255, 255, 0.7);
-            margin: 0;
-            font-size: 0.875rem;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        }
-
         /* Navegación vertical */
         .section-navigation {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
-            padding: 0 2rem;
         }
 
         .nav-btn {
@@ -430,6 +387,7 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
             transition: all 0.2s;
             text-align: left;
             width: 100%;
+            font-size: 0.95rem;
         }
 
         .nav-btn:hover {
@@ -438,9 +396,9 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
         }
 
         .nav-btn.active {
-            color: #3b82f6;
-            background: #eff6ff;
-            border-left: 3px solid #3b82f6;
+            color: #4F46E5;
+            background: #EEF2FF;
+            font-weight: 600;
         }
 
         .nav-btn svg {
@@ -451,33 +409,16 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
 
         /* Área principal */
         .main-content {
-            flex: 1;
             display: flex;
             flex-direction: column;
         }
 
-        .content-header {
-            padding: 2rem 2rem 1rem;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #1f2937;
-            margin: 0 0 0.5rem 0;
-        }
-
-        .section-subtitle {
-            color: #6b7280;
-            margin: 0;
-        }
-
         /* Secciones */
         .sections-container {
-            flex: 1;
+            background: white;
+            border-radius: 12px;
             padding: 2rem;
-            overflow-y: auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .profile-section {
@@ -1061,6 +1002,13 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                 this.updateSectionTitle(sectionId);
 
                 this.currentSection = sectionId;
+                
+                // Re-bind section buttons cada vez que cambiamos de sección
+                // para asegurar que los event listeners estén conectados
+                setTimeout(() => {
+                    this.bindSectionButtons();
+                }, 100);
+                
                 console.log(`✅ Section switch completed: ${sectionId}`);
             }
 
@@ -1173,7 +1121,7 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
             updateHeader(profileData) {
                 const nameEl = document.getElementById("profile-name");
                 const subtitleEl = document.getElementById("profile-subtitle");
-                const imageEl = document.getElementById("profile-image");
+                const avatarEl = document.getElementById("profile-avatar");
 
                 // Usar la estructura de datos de la API real
                 const usuario =
@@ -1186,7 +1134,10 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                     profileData.data?.perfil || profileData.perfil || {};
 
                 if (nameEl && usuario?.nombre) {
-                    nameEl.textContent = usuario.nombre;
+                    const nombreCompleto = usuario.apellido 
+                        ? `${usuario.nombre} ${usuario.apellido}`
+                        : usuario.nombre;
+                    nameEl.textContent = nombreCompleto;
                 }
 
                 // Generar subtítulo dinámico basado en el perfil
@@ -1203,15 +1154,9 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                 }
 
                 // Cargar imagen de perfil
-                if (imageEl) {
-                    let imageUrl = "/default-avatar.svg"; // Imagen por defecto
-
-                    if (perfil.urlFotoPerfil) {
-                        // ImgBB devuelve URLs directas, no necesitan transformación
-                        imageUrl = perfil.urlFotoPerfil;
-                    }
-
-                    imageEl.src = imageUrl;
+                if (avatarEl && perfil.urlFotoPerfil) {
+                    // Reemplazar el SVG por la imagen
+                    avatarEl.innerHTML = `<img src="${perfil.urlFotoPerfil}" alt="Foto de perfil" />`;
                 }
             }
 
@@ -1238,10 +1183,9 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
 
                     // Crear preview inmediato
                     const previewUrl = await imageService.createPreview(file);
-                    const imageEl = document.getElementById("profile-image");
-                    if (imageEl) {
-                        imageEl.src = previewUrl;
-                        imageEl.style.opacity = "0.7"; // Indicar que está procesando
+                    const avatarEl = document.getElementById("profile-avatar");
+                    if (avatarEl) {
+                        avatarEl.innerHTML = `<img src="${previewUrl}" alt="Foto de perfil" style="opacity: 0.7;" />`;
                     }
 
                     // Comprimir imagen si es muy grande
@@ -1270,9 +1214,8 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                         // Actualizar imagen con la URL de ImgBB
                         const imageUrl = uploadResult.url;
 
-                        if (imageEl) {
-                            imageEl.src = imageUrl;
-                            imageEl.style.opacity = "1"; // Restaurar opacidad
+                        if (avatarEl) {
+                            avatarEl.innerHTML = `<img src="${imageUrl}" alt="Foto de perfil" />`;
                         }
 
                         // Guardar directamente la foto de perfil en la API
@@ -1563,24 +1506,30 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                         // Guardar formaciones
                         if (data.formaciones && data.formaciones.length > 0) {
                             for (const formacion of data.formaciones) {
-                                if (formacion.titulo) {
+                                // Solo guardar si tiene título e institución
+                                if (formacion.titulo && formacion.institucion) {
                                     // Preparar datos limpios para la API
                                     const formacionData = {
                                         titulo: formacion.titulo,
                                         institucion: formacion.institucion,
-                                        anioFinalizacion:
-                                            formacion.anioFinalizacion,
+                                        anioFinalizacion: formacion.anioFinalizacion || null,
                                     };
 
                                     if (formacion.id) {
+                                        // Actualizar formación existente
                                         await profileService.updateFormacion(
                                             formacion.id,
                                             formacionData
                                         );
                                     } else {
-                                        await profileService.addFormacion(
+                                        // Crear nueva formación
+                                        const response = await profileService.addFormacion(
                                             formacionData
                                         );
+                                        if (response.success && response.data) {
+                                            // Actualizar el ID en el manager
+                                            formacion.id = response.data.id;
+                                        }
                                     }
                                 }
                             }
@@ -1589,28 +1538,40 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                         // Guardar cursos
                         if (data.cursos && data.cursos.length > 0) {
                             for (const curso of data.cursos) {
+                                // Solo guardar si tiene nombre
                                 if (curso.nombre) {
                                     // Preparar datos limpios para la API
                                     const cursoData = {
                                         nombre: curso.nombre,
-                                        institucion: curso.institucion || null,
-                                        horasDuracion:
-                                            curso.horasDuracion || null,
+                                        institucion: curso.institucionCurso || null,
+                                        horasDuracion: curso.horasDuracion || null,
+                                        urlCertificado: curso.urlCertificado || null,
+                                        fechaFinalizacion: curso.fechaFinalizacion || null,
+                                        estado: curso.estado || null,
                                     };
 
                                     if (curso.id) {
+                                        // Actualizar curso existente
                                         await profileService.updateCurso(
                                             curso.id,
                                             cursoData
                                         );
                                     } else {
-                                        await profileService.addCurso(
+                                        // Crear nuevo curso
+                                        const response = await profileService.addCurso(
                                             cursoData
                                         );
+                                        if (response.success && response.data) {
+                                            // Actualizar el ID en el manager
+                                            curso.id = response.data.id;
+                                        }
                                     }
                                 }
                             }
                         }
+
+                        this.showNotification("Formaciones y cursos guardados correctamente", "success");
+                        this.hasUnsavedChanges = false;
 
                         // Recargar datos después del guardado exitoso
                         console.log(
@@ -1652,44 +1613,24 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                 try {
                     console.log("💾 Guardando experiencias laborales...");
 
-                    // Obtener datos del ExperienciasManager
+                    // Usar directamente el método del ExperienciasManager
                     if (window.experienciasManager) {
-                        const data = window.experienciasManager.getFormData();
-                        console.log("Datos de experiencias:", data);
+                        // Primero guardar los datos actuales en el manager
+                        await window.experienciasManager.saveCurrentExperiencia();
+                        
+                        // Ahora guardar todas las experiencias
+                        await window.experienciasManager.saveAllExperiencias();
+                        
+                        console.log("✅ Experiencias guardadas exitosamente");
 
-                        if (data.experiencias && data.experiencias.length > 0) {
-                            for (const experiencia of data.experiencias) {
-                                if (experiencia.puesto && experiencia.empresa) {
-                                    // Preparar datos limpios para la API
-                                    const experienciaData = {
-                                        puesto: experiencia.puesto,
-                                        empresa: experiencia.empresa,
-                                        fechaInicio:
-                                            experiencia.fechaInicio || null,
-                                        fechaFin: experiencia.fechaFin || null,
-                                        descripcion:
-                                            experiencia.descripcion || null,
-                                    };
-
-                                    if (experiencia.id) {
-                                        await profileService.updateExperiencia(
-                                            experiencia.id,
-                                            experienciaData
-                                        );
-                                    } else {
-                                        await profileService.addExperiencia(
-                                            experienciaData
-                                        );
-                                    }
-                                }
-                            }
-                        }
+                        this.hasUnsavedChanges = false;
 
                         // Recargar datos después del guardado exitoso
-                        console.log(
-                            "✅ Experiencias guardadas, recargando datos..."
-                        );
+                        console.log("Recargando datos...");
                         await this.loadUserProfile();
+                        
+                        // Forzar actualización del componente de experiencias
+                        window.experienciasManager.populateForm(this.profileData);
 
                         return true;
                     } else {
@@ -1736,29 +1677,50 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                             ...(data.habilidadesBlandas || []),
                         ];
 
+                        console.log("Total de habilidades a guardar:", todasHabilidades.length);
+
                         if (todasHabilidades.length > 0) {
                             for (const habilidad of todasHabilidades) {
-                                if (habilidad.nombre) {
+                                // Solo guardar si tiene nombre
+                                if (habilidad.nombre && habilidad.nombre.trim()) {
                                     // Preparar datos limpios para la API
                                     const habilidadData = {
-                                        nombre: habilidad.nombre,
+                                        nombre: habilidad.nombre.trim(),
                                         tipo: habilidad.tipo || "tecnica",
-                                        nivel: habilidad.nivel || null,
+                                        nivel: habilidad.nivel || "intermedio",
                                     };
 
-                                    if (habilidad.id) {
-                                        await profileService.updateHabilidad(
-                                            habilidad.id,
-                                            habilidadData
-                                        );
-                                    } else {
-                                        await profileService.addHabilidad(
-                                            habilidadData
-                                        );
+                                    console.log("Guardando habilidad:", habilidadData);
+
+                                    try {
+                                        if (habilidad.id) {
+                                            // Actualizar habilidad existente
+                                            await profileService.updateHabilidad(
+                                                habilidad.id,
+                                                habilidadData
+                                            );
+                                            console.log(`✅ Habilidad ${habilidad.id} actualizada`);
+                                        } else {
+                                            // Crear nueva habilidad
+                                            const response = await profileService.addHabilidad(
+                                                habilidadData
+                                            );
+                                            if (response.success && response.data) {
+                                                // Actualizar el ID en el manager
+                                                habilidad.id = response.data.id;
+                                                console.log(`✅ Habilidad creada con ID ${habilidad.id}`);
+                                            }
+                                        }
+                                    } catch (error) {
+                                        console.error(`Error guardando habilidad "${habilidad.nombre}":`, error);
+                                        // Continuar con las demás habilidades incluso si una falla
                                     }
                                 }
                             }
                         }
+
+                        this.showNotification("Habilidades guardadas correctamente", "success");
+                        this.hasUnsavedChanges = false;
 
                         // Recargar datos después del guardado exitoso
                         console.log(
@@ -1834,6 +1796,8 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                                 }
                             }
                         }
+
+                        this.hasUnsavedChanges = false;
 
                         // Recargar datos después del guardado exitoso
                         console.log(
