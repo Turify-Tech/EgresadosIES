@@ -37,34 +37,6 @@ export const buscarPerfiles = async (req, res) => {
         const limiteNum = Math.min(50, Math.max(1, parseInt(limite) || 10)); // Max 50 por página
         const offset = (paginaNum - 1) * limiteNum;
 
-        // Consulta SQL base que une las tablas necesarias
-        // Usamos una subconsulta para manejar múltiples experiencias sin duplicar egresados
-        let sqlBase = `
-            SELECT DISTINCT 
-                u.id,
-                u.nombre,
-                u.apellido,
-                u.email,
-                p.resumenProfesional,
-                p.situacionLaboral,
-                p.urlPortfolio,
-                p.urlFotoPerfil,
-                p.urlBanner,
-                c.nombre as carrera,
-                e.dni,
-                e.telefono,
-                (
-                    SELECT GROUP_CONCAT(el.puesto || ' en ' || el.empresa, ', ')
-                    FROM ExperienciaLaboral el 
-                    WHERE el.perfilId = p.id
-                ) as experiencias
-            FROM Usuario u
-            INNER JOIN Egresado e ON u.id = e.id
-            LEFT JOIN Perfil p ON e.perfilId = p.id
-            LEFT JOIN Carrera c ON e.carreraId = c.id
-            WHERE u.tipo_usuario = 'Egresado'
-        `;
-
         // Arrays para construir las condiciones WHERE y parámetros de forma segura
         const condiciones = [];
         const parametros = [];
@@ -142,10 +114,10 @@ export const buscarPerfiles = async (req, res) => {
             parametros.push(techBusqueda, techBusqueda, techBusqueda);
         }
 
-        // Construir la consulta final
-        let consultaFinal = sqlBase;
+        // Construir WHERE clause para las consultas
+        let whereClause = "WHERE u.tipo_usuario = 'Egresado'";
         if (condiciones.length > 0) {
-            consultaFinal += " AND " + condiciones.join(" AND ");
+            whereClause += " AND " + condiciones.join(" AND ");
         }
 
         // MEJORADO: Sistema de ordenamiento que soporta ambos formatos
@@ -179,28 +151,47 @@ export const buscarPerfiles = async (req, res) => {
                     ordenClause = "ORDER BY u.nombre ASC";
             }
         }
-        consultaFinal += " " + ordenClause;
 
-        // NUEVO: Consulta simple para contar resultados
-        let consultaConteo = `
+        // Consulta principal usando subquery para paginación correcta
+        const consultaFinal = `
+            SELECT 
+                u.id,
+                u.nombre,
+                u.apellido,
+                u.email,
+                p.resumenProfesional,
+                p.situacionLaboral,
+                p.urlPortfolio,
+                p.urlFotoPerfil,
+                p.urlBanner,
+                c.nombre as carrera,
+                e.dni,
+                e.telefono,
+                (
+                    SELECT GROUP_CONCAT(el.puesto || ' en ' || el.empresa, ', ')
+                    FROM ExperienciaLaboral el 
+                    WHERE el.perfilId = p.id
+                ) as experiencias
+            FROM Usuario u
+            INNER JOIN Egresado e ON u.id = e.id
+            LEFT JOIN Perfil p ON e.perfilId = p.id
+            LEFT JOIN Carrera c ON e.carreraId = c.id
+            ${whereClause}
+            ${ordenClause}
+            LIMIT ${limiteNum} OFFSET ${offset}
+        `;
+
+        // Consulta de conteo
+        const consultaConteo = `
             SELECT COUNT(DISTINCT u.id) as total
             FROM Usuario u
             INNER JOIN Egresado e ON u.id = e.id
             LEFT JOIN Perfil p ON e.perfilId = p.id
             LEFT JOIN Carrera c ON e.carreraId = c.id
-            WHERE u.tipo_usuario = 'Egresado'
+            ${whereClause}
         `;
-        if (condiciones.length > 0) {
-            consultaConteo += " AND " + condiciones.join(" AND ");
-        }
-
-        // NUEVO: Agregar paginación a la consulta principal
-        consultaFinal += ` LIMIT ${limiteNum} OFFSET ${offset}`;
 
         // Ejecutar ambas consultas de forma segura
-        console.log("Consulta SQL final:", consultaFinal);
-        console.log("Consulta de conteo:", consultaConteo);
-        console.log("Parámetros:", parametros);
 
         const [resultConteo, resultPerfiles] = await Promise.all([
             client.execute({
@@ -215,10 +206,6 @@ export const buscarPerfiles = async (req, res) => {
 
         const total = resultConteo.rows[0]?.total || 0;
         const totalPaginas = Math.ceil(total / limiteNum);
-
-        console.log("Resultados encontrados:", resultPerfiles.rows.length);
-        console.log("Total en BD:", total);
-        console.log("Primeros resultados:", resultPerfiles.rows.slice(0, 2));
 
         // Devolver los resultados con paginación
         const response = {

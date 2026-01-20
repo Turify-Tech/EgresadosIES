@@ -509,6 +509,10 @@ export const searchService = {
         // Ordenamiento
         if (filters.orderBy) params.set("orderBy", filters.orderBy);
 
+        // Paginación
+        if (filters.pagina) params.set("pagina", filters.pagina);
+        if (filters.limite) params.set("limite", filters.limite);
+
         return apiClient.get(`/buscar?${params.toString()}`);
     },
 
