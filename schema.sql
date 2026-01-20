@@ -197,6 +197,9 @@ CREATE TABLE ImagenPublicacion (
 -- -----------------------------------------------------------------
 -- Tabla: Comentario
 -- -----------------------------------------------------------------
+-- Propósito: Almacena comentarios en publicaciones, con soporte para
+--            respuestas anidadas mediante comentarioPadreId.
+-- -----------------------------------------------------------------
 CREATE TABLE Comentario (
   id INTEGER PRIMARY KEY,
   contenido TEXT NOT NULL,
@@ -204,8 +207,10 @@ CREATE TABLE Comentario (
   fueEditado BOOLEAN NOT NULL DEFAULT 0,
   autorId INTEGER NOT NULL,
   publicacionId INTEGER NOT NULL,
+  comentarioPadreId INTEGER,
   FOREIGN KEY (autorId) REFERENCES Egresado (id) ON DELETE CASCADE,
-  FOREIGN KEY (publicacionId) REFERENCES Publicacion (id) ON DELETE CASCADE
+  FOREIGN KEY (publicacionId) REFERENCES Publicacion (id) ON DELETE CASCADE,
+  FOREIGN KEY (comentarioPadreId) REFERENCES Comentario (id) ON DELETE CASCADE
 );
 
 -- -----------------------------------------------------------------
@@ -217,6 +222,20 @@ CREATE TABLE LikePublicacion (
   PRIMARY KEY (egresadoId, publicacionId),
   FOREIGN KEY (egresadoId) REFERENCES Egresado (id) ON DELETE CASCADE,
   FOREIGN KEY (publicacionId) REFERENCES Publicacion (id) ON DELETE CASCADE
+);
+
+-- -----------------------------------------------------------------
+-- Tabla: LikeComentario
+-- -----------------------------------------------------------------
+-- Propósito: Almacena los likes que los egresados dan a los comentarios.
+--            Restringe un like por usuario por comentario.
+-- -----------------------------------------------------------------
+CREATE TABLE LikeComentario (
+  egresadoId INTEGER NOT NULL,
+  comentarioId INTEGER NOT NULL,
+  PRIMARY KEY (egresadoId, comentarioId),
+  FOREIGN KEY (egresadoId) REFERENCES Egresado (id) ON DELETE CASCADE,
+  FOREIGN KEY (comentarioId) REFERENCES Comentario (id) ON DELETE CASCADE
 );
 
 -- -----------------------------------------------------------------
