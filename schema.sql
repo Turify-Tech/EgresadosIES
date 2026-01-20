@@ -317,3 +317,30 @@ CREATE TABLE PreferenciasNotificacion (
   fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (usuario_id) REFERENCES Usuario (id) ON DELETE CASCADE
 );
+
+-- -----------------------------------------------------------------
+-- Tabla: ActividadAdmin
+-- -----------------------------------------------------------------
+-- Propósito: Registra las actividades administrativas realizadas en el sistema.
+--            Permite trazabilidad y auditoría de las acciones de administración.
+-- -----------------------------------------------------------------
+CREATE TABLE ActividadAdmin (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  adminId INTEGER NOT NULL,
+  tipoAccion TEXT NOT NULL CHECK (tipoAccion IN (
+    'AGREGAR_DNI',
+    'EDITAR_DNI',
+    'ELIMINAR_DNI',
+    'CARGAR_EXCEL',
+    'VER_ESTADISTICAS',
+    'ACCESO_PANEL'
+  )),
+  descripcion TEXT NOT NULL,
+  detalles TEXT, -- JSON con información adicional (ej: cantidad de DNIs, nombres, etc.)
+  fechaCreacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (adminId) REFERENCES Administrador (id) ON DELETE CASCADE
+);
+
+-- Índice para mejorar el rendimiento de consultas de actividades
+CREATE INDEX idx_actividad_admin 
+ON ActividadAdmin(adminId, fechaCreacion DESC);

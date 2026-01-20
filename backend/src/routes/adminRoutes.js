@@ -15,7 +15,8 @@ import {
     listarDNIs,
     eliminarDNI,
     editarDNI,
-    obtenerEstadisticas
+    obtenerEstadisticas,
+    obtenerActividadesRecientesController
 } from "../controllers/adminController.js";
 
 const router = express.Router();
@@ -157,6 +158,17 @@ router.put('/dnis/:dni',
     ...adminAuth,
     validateEditarDNIMiddleware,
     editarDNI
+);
+
+/**
+ * @route   GET /api/admin/actividades-recientes
+ * @desc    Obtener actividades recientes del administrador
+ * @access  Admin only
+ * @query   limite (opcional) - Cantidad de actividades a retornar (1-50, default: 10)
+ */
+router.get('/actividades-recientes',
+    ...adminAuth,
+    obtenerActividadesRecientesController
 );
 
 // Middleware de manejo de errores específico para Multer

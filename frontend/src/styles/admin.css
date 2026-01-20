@@ -255,6 +255,12 @@
     background: #F9FAFB;
     border-radius: 8px;
     border: 1px solid #F3F4F6;
+    transition: all 0.2s ease;
+}
+
+.activity-item:hover {
+    background: #F3F4F6;
+    border-color: #E5E7EB;
 }
 
 .activity-icon {
@@ -267,6 +273,37 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+}
+
+/* Colores para diferentes tipos de acciones */
+.activity-icon.success {
+    background: rgba(34, 197, 94, 0.1);
+    color: #16a34a;
+}
+
+.activity-icon.danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+}
+
+.activity-icon.info {
+    background: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+}
+
+.activity-icon.primary {
+    background: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+}
+
+.activity-icon.secondary {
+    background: rgba(107, 114, 128, 0.1);
+    color: #6b7280;
+}
+
+.activity-icon.default {
+    background: rgba(156, 163, 175, 0.1);
+    color: #9ca3af;
 }
 
 .activity-content {
@@ -283,6 +320,133 @@
 .activity-time {
     font-size: 0.8125rem;
     color: #666;
+}
+
+/* Estados de actividad */
+.activity-loading,
+.activity-error,
+.activity-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    text-align: center;
+    gap: 1rem;
+}
+
+.activity-loading .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f4f6;
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.activity-loading p,
+.activity-error p,
+.activity-empty p {
+    margin: 0;
+    font-size: 0.9375rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.activity-error svg {
+    color: #dc2626;
+}
+
+.activity-empty svg {
+    color: #9ca3af;
+}
+
+.activity-hint {
+    font-size: 0.875rem;
+    color: #9ca3af;
+    display: block;
+    margin-top: 0.5rem;
+}
+
+.btn-retry {
+    padding: 0.5rem 1.5rem;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-retry:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.btn-retry:active {
+    transform: translateY(0);
+}
+
+/* Paginación de actividades */
+.activity-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+    margin-top: 0.5rem;
+    border-top: 1px solid #E5E7EB;
+}
+
+.pagination-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: white;
+    color: #374151;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: #F9FAFB;
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #F9FAFB;
+}
+
+.pagination-info {
+    font-size: 0.875rem;
+    color: #6B7280;
+    font-weight: 500;
+}
+
+@media (max-width: 640px) {
+    .activity-pagination {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .pagination-btn {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 /* Layout de página DNIs */
