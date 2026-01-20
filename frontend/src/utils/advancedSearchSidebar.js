@@ -33,8 +33,13 @@ export class AdvancedSearchManagerSidebar {
         this.totalResults = 0;
         this.isLoading = false;
 
+        // Estado de paginación
+        this.currentPage = 1;
+        this.itemsPerPage = 10;
+        this.totalPages = 0;
+
         // Elementos del DOM
-        this.elements = {};
+        this.elements = {}
 
         // Timer para debounce
         this.debounceTimer = null;
@@ -75,6 +80,12 @@ export class AdvancedSearchManagerSidebar {
             filtersSidebar: document.querySelector(".filters-sidebar"),
             sidebarOverlay: document.getElementById("sidebar-overlay"),
             mainContent: document.querySelector(".main-content"),
+
+            // Paginación
+            paginationContainer: document.getElementById("pagination-container"),
+            prevPageBtn: document.getElementById("prev-page"),
+            nextPageBtn: document.getElementById("next-page"),
+            pageInfo: document.getElementById("page-info"),
         };
     }
 
@@ -122,6 +133,21 @@ export class AdvancedSearchManagerSidebar {
         if (this.elements.clearAllButton) {
             this.elements.clearAllButton.addEventListener("click", () => {
                 this.clear();
+            });
+        }
+
+        // Botones de paginación
+        if (this.elements.prevPageBtn) {
+            this.elements.prevPageBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                this.previousPage();
+            });
+        }
+
+        if (this.elements.nextPageBtn) {
+            this.elements.nextPageBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                this.nextPage();
             });
         }
     }
@@ -216,6 +242,9 @@ export class AdvancedSearchManagerSidebar {
         if (this.currentFilters[filterName] !== value) {
             this.currentFilters[filterName] = value;
 
+            // Resetear a la primera página cuando cambian los filtros
+            this.currentPage = 1;
+
             if (this.options.enableUrlParams) {
                 this.updateUrlParams();
             }
@@ -249,21 +278,17 @@ export class AdvancedSearchManagerSidebar {
 
         try {
             const searchParams = this.buildSearchParams();
-            console.log("Parámetros de búsqueda:", searchParams);
-
             const response = await searchService.searchProfiles(searchParams);
-            console.log("Respuesta de búsqueda:", response);
 
             if (response.success) {
                 this.results = response.data.perfiles || [];
                 this.totalResults = response.data.total || 0;
-                console.log("Perfiles encontrados:", this.results.length);
-                console.log("Total de resultados:", this.totalResults);
+                this.totalPages = response.data.totalPaginas || Math.ceil(this.totalResults / this.itemsPerPage);
                 this.renderResults();
                 this.updateResultsCount();
+                this.updatePagination();
                 this.hideStates();
             } else {
-                console.error("Error en respuesta:", response);
                 this.showError(response.message || "Error en la búsqueda");
             }
         } catch (error) {
@@ -284,36 +309,29 @@ export class AdvancedSearchManagerSidebar {
             }
         });
 
+        // Paginación
+        params.pagina = this.currentPage;
+        params.limite = this.itemsPerPage;
+
         return params;
     }
 
     renderResults() {
         const container = this.elements.resultsContainer;
-        console.log("Container encontrado:", container);
-        console.log("Número de resultados a renderizar:", this.results.length);
 
         if (!container) {
-            console.error(
-                "No se encontró el contenedor de resultados con ID:",
-                this.options.resultsContainerId
-            );
             return;
         }
 
         if (this.results.length === 0) {
-            console.log(
-                "No hay resultados, mostrando mensaje de no resultados"
-            );
             this.showNoResults();
             return;
         }
 
-        console.log("Renderizando resultados:", this.results);
         const html = this.results
             .map((perfil) => this.renderPerfilCard(perfil))
             .join("");
 
-        console.log("HTML generado:", html);
         container.innerHTML = html;
     }
 
@@ -456,6 +474,9 @@ export class AdvancedSearchManagerSidebar {
             situacionLaboral: "",
         };
 
+        // Resetear paginación
+        this.currentPage = 1;
+
         // Marcar "Todas" en carreras
         const todasCarrerasCheckbox = document.getElementById("todas-carreras");
         if (todasCarrerasCheckbox) {
@@ -579,6 +600,63 @@ export class AdvancedSearchManagerSidebar {
             total: this.totalResults,
             filters: this.getFilters(),
         };
+    }
+
+    // Métodos de paginación
+    nextPage() {
+        if (this.currentPage < this.totalPages) {
+            this.currentPage++;
+            this.search();
+            this.scrollToTop();
+        }
+    }
+
+    previousPage() {
+        if (this.currentPage > 1) {
+            this.currentPage--;
+            this.search();
+            this.scrollToTop();
+        }
+    }
+
+    goToPage(page) {
+        const pageNum = parseInt(page);
+        if (pageNum >= 1 && pageNum <= this.totalPages) {
+            this.currentPage = pageNum;
+            this.search();
+            this.scrollToTop();
+        }
+    }
+
+    scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    updatePagination() {
+        if (!this.elements.paginationContainer) return;
+
+        const { prevPageBtn, nextPageBtn, pageInfo } = this.elements;
+
+        // Actualizar información de página
+        if (pageInfo) {
+            pageInfo.textContent = `Página ${this.currentPage} de ${this.totalPages}`;
+        }
+
+        // Habilitar/deshabilitar botones
+        if (prevPageBtn) {
+            prevPageBtn.disabled = this.currentPage === 1;
+        }
+
+        if (nextPageBtn) {
+            nextPageBtn.disabled = this.currentPage >= this.totalPages;
+        }
+
+        // Mostrar/ocultar el contenedor de paginación
+        if (this.totalPages <= 1) {
+            this.elements.paginationContainer.style.display = 'none';
+        } else {
+            this.elements.paginationContainer.style.display = 'flex';
+        }
     }
 
     // Métodos para mostrar/ocultar filtros
