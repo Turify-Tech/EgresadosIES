@@ -920,7 +920,7 @@
         }
 
         populateForm(profileData) {
-            if (!profileData || this.isInitialized) return;
+            if (!profileData) return;
 
             console.log("Poblando formación académica con:", profileData);
 
@@ -961,8 +961,7 @@
             this.updateNavigationUI();
             this.loadCurrentData();
 
-            this.isInitialized = true;
-            console.log("✅ Formación académica inicializada correctamente");
+            console.log("✅ Formación académica poblada correctamente");
         }
 
         async saveSection() {
@@ -1112,6 +1111,17 @@
                     `${failed.length} curso(s) no pudieron guardarse`
                 );
             }
+        }
+
+        getFormData() {
+            // Guardar el estado actual antes de obtener los datos
+            this.saveCurrentFormacion();
+            this.saveCurrentCurso();
+
+            return {
+                formaciones: this.formaciones,
+                cursos: this.cursos
+            };
         }
 
         async autoSave() {

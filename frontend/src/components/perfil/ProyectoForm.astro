@@ -139,9 +139,9 @@
                 <!-- Descripción -->
                 <div class="field-row">
                     <div class="form-group full-width">
-                        <label for="descripcion">Descripción:</label>
+                        <label for="descripcion-proyecto">Descripción:</label>
                         <textarea
-                            id="descripcion"
+                            id="descripcion-proyecto"
                             name="descripcion"
                             class="form-textarea"
                             placeholder="Describe el proyecto, sus objetivos, funcionalidades principales..."
@@ -158,6 +158,28 @@
             </button>
         </div>
     </form>
+
+    <!-- Modal para ajuste de imagen -->
+    <div id="image-crop-modal" class="crop-modal" style="display: none;">
+        <div class="crop-modal-content">
+            <div class="crop-modal-header">
+                <h3>Ajustar imagen del proyecto</h3>
+                <button type="button" class="close-modal" id="close-crop-modal">×</button>
+            </div>
+            <div class="crop-modal-body">
+                <div class="crop-preview-container">
+                    <img id="crop-image-preview" src="" alt="Vista previa" />
+                </div>
+                <div class="crop-controls">
+                    <p class="crop-hint">Arrastra y ajusta el área de recorte para seleccionar la parte de la imagen que deseas usar.</p>
+                </div>
+            </div>
+            <div class="crop-modal-footer">
+                <button type="button" class="btn-cancel" id="cancel-crop">Cancelar</button>
+                <button type="button" class="btn-apply" id="apply-crop">Aplicar recorte</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -335,10 +357,10 @@
     }
 
     .image-preview {
-        width: 150px;
-        height: 100px;
+        width: 220px;
+        height: 150px;
         border: 2px solid #e5e7eb;
-        border-radius: 8px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -346,6 +368,14 @@
         overflow: hidden;
         position: relative;
         margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
     }
 
     .placeholder-image {
@@ -358,10 +388,18 @@
     }
 
     .circle-placeholder {
-        width: 40px;
-        height: 40px;
-        background: #000;
+        width: 50px;
+        height: 50px;
+        background: #9ca3af;
         border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .circle-placeholder::after {
+        content: '📷';
+        font-size: 24px;
     }
 
     .upload-btn {
@@ -553,6 +591,143 @@
             width: 100%;
         }
     }
+
+    /* Modal de recorte de imagen */
+    .crop-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+    }
+
+    .crop-modal-content {
+        background: white;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .crop-modal-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .crop-modal-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .close-modal {
+        background: none;
+        border: none;
+        font-size: 2rem;
+        color: #6b7280;
+        cursor: pointer;
+        padding: 0;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+
+    .close-modal:hover {
+        background: #f3f4f6;
+        color: #1f2937;
+    }
+
+    .crop-modal-body {
+        padding: 1.5rem;
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .crop-preview-container {
+        width: 100%;
+        max-width: 600px;
+        height: 400px;
+        margin: 0 auto 1.5rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #1f2937;
+    }
+
+    #crop-image-preview {
+        max-width: 100%;
+        display: block;
+    }
+
+    .crop-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .crop-hint {
+        text-align: center;
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin: 0;
+        padding: 1rem;
+        background: #f3f4f6;
+        border-radius: 8px;
+    }
+
+    .crop-modal-footer {
+        padding: 1.5rem;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+    }
+
+    .btn-cancel,
+    .btn-apply {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-cancel {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    .btn-cancel:hover {
+        background: #e5e7eb;
+    }
+
+    .btn-apply {
+        background: #3b82f6;
+        color: white;
+    }
+
+    .btn-apply:hover {
+        background: #2563eb;
+    }
 </style>
 
 <script>
@@ -644,6 +819,27 @@
                     e.target.files[0]
                 );
                 this.handleImageUpload(e);
+            });
+
+            // Modal de recorte
+            const modal = document.getElementById("image-crop-modal");
+            const closeModal = document.getElementById("close-crop-modal");
+            const cancelCrop = document.getElementById("cancel-crop");
+            const applyCrop = document.getElementById("apply-crop");
+
+            const closeCropModal = () => {
+                if (this.cropper) {
+                    this.cropper.destroy();
+                    this.cropper = null;
+                }
+                modal.style.display = "none";
+            };
+
+            closeModal?.addEventListener("click", closeCropModal);
+            cancelCrop?.addEventListener("click", closeCropModal);
+
+            applyCrop?.addEventListener("click", () => {
+                this.applyImageAdjustment();
             });
 
             // Botón guardar
@@ -774,7 +970,7 @@
 
             // Poblar campos del formulario
             const nombreInput = document.getElementById("nombre-proyecto");
-            const descripcionInput = document.getElementById("descripcion");
+            const descripcionInput = document.getElementById("descripcion-proyecto");
             const enlaceInput = document.getElementById("enlace");
             const tecnologiasInput = document.getElementById("tecnologias");
             const fechaInput = document.getElementById("fecha-proyecto");
@@ -824,78 +1020,21 @@
             }
 
             try {
-                // Mostrar loading en el botón
-                const uploadBtn = document.getElementById(
-                    "upload-project-image"
-                );
-                if (uploadBtn) {
-                    uploadBtn.disabled = true;
-                    uploadBtn.innerHTML = `
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="loading-spinner">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <path d="M16 12a4 4 0 0 1-8 0"></path>
-                        </svg>
-                        Subiendo...
-                    `;
-                }
-
-                // Validar imagen antes de subir
+                // Validar imagen
                 await imageService.validateImage(file);
 
-                // Crear preview inmediato
-                const previewUrl = await imageService.createPreview(file);
-                this.updateImagePreview(previewUrl);
+                // Crear preview local para mostrar en el cropper
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    // Abrir modal de recorte directamente con la imagen local
+                    this.openCropModal(event.target.result);
+                };
+                reader.readAsDataURL(file);
 
-                // Comprimir imagen si es muy grande
-                let processedFile = file;
-                if (file.size > 1024 * 1024) {
-                    // Si es mayor a 1MB
-                    processedFile = await ImageUtils.compressImage(file, {
-                        maxWidth: 1200,
-                        maxHeight: 800,
-                        quality: 0.8,
-                    });
-                    console.log(
-                        `Imagen del proyecto comprimida: ${Math.round(file.size / 1024)}KB → ${Math.round(processedFile.size / 1024)}KB`
-                    );
-                }
-
-                // Subir a ImgBB
-                const uploadResult = await imageService.uploadImage(
-                    processedFile,
-                    {
-                        name: `proyecto_${Date.now()}`,
-                    }
-                );
-
-                if (uploadResult.success) {
-                    // Actualizar imagen con la URL de ImgBB
-                    const imageUrl = uploadResult.url;
-
-                    this.updateImagePreview(imageUrl);
-
-                    // Guardar URL en el proyecto actual
-                    this.proyectos[this.currentProjectIndex].imagen =
-                        uploadResult.url;
-                    this.isModified = true;
-
-                    this.showNotification(
-                        "Imagen del proyecto subida correctamente",
-                        "success"
-                    );
-
-                    console.log("Imagen del proyecto subida a ImgBB:", {
-                        id: uploadResult.id,
-                        url: uploadResult.url,
-                        thumbnailUrl: uploadResult.thumbnailUrl,
-                    });
-                } else {
-                    throw new Error("Error en la subida a ImgBB");
-                }
             } catch (error) {
-                console.error("Error subiendo imagen del proyecto:", error);
+                console.error("Error al cargar imagen:", error);
 
-                let errorMessage = "Error al subir la imagen del proyecto";
+                let errorMessage = "Error al cargar la imagen";
                 if (error.message.includes("Tipo de archivo")) {
                     errorMessage = "Solo se permiten imágenes JPEG, PNG o WebP";
                 } else if (error.message.includes("demasiado grande")) {
@@ -906,24 +1045,6 @@
                 }
 
                 this.showNotification(errorMessage, "error");
-
-                // Revertir preview si falló la subida
-                this.loadProjectImage();
-            } finally {
-                // Restaurar botón
-                const uploadBtn = document.getElementById(
-                    "upload-project-image"
-                );
-                if (uploadBtn) {
-                    uploadBtn.disabled = false;
-                    uploadBtn.innerHTML = `
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                            <circle cx="12" cy="13" r="4"></circle>
-                        </svg>
-                        Subir imagen
-                    `;
-                }
             }
         }
 
@@ -962,7 +1083,7 @@
         }
 
         populateForm(profileData) {
-            if (!profileData || this.isInitialized) return;
+            if (!profileData) return;
 
             console.log("Poblando proyectos", profileData);
 
@@ -1033,12 +1154,12 @@
             this.updateNavigationUI();
             this.loadCurrentProject();
 
-            this.isInitialized = true;
+            console.log("✅ Proyectos poblados correctamente");
         }
 
         getCurrentProjectData() {
             const nombreInput = document.getElementById("nombre-proyecto");
-            const descripcionInput = document.getElementById("descripcion");
+            const descripcionInput = document.getElementById("descripcion-proyecto");
             const enlaceInput = document.getElementById("enlace");
             const tecnologiasInput = document.getElementById("tecnologias");
             const fechaInput = document.getElementById("fecha-proyecto");
@@ -1145,6 +1266,106 @@
                 })
             );
         }
+
+        openCropModal(imageUrl) {
+            const modal = document.getElementById("image-crop-modal");
+            const image = document.getElementById("crop-image-preview");
+            
+            if (!modal || !image) return;
+
+            image.src = imageUrl;
+            modal.style.display = "flex";
+            
+            // Inicializar Cropper.js
+            setTimeout(() => {
+                if (this.cropper) {
+                    this.cropper.destroy();
+                }
+                
+                this.cropper = new Cropper(image, {
+                    aspectRatio: 16 / 9, // Aspect ratio rectangular
+                    viewMode: 2,
+                    dragMode: 'move',
+                    autoCropArea: 0.8,
+                    restore: false,
+                    guides: true,
+                    center: true,
+                    highlight: false,
+                    cropBoxMovable: true,
+                    cropBoxResizable: true,
+                    toggleDragModeOnDblclick: false,
+                });
+            }, 100);
+
+            // Guardar referencia temporal
+            this.tempImageUrl = imageUrl;
+        }
+
+        async applyImageAdjustment() {
+            if (!this.cropper) return;
+            
+            const modal = document.getElementById("image-crop-modal");
+            
+            try {
+                // Obtener imagen recortada como blob
+                const canvas = this.cropper.getCroppedCanvas({
+                    width: 800,
+                    height: 450, // 16:9 ratio
+                    imageSmoothingQuality: 'high'
+                });
+
+                const blob = await new Promise((resolve) => 
+                    canvas.toBlob(resolve, 'image/jpeg', 0.9)
+                );
+
+                if (blob) {
+                    // Mostrar loading
+                    this.showNotification("Procesando imagen recortada...", "info");
+
+                    // Crear un File desde el blob
+                    const croppedFile = new File([blob], `proyecto_${Date.now()}.jpg`, {
+                        type: 'image/jpeg',
+                        lastModified: Date.now()
+                    });
+
+                    // Subir la imagen recortada usando imageService
+                    const uploadResult = await imageService.uploadImage(croppedFile, {
+                        name: `proyecto_recortado_${Date.now()}`
+                    });
+
+                    if (uploadResult.success) {
+                        const croppedImageUrl = uploadResult.url;
+                        
+                        // Actualizar la imagen del proyecto
+                        this.proyectos[this.currentProjectIndex].imagen = croppedImageUrl;
+                        this.isModified = true;
+                        
+                        // Actualizar preview
+                        this.updateImagePreview(croppedImageUrl);
+                        
+                        console.log('✅ Imagen recortada y guardada:', croppedImageUrl);
+                        this.showNotification("Imagen recortada y guardada correctamente", "success");
+                    } else {
+                        throw new Error('Error al subir la imagen recortada');
+                    }
+                } else {
+                    throw new Error('No se pudo generar la imagen recortada');
+                }
+                
+            } catch (error) {
+                console.error('Error al recortar imagen:', error);
+                this.showNotification("Error al procesar el recorte", "error");
+            } finally {
+                // Cerrar modal y destruir cropper
+                if (modal) {
+                    modal.style.display = "none";
+                }
+                if (this.cropper) {
+                    this.cropper.destroy();
+                    this.cropper = null;
+                }
+            }
+        }
     }
 
     // Inicializar cuando el DOM esté listo
@@ -1154,3 +1375,6 @@
         console.log("✅ ProyectoForm - ProyectosManager inicializado");
     });
 </script>
+
+<!-- Cropper.js -->\n<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" />
+<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>

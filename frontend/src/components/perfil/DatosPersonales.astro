@@ -57,13 +57,14 @@
 
             <!-- Descripción -->
             <div class="description-section">
-                <label for="descripcion">Descripción</label>
+                <label for="descripcion">Acerca de mí</label>
                 <textarea
                     id="descripcion"
                     name="descripcion"
                     rows="6"
-                    placeholder="Descripción detallada"
+                    placeholder="Descripción que aparecerá en tu currículum vitae..."
                     class="form-textarea"></textarea>
+                <small class="form-help">Esta descripción aparecerá en la sección "Acerca de mí" de tu CV</small>
             </div>
         </div>
 
@@ -139,18 +140,6 @@
                         placeholder="2604561871"
                         class="form-input"
                     />
-                </div>
-            </div>
-
-            <div class="field-row">
-                <div class="form-group full-width">
-                    <label for="resumen-profesional">Resumen Profesional</label>
-                    <textarea
-                        id="resumen-profesional"
-                        name="resumen-profesional"
-                        rows="4"
-                        placeholder="Describe tu experiencia y objetivos profesionales..."
-                        class="form-textarea"></textarea>
                 </div>
             </div>
 
@@ -444,7 +433,6 @@
     class DatosPersonalesManager {
         constructor() {
             this.form = document.getElementById("datos-personales-form");
-            this.isInitialized = false;
             this.validationRules = {
                 telefono: /^(\+54)?\s?\d{2,4}[-\s]?\d{4,8}$/,
                 urlPortfolio:
@@ -619,7 +607,7 @@
         }
 
         populateForm(profileData) {
-            if (!profileData || this.isInitialized) return;
+            if (!profileData) return;
 
             console.log("Poblando datos personales con:", profileData);
 
@@ -640,10 +628,8 @@
             this.setFieldValue("telefono", usuario.telefono); // campo adicional
 
             // Poblar campos del perfil
-            this.setFieldValue(
-                "resumen-profesional",
-                perfil.resumenProfesional
-            );
+            // Poblar descripción con resumenProfesional (campo para CV)
+            this.setFieldValue("descripcion", perfil.resumenProfesional);
             this.setFieldValue("url-portfolio", perfil.urlPortfolio);
             this.setFieldValue("situacion-laboral", perfil.situacionLaboral);
 
@@ -670,8 +656,7 @@
                 this.currentProfileImage = perfil.urlFotoPerfil;
             }
 
-            this.isInitialized = true;
-            console.log("✅ Datos personales inicializados correctamente");
+            console.log("✅ Datos personales poblados correctamente");
         }
 
         setFieldValue(fieldId, value) {
@@ -694,20 +679,20 @@
         }
 
         setupValidation() {
-            // Configurar validación de caracteres en textarea
-            const resumenField = document.getElementById("resumen-profesional");
-            if (resumenField) {
-                resumenField.addEventListener("input", () => {
-                    const maxLength = 500;
-                    const currentLength = resumenField.value.length;
+            // Configurar validación de caracteres en textarea de descripción (para CV)
+            const descripcionField = document.getElementById("descripcion");
+            if (descripcionField) {
+                descripcionField.addEventListener("input", () => {
+                    const maxLength = 1000;
+                    const currentLength = descripcionField.value.length;
 
                     // Actualizar contador si existe
                     let counter =
-                        resumenField.parentNode.querySelector(".char-counter");
+                        descripcionField.parentNode.querySelector(".char-counter");
                     if (!counter) {
                         counter = document.createElement("small");
                         counter.className = "char-counter form-help";
-                        resumenField.parentNode.appendChild(counter);
+                        descripcionField.parentNode.appendChild(counter);
                     }
 
                     counter.textContent = `${currentLength}/${maxLength} caracteres`;
@@ -715,9 +700,9 @@
                         currentLength > maxLength ? "#ef4444" : "#6b7280";
 
                     if (currentLength > maxLength) {
-                        resumenField.classList.add("error");
+                        descripcionField.classList.add("error");
                     } else {
-                        resumenField.classList.remove("error");
+                        descripcionField.classList.remove("error");
                     }
                 });
             }
@@ -754,11 +739,11 @@
                     }
                     break;
 
-                case "resumenProfesional":
-                    if (field.value.length > 500) {
+                case "descripcion":
+                    if (field.value.length > 1000) {
                         isValid = false;
                         errorMessage =
-                            "El resumen no puede superar los 500 caracteres";
+                            "La descripción no puede superar los 1000 caracteres";
                     }
                     break;
             }
@@ -824,13 +809,19 @@
                 telefono: data.telefono, // campo adicional
 
                 // Campos del perfil
-                resumenProfesional: data["resumen-profesional"],
+                // Usar descripcion (campo "Acerca de mí" para CV)
+                resumenProfesional: data.descripcion || null,
                 urlPortfolio: data["url-portfolio"],
                 situacionLaboral: data["situacion-laboral"],
 
                 // URL de la foto de perfil si se subió una
                 urlFotoPerfil: this.currentProfileImage || null,
             };
+
+            console.log("📋 Datos recolectados del formulario:", {
+                descripcion: data.descripcion,
+                resumenProfesional_final: mappedData.resumenProfesional
+            });
 
             // Manejar checkboxes si existen
             const perfilPublicoEl = document.getElementById("perfil-publico");
