@@ -465,6 +465,24 @@
         padding: 0 0.875rem;
         font-size: 0.8125rem;
     }
+    
+    /* Reducir indentación en móvil para aprovechar mejor el espacio */
+    .respuestas-container {
+        padding-left: 1.5rem !important;
+    }
+    
+    .respuesta-item.nivel-1,
+    .respuesta-item.nivel-2,
+    .respuesta-item.nivel-3,
+    .respuesta-item.nivel-4,
+    .respuesta-item.nivel-5,
+    .respuesta-item.nivel-6,
+    .respuesta-item.nivel-7,
+    .respuesta-item.nivel-8,
+    .respuesta-item.nivel-9,
+    .respuesta-item.nivel-10 {
+        padding-left: 0 !important;
+    }
 }
 
 /* ========================================
@@ -568,7 +586,7 @@
 /* Contenedor de respuestas */
 .respuestas-container {
     margin-top: 1rem;
-    padding-left: 0;
+    padding-left: 2.5rem; /* Espaciado fijo para todas las respuestas */
     border-left: 0px solid #e5e7eb;
     animation: slideDown 0.3s ease-out;
 }
@@ -585,6 +603,20 @@
     padding: 0.75rem 0;
     border-bottom: 1px solid #f9fafb;
     animation: fadeIn 0.3s ease-out;
+}
+
+/* Eliminar padding adicional en los items - el contenedor ya tiene el espaciado */
+.respuesta-item.nivel-1,
+.respuesta-item.nivel-2,
+.respuesta-item.nivel-3,
+.respuesta-item.nivel-4,
+.respuesta-item.nivel-5,
+.respuesta-item.nivel-6,
+.respuesta-item.nivel-7,
+.respuesta-item.nivel-8,
+.respuesta-item.nivel-9,
+.respuesta-item.nivel-10 {
+    padding-left: 0 !important;
 }
 
 @keyframes fadeIn {
