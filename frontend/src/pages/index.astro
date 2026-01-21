@@ -448,11 +448,14 @@ import "../styles/index.css";
             const nombreCompleto = autor.apellido ? `${autor.nombre} ${autor.apellido}` : autor.nombre;
             const tituloCarrera = autor.tituloCarrera || '';
             const esPropio = currentUser && currentUser.id === autor.id;
-            // Todas las respuestas anidadas (nivel > 1) tienen la misma indentación
-            const paddingLeft = nivel > 1 ? 2.5 : 0;
+            
+            // SIEMPRE limitar el nivel visual máximo a 2 (como Facebook)
+            // Nivel 1: respuestas directas al comentario principal
+            // Nivel 2: todas las demás respuestas (respuestas a respuestas)
+            const nivelVisual = Math.min(nivel, 2);
 
             return `
-                <div class="respuesta-item nivel-${nivel}" data-comentario-id="${id}" data-nivel="${nivel}" style="display: flex; gap: 0.75rem; padding: 0.75rem 0 0.75rem ${paddingLeft}rem; border-bottom: 1px solid #f9fafb;">
+                <div class="respuesta-item nivel-${nivelVisual}" data-comentario-id="${id}" data-nivel="${nivel}">
                     <div class="comentario-avatar" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px; border-radius: 50%; overflow: hidden; flex-shrink: 0;">
                         ${avatarURL ? `<img src="${avatarURL}" alt="${nombreCompleto}" style="width: 32px !important; height: 32px !important; object-fit: cover; border-radius: 50%; display: block;">` : `
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #6366f1;">
@@ -484,7 +487,7 @@ import "../styles/index.css";
                             <span class="comentario-tiempo" style="color: #9ca3af; font-size: 0.75rem;">${formatearTiempoRelativo(fechaCreacion)}</span>
                             <button class="btn-responder" data-comentario-id="${id}" style="background: none; border: none; color: #6b7280; font-size: 0.75rem; font-weight: 500; cursor: pointer; padding: 0; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#6b7280'">Responder</button>
                             ${totalRespuestas > 0 ? `
-                                <button class="btn-ver-respuestas" data-comentario-id="${id}" data-nivel="${nivel + 1}" style="background: none; border: none; color: #2563eb; font-size: 0.75rem; font-weight: 500; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 0.25rem;">
+                                <button class="btn-ver-respuestas" data-comentario-id="${id}" data-nivel="${Math.min(nivel + 1, 2)}" style="background: none; border: none; color: #2563eb; font-size: 0.75rem; font-weight: 500; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 0.25rem;">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icono-toggle">
                                         <polyline points="6 9 12 15 18 9"></polyline>
                                     </svg>
@@ -507,45 +510,119 @@ import "../styles/index.css";
         }
 
         async function toggleVerRespuestas(comentarioId) {
-            const respuestasContainer = document.querySelector(`.respuestas-container[data-comentario-id="${comentarioId}"]`);
             const btnVerRespuestas = document.querySelector(`.btn-ver-respuestas[data-comentario-id="${comentarioId}"]`);
+            if (!btnVerRespuestas) return;
             
-            if (!respuestasContainer || !btnVerRespuestas) return;
-
-            const isVisible = respuestasContainer.style.display !== 'none';
             const nivelActual = parseInt(btnVerRespuestas.getAttribute('data-nivel') || '1');
+            const nivelMaximo = Math.min(nivelActual, 2);
+            
+            // Buscar el item del comentario
+            let comentarioItem = document.querySelector(`.comentario-item[data-comentario-id="${comentarioId}"]`);
+            if (!comentarioItem) {
+                comentarioItem = document.querySelector(`.respuesta-item[data-comentario-id="${comentarioId}"]`);
+            }
+            if (!comentarioItem) return;
+            
+            // Determinar el nivel del comentario actual
+            let nivelComentario = 0;
+            if (comentarioItem.classList.contains('respuesta-item')) {
+                const classList = Array.from(comentarioItem.classList);
+                const nivelClass = classList.find(c => c.startsWith('nivel-'));
+                if (nivelClass) {
+                    nivelComentario = parseInt(nivelClass.replace('nivel-', ''));
+                }
+            }
+            
+            // Si es nivel 2, insertar respuestas como hermanos en el contenedor padre
+            let respuestasContainer: HTMLElement;
+            let respuestasList: HTMLElement;
+            let isHermano = false;
+            
+            if (nivelComentario >= 2) {
+                // Para nivel 2: buscar el contenedor padre e insertar como hermanos
+                const contenedorPadre = comentarioItem.closest('.respuestas-list');
+                if (contenedorPadre) {
+                    respuestasList = contenedorPadre as HTMLElement;
+                    isHermano = true;
+                } else {
+                    return;
+                }
+            } else {
+                // Para nivel 0 y 1: usar contenedor hijo normal
+                respuestasContainer = comentarioItem.querySelector(':scope > .comentario-content > .respuestas-container') as HTMLElement;
+                if (!respuestasContainer) {
+                    return;
+                }
+                respuestasList = respuestasContainer.querySelector('.respuestas-list') as HTMLElement;
+            }
+
+            // Verificar si las respuestas están visibles
+            let isVisible = false;
+            if (isHermano) {
+                // Para hermanos: verificar si existen elementos con data-parent-id
+                const respuestasHermanas = document.querySelectorAll(`.respuesta-item[data-parent-id="${comentarioId}"]`);
+                isVisible = respuestasHermanas.length > 0;
+            } else {
+                // Para contenedor normal: verificar display
+                isVisible = respuestasContainer.style.display !== 'none';
+            }
             
             if (isVisible) {
-                // Ocultar respuestas (no borrar, solo ocultar)
-                respuestasContainer.style.display = 'none';
+                // Ocultar respuestas
+                if (isHermano) {
+                    // Para hermanos: remover las respuestas que se agregaron
+                    const respuestasHermanas = respuestasList.querySelectorAll(`.respuesta-item[data-parent-id="${comentarioId}"]`);
+                    respuestasHermanas.forEach(r => r.remove());
+                } else {
+                    respuestasContainer.style.display = 'none';
+                }
                 btnVerRespuestas.querySelector('.icono-toggle').style.transform = 'rotate(0deg)';
                 const totalRespuestas = btnVerRespuestas.querySelector('.texto-respuestas').textContent.match(/\d+/)[0];
                 btnVerRespuestas.querySelector('.texto-respuestas').textContent = `Ver respuestas (${totalRespuestas})`;
                 btnVerRespuestas.classList.remove('active');
             } else {
                 // Mostrar respuestas
-                const respuestasList = respuestasContainer.querySelector('.respuestas-list');
-                // Solo cargar si están vacías, si ya existen solo mostrarlas
-                if (respuestasList.children.length === 0) {
+                
+                const needsLoading = isHermano ? true : (respuestasList.children.length === 0);
+                
+                if (needsLoading) {
                     // Cargar respuestas si no están cargadas
-                    respuestasList.innerHTML = '<p style="color: #9ca3af; font-size: 0.875rem; padding: 0.5rem 0;">Cargando respuestas...</p>';
+                    const loadingMsg = document.createElement('p');
+                    loadingMsg.style.cssText = 'color: #9ca3af; font-size: 0.875rem; padding: 0.5rem 0;';
+                    loadingMsg.textContent = 'Cargando respuestas...';
+                    
+                    if (isHermano) {
+                        comentarioItem.insertAdjacentElement('afterend', loadingMsg);
+                    } else {
+                        respuestasList.appendChild(loadingMsg);
+                    }
+                    
                     const respuestas = await cargarRespuestas(comentarioId);
-                    respuestasList.innerHTML = '';
+                    loadingMsg.remove();
                     
                     if (respuestas.length > 0) {
-                        // Verificar estado de like para cada respuesta
                         const token = getAuthToken();
                         for (const respuesta of respuestas) {
-                            respuestasList.insertAdjacentHTML('beforeend', crearRespuestaHTML(respuesta, nivelActual));
+                            const respuestaHTML = crearRespuestaHTML(respuesta, nivelMaximo);
+                            const tempDiv = document.createElement('div');
+                            tempDiv.innerHTML = respuestaHTML;
+                            const respuestaElement = tempDiv.firstElementChild as HTMLElement;
+                            respuestaElement.setAttribute('data-parent-id', comentarioId.toString());
+                            
+                            if (isHermano) {
+                                // Insertar como hermano después del comentario actual
+                                comentarioItem.insertAdjacentElement('afterend', respuestaElement);
+                            } else {
+                                respuestasList.appendChild(respuestaElement);
+                            }
+                            
                             // Verificar like
                             try {
                                 const likeRes = await fetch(`${API_URL}/comentarios/${respuesta.id}/mi-like`, {
                                     headers: { 'Authorization': `Bearer ${token}` }
                                 });
                                 
-                                if (likeRes.status === 401) {
-                                    continue;
-                                }
+                                if (likeRes.status === 401) continue;
                                 
                                 const likeData = await likeRes.json();
                                 if (likeData.success && likeData.data.liked) {
@@ -553,11 +630,12 @@ import "../styles/index.css";
                                 }
                             } catch {}
                         }
-                    } else {
-                        respuestasList.innerHTML = '<p style="color: #9ca3af; font-size: 0.875rem; padding: 0.5rem 0;">No hay respuestas</p>';
                     }
                 }
-                respuestasContainer.style.display = 'block';
+                
+                if (!isHermano) {
+                    respuestasContainer.style.display = 'block';
+                }
                 btnVerRespuestas.classList.add('active');
                 btnVerRespuestas.querySelector('.icono-toggle').style.transform = 'rotate(180deg)';
                 const totalRespuestas = btnVerRespuestas.querySelector('.texto-respuestas').textContent.match(/\d+/)[0];

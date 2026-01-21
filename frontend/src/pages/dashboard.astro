@@ -1774,7 +1774,17 @@ import "../styles/publicaciones-imagenes.css";
                                     // Agregar la nueva respuesta
                                     if (respuestasList) {
                                         const respuestaHTML = crearRespuestaHTML(nuevaRespuesta, nivelHijo);
-                                        respuestasList.insertAdjacentHTML('beforeend', respuestaHTML);
+                                        
+                                        // Si es hermano (nivel 2), agregar data-parent-id para poder identificarlo después
+                                        if (nivelPadre >= 2) {
+                                            const tempDiv = document.createElement('div');
+                                            tempDiv.innerHTML = respuestaHTML;
+                                            const respuestaElement = tempDiv.firstElementChild as HTMLElement;
+                                            respuestaElement.setAttribute('data-parent-id', comentarioId.toString());
+                                            respuestasList.appendChild(respuestaElement);
+                                        } else {
+                                            respuestasList.insertAdjacentHTML('beforeend', respuestaHTML);
+                                        }
                                     }
                                     
                                     // Actualizar contador
