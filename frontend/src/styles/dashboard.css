@@ -20,9 +20,9 @@
     flex-direction: column;
     gap: 1rem;
     position: sticky;
-    top: 6.5rem;
+    top: 2rem;
     align-self: flex-start;
-    max-height: calc(100vh - 7rem);
+    max-height: calc(100vh - 2.5rem);
     overflow-y: auto;
 }
 
