@@ -50,12 +50,15 @@ class PerfilesController {
                     e.id,
                     u.nombre,
                     u.email,
+                    e.telefono,
                     c.nombre as carrera,
                     pf.resumenProfesional,
                     pf.situacionLaboral,
                     pf.urlPortfolio,
                     pf.urlFotoPerfil,
                     pf.urlBanner,
+                    pf.ciudad,
+                    pf.direccion,
                     pf.id as perfilId
                 FROM Egresado e
                 INNER JOIN Usuario u ON e.id = u.id
@@ -165,12 +168,15 @@ class PerfilesController {
                     u.nombre,
                     u.apellido,
                     u.email,
+                    e.telefono,
                     c.nombre as carrera,
                     pf.resumenProfesional,
                     pf.situacionLaboral,
                     pf.urlPortfolio,
                     pf.urlFotoPerfil,
                     pf.urlBanner,
+                    pf.ciudad,
+                    pf.direccion,
                     pf.id as perfilId
                 FROM Egresado e
                 INNER JOIN Usuario u ON e.id = u.id

@@ -976,7 +976,7 @@ export async function getStaticPaths() {
           <div class="info-small-card">
             <div class="info-row">
               <div class="info-row-icon location-icon">${createIcon("location")}</div>
-              <div class="info-row-text">${profile.direccion || "Sin ubicación"}</div>
+              <div class="info-row-text">${profile.ciudad || profile.direccion || "Sin ubicación"}</div>
             </div>
             <div class="info-row">
               <div class="info-row-icon email-icon">${createIcon("email")}</div>
