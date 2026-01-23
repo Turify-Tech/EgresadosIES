@@ -215,6 +215,19 @@ export const authService = {
     },
 
     /**
+     * Registro de nuevo egresado
+     */
+    async register(nombre, apellido, dni, email, password) {
+        return apiClient.post("/auth/register", {
+            nombre,
+            apellido,
+            dni,
+            email,
+            password,
+        });
+    },
+
+    /**
      * Logout
      */
     async logout() {

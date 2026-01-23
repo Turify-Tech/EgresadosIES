@@ -2,16 +2,42 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
-<BaseLayout title="Acceso - EgresadosIES" hideAccederButton={true}>
-    <div class="acceso-container">
-        <div class="acceso-card">
+<BaseLayout title="Registro - EgresadosIES" hideAccederButton={true}>
+    <div class="registro-container">
+        <div class="registro-card">
             <div class="card-header"></div>
 
             <div class="card-body">
-                <h2 class="acceso-title">Ingresar</h2>
+                <h2 class="registro-title">Registrate</h2>
 
                 <div class="form-container">
-                    <form id="acceso-form">
+                    <form id="registro-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nombre">Nombre</label>
+                                <input
+                                    type="text"
+                                    id="nombre"
+                                    name="nombre"
+                                    required
+                                    placeholder=""
+                                    autocomplete="given-name"
+                                />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="apellido">Apellido</label>
+                                <input
+                                    type="text"
+                                    id="apellido"
+                                    name="apellido"
+                                    required
+                                    placeholder=""
+                                    autocomplete="family-name"
+                                />
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label for="dni">DNI</label>
                             <input
@@ -22,7 +48,19 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                                 inputmode="numeric"
                                 maxlength="8"
                                 placeholder=""
-                                autocomplete="username"
+                                autocomplete="off"
+                            />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                required
+                                placeholder=""
+                                autocomplete="email"
                             />
                         </div>
 
@@ -34,8 +72,9 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                                     id="password"
                                     name="password"
                                     required
+                                    minlength="6"
                                     placeholder=""
-                                    autocomplete="current-password"
+                                    autocomplete="new-password"
                                 />
                                 <button
                                     type="button"
@@ -72,33 +111,90 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                             </div>
                         </div>
 
+                        <div class="form-group">
+                            <label for="confirm-password"
+                                >Confirmar Contraseña</label
+                            >
+                            <div class="password-input-wrapper">
+                                <input
+                                    type="password"
+                                    id="confirm-password"
+                                    name="confirm-password"
+                                    required
+                                    minlength="6"
+                                    placeholder=""
+                                    autocomplete="new-password"
+                                />
+                                <button
+                                    type="button"
+                                    id="toggle-confirm-password"
+                                    class="toggle-password-btn"
+                                    aria-label="Mostrar contraseña">
+                                    <svg
+                                        id="eye-icon-confirm"
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor">
+                                        <path
+                                            d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                                        ></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                    <svg
+                                        id="eye-off-icon-confirm"
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        style="display:none;">
+                                        <path
+                                            d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+                                        ></path>
+                                        <line x1="1" y1="1" x2="23" y2="23"
+                                        ></line>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
                         <button
                             type="submit"
-                            id="acceso-btn"
-                            class="btn-iniciar">
-                            Ingresar
+                            id="registro-btn"
+                            class="btn-registrar">
+                            Registrarse
                         </button>
 
                         <div
-                            id="acceso-loading"
+                            id="registro-loading"
                             class="loading-msg"
                             style="display:none;">
-                            Validando...
+                            Registrando...
                         </div>
                     </form>
 
                     <!-- Mensaje de error -->
-                    <div id="acceso-error" class="mensaje-toast error" style="display: none;">
+                    <div id="registro-error" class="mensaje-toast error" style="display: none;">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="10"/>
                             <line x1="15" y1="9" x2="9" y2="15"/>
                             <line x1="9" y1="9" x2="15" y2="15"/>
                         </svg>
-                        <span id="acceso-error-text"></span>
+                        <span id="registro-error-text"></span>
                     </div>
 
-                    <div class="register-link">
-                        <p>¿No tenés cuenta? <a href="/registro">Registrate acá</a></p>
+                    <!-- Mensaje de éxito -->
+                    <div id="registro-success" class="mensaje-toast success" style="display: none;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span id="registro-success-text"></span>
+                    </div>
+
+                    <div class="login-link">
+                        <p>¿Ya tenés cuenta? <a href="/acceso">Iniciá sesión</a></p>
                     </div>
                 </div>
             </div>
@@ -107,7 +203,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 </BaseLayout>
 
 <style>
-    .acceso-container {
+    .registro-container {
         flex: 1;
         display: flex;
         flex-direction: column;
@@ -117,12 +213,12 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         background: white;
     }
 
-    .acceso-card {
+    .registro-card {
         background: white;
         border-radius: 10px;
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         width: 100%;
-        max-width: 480px;
+        max-width: 580px;
         overflow: hidden;
     }
 
@@ -140,18 +236,24 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         padding: 1.5rem 3rem 3rem;
     }
 
-    .acceso-title {
+    .registro-title {
         text-align: center;
         color: #1437c3;
         font-family: "Inter", sans-serif;
         font-weight: bold;
         font-size: 40px;
-        margin: 0 0 0.3rem 0;
+        margin: 0 0 1rem 0;
     }
 
     .form-container {
-        max-width: 340px;
+        max-width: 480px;
         margin: 0 auto;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
     }
 
     .form-group {
@@ -220,9 +322,9 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         stroke-width: 2;
     }
 
-    .btn-iniciar {
+    .btn-registrar {
         width: auto;
-        min-width: 160px;
+        min-width: 180px;
         padding: 0.65rem 2.5rem;
         background: #5284e0;
         color: white;
@@ -237,16 +339,16 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         display: block;
     }
 
-    .btn-iniciar:hover {
+    .btn-registrar:hover {
         background: #3d6fc7;
         box-shadow: 0 4px 12px rgba(82, 132, 224, 0.3);
     }
 
-    .btn-iniciar:active {
+    .btn-registrar:active {
         transform: translateY(1px);
     }
 
-    .btn-iniciar:disabled {
+    .btn-registrar:disabled {
         background: #a5c1e8;
         cursor: wait;
         box-shadow: none;
@@ -277,6 +379,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         max-width: 400px;
     }
 
+    .mensaje-toast.success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+
     .mensaje-toast.error {
         background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         color: white;
@@ -297,39 +404,38 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         }
     }
 
-    .register-link {
+    .login-link {
         text-align: center;
         margin-top: 1.5rem;
         padding-top: 1.5rem;
         border-top: 1px solid #e0e0e0;
     }
 
-    .register-link p {
+    .login-link p {
         margin: 0;
         color: #666;
         font-size: 0.95rem;
         font-family: "Pontano Sans", sans-serif;
     }
 
-    .register-link a {
+    .login-link a {
         color: #1565c0;
         text-decoration: none;
         font-weight: 600;
         transition: color 0.2s ease;
     }
 
-    .register-link a:hover {
+    .login-link a:hover {
         color: #0d47a1;
         text-decoration: underline;
     }
 
-    @media (max-width: 480px) {
-        .acceso-container {
+    @media (max-width: 580px) {
+        .registro-container {
             padding: 1rem;
-            min-height: calc(100vh - 82px - 150px);
         }
 
-        .acceso-card {
+        .registro-card {
             max-width: 100%;
         }
 
@@ -338,12 +444,17 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         }
 
         .card-body {
-            padding: 1.25rem 2.5rem 2.5rem;
+            padding: 1.5rem 1.5rem 2rem;
         }
 
-        .acceso-title {
-            font-size: 1.5rem;
+        .registro-title {
+            font-size: 1.8rem;
             margin-bottom: 0.75rem;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 0;
         }
 
         .form-group {
@@ -360,8 +471,8 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             font-size: 0.9rem;
         }
 
-        .btn-iniciar {
-            min-width: 140px;
+        .btn-registrar {
+            min-width: 160px;
             padding: 0.6rem 2rem;
             font-size: 0.9rem;
         }
@@ -371,19 +482,44 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 <script>
     import { authService, setAuthToken } from "../utils/api.js";
 
-    const form = document.getElementById("acceso-form") as HTMLFormElement;
-    const btn = document.getElementById("acceso-btn") as HTMLButtonElement;
-    const loading = document.getElementById("acceso-loading") as HTMLElement;
-    const errorMsg = document.getElementById("acceso-error") as HTMLElement;
-    const togglePasswordBtn = document.getElementById(
-        "toggle-password"
-    ) as HTMLButtonElement;
+    const form = document.getElementById("registro-form") as HTMLFormElement;
+    const btn = document.getElementById("registro-btn") as HTMLButtonElement;
+    const loading = document.getElementById("registro-loading") as HTMLElement;
+    const errorMsg = document.getElementById("registro-error") as HTMLElement;
+    const successMsg = document.getElementById(
+        "registro-success"
+    ) as HTMLElement;
+
+    const nombreInput = document.getElementById("nombre") as HTMLInputElement;
+    const apellidoInput = document.getElementById(
+        "apellido"
+    ) as HTMLInputElement;
+    const dniInput = document.getElementById("dni") as HTMLInputElement;
+    const emailInput = document.getElementById("email") as HTMLInputElement;
     const passwordInput = document.getElementById(
         "password"
     ) as HTMLInputElement;
-    const dniInput = document.getElementById("dni") as HTMLInputElement;
+    const confirmPasswordInput = document.getElementById(
+        "confirm-password"
+    ) as HTMLInputElement;
+
+    // Toggle password visibility para contraseña
+    const togglePasswordBtn = document.getElementById(
+        "toggle-password"
+    ) as HTMLButtonElement;
     const eyeIcon = document.getElementById("eye-icon") as HTMLElement;
     const eyeOffIcon = document.getElementById("eye-off-icon") as HTMLElement;
+
+    // Toggle password visibility para confirmar contraseña
+    const toggleConfirmPasswordBtn = document.getElementById(
+        "toggle-confirm-password"
+    ) as HTMLButtonElement;
+    const eyeIconConfirm = document.getElementById(
+        "eye-icon-confirm"
+    ) as HTMLElement;
+    const eyeOffIconConfirm = document.getElementById(
+        "eye-off-icon-confirm"
+    ) as HTMLElement;
 
     // Validar que solo se ingresen números en el DNI
     dniInput.addEventListener("input", (e) => {
@@ -391,7 +527,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         target.value = target.value.replace(/[^0-9]/g, "");
     });
 
-    // Toggle password visibility
+    // Toggle password visibility - contraseña
     togglePasswordBtn.addEventListener("click", () => {
         const isPassword = passwordInput.type === "password";
         passwordInput.type = isPassword ? "text" : "password";
@@ -403,17 +539,70 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         );
     });
 
+    // Toggle password visibility - confirmar contraseña
+    toggleConfirmPasswordBtn.addEventListener("click", () => {
+        const isPassword = confirmPasswordInput.type === "password";
+        confirmPasswordInput.type = isPassword ? "text" : "password";
+        eyeIconConfirm.style.display = isPassword ? "none" : "block";
+        eyeOffIconConfirm.style.display = isPassword ? "block" : "none";
+        toggleConfirmPasswordBtn.setAttribute(
+            "aria-label",
+            isPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+        );
+    });
+
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
         errorMsg.style.display = "none";
+        successMsg.style.display = "none";
 
+        const nombre = nombreInput.value.trim();
+        const apellido = apellidoInput.value.trim();
         const dni = dniInput.value.trim();
+        const email = emailInput.value.trim();
         const password = passwordInput.value;
-        const errorText = document.getElementById("acceso-error-text") as HTMLElement;
+        const confirmPassword = confirmPasswordInput.value;
 
-        // Validación del DNI
+        const errorText = document.getElementById("registro-error-text") as HTMLElement;
+
+        // Validaciones del frontend
+        if (nombre.length < 2) {
+            errorText.textContent = "El nombre debe tener al menos 2 caracteres";
+            errorMsg.style.display = "flex";
+            setTimeout(() => errorMsg.style.display = "none", 5000);
+            return;
+        }
+
+        if (apellido.length < 2) {
+            errorText.textContent = "El apellido debe tener al menos 2 caracteres";
+            errorMsg.style.display = "flex";
+            setTimeout(() => errorMsg.style.display = "none", 5000);
+            return;
+        }
+
         if (dni.length < 7 || dni.length > 8 || !/^\d+$/.test(dni)) {
             errorText.textContent = "El DNI debe tener 7 u 8 dígitos numéricos";
+            errorMsg.style.display = "flex";
+            setTimeout(() => errorMsg.style.display = "none", 5000);
+            return;
+        }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            errorText.textContent = "El email no es válido";
+            errorMsg.style.display = "flex";
+            setTimeout(() => errorMsg.style.display = "none", 5000);
+            return;
+        }
+
+        if (password.length < 6) {
+            errorText.textContent = "La contraseña debe tener al menos 6 caracteres";
+            errorMsg.style.display = "flex";
+            setTimeout(() => errorMsg.style.display = "none", 5000);
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            errorText.textContent = "Las contraseñas no coinciden";
             errorMsg.style.display = "flex";
             setTimeout(() => errorMsg.style.display = "none", 5000);
             return;
@@ -423,52 +612,55 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         btn.disabled = true;
 
         try {
-            const data = await authService.login(dni, password);
-
-            console.log("Respuesta del login:", data); // Debug
+            const data = await authService.register(
+                nombre,
+                apellido,
+                dni,
+                email,
+                password
+            );
 
             if (data.success && data.token) {
+                // Mostrar mensaje de éxito
+                const successText = document.getElementById("registro-success-text") as HTMLElement;
+                successText.textContent = "¡Registro exitoso! Redirigiendo...";
+                successMsg.style.display = "flex";
+
                 // Guardar token
                 localStorage.setItem("auth_token", data.token);
-                
+
                 // Guardar datos de usuario
                 const userData = {
                     id: data.user.id,
                     tipo_usuario: data.user.tipo_usuario,
                     email: data.user.email,
-                    nombre: data.user.nombre || `Usuario ${data.user.id}`,
+                    nombre: `${data.user.nombre} ${data.user.apellido}`,
                 };
-                
-                console.log("Guardando userData:", userData); // Debug
+
                 localStorage.setItem("user_data", JSON.stringify(userData));
 
                 // Configurar token en API client
                 setAuthToken(data.token);
 
-                // Redirección según tipo de usuario
-                console.log("Tipo de usuario:", data.user.tipo_usuario); // Debug
-                
-                if (data.user.tipo_usuario === "Administrador") {
-                    console.log("Redirigiendo a /admin");
-                    window.location.href = "/admin";
-                } else if (data.user.isNewUser) {
-                    console.log("Redirigiendo a /perfil/editar");
+                // Redirigir a completar perfil después de 1 segundo
+                setTimeout(() => {
                     window.location.href = "/perfil/editar";
-                } else {
-                    console.log("Redirigiendo a /dashboard");
-                    window.location.href = "/dashboard";
-                }
+                }, 1000);
             } else {
-                errorText.textContent = data.message || "Credenciales incorrectas";
+                errorText.textContent = data.message || "Error en el registro";
                 errorMsg.style.display = "flex";
                 setTimeout(() => errorMsg.style.display = "none", 5000);
+                loading.style.display = "none";
+                btn.disabled = false;
             }
-        } catch (err: any) {
-            console.error("Error en login:", err); // Debug
-            errorText.textContent = err.message || "Error de conexión con el servidor";
+        } catch (error) {
+            console.error("Error en registro:", error);
+            errorText.textContent =
+                error.data?.message ||
+                error.message ||
+                "Error al registrar. Intenta nuevamente.";
             errorMsg.style.display = "flex";
             setTimeout(() => errorMsg.style.display = "none", 5000);
-        } finally {
             loading.style.display = "none";
             btn.disabled = false;
         }
