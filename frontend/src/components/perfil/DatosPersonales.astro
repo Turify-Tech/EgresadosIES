@@ -155,6 +155,19 @@
                     />
                 </div>
                 <div class="form-group">
+                    <label for="ubicacion">Ubicación (Ciudad)</label>
+                    <input
+                        type="text"
+                        id="ubicacion"
+                        name="ubicacion"
+                        placeholder="Ej: Buenos Aires, Córdoba, Mendoza..."
+                        class="form-input"
+                    />
+                </div>
+            </div>
+
+            <div class="field-row">
+                <div class="form-group">
                     <label for="situacion-laboral">Situación Laboral</label>
                     <select
                         id="situacion-laboral"
@@ -168,6 +181,7 @@
                         <option value="Estudiando">Estudiando</option>
                     </select>
                 </div>
+            </div>
             </div>
         </div>
 
@@ -443,6 +457,7 @@
         }
 
         init() {
+            console.log("🚀 Inicializando DatosPersonales component");
             this.bindEvents();
             this.setupValidation();
 
@@ -450,13 +465,32 @@
             window.addEventListener("profile-data-loaded", (e) => {
                 const customEvent = e;
                 console.log(
-                    "DatosPersonales recibió evento profile-data-loaded:",
+                    "📡 DatosPersonales recibió evento profile-data-loaded:",
                     customEvent.detail
                 );
                 if (customEvent.detail) {
                     this.populateForm(customEvent.detail);
                 }
             });
+
+            // IMPORTANTE: Verificar si los datos ya están disponibles
+            // (en caso de que el evento ya se haya disparado antes de que este componente se inicializara)
+            const checkExistingData = () => {
+                const win = window;
+                if (win.profileEditor && win.profileEditor.profileData) {
+                    console.log("⚡ Poblando con datos ya disponibles en profileEditor");
+                    this.populateForm(win.profileEditor.profileData);
+                } else {
+                    console.log("⏳ Aún no hay datos disponibles, esperando evento...");
+                }
+            };
+
+            // Verificar inmediatamente
+            setTimeout(checkExistingData, 100);
+            // Verificar nuevamente por si acaso
+            setTimeout(checkExistingData, 500);
+
+            console.log("✅ DatosPersonales component inicializado");
         }
 
         bindEvents() {
@@ -607,17 +641,23 @@
         }
 
         populateForm(profileData) {
-            if (!profileData) return;
+            if (!profileData) {
+                console.warn("⚠️ populateForm: No hay datos de perfil");
+                return;
+            }
 
-            console.log("Poblando datos personales con:", profileData);
+            console.log("🔄 Poblando datos personales con:", profileData);
+            console.log("🔍 Estructura completa del profileData:", JSON.stringify(profileData, null, 2));
 
             // Extraer datos de la estructura de la API
             const usuario =
                 profileData.data?.usuario || profileData.usuario || {};
             const perfil = profileData.data?.perfil || profileData.perfil || {};
 
-            console.log("Usuario extraído:", usuario);
-            console.log("Perfil extraído:", perfil);
+            console.log("👤 Usuario extraído:", usuario);
+            console.log("📋 Perfil extraído:", perfil);
+            console.log("📝 resumenProfesional específicamente:", perfil.resumenProfesional);
+            console.log("📝 Tipo de resumenProfesional:", typeof perfil.resumenProfesional);
 
             // Poblar campos de datos personales (usuario)
             this.setFieldValue("nombre", usuario.nombre);
@@ -629,8 +669,10 @@
 
             // Poblar campos del perfil
             // Poblar descripción con resumenProfesional (campo para CV)
+            console.log("📝 Poblando descripción con resumenProfesional:", perfil.resumenProfesional);
             this.setFieldValue("descripcion", perfil.resumenProfesional);
             this.setFieldValue("url-portfolio", perfil.urlPortfolio);
+            this.setFieldValue("ubicacion", perfil.ciudad);
             this.setFieldValue("situacion-laboral", perfil.situacionLaboral);
 
             // Los checkboxes de privacidad (futura funcionalidad)
@@ -661,13 +703,12 @@
 
         setFieldValue(fieldId, value) {
             const field = document.getElementById(fieldId);
-            if (
-                field &&
-                value !== null &&
-                value !== undefined &&
-                "value" in field
-            ) {
-                field.value = value;
+            if (field && "value" in field) {
+                // Establecer el valor incluso si es null/undefined (se convierte a string vacío)
+                field.value = value || '';
+                console.log(`✏️ Campo ${fieldId} establecido a:`, value);
+            } else {
+                console.warn(`⚠️ Campo no encontrado o no soporta value: ${fieldId}`);
             }
         }
 
@@ -805,13 +846,14 @@
                 apellido: data.apellido,
                 correo: data.correo, // se mapea a email en backend
                 contacto: data.contacto, // se mapea a telefono en backend
+                telefono: data.contacto, // también enviar como telefono para asegurar actualización
                 dni: data.dni,
-                telefono: data.telefono, // campo adicional
 
                 // Campos del perfil
                 // Usar descripcion (campo "Acerca de mí" para CV)
                 resumenProfesional: data.descripcion || null,
                 urlPortfolio: data["url-portfolio"],
+                ciudad: data.ubicacion || null,
                 situacionLaboral: data["situacion-laboral"],
 
                 // URL de la foto de perfil si se subió una
@@ -853,40 +895,59 @@
                 return;
             }
 
+            const btn = document.getElementById("save-datos-personales");
+            
             try {
-                const btn = document.getElementById("save-datos-personales");
+                // Deshabilitar botón antes de comenzar
                 if (btn && "disabled" in btn) {
                     btn.disabled = true;
                     btn.textContent = "Guardando...";
                 }
 
                 const data = this.getFormData();
+                console.log("💾 Guardando datos personales:", data);
 
-                // Emitir evento para que el controlador principal maneje el guardado
-                window.dispatchEvent(
-                    new CustomEvent("save-section-data", {
-                        detail: { section: "datos-personales", data },
-                    })
-                );
-
-                this.showNotification("Datos personales guardados", "success");
-
-                // Navegar a la siguiente sección después de guardar
-                setTimeout(() => {
-                    const win = window;
-                    const profileEditor = win.profileEditor;
-                    if (profileEditor && profileEditor.switchSection) {
-                        profileEditor.switchSection("formaciones");
+                // Llamar directamente a la API
+                const win = window;
+                if (win.profileService && win.apiRequest) {
+                    await win.apiRequest(() => win.profileService.updateMyProfile(data));
+                    console.log("✅ Datos personales guardados correctamente");
+                    
+                    this.showNotification("Datos personales guardados", "success");
+                    
+                    // Marcar que no hay cambios sin guardar
+                    if (win.profileEditor) {
+                        win.profileEditor.hasUnsavedChanges = false;
                     }
-                }, 500);
+
+                    // Navegar a la siguiente sección después de guardar
+                    setTimeout(() => {
+                        if (win.profileEditor && win.profileEditor.switchSection) {
+                            win.profileEditor.switchSection("formaciones");
+                        }
+                    }, 500);
+                } else {
+                    console.error("❌ Servicios no disponibles:", {
+                        profileService: !!win.profileService,
+                        apiRequest: !!win.apiRequest
+                    });
+                    throw new Error("Servicios no disponibles. Por favor recarga la página.");
+                }
             } catch (error) {
-                console.error("Error guardando datos personales:", error);
-                this.showNotification("Error al guardar los datos", "error");
+                console.error("❌ Error guardando datos personales:", error);
+                this.showNotification(
+                    error.message || "Error al guardar los datos",
+                    "error"
+                );
             } finally {
-                const btn = document.getElementById("save-datos-personales");
+                // Restaurar el botón SIEMPRE, sin importar qué pasó
+                console.log("🔄 Restaurando botón...");
                 if (btn && "disabled" in btn) {
                     btn.disabled = false;
                     btn.textContent = "Siguiente";
+                    console.log("✅ Botón restaurado correctamente");
+                } else {
+                    console.error("❌ No se pudo encontrar el botón para restaurarlo");
                 }
             }
         }

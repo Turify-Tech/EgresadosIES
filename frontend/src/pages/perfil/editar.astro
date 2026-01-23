@@ -727,6 +727,10 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
 
                 // Hacer disponible globalmente para los componentes
                 window.profileEditor = this;
+                
+                // Exponer servicios para que los componentes puedan usarlos
+                window.profileService = profileService;
+                window.apiRequest = apiRequest;
 
                 console.log("ProfileEditor init completed");
             }
@@ -968,6 +972,9 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
 
                 console.log(`🔄 Switching to section: ${sectionId}`);
 
+                // Resetear el estado del botón de la sección anterior
+                this.resetSectionButtons();
+
                 // Actualizar navegación
                 document.querySelectorAll(".nav-btn").forEach((btn) => {
                     btn.classList.remove("active");
@@ -1003,6 +1010,9 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
 
                 this.currentSection = sectionId;
                 
+                // Repoblar el formulario con los datos actuales cuando cambias de sección
+                this.repopulateCurrentSection(sectionId);
+                
                 // Re-bind section buttons cada vez que cambiamos de sección
                 // para asegurar que los event listeners estén conectados
                 setTimeout(() => {
@@ -1010,6 +1020,54 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                 }, 100);
                 
                 console.log(`✅ Section switch completed: ${sectionId}`);
+            }
+
+            /**
+             * Resetear el estado de los botones de guardado de todas las secciones
+             */
+            resetSectionButtons() {
+                const buttons = [
+                    { id: 'save-datos-personales', text: 'Siguiente' },
+                    { id: 'save-formaciones', text: 'Siguiente' },
+                    { id: 'save-cursos', text: 'Siguiente' },
+                    { id: 'save-experiencias', text: 'Siguiente' },
+                    { id: 'save-proyectos', text: 'Siguiente' },
+                    { id: 'save-habilidades', text: 'Guardar' },
+                ];
+
+                buttons.forEach(({ id, text }) => {
+                    const btn = document.getElementById(id);
+                    if (btn && 'disabled' in btn) {
+                        btn.disabled = false;
+                        btn.textContent = text;
+                    }
+                });
+            }
+
+            /**
+             * Repoblar el formulario de la sección actual con los datos del perfil
+             */
+            repopulateCurrentSection(sectionId) {
+                if (!this.profileData) {
+                    console.warn("⚠️ No hay datos de perfil para repoblar");
+                    return;
+                }
+
+                console.log(`🔄 Repoblando sección: ${sectionId}`);
+
+                // Repoblar según la sección
+                const win = window;
+                switch (sectionId) {
+                    case 'datos-personales':
+                        if (win.datosPersonalesManager) {
+                            win.datosPersonalesManager.populateForm(this.profileData);
+                            console.log("✅ Datos personales repoblados");
+                        }
+                        break;
+                    // Puedes agregar más secciones aquí si es necesario
+                    default:
+                        console.log(`ℹ️ No hay repoblado específico para: ${sectionId}`);
+                }
             }
 
             /**
@@ -1108,6 +1166,16 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                             detail: response,
                         })
                     );
+
+                    // IMPORTANTE: También poblar directamente el formulario de datos personales
+                    // para asegurar que siempre se cargue, sin depender solo del evento
+                    setTimeout(() => {
+                        const win = window;
+                        if (win.datosPersonalesManager) {
+                            console.log("💡 Poblando directamente DatosPersonales desde loadUserProfile");
+                            win.datosPersonalesManager.populateForm(response);
+                        }
+                    }, 200);
 
                     console.log("Perfil cargado correctamente:", response);
                 } catch (error) {
@@ -1375,11 +1443,28 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                                 response
                             );
                             this.hasUnsavedChanges = false;
+                            
+                            // Emitir evento de éxito para que el componente lo escuche
+                            window.dispatchEvent(
+                                new CustomEvent('section-save-success', {
+                                    detail: { section: customEvent.detail.section }
+                                })
+                            );
                         } catch (error) {
                             console.error("❌ Error guardando sección:", error);
                             this.showNotification(
                                 "Error al guardar los datos",
                                 "error"
+                            );
+                            
+                            // Emitir evento de error para que el componente lo escuche
+                            window.dispatchEvent(
+                                new CustomEvent('section-save-error', {
+                                    detail: { 
+                                        section: customEvent.detail.section,
+                                        error: error
+                                    }
+                                })
                             );
                         }
                     }
