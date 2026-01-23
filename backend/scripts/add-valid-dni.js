@@ -1,3 +1,4 @@
+import "dotenv/config";
 import database from "../src/config/database.js";
 import readline from "readline";
 
@@ -20,6 +21,10 @@ function question(prompt) {
 async function addValidDni() {
     try {
         console.log("\n=== Agregar DNI Válido de Egresado ===\n");
+
+        // Conectar a la base de datos
+        await database.connect();
+        console.log("✅ Conectado a la base de datos\n");
 
         // Obtener carreras disponibles
         const client = database.getClient();

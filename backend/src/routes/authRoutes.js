@@ -16,13 +16,13 @@ const loginLimiter = rateLimit({
     legacyHeaders: false,
 });
 
-// Rate limiting para registro (más permisivo)
+// Rate limiting para registro (prevenir spam de bots)
 const registerLimiter = rateLimit({
-    windowMs: 60 * 60 * 1000, // 1 hora
-    max: 3, // máximo 3 intentos de registro por IP por hora
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 50, // máximo 50 intentos de registro por IP cada 15 minutos
     message: {
         success: false,
-        message: "Demasiados intentos de registro. Intenta nuevamente en 1 hora."
+        message: "Demasiados intentos de registro. Por favor, intenta nuevamente más tarde."
     },
     standardHeaders: true,
     legacyHeaders: false,
@@ -40,7 +40,7 @@ router.post("/login", loginLimiter, login);
  * @route   POST /api/auth/register
  * @desc    Registro completo de nuevos egresados
  * @access  Public
- * @rateLimit 3 intentos por hora por IP
+ * @rateLimit 50 intentos por 15 minutos por IP
  */
 router.post("/register", registerLimiter, register);
 
