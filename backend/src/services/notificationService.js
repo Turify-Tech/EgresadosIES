@@ -517,7 +517,7 @@ class NotificationService {
      * Notifica sobre un nuevo comentario
      * @param {Object} datos - Datos del comentario
      */
-    async notificarComentario({ publicacionAutorId, comentarioAutorId, comentarioTexto, publicacionId }) {
+    async notificarComentario({ publicacionAutorId, comentarioAutorId, comentarioTexto, publicacionId, comentarioId }) {
         try {
             // No notificar si el autor del comentario es el mismo que el de la publicación
             if (publicacionAutorId === comentarioAutorId) {
@@ -532,7 +532,7 @@ class NotificationService {
                 return;
             }
 
-            const urlDestino = `${process.env.FRONTEND_URL}/feed#publicacion-${publicacionId}`;
+            const urlDestino = `/dashboard?publicacion=${publicacionId}${comentarioId ? `&comentario=${comentarioId}` : ''}`;
 
             // Crear notificación interna
             const notifId = await this.crearNotificacion({
@@ -593,7 +593,7 @@ class NotificationService {
                 return;
             }
 
-            const urlDestino = `${process.env.FRONTEND_URL}/feed#publicacion-${publicacionId}`;
+            const urlDestino = `/dashboard?publicacion=${publicacionId}`;
 
             // Crear notificación interna
             const notifId = await this.crearNotificacion({
@@ -637,7 +637,7 @@ class NotificationService {
      * Notifica sobre una mención en un comentario
      * @param {Object} datos - Datos de la mención
      */
-    async notificarMencion({ usuarioMencionadoId, autorMencionId, comentarioTexto, publicacionId }) {
+    async notificarMencion({ usuarioMencionadoId, autorMencionId, comentarioTexto, publicacionId, comentarioId }) {
         try {
             // No notificar si se menciona a sí mismo
             if (usuarioMencionadoId === autorMencionId) {
@@ -652,7 +652,7 @@ class NotificationService {
                 return;
             }
 
-            const urlDestino = `${process.env.FRONTEND_URL}/feed#publicacion-${publicacionId}`;
+            const urlDestino = `/dashboard?publicacion=${publicacionId}${comentarioId ? `&comentario=${comentarioId}` : ''}`;
 
             // Crear notificación interna
             const notifId = await this.crearNotificacion({
@@ -690,6 +690,125 @@ class NotificationService {
             }
         } catch (error) {
             console.error('❌ Error al notificar mención:', error);
+        }
+    }
+
+    /**
+     * Notifica sobre un like en un comentario
+     * @param {Object} params - Parámetros de la notificación
+     */
+    async notificarLikeComentario({ comentarioAutorId, likeAutorId, publicacionId, comentarioId }) {
+        try {
+            // No notificar si el autor del like es el mismo que el del comentario
+            if (comentarioAutorId === likeAutorId) {
+                return;
+            }
+
+            const origenInfo = await this.obtenerInfoUsuario(likeAutorId);
+            const destinatarioInfo = await this.obtenerInfoUsuario(comentarioAutorId);
+
+            if (!destinatarioInfo) {
+                console.log('⚠️  Usuario destinatario no encontrado');
+                return;
+            }
+
+            const urlDestino = `/dashboard?publicacion=${publicacionId}${comentarioId ? `&comentario=${comentarioId}` : ''}`;
+
+            // Crear notificación interna
+            const notifId = await this.crearNotificacion({
+                usuarioId: comentarioAutorId,
+                tipo: 'like',
+                titulo: 'Nueva reacción a tu comentario',
+                mensaje: `${origenInfo?.nombre || 'Alguien'} reaccionó a tu comentario`,
+                urlDestino,
+                origenUsuarioId: likeAutorId
+            });
+
+            // Verificar preferencias y enviar email
+            const preferencias = await this.obtenerPreferencias(comentarioAutorId);
+            if (preferencias?.email_likes) {
+                const htmlContent = this.generarEmailHTML('like', {
+                    destinatarioNombre: destinatarioInfo.nombre,
+                    origenNombre: `${origenInfo?.nombre || ''} ${origenInfo?.apellido || ''}`.trim(),
+                    urlDestino
+                });
+
+                const emailEnviado = await this.enviarEmail(
+                    destinatarioInfo.email,
+                    'Nueva reacción a tu comentario - Egresados IES',
+                    htmlContent
+                );
+
+                if (emailEnviado) {
+                    const db = database.getClient();
+                    await db.execute({
+                        sql: 'UPDATE Notificacion SET enviada_email = 1 WHERE id = ?',
+                        args: [notifId]
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('❌ Error al notificar like en comentario:', error);
+        }
+    }
+
+    /**
+     * Notifica al autor de un comentario cuando alguien le responde
+     * @param {Object} params - Parámetros de la notificación
+     */
+    async notificarRespuesta({ comentarioPadreAutorId, respuestaAutorId, respuestaTexto, publicacionId, respuestaId }) {
+        try {
+            // No notificar si responde a su propio comentario
+            if (comentarioPadreAutorId === respuestaAutorId) {
+                return;
+            }
+
+            const origenInfo = await this.obtenerInfoUsuario(respuestaAutorId);
+            const destinatarioInfo = await this.obtenerInfoUsuario(comentarioPadreAutorId);
+
+            if (!destinatarioInfo) {
+                console.log('⚠️  Usuario destinatario no encontrado');
+                return;
+            }
+
+            const urlDestino = `/dashboard?publicacion=${publicacionId}${respuestaId ? `&comentario=${respuestaId}` : ''}`;
+
+            // Crear notificación interna
+            const notifId = await this.crearNotificacion({
+                usuarioId: comentarioPadreAutorId,
+                tipo: 'comentario',
+                titulo: 'Respondieron a tu comentario',
+                mensaje: `${origenInfo?.nombre || 'Alguien'} respondió: "${respuestaTexto.substring(0, 100)}${respuestaTexto.length > 100 ? '...' : ''}"`,
+                urlDestino,
+                origenUsuarioId: respuestaAutorId
+            });
+
+            // Verificar preferencias y enviar email
+            const preferencias = await this.obtenerPreferencias(comentarioPadreAutorId);
+            if (preferencias?.email_comentarios) {
+                const htmlContent = this.generarEmailHTML('respuesta', {
+                    destinatarioNombre: destinatarioInfo.nombre,
+                    origenNombre: `${origenInfo?.nombre || ''} ${origenInfo?.apellido || ''}`.trim(),
+                    comentario: respuestaTexto,
+                    urlDestino
+                });
+
+                const emailEnviado = await this.enviarEmail(
+                    destinatarioInfo.email,
+                    'Respondieron a tu comentario - Egresados IES',
+                    htmlContent
+                );
+
+                if (emailEnviado) {
+                    const db = database.getClient();
+                    await db.execute({
+                        sql: 'UPDATE Notificacion SET enviada_email = 1 WHERE id = ?',
+                        args: [notifId]
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('❌ Error al notificar respuesta:', error);
         }
     }
 

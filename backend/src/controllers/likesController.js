@@ -239,3 +239,57 @@ export async function verificarEstadoLike(req, res) {
         });
     }
 }
+
+/**
+ * Verificar estado de likes de múltiples publicaciones (batch)
+ * @route POST /api/likes/mi-estado-batch
+ * @desc Verificar likes del usuario para múltiples publicaciones de una vez
+ * @access Privado (solo egresados)
+ */
+export async function verificarEstadoLikeBatch(req, res) {
+    try {
+        const usuarioId = req.user.id;
+        const { publicacionIds } = req.body;
+
+        if (!Array.isArray(publicacionIds) || publicacionIds.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Se requiere un array de IDs de publicaciones"
+            });
+        }
+
+        const client = database.getClient();
+
+        // Construir placeholders para la consulta IN
+        const placeholders = publicacionIds.map(() => '?').join(',');
+        
+        // Obtener todos los likes del usuario para estas publicaciones
+        const likesResult = await client.execute({
+            sql: `SELECT publicacionId FROM LikePublicacion 
+                  WHERE egresadoId = ? AND publicacionId IN (${placeholders})`,
+            args: [usuarioId, ...publicacionIds]
+        });
+
+        // Crear mapa de publicacionId -> liked
+        const likesMap = {};
+        publicacionIds.forEach(id => {
+            likesMap[id] = false;
+        });
+        
+        likesResult.rows.forEach(row => {
+            likesMap[Number(row.publicacionId)] = true;
+        });
+
+        res.json({
+            success: true,
+            data: likesMap
+        });
+
+    } catch (error) {
+        console.error("Error verificando estados de likes en batch:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error interno del servidor"
+        });
+    }
+}

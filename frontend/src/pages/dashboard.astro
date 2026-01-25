@@ -13,7 +13,7 @@ import "../styles/publicaciones-imagenes.css";
                 <!-- Card de perfil -->
                 <div class="profile-card">
                     <div class="profile-banner">
-                        <img src="/images/Fondo Azul card.jpg" alt="Banner" class="card-banner" />
+                        <img src="/images/Fondo Azul card.jpg" alt="Banner" class="card-banner" loading="lazy" />
                     </div>
                     <div class="profile-info">
                         <div class="profile-header">
@@ -62,7 +62,7 @@ import "../styles/publicaciones-imagenes.css";
                 <!-- Card de menú de usuario -->
                 <div class="menu-card">
                     <div class="menu-banner">
-                        <img src="/images/Fondo Azul card.jpg" alt="Banner" class="card-banner" />
+                        <img src="/images/Fondo Azul card.jpg" alt="Banner" class="card-banner" loading="lazy" />
                     </div>
                     <div class="menu-content">
                         <h3>Menú de usuario</h3>
@@ -228,6 +228,301 @@ import "../styles/publicaciones-imagenes.css";
         let modalImagenes: string[] = [];
         let modalImagenIndex = 0;
 
+        // ========================================
+        // NAVEGACIÓN DESDE NOTIFICACIONES
+        // ========================================
+        
+        /**
+         * Obtiene parámetros de URL para navegación desde notificaciones
+         */
+        function obtenerParametrosNavegacion() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                publicacionId: params.get('publicacion'),
+                comentarioId: params.get('comentario'),
+                abrirComentarios: params.get('abrirComentarios') === 'true'
+            };
+        }
+
+        /**
+         * Hace scroll a un comentario específico dentro del modal
+         * Si es una respuesta, expande automáticamente el comentario padre (con soporte para múltiples niveles)
+         */
+        async function scrollAComentario(comentarioId) {
+            console.log(`🔍 Buscando comentario ${comentarioId}...`);
+            
+            // Buscar en comentarios principales Y respuestas
+            let comentario = document.querySelector(`.comentario-item[data-comentario-id="${comentarioId}"], .respuesta-item[data-comentario-id="${comentarioId}"]`);
+            
+            // Si no se encuentra, expandir niveles iterativamente
+            if (!comentario) {
+                console.log('⚠️ Comentario no visible, expandiendo respuestas en múltiples niveles...');
+                
+                try {
+                    let nivelActual = 1;
+                    const maxNiveles = 3; // Máximo 3 niveles de anidación
+                    
+                    while (nivelActual <= maxNiveles && !comentario) {
+                        console.log(`📂 Expandiendo nivel ${nivelActual}...`);
+                        
+                        // Obtener todos los botones "Ver respuestas" visibles actualmente
+                        const botonesVerRespuestas = document.querySelectorAll('.btn-ver-respuestas');
+                        
+                        if (botonesVerRespuestas.length === 0) {
+                            console.warn(`⚠️ No hay más botones de respuestas en nivel ${nivelActual}`);
+                            break;
+                        }
+
+                        let expandidosEnEsteNivel = 0;
+                        
+                        // Expandir todos los que estén cerrados
+                        for (const boton of botonesVerRespuestas) {
+                            const comentarioPadreId = boton.getAttribute('data-comentario-id');
+                            const respuestasContainer = document.querySelector(`.respuestas-container[data-comentario-id="${comentarioPadreId}"]`);
+                            
+                            // Si no está expandido, expandirlo
+                            if (respuestasContainer && respuestasContainer.style.display === 'none') {
+                                console.log(`  🔓 Expandiendo comentario ${comentarioPadreId}...`);
+                                await toggleVerRespuestas(parseInt(comentarioPadreId));
+                                expandidosEnEsteNivel++;
+                                // Pausa breve entre expansiones (optimizado)
+                                await new Promise(resolve => setTimeout(resolve, 150));
+                            }
+                        }
+                        
+                        if (expandidosEnEsteNivel === 0) {
+                            console.log(`✓ Nivel ${nivelActual}: no hay más contenedores cerrados`);
+                            break;
+                        }
+                        
+                        // Esperar a que las respuestas se carguen (optimizado)
+                        await new Promise(resolve => setTimeout(resolve, 600));
+                        
+                        // Buscar nuevamente el comentario
+                        comentario = document.querySelector(`.comentario-item[data-comentario-id="${comentarioId}"], .respuesta-item[data-comentario-id="${comentarioId}"]`);
+                        
+                        if (comentario) {
+                            console.log(`✓ Comentario encontrado en nivel ${nivelActual}!`);
+                            break;
+                        }
+                        
+                        nivelActual++;
+                    }
+                    
+                    if (!comentario) {
+                        console.warn(`⚠️ Comentario ${comentarioId} no encontrado después de ${nivelActual-1} niveles`);
+                        // Debug: mostrar todos los data-comentario-id disponibles
+                        const todosComentarios = document.querySelectorAll('[data-comentario-id]');
+                        console.log('IDs disponibles:', Array.from(todosComentarios).map(el => el.getAttribute('data-comentario-id')));
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Error al expandir respuestas:', error);
+                }
+            }
+            
+            if (!comentario) {
+                console.warn(`⚠️ Comentario ${comentarioId} no encontrado después de todas las búsquedas`);
+                return false;
+            }
+
+            const modalContent = document.querySelector('.comentarios-list');
+            if (!modalContent) {
+                console.warn('⚠️ Modal de comentarios no encontrado');
+                return false;
+            }
+
+            // Scroll al comentario
+            const comentarioTop = comentario.offsetTop;
+            modalContent.scrollTop = comentarioTop - 100;
+
+            // Highlight sutil del comentario
+            comentario.style.transition = 'background-color 0.3s ease';
+            comentario.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
+            setTimeout(() => {
+                comentario.style.backgroundColor = '';
+            }, 2000);
+
+            console.log('✅ Scroll al comentario completado');
+            return true;
+        }
+
+        /**
+         * Navega a un comentario específico - Versión optimizada (estilo Instagram)
+         * Abre directamente el modal sin animaciones innecesarias
+         */
+        async function navegarAComentario(publicacionId, comentarioId) {
+            try {
+                console.log('⚡ Navegación rápida a comentario', comentarioId, 'en publicación', publicacionId);
+
+                const postIdNum = parseInt(publicacionId);
+                
+                // Verificar que toggleComments existe
+                if (typeof toggleComments !== 'function') {
+                    console.error('❌ toggleComments no está definida');
+                    return;
+                }
+
+                // 1. Abrir modal de comentarios INMEDIATAMENTE
+                console.log('📂 Abriendo modal...');
+                await toggleComments(postIdNum);
+
+                // 2. Esperar a que los comentarios principales se carguen (optimizado)
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                // 3. Verificar que el modal está visible
+                const modal = document.getElementById('comentarios-modal');
+                if (!modal || modal.style.display !== 'flex') {
+                    console.error('❌ Modal no visible');
+                    return;
+                }
+
+                // 4. Hacer scroll al comentario específico
+                const scrollExitoso = await scrollAComentario(comentarioId);
+                
+                if (scrollExitoso) {
+                    console.log('✅ Comentario encontrado y visible');
+                } else {
+                    console.warn('⚠️ Comentario no visible, pero modal abierto');
+                }
+
+            } catch (error) {
+                console.error('❌ Error en navegación:', error);
+            }
+        }
+
+        /**
+         * Procesa la navegación desde notificaciones al cargar la página
+         */
+        async function procesarNavegacionDesdeNotificaciones() {
+            const { publicacionId, comentarioId, abrirComentarios } = obtenerParametrosNavegacion();
+            
+            if (!publicacionId) {
+                console.log('ℹ️ No hay parámetros de navegación');
+                // Cargar feed normal
+                await cargarPublicaciones(1);
+                return;
+            }
+
+            console.log('📍 Detectada navegación desde notificación:', { publicacionId, comentarioId, abrirComentarios });
+
+            try {
+                // Decidir si es like a publicación o algo relacionado con comentarios
+                const esLikeAPublicacion = !comentarioId && !abrirComentarios;
+
+                if (esLikeAPublicacion) {
+                    // LIKE A PUBLICACIÓN: Cargar feed completo y scrollear
+                    console.log('❤️ Notificación de like a publicación - cargando feed completo...');
+                    await cargarPublicaciones(1);
+                    
+                    // Esperar a que el feed se cargue (optimizado)
+                    await new Promise(resolve => setTimeout(resolve, 400));
+                    
+                    // Hacer scroll a la publicación
+                    const publicacion = document.querySelector(`[data-post-id="${publicacionId}"]`);
+                    if (publicacion) {
+                        console.log('📜 Scrolleando a publicación...');
+                        publicacion.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        
+                        // Highlight sutil
+                        publicacion.style.transition = 'box-shadow 0.3s ease';
+                        publicacion.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.5)';
+                        setTimeout(() => {
+                            publicacion.style.boxShadow = '';
+                        }, 2000);
+                        
+                        console.log('✅ Navegación a publicación completada');
+                    } else {
+                        console.warn('⚠️ Publicación no encontrada en el feed');
+                    }
+                    
+                    // Limpiar parámetros de URL
+                    const cleanUrl = window.location.pathname;
+                    window.history.replaceState({}, document.title, cleanUrl);
+                    
+                } else {
+                    // COMENTARIO/RESPUESTA/MENCIÓN: Cargar solo publicación específica y abrir modal
+                    console.log('💬 Notificación relacionada con comentarios - carga optimizada...');
+                    const token = getAuthToken();
+                    if (!token) {
+                        window.location.href = '/acceso';
+                        return;
+                    }
+
+                    const response = await fetch(`${API_URL}/publicaciones/${publicacionId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        console.error('❌ Error al cargar publicación');
+                        await cargarPublicaciones(1);
+                        return;
+                    }
+
+                    const result = await response.json();
+                    
+                    if (result.success && result.data) {
+                        const publicacion = result.data;
+                        console.log('✓ Publicación cargada');
+
+                        // Obtener estado de like
+                        const likeRes = await fetch(`${API_URL}/likes/mi-estado/${publicacion.id}`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        const likeData = await likeRes.json();
+                        publicacion.userLiked = likeData.data?.liked || false;
+
+                        // Renderizar la publicación
+                        const feedList = document.getElementById('feed-list');
+                        if (feedList) {
+                            feedList.innerHTML = crearPostCard(publicacion, publicacion.userLiked);
+                            agregarEventListeners();
+                        }
+
+                        console.log('✓ Publicación renderizada');
+                    } else {
+                        await cargarPublicaciones(1);
+                    }
+
+                    // Esperar mínimo para asegurar renderizado (optimizado)
+                    await new Promise(resolve => setTimeout(resolve, 150));
+
+                    // Limpiar parámetros de URL sin recargar la página
+                    const cleanUrl = window.location.pathname;
+                    window.history.replaceState({}, document.title, cleanUrl);
+
+                    // Decidir qué acción tomar
+                    if (comentarioId) {
+                        // Tiene comentarioId específico - navegar directo a él (comentario, respuesta o like a comentario)
+                        console.log('🎯 Abriendo comentario específico...');
+                        await navegarAComentario(publicacionId, comentarioId);
+                    } else if (abrirComentarios) {
+                        // Es notificación de comentario/mencion sin ID específico - abrir modal
+                        console.log('💬 Abriendo modal de comentarios (sin ID específico)...');
+                        const postIdNum = parseInt(publicacionId);
+                        if (typeof toggleComments === 'function') {
+                            await toggleComments(postIdNum);
+                            console.log('✓ Modal de comentarios abierto');
+                        }
+                    }
+
+                    console.log('✅ Navegación completada');
+
+                    // Cargar el resto del feed en segundo plano (optimizado)
+                    setTimeout(() => {
+                        cargarPublicaciones(1);
+                    }, 1000);
+                }
+
+            } catch (error) {
+                console.error('❌ Error en procesarNavegacionDesdeNotificaciones:', error);
+                // En caso de error, cargar feed completo
+                await cargarPublicaciones(1);
+            }
+        }
+
         // Obtener datos del usuario autenticado
         function getUserData() {
             const userDataString = localStorage.getItem('user_data');
@@ -295,12 +590,18 @@ import "../styles/publicaciones-imagenes.css";
                 const maxDisplay = imagenes.length === 5 ? 4 : Math.min(4, imagenes.length);
                 
                 for (let i = 0; i < maxDisplay; i++) {
-                    const imgUrl = imagenes[i].startsWith('http') ? imagenes[i] : `http://localhost:3000${imagenes[i]}`;
+                    let imgUrl = imagenes[i].startsWith('http') ? imagenes[i] : `http://localhost:3000${imagenes[i]}`;
+                    
+                    // Optimizar URLs de ImageKit con parámetros de compresión
+                    if (imgUrl.includes('ik.imagekit.io')) {
+                        imgUrl += '?tr=w-800,q-80,f-auto';
+                    }
+                    
                     // Agregar clase especial a la última imagen si hay 5 en total
                     const extraClass = (imagenes.length === 5 && i === 3) ? ' imagen-con-indicador' : '';
                     imagenesHTML += `
                         <div class="imagen-container${extraClass}" data-imagen-index="${i}">
-                            <img src="${imgUrl}" alt="Imagen ${i + 1}" loading="lazy" />
+                            <img src="${imgUrl}" alt="Imagen ${i + 1}" loading="lazy" decoding="async" />
                         </div>
                     `;
                 }
@@ -309,13 +610,21 @@ import "../styles/publicaciones-imagenes.css";
             }
             
             // Avatar con foto de perfil si existe
-            const fotoUrl = autor.urlFotoPerfil 
+            let fotoUrl = autor.urlFotoPerfil 
                 ? (autor.urlFotoPerfil.startsWith('http') 
                     ? autor.urlFotoPerfil 
                     : `http://localhost:3000${autor.urlFotoPerfil}`)
                 : null;
+            
+            // Optimizar URL si es de ImageKit o agregar parámetros para reducir tamaño
+            if (fotoUrl) {
+                if (fotoUrl.includes('ik.imagekit.io')) {
+                    fotoUrl += '?tr=w-100,h-100,q-80,f-auto';
+                }
+            }
+            
             const avatarHTML = fotoUrl 
-                ? `<div class="avatar"><img src="${fotoUrl}" alt="${nombreAutor}" /></div>`
+                ? `<div class="avatar"><img src="${fotoUrl}" alt="${nombreAutor}" loading="lazy" /></div>`
                 : `<div class="avatar"></div>`;
             
             return `
@@ -418,28 +727,33 @@ import "../styles/publicaciones-imagenes.css";
                             </div>
                         `;
                     } else {
-                        // Obtener el estado de likes del usuario para cada publicación
-                        const publicacionesConLikes = await Promise.all(
-                            result.data.publicaciones.map(async (pub) => {
-                                try {
-                                    const likeRes = await fetch(`${API_URL}/likes/mi-estado/${pub.id}`, {
-                                        headers: {
-                                            'Authorization': `Bearer ${token}`
-                                        }
-                                    });
-                                    const likeData = await likeRes.json();
-                                    return { ...pub, userLiked: likeData.data?.liked || false };
-                                } catch {
-                                    return { ...pub, userLiked: false };
-                                }
-                            })
-                        );
+                        // Obtener IDs de todas las publicaciones
+                        const publicacionIds = result.data.publicaciones.map(p => p.id);
+                        
+                        // Obtener estados de likes en batch (una sola llamada)
+                        let likesMap = {};
+                        try {
+                            const likesRes = await fetch(`${API_URL}/likes/mi-estado-batch`, {
+                                method: 'POST',
+                                headers: {
+                                    'Authorization': `Bearer ${token}`,
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ publicacionIds })
+                            });
+                            
+                            if (likesRes.ok) {
+                                const likesData = await likesRes.json();
+                                likesMap = likesData.data || {};
+                            }
+                        } catch (error) {
+                            console.warn('Error al obtener likes en batch:', error);
+                        }
 
-                        // Agregar las nuevas publicaciones
-                        publicacionesConLikes.forEach(publicacion => {
-                            console.log('Procesando publicación:', publicacion);
+                        // Agregar las nuevas publicaciones con sus likes
+                        result.data.publicaciones.forEach(publicacion => {
+                            publicacion.userLiked = likesMap[publicacion.id] || false;
                             const cardHTML = crearPostCard(publicacion, publicacion.userLiked);
-                            console.log('HTML generado:', cardHTML);
                             feedList.insertAdjacentHTML('beforeend', cardHTML);
                         });
 
@@ -690,8 +1004,14 @@ import "../styles/publicaciones-imagenes.css";
             currentComentariosPage = 1;
             
             const modal = document.getElementById('comentarios-modal');
+            const comentariosList = document.getElementById('comentarios-list');
+            
             if (modal) {
                 modal.style.display = 'flex';
+                // Agregar publicacionId al contenedor para usarlo después
+                if (comentariosList) {
+                    comentariosList.setAttribute('data-publicacion-id', postId);
+                }
                 await cargarComentarios(postId, 1);
             }
         }
@@ -746,7 +1066,13 @@ import "../styles/publicaciones-imagenes.css";
 
         function crearComentarioHTML(comentario) {
             const { id, contenido, autor, fechaCreacion, totalLikes, totalRespuestas } = comentario;
-            const avatarURL = autor.urlFotoPerfil || '';
+            let avatarURL = autor.urlFotoPerfil || '';
+            
+            // Optimizar URL de avatar
+            if (avatarURL && avatarURL.includes('ik.imagekit.io')) {
+                avatarURL += '?tr=w-80,h-80,q-80,f-auto';
+            }
+            
             const nombreCompleto = autor.apellido ? `${autor.nombre} ${autor.apellido}` : autor.nombre;
             const tituloCarrera = autor.tituloCarrera || '';
             const esPropio = currentUser && currentUser.id === autor.id;
@@ -754,7 +1080,7 @@ import "../styles/publicaciones-imagenes.css";
             return `
                 <div class="comentario-item" data-comentario-id="${id}" style="display: flex; gap: 0.75rem; padding: 1rem 0; border-bottom: 1px solid #f3f4f6;">
                     <div class="comentario-avatar" style="width: 40px; height: 40px; min-width: 40px; min-height: 40px; border-radius: 50%; overflow: hidden; flex-shrink: 0;">
-                        ${avatarURL ? `<img src="${avatarURL}" alt="${nombreCompleto}" style="width: 40px !important; height: 40px !important; object-fit: cover; border-radius: 50%; display: block;">` : `
+                        ${avatarURL ? `<img src="${avatarURL}" alt="${nombreCompleto}" loading="lazy" decoding="async" style="width: 40px !important; height: 40px !important; object-fit: cover; border-radius: 50%; display: block;">` : `
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #6366f1;">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <circle cx="12" cy="10" r="3"></circle>
@@ -1041,7 +1367,13 @@ import "../styles/publicaciones-imagenes.css";
 
         function crearRespuestaHTML(respuesta, nivel = 1) {
             const { id, contenido, autor, fechaCreacion, totalLikes, totalRespuestas } = respuesta;
-            const avatarURL = autor.urlFotoPerfil || '';
+            let avatarURL = autor.urlFotoPerfil || '';
+            
+            // Optimizar URL de avatar
+            if (avatarURL && avatarURL.includes('ik.imagekit.io')) {
+                avatarURL += '?tr=w-64,h-64,q-80,f-auto';
+            }
+            
             const nombreCompleto = autor.apellido ? `${autor.nombre} ${autor.apellido}` : autor.nombre;
             const tituloCarrera = autor.tituloCarrera || '';
             const esPropio = currentUser && currentUser.id === autor.id;
@@ -1054,7 +1386,7 @@ import "../styles/publicaciones-imagenes.css";
             return `
                 <div class="respuesta-item nivel-${nivelVisual}" data-comentario-id="${id}" data-nivel="${nivel}">
                     <div class="comentario-avatar" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px; border-radius: 50%; overflow: hidden; flex-shrink: 0;">
-                        ${avatarURL ? `<img src="${avatarURL}" alt="${nombreCompleto}" style="width: 32px !important; height: 32px !important; object-fit: cover; border-radius: 50%; display: block;">` : `
+                        ${avatarURL ? `<img src="${avatarURL}" alt="${nombreCompleto}" loading="lazy" decoding="async" style="width: 32px !important; height: 32px !important; object-fit: cover; border-radius: 50%; display: block;">` : `
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #6366f1;">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <circle cx="12" cy="10" r="3"></circle>
@@ -1203,7 +1535,18 @@ import "../styles/publicaciones-imagenes.css";
                             const respuestaHTML = crearRespuestaHTML(respuesta, nivelMaximo);
                             const tempDiv = document.createElement('div');
                             tempDiv.innerHTML = respuestaHTML;
-                            const respuestaElement = tempDiv.firstElementChild as HTMLElement;
+                            const respuestaElement = tempDiv.firstElementChild;
+                            
+                            // Verificar que el data-comentario-id esté presente
+                            const respuestaId = respuestaElement.getAttribute('data-comentario-id');
+                            console.log(`📝 Insertando respuesta ID: ${respuestaId} para comentario padre: ${comentarioId}`);
+                            
+                            if (!respuestaId) {
+                                console.error('⚠️ Respuesta sin data-comentario-id!', respuesta);
+                                // Forzar el atributo si no existe
+                                respuestaElement.setAttribute('data-comentario-id', respuesta.id);
+                            }
+                            
                             respuestaElement.setAttribute('data-parent-id', comentarioId.toString());
                             
                             if (isHermano) {
@@ -1425,10 +1768,16 @@ import "../styles/publicaciones-imagenes.css";
                     // Actualizar foto de perfil
                     const profileAvatar = document.getElementById('profile-avatar');
                     if (profileAvatar && perfil.urlFotoPerfil) {
-                        const fotoUrl = perfil.urlFotoPerfil.startsWith('http') 
+                        let fotoUrl = perfil.urlFotoPerfil.startsWith('http') 
                             ? perfil.urlFotoPerfil 
                             : `http://localhost:3000${perfil.urlFotoPerfil}`;
-                        profileAvatar.innerHTML = `<img src="${fotoUrl}" alt="Foto de perfil" />`;
+                        
+                        // Optimizar URL si es de ImageKit
+                        if (fotoUrl.includes('ik.imagekit.io')) {
+                            fotoUrl += '?tr=w-100,h-100,q-80,f-auto';
+                        }
+                        
+                        profileAvatar.innerHTML = `<img src="${fotoUrl}" alt="Foto de perfil" loading="lazy" />`;
                     }
                     
                     // Actualizar nombre
@@ -1496,7 +1845,11 @@ import "../styles/publicaciones-imagenes.css";
             }
 
             // Cargar primera página al cargar la página
-            cargarPublicaciones(1);
+            // Si viene de notificación, esperar para evitar recarga innecesaria
+            // La función procesarNavegacionDesdeNotificaciones ahora maneja TODO:
+            // - Carga optimizada de publicación específica SI viene de notificación
+            // - Carga normal del feed SI NO viene de notificación
+            await procesarNavegacionDesdeNotificaciones();
 
             // Configurar botón de cargar más
             const loadMoreBtn = document.getElementById('load-more-btn');
