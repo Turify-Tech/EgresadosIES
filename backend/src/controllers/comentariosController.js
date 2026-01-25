@@ -74,7 +74,8 @@ export async function crearComentario(req, res) {
 
         const publicacionAutorId = publicacion.rows[0].autorId;
 
-        // Si es una respuesta, verificar que el comentario padre existe
+        // Si es una respuesta, verificar que el comentario padre existe y obtener su autor
+        let comentarioPadreAutorId = null;
         if (comentarioPadreId) {
             const comentarioPadre = await client.execute({
                 sql: `SELECT id, autorId FROM Comentario WHERE id = ?`,
@@ -87,6 +88,8 @@ export async function crearComentario(req, res) {
                     message: "El comentario al que intentas responder no existe"
                 });
             }
+
+            comentarioPadreAutorId = comentarioPadre.rows[0].autorId;
         }
 
         // Crear el comentario (con o sin comentarioPadreId)
@@ -98,13 +101,27 @@ export async function crearComentario(req, res) {
 
         const comentarioId = insertResult.lastInsertRowid;
 
-        // Notificar al autor de la publicación (en background)
-        notificationService.notificarComentario({
-            publicacionAutorId: Number(publicacionAutorId),
-            comentarioAutorId: usuarioId,
-            comentarioTexto: contenido.trim(),
-            publicacionId: Number(publicacionId)
-        }).catch(err => console.error('Error al enviar notificación:', err));
+        // Si es una respuesta, notificar al autor del comentario padre
+        if (comentarioPadreAutorId) {
+            notificationService.notificarRespuesta({
+                comentarioPadreAutorId: Number(comentarioPadreAutorId),
+                respuestaAutorId: usuarioId,
+                respuestaTexto: contenido.trim(),
+                publicacionId: Number(publicacionId),
+                respuestaId: Number(comentarioId)
+            }).catch(err => console.error('Error al notificar respuesta:', err));
+        }
+
+        // Notificar al autor de la publicación (solo si no es una respuesta o si el autor de la publicación es diferente al del comentario padre)
+        if (!comentarioPadreAutorId || comentarioPadreAutorId !== publicacionAutorId) {
+            notificationService.notificarComentario({
+                publicacionAutorId: Number(publicacionAutorId),
+                comentarioAutorId: usuarioId,
+                comentarioTexto: contenido.trim(),
+                publicacionId: Number(publicacionId),
+                comentarioId: Number(comentarioId)
+            }).catch(err => console.error('Error al enviar notificación:', err));
+        }
 
         // Detectar y notificar menciones (en background)
         const usuariosMencionados = await notificationService.detectarMenciones(contenido.trim());
@@ -113,7 +130,8 @@ export async function crearComentario(req, res) {
                 usuarioMencionadoId,
                 autorMencionId: usuarioId,
                 comentarioTexto: contenido.trim(),
-                publicacionId: Number(publicacionId)
+                publicacionId: Number(publicacionId),
+                comentarioId: Number(comentarioId)
             }).catch(err => console.error('Error al notificar mención:', err));
         }
 

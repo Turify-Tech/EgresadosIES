@@ -1,4 +1,5 @@
 import database from "../config/database.js";
+import notificationService from '../services/notificationService.js';
 
 /**
  * Controlador para el sistema de likes en comentarios
@@ -83,6 +84,24 @@ export async function toggleLikeComentario(req, res) {
             });
             accion = 'agregado';
             liked = true;
+
+            // Obtener ID de publicación asociada al comentario para la notificación
+            const comentarioAutorId = Number(comentario.rows[0].autorId);
+            const comentarioData = await client.execute({
+                sql: `SELECT publicacionId FROM Comentario WHERE id = ?`,
+                args: [comentarioId]
+            });
+            const publicacionId = comentarioData.rows[0]?.publicacionId;
+
+            // Notificar al autor del comentario (en background)
+            if (publicacionId) {
+                notificationService.notificarLikeComentario({
+                    comentarioAutorId,
+                    likeAutorId: usuarioId,
+                    publicacionId: Number(publicacionId),
+                    comentarioId: Number(comentarioId)
+                }).catch(err => console.error('Error al notificar like de comentario:', err));
+            }
         }
 
         // Contar likes actuales

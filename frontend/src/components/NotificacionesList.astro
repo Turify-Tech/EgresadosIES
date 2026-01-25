@@ -271,7 +271,7 @@ const { limit = 20, showFilters = true } = Astro.props;
             }
 
             return `
-                <div class="notificacion-item ${leida}" data-id="${notif.id}" data-url="${notif.urlDestino || '#'}" data-fecha="${notif.fechaCreacion}">
+                <div class="notificacion-item ${leida}" data-id="${notif.id}" data-url="${notif.urlDestino || '#'}" data-tipo="${notif.tipo}" data-fecha="${notif.fechaCreacion}">
                     <div class="notificacion-contenido">
                         ${notif.origenNombre ? `
                             <div class="notificacion-autor">
@@ -327,11 +327,20 @@ const { limit = 20, showFilters = true } = Astro.props;
 
                 const id = item.dataset.id;
                 const url = item.dataset.url;
+                const tipo = item.dataset.tipo;
 
                 // Marcar como leída
                 await marcarComoLeida(id);
 
-                // Redirigir
+                // Si es una notificación de comentario/mencion sin comentarioId, agregar flag
+                if ((tipo === 'comentario' || tipo === 'mencion') && url && !url.includes('comentario=')) {
+                    // Agregar parámetro especial para indicar que debe abrir modal
+                    const separator = url.includes('?') ? '&' : '?';
+                    window.location.href = url + separator + 'abrirComentarios=true';
+                    return;
+                }
+
+                // Redirigir normalmente
                 if (url && url !== '#') {
                     window.location.href = url;
                 }
