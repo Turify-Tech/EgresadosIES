@@ -3,7 +3,8 @@ import { authenticateToken } from "../middleware/auth.js";
 import {
     toggleLike,
     contarLikes,
-    verificarEstadoLike
+    verificarEstadoLike,
+    verificarEstadoLikeBatch
 } from "../controllers/likesController.js";
 
 const router = express.Router();
@@ -28,5 +29,12 @@ router.get("/publicacion/:publicacionId", contarLikes);
  * @access  Privado (solo egresados)
  */
 router.get("/mi-estado/:publicacionId", authenticateToken, verificarEstadoLike);
+
+/**
+ * @route   POST /api/likes/mi-estado-batch
+ * @desc    Verificar estado de like para múltiples publicaciones
+ * @access  Privado (solo egresados)
+ */
+router.post("/mi-estado-batch", authenticateToken, verificarEstadoLikeBatch);
 
 export default router;
