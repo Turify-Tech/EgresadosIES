@@ -955,7 +955,7 @@ export async function getStaticPaths() {
             </a>
             ` : ''}
             ${profile.email ? `
-            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=${profile.email}&su=${encodeURIComponent('Contacto desde Portal de Egresados')}&body=${encodeURIComponent('Hola ' + (profile.nombre || '') + ',\\n\\n')}" 
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=${profile.email}&su=${encodeURIComponent('Contacto desde Portal de Egresados')}&body=${encodeURIComponent('Hola ' + (profile.nombre || '') + ',\n\n')}" 
                target="_blank" 
                rel="noopener noreferrer" 
                class="btn-contactar">
