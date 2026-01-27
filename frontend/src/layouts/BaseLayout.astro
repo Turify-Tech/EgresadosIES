@@ -16,6 +16,7 @@ import "../styles/global.css";
 import "../styles/components.css";
 import MensajesSidebar from "../components/mensajes/MensajesSidebar.astro";
 import NotificacionesModal from "../components/NotificacionesModal.astro";
+import DynamicBackground from "../components/DynamicBackground.astro";
 ---
 
 <!doctype html>
@@ -149,6 +150,10 @@ import NotificacionesModal from "../components/NotificacionesModal.astro";
     </head>
     <body
         style="margin: 0; padding: 0; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column;">
+        
+        <!-- Fondo animado decorativo -->
+        <DynamicBackground />
+        
         <!-- Header -->
         <header style="background-color: #E6E6E6; padding: 0.75rem 2rem; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
             <div
@@ -158,11 +163,11 @@ import NotificacionesModal from "../components/NotificacionesModal.astro";
                         <img
                             src="/images/logo.png"
                             alt="Logo"
-                            style="width: 45px; height: auto;"
+                            style="width: 50px; height: auto;"
                         />
                         <a href="/" id="logo-link" style="text-decoration: none;">
                             <h1
-                                style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.75rem; color: #1a1a1a;">
+                                style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.75rem; color: #0d0d0d;">
                                 EgresadosIES
                             </h1>
                         </a>
