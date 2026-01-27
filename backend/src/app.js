@@ -48,9 +48,26 @@ app.use(
 );
 
 // CORS
+const allowedOrigins = [
+    process.env.FRONTEND_URL || "http://localhost:4321",
+    "http://localhost:4321",
+    "http://localhost:4322", // Puerto alternativo de Astro
+    "http://localhost:4320",
+];
+
 app.use(
     cors({
-        origin: process.env.FRONTEND_URL || "http://localhost:4321",
+        origin: function (origin, callback) {
+            // Permitir peticiones sin origin (como Postman o aplicaciones móviles)
+            if (!origin) return callback(null, true);
+            
+            if (allowedOrigins.indexOf(origin) !== -1) {
+                callback(null, true);
+            } else {
+                console.warn(`⚠️  Origen bloqueado por CORS: ${origin}`);
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
         credentials: true,
     })
 );

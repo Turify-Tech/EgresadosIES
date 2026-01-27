@@ -1,0 +1,240 @@
+---
+// Componente de fondo animado decorativo
+---
+
+<div class="has-dynamic-background">
+    <div class="dynamic-background">
+        <!-- Los símbolos se generarán dinámicamente con JavaScript -->
+    </div>
+</div>
+
+<style>
+    .has-dynamic-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+        overflow: hidden;
+    }
+
+    .dynamic-background {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+
+    .symbol {
+        position: absolute;
+        width: 35px;
+        height: 35px;
+        opacity: 0.25;
+        transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        will-change: transform;
+        pointer-events: none;
+    }
+
+    .symbol img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        filter: grayscale(70%) brightness(0.8);
+    }
+
+    /* Animación suave de retorno */
+    .symbol.returning {
+        transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+</style>
+
+<script>
+    (function() {
+        console.log('🎨 DynamicBackground: Script cargado');
+        
+        // Array de íconos disponibles
+        const icons = [
+            '/images/libro.png',
+            '/images/gorro-de-graduacion.png',
+            '/images/ordenador-portatil.png',
+            '/images/lista-de-verificacion.png',
+        ];
+
+        // Configuración
+        const CONFIG = {
+            symbolCount: 35, // Número de símbolos
+            repelDistance: 150, // Distancia de repulsión en pixels
+            repelStrength: 80, // Intensidad del desplazamiento
+            minDistance: 15, // Distancia mínima entre símbolos en vw/vh
+        };
+
+        let mouseHandler = null;
+        let symbolPositions = []; // Almacenar posiciones generadas
+
+        // Inicializar fondo dinámico
+        function initDynamicBackground() {
+            console.log('🎨 DynamicBackground: Iniciando...');
+            try {
+                const container = document.querySelector('.dynamic-background');
+                console.log('🎨 DynamicBackground: Container encontrado:', container);
+                
+                if (!container) {
+                    console.error('❌ DynamicBackground: Container NOT found');
+                    return;
+                }
+
+                // Limpiar símbolos existentes y posiciones
+                container.innerHTML = '';
+                symbolPositions = [];
+
+                // Generar símbolos aleatorios con espaciado
+                for (let i = 0; i < CONFIG.symbolCount; i++) {
+                    createSymbol(container, i);
+                }
+                
+                console.log(`✅ DynamicBackground: ${CONFIG.symbolCount} símbolos creados`);
+
+                // Remover listener anterior si existe
+                if (mouseHandler) {
+                    document.removeEventListener('mousemove', mouseHandler);
+                }
+
+                // Agregar nuevo listener de movimiento del mouse
+                mouseHandler = handleMouseMove;
+                document.addEventListener('mousemove', mouseHandler, { passive: true });
+                
+                console.log('✅ DynamicBackground: Inicializado correctamente');
+            } catch (error) {
+                console.error('❌ DynamicBackground: Error durante inicialización', error);
+            }
+        }
+
+        // Verificar si una posición está muy cerca de otras
+        function isTooClose(x, y) {
+            for (let pos of symbolPositions) {
+                const distance = Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2));
+                if (distance < CONFIG.minDistance) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Crear un símbolo individual
+        function createSymbol(container, index) {
+            const symbol = document.createElement('div');
+            symbol.className = 'symbol';
+            symbol.dataset.index = index.toString();
+
+            // Generar posición aleatoria que no esté muy cerca de otras
+            let x, y, attempts = 0;
+            do {
+                x = Math.random() * 95 + 2.5; // Entre 2.5% y 97.5%
+                y = Math.random() * 95 + 2.5;
+                attempts++;
+            } while (isTooClose(x, y) && attempts < 50);
+
+            // Almacenar posición
+            symbolPositions.push({x, y});
+            
+            // Rotación aleatoria
+            const rotation = Math.random() * 360;
+
+            // Almacenar posición original
+            symbol.dataset.originalX = x.toString();
+            symbol.dataset.originalY = y.toString();
+            symbol.dataset.originalRotation = rotation.toString();
+
+            // Aplicar transformación inicial
+            symbol.style.transform = `translate(${x}vw, ${y}vh) rotate(${rotation}deg)`;
+
+            // Seleccionar ícono aleatorio
+            const iconPath = icons[Math.floor(Math.random() * icons.length)];
+            const img = document.createElement('img');
+            img.src = iconPath;
+            img.alt = '';
+            img.loading = 'lazy';
+            
+            img.onerror = function() {
+                console.error('❌ Error cargando imagen:', iconPath);
+            };
+            
+            img.onload = function() {
+                console.log('✅ Imagen cargada:', iconPath);
+            };
+            
+            symbol.appendChild(img);
+            container.appendChild(symbol);
+        }
+
+        // Manejar movimiento del mouse
+        function handleMouseMove(e) {
+            try {
+                const symbols = document.querySelectorAll('.symbol');
+                
+                symbols.forEach((symbol) => {
+                    const htmlSymbol = symbol;
+                    const rect = htmlSymbol.getBoundingClientRect();
+                    const symbolCenterX = rect.left + rect.width / 2;
+                    const symbolCenterY = rect.top + rect.height / 2;
+
+                    // Calcular distancia entre cursor y símbolo
+                    const deltaX = e.clientX - symbolCenterX;
+                    const deltaY = e.clientY - symbolCenterY;
+                    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+                    // Si el cursor está cerca, aplicar repulsión
+                    if (distance < CONFIG.repelDistance) {
+                        htmlSymbol.classList.remove('returning');
+                        
+                        // Calcular fuerza de repulsión (inversa a la distancia)
+                        const force = (CONFIG.repelDistance - distance) / CONFIG.repelDistance;
+                        const repelX = -(deltaX / distance) * CONFIG.repelStrength * force;
+                        const repelY = -(deltaY / distance) * CONFIG.repelStrength * force;
+
+                        // Obtener posición original
+                        const originalX = parseFloat(htmlSymbol.dataset.originalX || '0');
+                        const originalY = parseFloat(htmlSymbol.dataset.originalY || '0');
+                        const originalRotation = parseFloat(htmlSymbol.dataset.originalRotation || '0');
+
+                        // Aplicar desplazamiento
+                        htmlSymbol.style.transform = `
+                            translate(calc(${originalX}vw + ${repelX}px), calc(${originalY}vh + ${repelY}px))
+                            rotate(${originalRotation + force * 15}deg)
+                        `;
+                    } else {
+                        // Volver a posición original suavemente
+                        returnToOriginalPosition(htmlSymbol);
+                    }
+                });
+            } catch (error) {
+                console.error('DynamicBackground: Error in mouse handler', error);
+            }
+        }
+
+        // Volver a posición original
+        function returnToOriginalPosition(symbol) {
+            if (!symbol.classList.contains('returning')) {
+                symbol.classList.add('returning');
+                
+                const originalX = symbol.dataset.originalX || '0';
+                const originalY = symbol.dataset.originalY || '0';
+                const originalRotation = symbol.dataset.originalRotation || '0';
+
+                symbol.style.transform = `translate(${originalX}vw, ${originalY}vh) rotate(${originalRotation}deg)`;
+            }
+        }
+
+        // Inicializar cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initDynamicBackground);
+        } else {
+            // Usar setTimeout para no bloquear otros scripts
+            setTimeout(initDynamicBackground, 100);
+        }
+
+        // Reinicializar en navegación de Astro
+        document.addEventListener('astro:page-load', initDynamicBackground);
+    })();
+</script>
