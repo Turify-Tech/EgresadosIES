@@ -40,9 +40,9 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 
                 <!-- Botones de acción -->
                 <div class="profile-actions">
-                    <button class="btn-action" id="btn-editar" onclick="toggleEditMode()">Editar perfil</button>
-                    <a href="/mis-publicaciones" class="btn-action">Mis Publicaciones</a>
-                    <a href="/perfil/mi-cv" class="btn-action">Mi currículum</a>
+                    <button class="btn-action" id="btn-editar" onclick="toggleEditMode()">Editar Perfil</button>
+                    <button class="btn-action" onclick="window.location.href='/mis-publicaciones'">Mis Publicaciones</button>
+                    <button class="btn-action" onclick="descargarCV()">Mi Currículum</button>
                 </div>
             </div>
 
@@ -285,7 +285,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
         padding: 0.5rem 1rem;
         border-radius: 8px;
         font-size: 0.875rem;
-        font-weight: 500;
+        font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
         text-align: center;
@@ -664,7 +664,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
                 });
                 
                 if (response.status === 401 || response.status === 403) {
-                    alert('Tu sesión ha expirado o no tienes permisos para acceder a esta página. Por favor, inicia sesión nuevamente.');
+                    showNotification('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'error');
                     localStorage.removeItem('auth_token');
                     localStorage.removeItem('currentUser');
                     setTimeout(() => {
@@ -895,7 +895,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
                     console.log('✅ Foto subida correctamente:', urlFotoPerfil);
                 } else {
                     console.error('❌ Error al subir foto');
-                    alert('Error al subir la foto. Se guardarán los demás cambios.');
+                    showNotification('Error al subir la foto. Se guardarán los demás cambios.', 'error');
                 }
             }
 
@@ -935,7 +935,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
                 throw new Error(errorData.error || 'Error al guardar los cambios');
             }
 
-            alert('✅ Cambios guardados exitosamente');
+            showNotification('Cambios guardados exitosamente', 'success');
             
             // Limpiar foto temporal
             window.nuevaFotoPerfil = null;
@@ -946,7 +946,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 
         } catch (error) {
             console.error('Error:', error);
-            alert('Error al guardar los cambios: ' + (error as Error).message);
+            showNotification('Error al guardar los cambios: ' + (error as Error).message, 'error');
         }
     }
 
@@ -962,13 +962,13 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 
         // Validar tipo de archivo
         if (!file.type.startsWith('image/')) {
-            alert('❌ Por favor selecciona una imagen válida');
+            showNotification('Por favor selecciona una imagen válida', 'error');
             return;
         }
 
         // Validar tamaño (máximo 5MB)
         if (file.size > 5 * 1024 * 1024) {
-            alert('❌ La imagen es muy grande. Máximo 5MB');
+            showNotification('La imagen es muy grande. Máximo 5MB', 'error');
             return;
         }
 
@@ -1061,6 +1061,103 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
             }
         }, 'image/jpeg', 0.9);
     };
+
+    // Función para mostrar notificaciones
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#10b981' : type === 'error' ? '#dc2626' : '#3b82f6'};
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            max-width: 300px;
+        `;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+
+        setTimeout(() => {
+            notification.style.transform = 'translateX(400px)';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 4000);
+    }
+
+    // Función para descargar el CV con autenticación
+    async function descargarCV() {
+        try {
+            // Intentar ambos nombres de token para compatibilidad
+            const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
+            
+            console.log('=== DEBUG DESCARGAR CV ===');
+            console.log('Token auth_token:', localStorage.getItem('auth_token'));
+            console.log('Token token:', localStorage.getItem('token'));
+            console.log('Token final:', token);
+            
+            if (!token) {
+                showNotification('Debes iniciar sesión para descargar tu CV', 'error');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 1500);
+                return;
+            }
+
+            console.log('Enviando request con token...');
+            
+            const response = await fetch('http://localhost:3000/api/perfil/mi-cv', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Error response:', errorData);
+                throw new Error(errorData.message || 'Error al descargar el CV');
+            }
+
+            // Obtener el blob del PDF
+            const blob = await response.blob();
+            console.log('PDF recibido, tamaño:', blob.size);
+            
+            // Crear un enlace temporal para descargar
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Mi_Curriculum.pdf';
+            document.body.appendChild(a);
+            a.click();
+            
+            // Limpiar
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+            console.log('✅ CV descargado correctamente');
+            showNotification('CV descargado correctamente', 'success');
+        } catch (error) {
+            console.error('❌ Error al descargar CV:', error);
+            showNotification(error.message || 'Error al descargar el currículum', 'error');
+        }
+    }
+
+    (window as any).descargarCV = descargarCV;
 </script>
 
 <!-- Cropper.js -->
