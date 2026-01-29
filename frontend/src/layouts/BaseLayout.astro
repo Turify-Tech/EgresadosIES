@@ -443,11 +443,11 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                             userNameNav.textContent = user.nombre || "Usuario";
                         }
 
-                        // Configure avatar if available
-                        // You can expand this to load user's actual avatar
-                        if (userAvatar) {
-                            userAvatar.src =
-                                user.avatar || "/default-avatar.svg";
+                        // Cargar foto de perfil real
+                        if (user.tipo_usuario === "Egresado") {
+                            cargarFotoPerfilHeader();
+                        } else if (userAvatar) {
+                            userAvatar.src = user.avatar || "/default-avatar.svg";
                         }
                     }
 
@@ -524,6 +524,43 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                 
                 // Exponer función globalmente para uso en modal
                 window.cargarContadorNotificaciones = cargarContadorNotificaciones;
+
+                // Función para cargar la foto de perfil en el header
+                async function cargarFotoPerfilHeader() {
+                    try {
+                        const token = localStorage.getItem("auth_token");
+                        if (!token) return;
+
+                        const response = await fetch(`${API_URL}/perfil/mi-perfil`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        if (!response.ok) return;
+
+                        const result = await response.json();
+                        
+                        if (result.success && result.data && result.data.perfil) {
+                            const perfilData = result.data.perfil;
+                            
+                            if (perfilData.urlFotoPerfil && userAvatar) {
+                                let fotoUrl = perfilData.urlFotoPerfil.startsWith('http') 
+                                    ? perfilData.urlFotoPerfil 
+                                    : `http://localhost:3000${perfilData.urlFotoPerfil}`;
+                                
+                                // Optimizar URL si es de ImageKit
+                                if (fotoUrl.includes('ik.imagekit.io')) {
+                                    fotoUrl += '?tr=w-100,h-100,q-80,f-auto';
+                                }
+                                
+                                userAvatar.src = fotoUrl;
+                            }
+                        }
+                    } catch (error) {
+                        console.debug('Error cargando foto de perfil:', error);
+                    }
+                }
 
                 // Iniciar polling de notificaciones para egresados
                 let notificacionesPolling = null;
