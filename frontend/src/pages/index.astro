@@ -112,10 +112,26 @@ import "../styles/index.css";
             
             console.log(`Post ${id} - Comentarios: ${totalComentarios}, Likes: ${totalLikes}`);
             
+            // Procesar URL de foto de perfil
+            let avatarURL = '';
+            if (autor.urlFotoPerfil) {
+                avatarURL = autor.urlFotoPerfil.startsWith('http') 
+                    ? autor.urlFotoPerfil 
+                    : `http://localhost:3000${autor.urlFotoPerfil}`;
+            }
+            
             return `
                 <article class="post-card" data-post-id="${id}">
                     <header class="post-header">
-                        <div class="avatar"></div>
+                        <div class="avatar">
+                            ${avatarURL ? `<img src="${avatarURL}" alt="${autor.nombre}" style="width: 100%; height: 100%; object-fit: cover;">` : `
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                    <path d="M6.168 18.849A4 4 0 0 1 10 16h4a4 4 0 0 1 3.834 2.855"></path>
+                                </svg>
+                            `}
+                        </div>
                         <div class="post-meta">
                             <strong>${autor.nombre}</strong>
                             <time>${formatearFechaRelativa(fechaCreacion)}</time>
@@ -263,7 +279,12 @@ import "../styles/index.css";
         // Función para crear HTML de comentario
         function crearComentarioHTML(comentario) {
             const { id, contenido, autor, fechaCreacion, totalLikes, totalRespuestas } = comentario;
-            const avatarURL = autor.urlFotoPerfil || '';
+            let avatarURL = '';
+            if (autor.urlFotoPerfil) {
+                avatarURL = autor.urlFotoPerfil.startsWith('http') 
+                    ? autor.urlFotoPerfil 
+                    : `http://localhost:3000${autor.urlFotoPerfil}`;
+            }
             const nombreCompleto = autor.apellido ? `${autor.nombre} ${autor.apellido}` : autor.nombre;
             const tituloCarrera = autor.tituloCarrera || '';
             const esPropio = currentUser && currentUser.id === autor.id;
@@ -444,7 +465,12 @@ import "../styles/index.css";
 
         function crearRespuestaHTML(respuesta, nivel = 1) {
             const { id, contenido, autor, fechaCreacion, totalLikes, totalRespuestas } = respuesta;
-            const avatarURL = autor.urlFotoPerfil || '';
+            let avatarURL = '';
+            if (autor.urlFotoPerfil) {
+                avatarURL = autor.urlFotoPerfil.startsWith('http') 
+                    ? autor.urlFotoPerfil 
+                    : `http://localhost:3000${autor.urlFotoPerfil}`;
+            }
             const nombreCompleto = autor.apellido ? `${autor.nombre} ${autor.apellido}` : autor.nombre;
             const tituloCarrera = autor.tituloCarrera || '';
             const esPropio = currentUser && currentUser.id === autor.id;

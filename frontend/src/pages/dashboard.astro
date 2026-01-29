@@ -32,28 +32,12 @@ import "../styles/publicaciones-imagenes.css";
                         </div>
                         
                         <div class="profile-actions">
-                            <a href="#" class="profile-link" id="link-cv">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                    <polyline points="14 2 14 8 20 8"></polyline>
-                                </svg>
-                                Ver Currículum Vitae
-                            </a>
-                            <a href="#" class="profile-link" id="link-portfolio">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="3" width="7" height="7"></rect>
-                                    <rect x="14" y="3" width="7" height="7"></rect>
-                                    <rect x="14" y="14" width="7" height="7"></rect>
-                                    <rect x="3" y="14" width="7" height="7"></rect>
-                                </svg>
-                                Ver Portafolio
-                            </a>
-                            <div class="profile-status">
+                            <div class="profile-status" id="profile-status">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
                                     <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
                                 </svg>
-                                <span>En búsqueda de trabajo</span>
+                                <span id="profile-status-text">En búsqueda de trabajo</span>
                             </div>
                         </div>
                     </div>
@@ -144,7 +128,13 @@ import "../styles/publicaciones-imagenes.css";
                 <!-- Formulario crear publicación (visible para egresados autenticados) -->
                 <form class="crear-post" id="crear-form">
                     <div class="form-user-info">
-                        <div class="avatar"></div>
+                        <div class="avatar" id="form-avatar">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <circle cx="12" cy="10" r="3"></circle>
+                                <path d="M6.168 18.849A4 4 0 0 1 10 16h4a4 4 0 0 1 3.834 2.855"></path>
+                            </svg>
+                        </div>
                         <div>
                             <strong id="user-name-form">Usuario</strong>
                         </div>
@@ -1763,42 +1753,79 @@ import "../styles/publicaciones-imagenes.css";
                 const result = await response.json();
                 
                 if (result.success && result.data) {
-                    const perfil = result.data;
+                    const data = result.data;
+                    const perfilData = data.perfil;
                     
-                    // Actualizar foto de perfil
+                    // Actualizar foto de perfil en sidebar, formulario y header
                     const profileAvatar = document.getElementById('profile-avatar');
-                    if (profileAvatar && perfil.urlFotoPerfil) {
-                        let fotoUrl = perfil.urlFotoPerfil.startsWith('http') 
-                            ? perfil.urlFotoPerfil 
-                            : `http://localhost:3000${perfil.urlFotoPerfil}`;
+                    const formAvatar = document.getElementById('form-avatar');
+                    const headerAvatar = document.getElementById('user-avatar');
+                    
+                    if (perfilData && perfilData.urlFotoPerfil) {
+                        let fotoUrl = perfilData.urlFotoPerfil.startsWith('http') 
+                            ? perfilData.urlFotoPerfil 
+                            : `http://localhost:3000${perfilData.urlFotoPerfil}`;
                         
                         // Optimizar URL si es de ImageKit
                         if (fotoUrl.includes('ik.imagekit.io')) {
                             fotoUrl += '?tr=w-100,h-100,q-80,f-auto';
                         }
                         
-                        profileAvatar.innerHTML = `<img src="${fotoUrl}" alt="Foto de perfil" loading="lazy" />`;
+                        const imgHtml = `<img src="${fotoUrl}" alt="Foto de perfil" loading="lazy" />`;
+                        
+                        if (profileAvatar) {
+                            profileAvatar.innerHTML = imgHtml;
+                        }
+                        
+                        if (formAvatar) {
+                            formAvatar.innerHTML = imgHtml;
+                        }
+                        
+                        if (headerAvatar) {
+                            headerAvatar.src = fotoUrl;
+                        }
                     }
                     
                     // Actualizar nombre
                     const profileName = document.getElementById('profile-name');
-                    if (profileName) {
-                        profileName.textContent = currentUser.nombre || 'Egresado';
+                    if (profileName && data.usuario) {
+                        profileName.textContent = data.usuario.nombre || 'Egresado';
                     }
                     
                     // Actualizar año de egreso (de formacion academica)
                     const profileYear = document.getElementById('profile-year');
-                    if (profileYear && perfil.formacionAcademica && perfil.formacionAcademica.length > 0) {
-                        const ultimaFormacion = perfil.formacionAcademica[perfil.formacionAcademica.length - 1];
-                        if (ultimaFormacion.anioFinalizacion) {
-                            profileYear.textContent = `Egresado en ${ultimaFormacion.anioFinalizacion}`;
+                    
+                    if (profileYear) {
+                        if (data.formacionAcademica && data.formacionAcademica.length > 0) {
+                            // Buscar la formación más reciente con año de finalización
+                            const formacionConAnio = data.formacionAcademica
+                                .filter(f => f.anioFinalizacion)
+                                .sort((a, b) => b.anioFinalizacion - a.anioFinalizacion);
+                            
+                            if (formacionConAnio.length > 0) {
+                                profileYear.textContent = `Egresado en ${formacionConAnio[0].anioFinalizacion}`;
+                            } else {
+                                profileYear.textContent = 'Estudiante actual';
+                            }
+                        } else {
+                            profileYear.textContent = 'Estudiante actual';
                         }
                     }
                     
-                    // Actualizar carrera/título profesional
+                    // Actualizar carrera
                     const profileCareer = document.getElementById('profile-career');
-                    if (profileCareer && perfil.tituloprofesional) {
-                        profileCareer.textContent = perfil.tituloprofesional;
+                    if (profileCareer && data.carrera) {
+                        profileCareer.textContent = data.carrera.nombre;
+                    }
+                    
+                    // Actualizar situación laboral
+                    const profileStatusText = document.getElementById('profile-status-text');
+                    if (profileStatusText) {
+                        if (perfilData && perfilData.situacionLaboral) {
+                            profileStatusText.textContent = perfilData.situacionLaboral;
+                        } else {
+                            profileStatusText.textContent = 'Sin especificar';
+                        }
                     }
                 }
             } catch (error) {
@@ -1828,20 +1855,6 @@ import "../styles/publicaciones-imagenes.css";
             const userNameForm = document.getElementById('user-name-form');
             if (userNameForm && currentUser) {
                 userNameForm.textContent = currentUser.nombre;
-            }
-
-            // Actualizar enlaces de perfil para redirigir al CV
-            if (currentUser && currentUser.id) {
-                const perfilUrl = `/perfil/${currentUser.id}`;
-                const linkCV = document.getElementById('link-cv');
-                const linkPortfolio = document.getElementById('link-portfolio');
-                const menuLinkCV = document.getElementById('menu-link-cv');
-                const menuMobileLinkCV = document.getElementById('menu-mobile-link-cv');
-                
-                if (linkCV) linkCV.href = perfilUrl;
-                if (linkPortfolio) linkPortfolio.href = perfilUrl;
-                if (menuLinkCV) menuLinkCV.href = perfilUrl;
-                if (menuMobileLinkCV) menuMobileLinkCV.href = perfilUrl;
             }
 
             // Cargar primera página al cargar la página

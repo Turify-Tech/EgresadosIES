@@ -22,7 +22,7 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
             <div class="profile-header-content">
                 <div class="profile-avatar-container">
                     <div class="profile-avatar" id="profile-avatar">
-                        <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                             <circle cx="12" cy="12" r="10"></circle>
                             <circle cx="12" cy="10" r="3"></circle>
                             <path d="M6.168 18.849A4 4 0 0 1 10 16h4a4 4 0 0 1 3.834 2.855"></path>
@@ -257,25 +257,25 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
             width: 180px;
             height: 180px;
             border-radius: 50%;
+            overflow: hidden;
+            border: 5px solid white;
             background: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 5px solid white;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
         }
 
         .profile-avatar svg {
-            color: #000;
+            color: #666;
+            width: 80px;
+            height: 80px;
         }
 
         .profile-avatar img {
-            width: 100% !important;
-            height: 100% !important;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
-            object-position: center;
-            display: block;
         }
 
         .change-photo-btn {
