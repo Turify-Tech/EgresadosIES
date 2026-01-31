@@ -2,12 +2,13 @@
 
 ## 📋 Resumen
 
-Se implementó un sistema de autenticación unificada que maneja tanto **egresados** como **administradores** en un único endpoint, con registro automático para egresados válidos.
+Sistema de autenticación unificada que maneja tanto **egresados** como **administradores**. Los egresados deben registrarse primero con sus datos completos antes de poder iniciar sesión (similar a Facebook/Instagram).
 
 ## 🚀 Funcionalidades Implementadas
 
-### ✅ Endpoint Principal
-- **`POST /api/auth/login`** - Autenticación unificada
+### ✅ Endpoints Principales
+- **`POST /api/auth/login`** - Login para usuarios registrados
+- **`POST /api/auth/register`** - Registro completo de nuevos egresados
 
 ### ✅ Características Principales
 
@@ -16,18 +17,19 @@ Se implementó un sistema de autenticación unificada que maneja tanto **egresad
    - Valida contraseña encriptada
    - Retorna JWT token
 
-2. **Login/Registro de Egresados**
+2. **Login de Egresados**
    - Busca en tabla `Egresado` por DNI
    - Si existe: valida contraseña y hace login
-   - Si NO existe: **registro automático**
+   - Si NO existe: retorna error indicando que debe registrarse
 
-3. **Registro Automático**
+3. **Registro Completo de Egresados**
+   - Requiere: nombre, apellido, email, DNI y contraseña
    - Valida DNI contra tabla `DniValido`
-   - Crea automáticamente:
-     - Registro en `Usuario`
+   - Crea:
+     - Registro en `Usuario` con datos completos
      - Registro en `Egresado`
      - `Perfil` vacío asociado
-   - Email temporal: `{dni}@temp.ies.edu.ar`
+     - `PreferenciasNotificacion` con valores por defecto
 
 ## 📁 Archivos Creados/Modificados
 
@@ -88,6 +90,7 @@ Content-Type: application/json
 
 ### Caso 1: Administrador Existente
 ```
+POST /api/auth/login
 DNI: 00000000 (configurado en .env)
 Password: temporal123
 → Login exitoso, tipo_usuario: "Administrador"
@@ -95,22 +98,43 @@ Password: temporal123
 
 ### Caso 2: Egresado Existente
 ```
+POST /api/auth/login
 DNI: 12345678 (ya registrado)
 Password: su_password
-→ Login exitoso, tipo_usuario: "Egresado", isNewUser: false
+→ Login exitoso, tipo_usuario: "Egresado"
 ```
 
-### Caso 3: Egresado Nuevo (Registro Automático)
+### Caso 3: Egresado Nuevo (Debe Registrarse)
 ```
-DNI: 87654321 (existe en DniValido)
-Password: nueva_password
-→ Registro automático + Login, isNewUser: true
+POST /api/auth/login
+DNI: 87654321 (existe en DniValido pero no en Egresado)
+Password: cualquiera
+→ Error 401: "El DNI no está registrado. Por favor, regístrate primero."
+   requiresRegistration: true
 ```
 
-### Caso 4: DNI No Válido
+### Caso 4: Registro de Nuevo Egresado
 ```
+POST /api/auth/register
+Body: {
+  nombre: "Juan",
+  apellido: "Pérez",
+  dni: "87654321",
+  email: "juan.perez@email.com",
+  password: "mipassword123"
+}
+→ Validaciones:
+  1. DNI existe en DniValido ✅
+  2. Email no está registrado ✅
+  3. DNI no está registrado ✅
+→ Registro exitoso + token JWT
+```
+
+### Caso 5: DNI No Autorizado
+```
+POST /api/auth/register
 DNI: 99999999 (NO existe en DniValido)
-→ Error: "DNI no está autorizado para registrarse"
+→ Error 400: "DNI no está autorizado para registrarse. Contacte al administrador."
 ```
 
 ## 🧪 Testing
