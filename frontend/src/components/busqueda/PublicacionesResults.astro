@@ -1,0 +1,20 @@
+---
+// Componente reutilizable para mostrar publicaciones en resultados de búsqueda
+---
+
+<div id="publicaciones-results-section" class="results-section" style="display: none;">
+    <h2 class="section-title">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+        </svg>
+        Publicaciones
+    </h2>
+    <div id="publicaciones-list" class="results-list"></div>
+</div>
+
+<script>
+    // Este script se ejecutará cuando el componente se cargue
+    import '../../../styles/dashboard.css';
+    import '../../../styles/publicaciones-imagenes.css';
+</script>

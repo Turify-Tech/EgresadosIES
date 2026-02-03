@@ -16,6 +16,7 @@ import "../styles/global.css";
 import "../styles/components.css";
 import MensajesSidebar from "../components/mensajes/MensajesSidebar.astro";
 import NotificacionesModal from "../components/NotificacionesModal.astro";
+import SearchBar from "../components/busqueda/SearchBar.astro";
 ---
 
 <!doctype html>
@@ -144,6 +145,24 @@ import NotificacionesModal from "../components/NotificacionesModal.astro";
                 header #user-name-nav {
                     font-size: 0.8rem !important;
                 }
+
+                /* Ocultar barra de búsqueda en móvil para mantener el header limpio */
+                #search-bar-nav {
+                    display: none !important;
+                }
+            }
+
+            /* Media query para tablets y desktop */
+            @media (min-width: 769px) and (max-width: 1024px) {
+                #search-bar-nav {
+                    max-width: 300px;
+                }
+            }
+
+            @media (min-width: 1025px) {
+                #search-bar-nav {
+                    max-width: 400px;
+                }
             }
         </style>
     </head>
@@ -172,6 +191,11 @@ import NotificacionesModal from "../components/NotificacionesModal.astro";
                     <nav
                         style="display: flex; gap: 1.5rem; align-items: center;">
                     </nav>
+                    
+                    <!-- Barra de búsqueda global -->
+                    <div id="search-bar-nav">
+                        <SearchBar />
+                    </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1rem;">
                     <!-- Mensajes link -->
@@ -678,6 +702,13 @@ import NotificacionesModal from "../components/NotificacionesModal.astro";
                         clearInterval(notificacionesPolling);
                     }
                 });
+
+                // Ocultar barra de búsqueda en página de acceso
+                const currentPath = window.location.pathname;
+                const searchBarNav = document.getElementById("search-bar-nav");
+                if (searchBarNav && currentPath === "/acceso") {
+                    searchBarNav.style.display = "none";
+                }
             });
         </script>
 

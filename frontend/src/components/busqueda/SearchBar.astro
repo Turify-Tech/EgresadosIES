@@ -1,0 +1,257 @@
+---
+/**
+ * Componente de barra de búsqueda global
+ * Permite buscar en todo el sistema con autocompletado
+ */
+import '../../styles/search-bar.css';
+---
+
+<div class="search-bar-container">
+    <div class="search-bar-wrapper">
+        <svg 
+            class="search-icon" 
+            width="20" 
+            height="20" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            stroke-width="2"
+        >
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        
+        <input 
+            type="text" 
+            id="global-search-input"
+            class="search-input"
+            placeholder="Buscar..."
+            autocomplete="off"
+            aria-label="Búsqueda global"
+        />
+        
+        <button 
+            type="button" 
+            id="clear-search-btn"
+            class="clear-search-btn"
+            aria-label="Limpiar búsqueda"
+            style="display: none;"
+        >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Dropdown de sugerencias -->
+    <div id="search-suggestions-dropdown" class="suggestions-dropdown" style="display: none;">
+        <div id="suggestions-list" class="suggestions-list">
+            <!-- Las sugerencias se insertan dinámicamente aquí -->
+        </div>
+    </div>
+    
+    <!-- Loader -->
+    <div id="search-loader" class="search-loader" style="display: none;">
+        <div class="loader-spinner"></div>
+    </div>
+</div>
+
+<script>
+    const searchInput = document.getElementById('global-search-input') as HTMLInputElement;
+    const clearBtn = document.getElementById('clear-search-btn') as HTMLButtonElement;
+    const suggestionsDropdown = document.getElementById('search-suggestions-dropdown') as HTMLDivElement;
+    const suggestionsList = document.getElementById('suggestions-list') as HTMLDivElement;
+    const searchLoader = document.getElementById('search-loader') as HTMLDivElement;
+    
+    let debounceTimer: number;
+    let currentQuery = '';
+    
+    const API_BASE_URL = (import.meta.env.PUBLIC_API_URL || 'http://localhost:3000').replace(/\/api$/, '');
+    
+    // Función para obtener sugerencias
+    async function obtenerSugerencias(query: string) {
+        if (query.length < 2) {
+            ocultarSugerencias();
+            return;
+        }
+        
+        try {
+            mostrarLoader();
+            
+            const url = `${API_BASE_URL}/api/buscar/sugerencias?query=${encodeURIComponent(query)}`;
+            console.log('🔍 Buscando sugerencias:', url);
+            
+            const response = await fetch(url);
+            
+            console.log('📡 Respuesta:', response.status, response.statusText);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('❌ Error en respuesta:', errorText);
+                throw new Error('Error al obtener sugerencias');
+            }
+            
+            const data = await response.json();
+            console.log('✅ Datos recibidos:', data);
+            ocultarLoader();
+            
+            if (data.success && data.sugerencias && data.sugerencias.length > 0) {
+                mostrarSugerencias(data.sugerencias);
+            } else {
+                console.log('⚠️ No hay sugerencias');
+                ocultarSugerencias();
+            }
+        } catch (error) {
+            console.error('💥 Error al obtener sugerencias:', error);
+            ocultarLoader();
+            ocultarSugerencias();
+        }
+    }
+    
+    // Función para mostrar sugerencias
+    function mostrarSugerencias(sugerencias: Array<{sugerencia: string, tipo: string, imagen?: string}>) {
+        suggestionsList.innerHTML = '';
+        
+        sugerencias.forEach((item) => {
+            const suggestionItem = document.createElement('div');
+            suggestionItem.className = 'suggestion-item';
+            suggestionItem.setAttribute('data-query', item.sugerencia);
+            
+            // Mostrar imagen o icono según el tipo
+            let iconoHtml = '';
+            if (item.tipo === 'persona' && item.imagen) {
+                iconoHtml = `<img src="${item.imagen}" alt="Avatar" class="suggestion-avatar">`;
+            } else if (item.tipo === 'persona') {
+                // Avatar por defecto para personas sin foto
+                const iniciales = item.sugerencia.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                iconoHtml = `<div class="suggestion-avatar-placeholder">${iniciales}</div>`;
+            } else {
+                const iconoTipo = obtenerIconoPorTipo(item.tipo);
+                iconoHtml = `<span class="suggestion-icon">${iconoTipo}</span>`;
+            }
+            
+            suggestionItem.innerHTML = `
+                ${iconoHtml}
+                <span class="suggestion-text">${item.sugerencia}</span>
+                <span class="suggestion-type">${obtenerEtiquetaTipo(item.tipo)}</span>
+            `;
+            
+            suggestionItem.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const queryToSearch = item.sugerencia.trim();
+                console.log('👆 Click en sugerencia:', queryToSearch);
+                searchInput.value = queryToSearch;
+                currentQuery = queryToSearch;
+                ocultarSugerencias();
+                // Pequeño delay para asegurar que el input se actualice
+                setTimeout(() => {
+                    ejecutarBusqueda(queryToSearch);
+                }, 10);
+            });
+            
+            suggestionsList.appendChild(suggestionItem);
+        });
+        
+        suggestionsDropdown.style.display = 'block';
+    }
+    
+    // Función para ocultar sugerencias
+    function ocultarSugerencias() {
+        suggestionsDropdown.style.display = 'none';
+    }
+    
+    // Función para mostrar loader
+    function mostrarLoader() {
+        searchLoader.style.display = 'flex';
+    }
+    
+    // Función para ocultar loader
+    function ocultarLoader() {
+        searchLoader.style.display = 'none';
+    }
+    
+    // Función para obtener ícono según tipo
+    function obtenerIconoPorTipo(tipo: string): string {
+        const iconos: Record<string, string> = {
+            persona: '👤',
+            carrera: '🎓',
+            habilidad: '💻',
+            estado_laboral: '💼',
+        };
+        return iconos[tipo] || '🔍';
+    }
+    
+    // Función para obtener etiqueta de tipo
+    function obtenerEtiquetaTipo(tipo: string): string {
+        const etiquetas: Record<string, string> = {
+            persona: 'Persona',
+            carrera: 'Carrera',
+            habilidad: 'Habilidad',
+            estado_laboral: 'Estado',
+        };
+        return etiquetas[tipo] || 'Otro';
+    }
+    
+    // Función para ejecutar búsqueda
+    function ejecutarBusqueda(query: string) {
+        const trimmedQuery = query.trim();
+        console.log('🔍 Ejecutando búsqueda con:', trimmedQuery);
+        if (trimmedQuery) {
+            window.location.href = `/busqueda/resultados?query=${encodeURIComponent(trimmedQuery)}`;
+        }
+    }
+    
+    // Event listeners
+    searchInput.addEventListener('input', (e) => {
+        const target = e.target as HTMLInputElement;
+        const query = target.value;
+        currentQuery = query;
+        
+        // Mostrar/ocultar botón de limpiar
+        clearBtn.style.display = query ? 'flex' : 'none';
+        
+        // Debounce para no hacer muchas peticiones
+        clearTimeout(debounceTimer);
+        
+        if (query.trim().length >= 2) {
+            debounceTimer = window.setTimeout(() => {
+                obtenerSugerencias(query);
+            }, 300);
+        } else {
+            ocultarSugerencias();
+        }
+    });
+    
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            console.log('⌨️ Enter presionado con:', currentQuery);
+            ejecutarBusqueda(currentQuery);
+        } else if (e.key === 'Escape') {
+            ocultarSugerencias();
+        }
+    });
+    
+    clearBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        currentQuery = '';
+        clearBtn.style.display = 'none';
+        ocultarSugerencias();
+        searchInput.focus();
+    });
+    
+    // Cerrar sugerencias al hacer click fuera
+    document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        if (!target.closest('.search-bar-container')) {
+            ocultarSugerencias();
+        }
+    });
+    
+    // Prevenir que clicks dentro del dropdown cierren las sugerencias
+    suggestionsDropdown.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+</script>

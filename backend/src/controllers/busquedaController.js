@@ -439,3 +439,324 @@ export const obtenerFiltros = async (req, res) => {
         });
     }
 };
+
+/**
+ * Búsqueda global del sistema - busca en múltiples entidades
+ * @param {Request} req - Objeto de solicitud de Express
+ * @param {Response} res - Objeto de respuesta de Express
+ */
+export const busquedaGlobal = async (req, res) => {
+    try {
+        const client = database.getClient();
+        const { query } = req.query;
+
+        if (!query || query.trim().length < 2) {
+            return res.status(400).json({
+                error: "Query muy corto",
+                mensaje: "Por favor ingresa al menos 2 caracteres para buscar",
+            });
+        }
+
+        const textoBusqueda = `%${query.trim()}%`;
+        const limite = 10;
+
+        // Búsqueda en Personas (Egresados)
+        const personasQuery = `
+            SELECT DISTINCT
+                u.id,
+                u.nombre,
+                u.apellido,
+                c.nombre as carrera,
+                p.situacionLaboral,
+                p.urlFotoPerfil,
+                p.tituloprofesional
+            FROM Usuario u
+            INNER JOIN Egresado e ON u.id = e.id
+            LEFT JOIN Perfil p ON e.perfilId = p.id
+            LEFT JOIN Carrera c ON e.carreraId = c.id
+            WHERE (
+                u.nombre LIKE ? OR 
+                u.apellido LIKE ? OR
+                (u.nombre || ' ' || COALESCE(u.apellido, '')) LIKE ? OR
+                p.tituloprofesional LIKE ? OR
+                p.areaInteres LIKE ? OR
+                p.resumenProfesional LIKE ? OR
+                c.nombre LIKE ? OR
+                p.situacionLaboral LIKE ? OR
+                EXISTS (
+                    SELECT 1 FROM Habilidades h 
+                    WHERE h.usuarioId = e.id 
+                    AND h.nombre LIKE ?
+                ) OR
+                EXISTS (
+                    SELECT 1 FROM ExperienciaLaboral el 
+                    WHERE el.perfilId = p.id 
+                    AND (el.puesto LIKE ? OR el.empresa LIKE ? OR el.descripcion LIKE ?)
+                ) OR
+                EXISTS (
+                    SELECT 1 FROM Proyectos pr 
+                    WHERE pr.usuarioId = e.id 
+                    AND (pr.nombre LIKE ? OR pr.tecnologias LIKE ? OR pr.descripcion LIKE ?)
+                ) OR
+                EXISTS (
+                    SELECT 1 FROM Curso cu 
+                    WHERE cu.perfilId = p.id 
+                    AND (cu.nombre LIKE ? OR cu.institucion LIKE ?)
+                ) OR
+                EXISTS (
+                    SELECT 1 FROM FormacionAcademica fa 
+                    WHERE fa.perfilId = p.id 
+                    AND (fa.titulo LIKE ? OR fa.institucion LIKE ?)
+                )
+            )
+            AND p.perfilPublico = 1
+            LIMIT ?
+        `;
+
+        const personasResult = await client.execute({
+            sql: personasQuery,
+            args: [
+                textoBusqueda, // nombre
+                textoBusqueda, // apellido
+                textoBusqueda, // nombre completo (nombre + apellido)
+                textoBusqueda, // tituloprofesional
+                textoBusqueda, // areaInteres
+                textoBusqueda, // resumenProfesional
+                textoBusqueda, // carrera
+                textoBusqueda, // situacionLaboral
+                textoBusqueda, // habilidades nombre
+                textoBusqueda, // experiencia puesto
+                textoBusqueda, // experiencia empresa
+                textoBusqueda, // experiencia descripcion
+                textoBusqueda, // proyecto nombre
+                textoBusqueda, // proyecto tecnologias
+                textoBusqueda, // proyecto descripcion
+                textoBusqueda, // curso nombre
+                textoBusqueda, // curso institucion
+                textoBusqueda, // formacion titulo
+                textoBusqueda, // formacion institucion
+                limite
+            ],
+        });
+
+        // Búsqueda en Publicaciones
+        const publicacionesQuery = `
+            SELECT 
+                pub.id,
+                pub.contenido,
+                pub.fechaCreacion,
+                e.id as autorId,
+                u.nombre as autorNombre,
+                u.apellido as autorApellido,
+                p.urlFotoPerfil,
+                (SELECT COUNT(*) FROM LikePublicacion lp WHERE lp.publicacionId = pub.id) as likes,
+                (SELECT COUNT(*) FROM Comentario c WHERE c.publicacionId = pub.id) as comentarios,
+                (
+                    SELECT GROUP_CONCAT(url, '||')
+                    FROM ImagenPublicacion ip
+                    WHERE ip.publicacionId = pub.id
+                ) as imagenes
+            FROM Publicacion pub
+            INNER JOIN Egresado e ON pub.autorId = e.id
+            INNER JOIN Usuario u ON e.id = u.id
+            LEFT JOIN Perfil p ON e.id = p.id
+            WHERE pub.contenido LIKE ?
+            ORDER BY pub.fechaCreacion DESC
+            LIMIT ?
+        `;
+
+        const publicacionesResult = await client.execute({
+            sql: publicacionesQuery,
+            args: [textoBusqueda, limite],
+        });
+
+        // Búsqueda en Habilidades (para encontrar lenguajes/tecnologías)
+        const habilidadesQuery = `
+            SELECT DISTINCT nombre
+            FROM Habilidades
+            WHERE nombre LIKE ? AND tipo = 'tecnica'
+            LIMIT ?
+        `;
+
+        const habilidadesResult = await client.execute({
+            sql: habilidadesQuery,
+            args: [textoBusqueda, limite],
+        });
+
+        // Búsqueda en Carreras
+        const carrerasQuery = `
+            SELECT DISTINCT nombre
+            FROM Carrera
+            WHERE nombre LIKE ?
+            LIMIT ?
+        `;
+
+        const carrerasResult = await client.execute({
+            sql: carrerasQuery,
+            args: [textoBusqueda, limite],
+        });
+
+        // Búsqueda en Instituciones (de FormacionAcademica)
+        const institucionesQuery = `
+            SELECT DISTINCT institucion
+            FROM FormacionAcademica
+            WHERE institucion LIKE ?
+            LIMIT ?
+        `;
+
+        const institucionesResult = await client.execute({
+            sql: institucionesQuery,
+            args: [textoBusqueda, limite],
+        });
+
+        // Búsqueda en Estados Laborales
+        const estadosLaboralesQuery = `
+            SELECT DISTINCT situacionLaboral
+            FROM Perfil
+            WHERE situacionLaboral LIKE ?
+            AND situacionLaboral IS NOT NULL
+            LIMIT ?
+        `;
+
+        const estadosLaboralesResult = await client.execute({
+            sql: estadosLaboralesQuery,
+            args: [textoBusqueda, limite],
+        });
+
+        const response = {
+            success: true,
+            query: query.trim(),
+            resultados: {
+                personas: personasResult.rows || [],
+                publicaciones: publicacionesResult.rows || [],
+                lenguajes: (habilidadesResult.rows || []).map(row => row.nombre),
+                carreras: (carrerasResult.rows || []).map(row => row.nombre),
+                instituciones: (institucionesResult.rows || []).map(row => row.institucion),
+                estadosLaborales: (estadosLaboralesResult.rows || []).map(row => row.situacionLaboral),
+            },
+            timestamp: new Date().toISOString(),
+        };
+
+        res.status(200).json(response);
+    } catch (error) {
+        console.error("Error en busquedaGlobal:", error);
+        res.status(500).json({
+            error: "Error interno del servidor",
+            mensaje: "No se pudo completar la búsqueda",
+            detalles:
+                process.env.NODE_ENV === "development"
+                    ? error.message
+                    : undefined,
+        });
+    }
+};
+
+/**
+ * Obtener sugerencias para autocompletado
+ * @param {Request} req - Objeto de solicitud de Express
+ * @param {Response} res - Objeto de respuesta de Express
+ */
+export const obtenerSugerencias = async (req, res) => {
+    try {
+        const client = database.getClient();
+        const { query } = req.query;
+
+        if (!query || query.trim().length < 2) {
+            return res.status(200).json({
+                success: true,
+                sugerencias: [],
+            });
+        }
+
+        const textoBusqueda = `%${query.trim()}%`;
+        const limitePorCategoria = 5;
+
+        // Sugerencias de nombres de personas (con foto de perfil)
+        const nombresQuery = `
+            SELECT DISTINCT 
+                u.nombre || ' ' || COALESCE(u.apellido, '') as sugerencia, 
+                'persona' as tipo,
+                p.urlFotoPerfil as imagen
+            FROM Usuario u
+            INNER JOIN Egresado e ON u.id = e.id
+            LEFT JOIN Perfil p ON e.perfilId = p.id
+            WHERE (u.nombre LIKE ? OR u.apellido LIKE ?)
+            AND p.perfilPublico = 1
+            LIMIT ?
+        `;
+
+        // Sugerencias de carreras
+        const carrerasQuery = `
+            SELECT DISTINCT nombre as sugerencia, 'carrera' as tipo
+            FROM Carrera
+            WHERE nombre LIKE ?
+            LIMIT ?
+        `;
+
+        // Sugerencias de habilidades/lenguajes
+        const habilidadesQuery = `
+            SELECT DISTINCT nombre as sugerencia, 'habilidad' as tipo
+            FROM Habilidades
+            WHERE nombre LIKE ? AND tipo = 'tecnica'
+            LIMIT ?
+        `;
+
+        // Sugerencias de estados laborales
+        const estadosQuery = `
+            SELECT DISTINCT situacionLaboral as sugerencia, 'estado_laboral' as tipo
+            FROM Perfil
+            WHERE situacionLaboral LIKE ?
+            AND situacionLaboral IS NOT NULL
+            LIMIT ?
+        `;
+
+        const [nombresResult, carrerasResult, habilidadesResult, estadosResult] = await Promise.all([
+            client.execute({
+                sql: nombresQuery,
+                args: [textoBusqueda, textoBusqueda, limitePorCategoria],
+            }),
+            client.execute({
+                sql: carrerasQuery,
+                args: [textoBusqueda, limitePorCategoria],
+            }),
+            client.execute({
+                sql: habilidadesQuery,
+                args: [textoBusqueda, limitePorCategoria],
+            }),
+            client.execute({
+                sql: estadosQuery,
+                args: [textoBusqueda, limitePorCategoria],
+            }),
+        ]);
+
+        // Combinar todas las sugerencias
+        const todasLasSugerencias = [
+            ...(nombresResult.rows || []),
+            ...(carrerasResult.rows || []),
+            ...(habilidadesResult.rows || []),
+            ...(estadosResult.rows || []),
+        ];
+
+        // Limitar el total de sugerencias
+        const sugerenciasLimitadas = todasLasSugerencias.slice(0, 10);
+
+        const response = {
+            success: true,
+            query: query.trim(),
+            sugerencias: sugerenciasLimitadas,
+            timestamp: new Date().toISOString(),
+        };
+
+        res.status(200).json(response);
+    } catch (error) {
+        console.error("Error en obtenerSugerencias:", error);
+        res.status(500).json({
+            error: "Error interno del servidor",
+            mensaje: "No se pudieron obtener las sugerencias",
+            detalles:
+                process.env.NODE_ENV === "development"
+                    ? error.message
+                    : undefined,
+        });
+    }
+};
