@@ -387,29 +387,39 @@ import "../styles/publicaciones-imagenes.css";
         async function procesarNavegacionDesdeNotificaciones() {
             const { publicacionId, comentarioId, abrirComentarios } = obtenerParametrosNavegacion();
             
-            if (!publicacionId) {
+            // Detectar también hash en la URL (desde búsqueda)
+            const hash = window.location.hash;
+            let hashPostId = null;
+            if (hash && hash.startsWith('#post-')) {
+                hashPostId = hash.replace('#post-', '');
+                console.log('📍 Detectado hash de publicación:', hashPostId);
+            }
+            
+            const targetPostId = publicacionId || hashPostId;
+            
+            if (!targetPostId) {
                 console.log('ℹ️ No hay parámetros de navegación');
                 // Cargar feed normal
                 await cargarPublicaciones(1);
                 return;
             }
 
-            console.log('📍 Detectada navegación desde notificación:', { publicacionId, comentarioId, abrirComentarios });
+            console.log('📍 Detectada navegación desde notificación:', { publicacionId: targetPostId, comentarioId, abrirComentarios, esDesdeHash: !!hashPostId });
 
             try {
                 // Decidir si es like a publicación o algo relacionado con comentarios
                 const esLikeAPublicacion = !comentarioId && !abrirComentarios;
 
                 if (esLikeAPublicacion) {
-                    // LIKE A PUBLICACIÓN: Cargar feed completo y scrollear
-                    console.log('❤️ Notificación de like a publicación - cargando feed completo...');
+                    // LIKE A PUBLICACIÓN o DESDE BÚSQUEDA: Cargar feed completo y scrollear
+                    console.log(hashPostId ? '🔍 Navegación desde búsqueda - cargando feed completo...' : '❤️ Notificación de like a publicación - cargando feed completo...');
                     await cargarPublicaciones(1);
                     
                     // Esperar a que el feed se cargue (optimizado)
                     await new Promise(resolve => setTimeout(resolve, 400));
                     
                     // Hacer scroll a la publicación
-                    const publicacion = document.querySelector(`[data-post-id="${publicacionId}"]`);
+                    const publicacion = document.querySelector(`[data-post-id="${targetPostId}"]`);
                     if (publicacion) {
                         console.log('📜 Scrolleando a publicación...');
                         publicacion.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -426,7 +436,7 @@ import "../styles/publicaciones-imagenes.css";
                         console.warn('⚠️ Publicación no encontrada en el feed');
                     }
                     
-                    // Limpiar parámetros de URL
+                    // Limpiar parámetros de URL y hash
                     const cleanUrl = window.location.pathname;
                     window.history.replaceState({}, document.title, cleanUrl);
                     
@@ -439,7 +449,7 @@ import "../styles/publicaciones-imagenes.css";
                         return;
                     }
 
-                    const response = await fetch(`${API_URL}/publicaciones/${publicacionId}`, {
+                    const response = await fetch(`${API_URL}/publicaciones/${targetPostId}`, {
                         headers: {
                             'Authorization': `Bearer ${token}`
                         }
@@ -487,11 +497,11 @@ import "../styles/publicaciones-imagenes.css";
                     if (comentarioId) {
                         // Tiene comentarioId específico - navegar directo a él (comentario, respuesta o like a comentario)
                         console.log('🎯 Abriendo comentario específico...');
-                        await navegarAComentario(publicacionId, comentarioId);
+                        await navegarAComentario(targetPostId, comentarioId);
                     } else if (abrirComentarios) {
                         // Es notificación de comentario/mencion sin ID específico - abrir modal
                         console.log('💬 Abriendo modal de comentarios (sin ID específico)...');
-                        const postIdNum = parseInt(publicacionId);
+                        const postIdNum = parseInt(targetPostId);
                         if (typeof toggleComments === 'function') {
                             await toggleComments(postIdNum);
                             console.log('✓ Modal de comentarios abierto');
@@ -618,7 +628,7 @@ import "../styles/publicaciones-imagenes.css";
                 : `<div class="avatar"></div>`;
             
             return `
-                <article class="post-card" data-post-id="${id}">
+                <article class="post-card" id="post-${id}" data-post-id="${id}">
                     <header class="post-header">
                         ${avatarHTML}
                         <div class="post-meta">
@@ -663,20 +673,20 @@ import "../styles/publicaciones-imagenes.css";
 
             try {
                 const token = getAuthToken();
-                if (!token) {
-                    window.location.href = '/acceso';
-                    return;
+                const headers: any = {};
+                
+                // Agregar token solo si existe (usuario autenticado)
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
                 }
 
                 const response = await fetch(`${API_URL}/publicaciones?page=${page}&limit=10`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                    headers
                 });
 
                 if (response.status === 401) {
-                    window.location.href = '/acceso';
-                    return;
+                    // Si no está autenticado, mostrar mensaje pero continuar cargando publicaciones
+                    console.log('Usuario no autenticado - modo lectura');
                 }
 
                 const result = await response.json();
@@ -1835,21 +1845,32 @@ import "../styles/publicaciones-imagenes.css";
 
         // Event listeners
         document.addEventListener('DOMContentLoaded', async () => {
-            // Verificar autenticación
+            // Verificar autenticación (ahora opcional - modo lectura para no autenticados)
             currentUser = getUserData();
-            if (!currentUser || currentUser.tipo_usuario !== 'Egresado') {
-                window.location.href = '/acceso';
-                return;
+            const isAuthenticated = currentUser && currentUser.tipo_usuario === 'Egresado';
+            
+            // Si no está autenticado, ocultar elementos de interacción
+            if (!isAuthenticated) {
+                console.log('👀 Modo lectura: Usuario no autenticado');
+                // Ocultar formulario de crear publicación
+                const newPostForm = document.querySelector('.new-post-card');
+                if (newPostForm) newPostForm.style.display = 'none';
+                
+                // Ocultar sidebar de perfil
+                const sidebarLeft = document.querySelector('.sidebar-left');
+                if (sidebarLeft) sidebarLeft.style.display = 'none';
             }
 
             // Actualizar título de bienvenida con el nombre del usuario
             const welcomeTitle = document.getElementById('welcome-title');
-            if (welcomeTitle && currentUser) {
+            if (welcomeTitle && isAuthenticated && currentUser) {
                 welcomeTitle.innerHTML = `Hola,  ${currentUser.nombre}! <img src="/images/Vector.png" alt="Saludo" style="width: 24px; height: 24px; vertical-align: middle; margin-left: 4px;" />`;
+            } else if (welcomeTitle) {
+                welcomeTitle.innerHTML = `Publicaciones recientes`;
             }
 
             // Actualizar enlaces de CV y Portafolio con el ID del usuario
-            if (currentUser && currentUser.id) {
+            if (isAuthenticated && currentUser && currentUser.id) {
                 const menuLinkCv = document.getElementById('menu-link-cv');
                 const menuMobileLinkCv = document.getElementById('menu-mobile-link-cv');
                 const cvUrl = `/perfil/${currentUser.id}`;
@@ -1862,12 +1883,14 @@ import "../styles/publicaciones-imagenes.css";
                 }
             }
 
-            // Cargar datos del perfil desde la API
-            await cargarDatosPerfil();
+            // Cargar datos del perfil desde la API (solo si está autenticado)
+            if (isAuthenticated) {
+                await cargarDatosPerfil();
+            }
 
             // Actualizar nombre del usuario en el formulario
             const userNameForm = document.getElementById('user-name-form');
-            if (userNameForm && currentUser) {
+            if (userNameForm && isAuthenticated && currentUser) {
                 userNameForm.textContent = currentUser.nombre;
             }
 
@@ -1887,9 +1910,9 @@ import "../styles/publicaciones-imagenes.css";
                 });
             }
 
-            // Configurar formulario de crear publicación
+            // Configurar formulario de crear publicación (solo si está autenticado)
             const crearForm = document.getElementById('crear-form');
-            if (crearForm) {
+            if (crearForm && isAuthenticated) {
                 crearForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
                     

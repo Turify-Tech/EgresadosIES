@@ -559,7 +559,7 @@ export const busquedaGlobal = async (req, res) => {
             FROM Publicacion pub
             INNER JOIN Egresado e ON pub.autorId = e.id
             INNER JOIN Usuario u ON e.id = u.id
-            LEFT JOIN Perfil p ON e.id = p.id
+            LEFT JOIN Perfil p ON e.perfilId = p.id
             WHERE pub.contenido LIKE ?
             ORDER BY pub.fechaCreacion DESC
             LIMIT ?
@@ -570,69 +570,12 @@ export const busquedaGlobal = async (req, res) => {
             args: [textoBusqueda, limite],
         });
 
-        // Búsqueda en Habilidades (para encontrar lenguajes/tecnologías)
-        const habilidadesQuery = `
-            SELECT DISTINCT nombre
-            FROM Habilidades
-            WHERE nombre LIKE ? AND tipo = 'tecnica'
-            LIMIT ?
-        `;
-
-        const habilidadesResult = await client.execute({
-            sql: habilidadesQuery,
-            args: [textoBusqueda, limite],
-        });
-
-        // Búsqueda en Carreras
-        const carrerasQuery = `
-            SELECT DISTINCT nombre
-            FROM Carrera
-            WHERE nombre LIKE ?
-            LIMIT ?
-        `;
-
-        const carrerasResult = await client.execute({
-            sql: carrerasQuery,
-            args: [textoBusqueda, limite],
-        });
-
-        // Búsqueda en Instituciones (de FormacionAcademica)
-        const institucionesQuery = `
-            SELECT DISTINCT institucion
-            FROM FormacionAcademica
-            WHERE institucion LIKE ?
-            LIMIT ?
-        `;
-
-        const institucionesResult = await client.execute({
-            sql: institucionesQuery,
-            args: [textoBusqueda, limite],
-        });
-
-        // Búsqueda en Estados Laborales
-        const estadosLaboralesQuery = `
-            SELECT DISTINCT situacionLaboral
-            FROM Perfil
-            WHERE situacionLaboral LIKE ?
-            AND situacionLaboral IS NOT NULL
-            LIMIT ?
-        `;
-
-        const estadosLaboralesResult = await client.execute({
-            sql: estadosLaboralesQuery,
-            args: [textoBusqueda, limite],
-        });
-
         const response = {
             success: true,
             query: query.trim(),
             resultados: {
                 personas: personasResult.rows || [],
                 publicaciones: publicacionesResult.rows || [],
-                lenguajes: (habilidadesResult.rows || []).map(row => row.nombre),
-                carreras: (carrerasResult.rows || []).map(row => row.nombre),
-                instituciones: (institucionesResult.rows || []).map(row => row.institucion),
-                estadosLaborales: (estadosLaboralesResult.rows || []).map(row => row.situacionLaboral),
             },
             timestamp: new Date().toISOString(),
         };
@@ -685,56 +628,14 @@ export const obtenerSugerencias = async (req, res) => {
             LIMIT ?
         `;
 
-        // Sugerencias de carreras
-        const carrerasQuery = `
-            SELECT DISTINCT nombre as sugerencia, 'carrera' as tipo
-            FROM Carrera
-            WHERE nombre LIKE ?
-            LIMIT ?
-        `;
-
-        // Sugerencias de habilidades/lenguajes
-        const habilidadesQuery = `
-            SELECT DISTINCT nombre as sugerencia, 'habilidad' as tipo
-            FROM Habilidades
-            WHERE nombre LIKE ? AND tipo = 'tecnica'
-            LIMIT ?
-        `;
-
-        // Sugerencias de estados laborales
-        const estadosQuery = `
-            SELECT DISTINCT situacionLaboral as sugerencia, 'estado_laboral' as tipo
-            FROM Perfil
-            WHERE situacionLaboral LIKE ?
-            AND situacionLaboral IS NOT NULL
-            LIMIT ?
-        `;
-
-        const [nombresResult, carrerasResult, habilidadesResult, estadosResult] = await Promise.all([
-            client.execute({
-                sql: nombresQuery,
-                args: [textoBusqueda, textoBusqueda, limitePorCategoria],
-            }),
-            client.execute({
-                sql: carrerasQuery,
-                args: [textoBusqueda, limitePorCategoria],
-            }),
-            client.execute({
-                sql: habilidadesQuery,
-                args: [textoBusqueda, limitePorCategoria],
-            }),
-            client.execute({
-                sql: estadosQuery,
-                args: [textoBusqueda, limitePorCategoria],
-            }),
-        ]);
+        const nombresResult = await client.execute({
+            sql: nombresQuery,
+            args: [textoBusqueda, textoBusqueda, limitePorCategoria],
+        });
 
         // Combinar todas las sugerencias
         const todasLasSugerencias = [
             ...(nombresResult.rows || []),
-            ...(carrerasResult.rows || []),
-            ...(habilidadesResult.rows || []),
-            ...(estadosResult.rows || []),
         ];
 
         // Limitar el total de sugerencias

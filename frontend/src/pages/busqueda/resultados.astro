@@ -18,8 +18,8 @@ const { query } = Astro.url.searchParams;
             <!-- Header de búsqueda -->
         <div class="search-header">
             <div class="search-header-content">
-                <h1 class="search-title">
-                    Resultados para: <span class="search-query">{query || ''}</span>
+                <h1 class="search-title" id="search-title">
+                    Resultados de búsqueda
                 </h1>
                 <p class="search-subtitle" id="results-count">Buscando...</p>
             </div>
@@ -52,24 +52,6 @@ const { query } = Astro.url.searchParams;
                 </svg>
                 <span>Publicaciones</span>
                 <span class="category-count" data-count="publicaciones">0</span>
-            </button>
-
-            <button class="category-btn" data-category="carreras">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
-                    <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
-                </svg>
-                <span>Carreras</span>
-                <span class="category-count" data-count="carreras">0</span>
-            </button>
-
-            <button class="category-btn" data-category="tecnologias">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="16 18 22 12 16 6"></polyline>
-                    <polyline points="8 6 2 12 8 18"></polyline>
-                </svg>
-                <span>Tecnologías</span>
-                <span class="category-count" data-count="tecnologias">0</span>
             </button>
         </div>
 
@@ -113,30 +95,6 @@ const { query } = Astro.url.searchParams;
                     Publicaciones
                 </h2>
                 <div id="publicaciones-list" class="results-list"></div>
-            </div>
-
-            <!-- Resultados de carreras -->
-            <div id="carreras-results" class="results-section" style="display: none;">
-                <h2 class="section-title">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
-                        <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
-                    </svg>
-                    Carreras
-                </h2>
-                <div id="carreras-list" class="results-list results-tags"></div>
-            </div>
-
-            <!-- Resultados de tecnologías -->
-            <div id="tecnologias-results" class="results-section" style="display: none;">
-                <h2 class="section-title">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="16 18 22 12 16 6"></polyline>
-                        <polyline points="8 6 2 12 8 18"></polyline>
-                    </svg>
-                    Tecnologías
-                </h2>
-                <div id="tecnologias-list" class="results-list results-tags"></div>
             </div>
         </div>
         </div>
@@ -237,10 +195,6 @@ const { query } = Astro.url.searchParams;
         resultados: {
             personas: Persona[];
             publicaciones: Publicacion[];
-            lenguajes: string[];
-            carreras: string[];
-            instituciones: string[];
-            estadosLaborales: string[];
         };
     }
 
@@ -259,6 +213,12 @@ const { query } = Astro.url.searchParams;
         const query = urlParams.get('query');
 
         console.log('🔍 Query de búsqueda:', query);
+
+        // Actualizar el título con el término de búsqueda
+        const searchTitleEl = document.getElementById('search-title');
+        if (searchTitleEl && query) {
+            searchTitleEl.innerHTML = `Resultados para: <span class="search-query">"${query}"</span>`;
+        }
 
         if (!query) {
             mostrarSinResultados();
@@ -302,24 +262,20 @@ const { query } = Astro.url.searchParams;
 
     // Verificar si hay resultados
     function tieneResultados(data: ResultadosBusqueda): boolean {
-        const { personas, publicaciones, lenguajes, carreras } = data.resultados;
+        const { personas, publicaciones } = data.resultados;
         return (
             personas.length > 0 ||
-            publicaciones.length > 0 ||
-            lenguajes.length > 0 ||
-            carreras.length > 0
+            publicaciones.length > 0
         );
     }
 
     // Mostrar resultados
     function mostrarResultados(data: ResultadosBusqueda) {
-        const { personas, publicaciones, lenguajes, carreras } = data.resultados;
+        const { personas, publicaciones } = data.resultados;
 
         console.log('📊 Mostrando resultados:', { 
             personas: personas.length, 
-            publicaciones: publicaciones.length,
-            lenguajes: lenguajes.length,
-            carreras: carreras.length 
+            publicaciones: publicaciones.length
         });
 
         if (personas.length > 0) {
@@ -333,18 +289,6 @@ const { query } = Astro.url.searchParams;
             renderPublicaciones(publicaciones);
         } else {
             renderEmptyState('publicaciones-list', 'No se encontraron publicaciones para esta búsqueda');
-        }
-
-        if (carreras.length > 0) {
-            renderCarreras(carreras);
-        } else {
-            renderEmptyState('carreras-list', 'No se encontraron carreras para esta búsqueda');
-        }
-
-        if (lenguajes.length > 0) {
-            renderTecnologias(lenguajes);
-        } else {
-            renderEmptyState('tecnologias-list', 'No se encontraron tecnologías para esta búsqueda');
         }
 
         filtrarPorCategoria(currentCategory);
@@ -376,8 +320,8 @@ const { query } = Astro.url.searchParams;
         if (section) section.style.display = 'block';
     }
 
-    // Renderizar publicaciones (usa la misma lógica que el dashboard)
-    async function renderPublicaciones(publicaciones: any[]) {
+    // Renderizar publicaciones (versión simplificada para búsqueda)
+    function renderPublicaciones(publicaciones: any[]) {
         console.log('🎨 Iniciando renderizado de publicaciones:', publicaciones);
         
         const container = document.getElementById('publicaciones-list');
@@ -385,12 +329,6 @@ const { query } = Astro.url.searchParams;
             console.error('❌ Container de publicaciones no encontrado');
             return;
         }
-
-        const currentUser = getUserData();
-        const token = getAuthToken();
-
-        console.log('👤 Usuario actual:', currentUser);
-        console.log('🔑 Token:', token ? 'Presente' : 'No presente');
 
         // Transformar publicaciones al formato esperado por crearPostCard
         const publicacionesTransformadas = publicaciones.map(pub => {
@@ -404,73 +342,29 @@ const { query } = Astro.url.searchParams;
                     apellido: pub.autorApellido || '',
                     urlFotoPerfil: pub.urlFotoPerfil || null
                 },
-                totalLikes: pub.likes || 0,
-                totalComentarios: pub.comentarios || 0,
-                imagenes: pub.imagenes ? pub.imagenes.split('||').filter(Boolean) : [],
-                userLiked: false
+                imagenes: pub.imagenes ? pub.imagenes.split('||').filter(Boolean) : []
             };
             console.log('🔄 Publicación transformada:', transformed);
             return transformed;
         });
 
-        // Si hay token, obtener estados de likes
-        let likesMap: Record<number, boolean> = {};
-        if (token) {
-            try {
-                const publicacionIds = publicacionesTransformadas.map(p => p.id);
-                const likesRes = await fetch(`${API_BASE_URL}/api/likes/mi-estado-batch`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ publicacionIds })
-                });
-                
-                if (likesRes.ok) {
-                    const likesData = await likesRes.json();
-                    likesMap = likesData.data || {};
-                    console.log('❤️ Estados de likes obtenidos:', likesMap);
-                }
-            } catch (error) {
-                console.warn('⚠️ Error al obtener likes:', error);
-            }
-        }
-
         container.innerHTML = publicacionesTransformadas.map(pub => {
-            const userLiked = likesMap[pub.id] || false;
-            return crearPostCard(pub, userLiked, currentUser);
+            return crearPostCard(pub);
         }).join('');
 
         console.log('✅ HTML de publicaciones generado');
-
-        // Agregar event listeners
-        agregarEventListeners();
 
         const section = document.getElementById('publicaciones-results');
         if (section) section.style.display = 'block';
     }
 
-    // Función para crear card de publicación (reutilizada del dashboard)
-    function crearPostCard(publicacion: Publicacion, userLiked: boolean = false, currentUser: any = null) {
-        const { id, contenido, autor, fechaCreacion, totalComentarios = 0, totalLikes = 0, imagenes } = publicacion;
-        const isOwner = currentUser && currentUser.id === autor.id;
-        const isAuthenticated = !!getAuthToken();
+    // Función para crear card de publicación (simplificada para búsqueda)
+    function crearPostCard(publicacion: Publicacion) {
+        const { id, contenido, autor, fechaCreacion, imagenes } = publicacion;
         
         // Escapar HTML para prevenir XSS
         const contenidoEscapado = contenido.replace(/</g, '&lt;').replace(/>/g, '&gt;');
         const nombreAutor = autor.nombre || 'Usuario';
-        
-        const optionsHTML = isOwner ? `
-            <div class="post-options">
-                <button class="post-options-btn" onclick="deletePost(${id})">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                    </svg>
-                </button>
-            </div>
-        ` : '';
 
         // Renderizar imágenes
         let imagenesHTML = '';
@@ -519,63 +413,25 @@ const { query } = Astro.url.searchParams;
             ? `<div class="avatar"><img src="${fotoUrl}" alt="${nombreAutor}" loading="lazy" /></div>`
             : `<div class="avatar"></div>`;
         
+        // Determinar a dónde redirigir según autenticación
+        const token = getAuthToken();
+        const redirectUrl = token ? `/dashboard?publicacion=${id}` : `/?publicacion=${id}`;
+        
         return `
-            <article class="post-card" data-post-id="${id}">
+            <article class="post-card post-card-clickable" data-post-id="${id}" onclick="window.location.href='${redirectUrl}'" style="cursor: pointer;">
                 <header class="post-header">
                     ${avatarHTML}
                     <div class="post-meta">
                         <strong>${nombreAutor}</strong>
                         <time>${formatearFechaRelativa(fechaCreacion)}</time>
                     </div>
-                    ${optionsHTML}
                 </header>
                 <div class="post-body">
                     <p>${contenidoEscapado}</p>
                     ${imagenesHTML}
                 </div>
-                <footer class="post-actions">
-                    <button class="action-btn comment-btn" data-post-id="${id}" ${!isAuthenticated ? 'disabled style="opacity: 0.6; cursor: not-allowed;"' : ''}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                        </svg>
-                        <span>Comentarios</span>
-                        ${totalComentarios > 0 ? `<span class="comment-count">${totalComentarios}</span>` : ''}
-                    </button>
-                    <button class="action-btn like-btn ${userLiked ? 'liked' : ''}" data-post-id="${id}" ${!isAuthenticated ? 'disabled style="opacity: 0.6; cursor: not-allowed;"' : ''}>
-                        <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="${userLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                        </svg>
-                        <span class="count">${totalLikes >= 1000 ? (totalLikes / 1000).toFixed(1) + 'k' : totalLikes}</span>
-                    </button>
-                </footer>
             </article>
         `;
-    }
-
-    // Renderizar carreras
-    function renderCarreras(carreras: string[]) {
-        const container = document.getElementById('carreras-list');
-        if (!container) return;
-
-        container.innerHTML = carreras.map(carrera => `
-            <span class="tag-item">${carrera}</span>
-        `).join('');
-
-        const section = document.getElementById('carreras-results');
-        if (section) section.style.display = 'block';
-    }
-
-    // Renderizar tecnologías
-    function renderTecnologias(tecnologias: string[]) {
-        const container = document.getElementById('tecnologias-list');
-        if (!container) return;
-
-        container.innerHTML = tecnologias.map(tech => `
-            <span class="tag-item tech-tag">${tech}</span>
-        `).join('');
-
-        const section = document.getElementById('tecnologias-results');
-        if (section) section.style.display = 'block';
     }
 
     // Renderizar estado vacío
@@ -598,16 +454,14 @@ const { query } = Astro.url.searchParams;
 
     // Actualizar contadores
     function actualizarContadores(data: ResultadosBusqueda) {
-        const { personas, publicaciones, lenguajes, carreras } = data.resultados;
+        const { personas, publicaciones } = data.resultados;
         
-        const total = personas.length + publicaciones.length + lenguajes.length + carreras.length;
+        const total = personas.length + publicaciones.length;
 
         const contadores: Record<string, number> = {
             todos: total,
             personas: personas.length,
             publicaciones: publicaciones.length,
-            carreras: carreras.length,
-            tecnologias: lenguajes.length,
         };
 
         Object.entries(contadores).forEach(([category, count]) => {
@@ -655,636 +509,6 @@ const { query } = Astro.url.searchParams;
         if (resultsCountEl) resultsCountEl.textContent = '0 resultados encontrados';
     }
 
-    // Función para agregar event listeners a las publicaciones
-    function agregarEventListeners() {
-        console.log('🔧 Agregando event listeners...');
-        
-        // Event listeners para botones de comentarios
-        const commentBtns = document.querySelectorAll('.comment-btn');
-        console.log('💬 Botones de comentarios encontrados:', commentBtns.length);
-        
-        commentBtns.forEach(btn => {
-            if (!btn.hasAttribute('disabled')) {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const postId = this.getAttribute('data-post-id');
-                    console.log('👆 Click en comentarios, postId:', postId);
-                    if (postId) {
-                        toggleComments(parseInt(postId));
-                    }
-                });
-            }
-        });
-
-        // Event listeners para botones de like
-        const likeBtns = document.querySelectorAll('.like-btn');
-        console.log('❤️ Botones de like encontrados:', likeBtns.length);
-        
-        likeBtns.forEach(btn => {
-            if (!btn.hasAttribute('disabled')) {
-                btn.addEventListener('click', async function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const postId = this.getAttribute('data-post-id');
-                    console.log('👆 Click en like, postId:', postId);
-                    if (postId) {
-                        await toggleLike(parseInt(postId), this as HTMLElement);
-                    }
-                });
-            }
-        });
-    }
-
-    // Variables globales para comentarios
-    let currentPublicacionId: number | null = null;
-    let currentComentariosPage = 1;
-
-    // Función para abrir modal de comentarios
-    async function toggleComments(postId: number) {
-        currentPublicacionId = postId;
-        currentComentariosPage = 1;
-        
-        const modal = document.getElementById('comentarios-modal');
-        const comentariosList = document.getElementById('comentarios-list');
-        
-        if (modal) {
-            modal.style.display = 'flex';
-            // Agregar publicacionId al contenedor para usarlo después
-            if (comentariosList) {
-                comentariosList.setAttribute('data-publicacion-id', postId.toString());
-            }
-            await cargarComentarios(postId, 1);
-        }
-    }
-
-    function cerrarModal() {
-        const modal = document.getElementById('comentarios-modal');
-        if (modal) {
-            modal.style.display = 'none';
-            currentPublicacionId = null;
-        }
-    }
-
-    async function cargarComentarios(publicacionId: number, page = 1) {
-        const comentariosList = document.getElementById('comentarios-list');
-        if (!comentariosList) return;
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/comentarios/publicacion/${publicacionId}?page=${page}&limit=10`);
-            const result = await response.json();
-
-            console.log('Comentarios recibidos:', result);
-
-            if (result.success) {
-                if (page === 1) {
-                    comentariosList.innerHTML = '';
-                }
-
-                const comentarios = result.data || [];
-
-                if (comentarios.length === 0 && page === 1) {
-                    comentariosList.innerHTML = '<p class="no-comentarios">No hay comentarios en esta publicación.</p>';
-                } else {
-                    comentarios.forEach((comentario: any) => {
-                        const comentarioHTML = crearComentarioHTML(comentario);
-                        comentariosList.insertAdjacentHTML('beforeend', comentarioHTML);
-                    });
-                    
-                    // Cargar estado de likes de todos los comentarios
-                    await cargarEstadosLikesComentarios();
-                }
-
-                const pagination = document.getElementById('comentarios-pagination');
-                if (pagination && result.pagination) {
-                    pagination.style.display = result.pagination.hasNextPage ? 'block' : 'none';
-                }
-            }
-        } catch (error) {
-            console.error('Error cargando comentarios:', error);
-            comentariosList.innerHTML = '<p class="error-comentarios">Error al cargar comentarios</p>';
-        }
-    }
-
-    function crearComentarioHTML(comentario: any) {
-        const { id, contenido, autor, fechaCreacion, totalLikes, totalRespuestas } = comentario;
-        let avatarURL = autor.urlFotoPerfil || '';
-        
-        // Optimizar URL de avatar
-        if (avatarURL && avatarURL.includes('ik.imagekit.io')) {
-            avatarURL += '?tr=w-80,h-80,q-80,f-auto';
-        }
-        
-        const nombreCompleto = autor.apellido ? `${autor.nombre} ${autor.apellido}` : autor.nombre;
-        const tituloCarrera = autor.tituloCarrera || '';
-        const esPropio = currentUser && currentUser.id === autor.id;
-        
-        return `
-            <div class="comentario-item" data-comentario-id="${id}" style="display: flex; gap: 0.75rem; padding: 1rem 0; border-bottom: 1px solid #f3f4f6;">
-                <div class="comentario-avatar" style="width: 40px; height: 40px; min-width: 40px; min-height: 40px; border-radius: 50%; overflow: hidden; flex-shrink: 0;">
-                    ${avatarURL ? `<img src="${avatarURL}" alt="${nombreCompleto}" loading="lazy" decoding="async" style="width: 40px !important; height: 40px !important; object-fit: cover; border-radius: 50%; display: block;">` : `
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #6366f1;">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <circle cx="12" cy="10" r="3"></circle>
-                            <path d="M6.168 18.849A4 4 0 0 1 10 16h4a4 4 0 0 1 3.834 2.855"></path>
-                        </svg>
-                    `}
-                </div>
-                <div class="comentario-content" style="flex: 1;">
-                    <div style="margin-bottom: 0.25rem; display: flex; justify-content: space-between; align-items: flex-start;">
-                        <div>
-                            <strong class="comentario-autor" style="color: #000 !important; font-weight: 600; font-size: 0.9375rem; display: block; line-height: 1.3;">${nombreCompleto}</strong>
-                            ${tituloCarrera ? `<div class="comentario-subtitle" style="color: #6b7280 !important; font-size: 0.8125rem; margin-top: 0.125rem; line-height: 1.3;">${tituloCarrera}</div>` : ''}
-                        </div>
-                        ${esPropio ? `
-                            <div style="display: flex; gap: 0.5rem; align-items: center;">
-                                <button class="btn-editar-comentario" data-comentario-id="${id}" style="background: none; border: none; color: #9ca3af; font-size: 1.125rem; cursor: pointer; padding: 0; line-height: 1; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#9ca3af'" title="Editar comentario">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                    </svg>
-                                </button>
-                                <button class="btn-eliminar-comentario" data-comentario-id="${id}" style="background: none; border: none; color: #9ca3af; font-size: 1.125rem; cursor: pointer; padding: 0; line-height: 1; transition: color 0.2s;" onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='#9ca3af'" title="Eliminar comentario">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <polyline points="3 6 5 6 21 6"></polyline>
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                        <line x1="10" y1="11" x2="10" y2="17"></line>
-                                        <line x1="14" y1="11" x2="14" y2="17"></line>
-                                    </svg>
-                                </button>
-                            </div>
-                        ` : ''}
-                    </div>
-                    <p class="comentario-texto" data-comentario-id="${id}" style="color: #000 !important; margin: 0.5rem 0 0.625rem 0; font-size: 0.9375rem; line-height: 1.4;">${contenido}</p>
-                    <div class="comentario-footer" style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
-                        <span class="comentario-tiempo" style="color: #9ca3af; font-size: 0.8125rem;">${formatearTiempoRelativo(fechaCreacion)}</span>
-                        <button class="btn-responder" data-comentario-id="${id}" style="background: none; border: none; color: #6b7280; font-size: 0.8125rem; font-weight: 500; cursor: pointer; padding: 0; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#6b7280'">Responder</button>
-                        ${totalRespuestas > 0 ? `
-                            <button class="btn-ver-respuestas" data-comentario-id="${id}" style="background: none; border: none; color: #2563eb; font-size: 0.8125rem; font-weight: 500; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 0.25rem;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icono-toggle">
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                </svg>
-                                <span class="texto-respuestas">Ver respuestas (${totalRespuestas})</span>
-                            </button>
-                        ` : ''}
-                        <button class="btn-like-comentario" data-comentario-id="${id}" data-liked="false" style="background: none; border: none; cursor: pointer; padding: 0.25rem 0.5rem; display: inline-flex; align-items: center; gap: 0.25rem; border-radius: 1rem; transition: all 0.2s; background-color: #f3f4f6; font-size: 0.75rem;" onmouseover="this.style.backgroundColor='#e5e7eb'" onmouseout="this.style.backgroundColor='#f3f4f6'">
-                            <svg class="like-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                            </svg>
-                            <span class="like-count" style="font-weight: 600; color: #6b7280;">${totalLikes > 0 ? totalLikes : '0'}</span>
-                        </button>
-                    </div>
-                    <!-- Contenedor de respuestas (oculto por defecto) -->
-                    <div class="respuestas-container" data-comentario-id="${id}" style="display: none; margin-top: 1rem; padding-left: 0; border-left: 0px solid #e5e7eb;">
-                        <div class="respuestas-list"></div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    function formatearTiempoRelativo(fechaISO: string) {
-        const ahora = new Date();
-        // Si la fecha no tiene 'Z' al final, agregarla para indicar UTC
-        const fechaFormateada = fechaISO.includes('Z') ? fechaISO : fechaISO.replace(' ', 'T') + 'Z';
-        const fecha = new Date(fechaFormateada);
-        
-        const diffMs = ahora.getTime() - fecha.getTime();
-        
-        const diffMinutos = Math.floor(diffMs / (1000 * 60));
-        const diffHoras = Math.floor(diffMs / (1000 * 60 * 60));
-        const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-        
-        // Menos de 1 hora: mostrar minutos
-        if (diffHoras === 0) {
-            if (diffMinutos <= 0) return 'Ahora';
-            return `${diffMinutos}m`;
-        }
-        
-        // Entre 1 y 24 horas: mostrar horas
-        if (diffDias === 0) {
-            return `${diffHoras}h`;
-        }
-        
-        // Más de 24 horas: mostrar días
-        if (diffDias < 7) return `${diffDias}d`;
-        
-        // Más de 7 días: mostrar fecha
-        return fecha.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' });
-    }
-
-    async function crearComentario(publicacionId: number, contenido: string) {
-        const token = getAuthToken();
-        if (!token) {
-            showNotification('Debes iniciar sesión para comentar', 'error');
-            return;
-        }
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/comentarios`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    publicacionId: publicacionId,
-                    contenido: contenido
-                })
-            });
-
-            const result = await response.json();
-            console.log('Resultado crear comentario:', result);
-
-            if (result.success) {
-                console.log('Comentario creado, recargando lista...');
-                await cargarComentarios(publicacionId, 1);
-                const input = document.getElementById('comentario-input') as HTMLInputElement;
-                if (input) input.value = '';
-                showNotification('Comentario publicado', 'success');
-            } else {
-                showNotification(result.message || 'Error al publicar comentario', 'error');
-            }
-        } catch (error) {
-            console.error('Error creando comentario:', error);
-            showNotification('Error al publicar comentario', 'error');
-        }
-    }
-
-    async function editarComentario(comentarioId: number, nuevoContenido: string) {
-        const token = getAuthToken();
-        if (!token) {
-            showNotification('Debes iniciar sesión', 'error');
-            return false;
-        }
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/comentarios/${comentarioId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ contenido: nuevoContenido })
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                showNotification('Comentario editado', 'success');
-                return true;
-            } else {
-                showNotification(result.message || 'Error al editar comentario', 'error');
-                return false;
-            }
-        } catch (error) {
-            console.error('Error editando comentario:', error);
-            showNotification('Error al editar comentario', 'error');
-            return false;
-        }
-    }
-
-    async function eliminarComentario(comentarioId: number) {
-        if (!confirm('¿Estás seguro de que quieres eliminar este comentario?')) {
-            return;
-        }
-
-        const token = getAuthToken();
-        if (!token) {
-            showNotification('Debes iniciar sesión', 'error');
-            return;
-        }
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/comentarios/${comentarioId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                const comentarioItem = document.querySelector(`.comentario-item[data-comentario-id="${comentarioId}"]`);
-                if (comentarioItem) {
-                    comentarioItem.remove();
-                }
-                
-                // Verificar si ya no hay más comentarios y mostrar el mensaje
-                const comentariosContainer = document.getElementById('comentarios-list');
-                if (comentariosContainer && comentariosContainer.children.length === 0) {
-                    comentariosContainer.innerHTML = '<p class="no-comentarios">No hay comentarios en esta publicación.</p>';
-                }
-                
-                showNotification('Comentario eliminado', 'success');
-            } else {
-                showNotification(result.message || 'Error al eliminar comentario', 'error');
-            }
-        } catch (error) {
-            console.error('Error eliminando comentario:', error);
-            showNotification('Error al eliminar comentario', 'error');
-        }
-    }
-
-    async function crearRespuesta(comentarioPadreId: number, contenido: string) {
-        const token = getAuthToken();
-        if (!token) {
-            showNotification('Debes iniciar sesión para responder', 'error');
-            return false;
-        }
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/comentarios`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    publicacionId: currentPublicacionId,
-                    contenido: contenido,
-                    comentarioPadreId: comentarioPadreId
-                })
-            });
-
-            if (response.status === 401) {
-                showNotification('Tu sesión ha expirado. Por favor inicia sesión nuevamente.', 'error');
-                setTimeout(() => {
-                    window.location.href = '/acceso';
-                }, 1500);
-                return false;
-            }
-
-            const result = await response.json();
-
-            if (result.success) {
-                showNotification('Respuesta publicada', 'success');
-                return result.data;
-            } else {
-                showNotification(result.message || 'Error al publicar respuesta', 'error');
-                return false;
-            }
-        } catch (error) {
-            console.error('Error creando respuesta:', error);
-            showNotification('Error al publicar respuesta', 'error');
-            return false;
-        }
-    }
-
-    async function cargarRespuestas(comentarioId: number) {
-        const token = getAuthToken();
-        
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/comentarios/${comentarioId}/respuestas?limit=20`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (response.status === 401) {
-                showNotification('Tu sesión ha expirado. Por favor inicia sesión nuevamente.', 'error');
-                setTimeout(() => {
-                    window.location.href = '/acceso';
-                }, 1500);
-                return [];
-            }
-
-            const result = await response.json();
-            console.log('Respuestas cargadas para comentario', comentarioId, ':', result);
-
-            if (result.success && result.data) {
-                return result.data;
-            }
-            return [];
-        } catch (error) {
-            console.error('Error cargando respuestas:', error);
-            return [];
-        }
-    }
-
-    function crearRespuestaHTML(respuesta: any, nivel = 1) {
-        const { id, contenido, autor, fechaCreacion, totalLikes, totalRespuestas } = respuesta;
-        let avatarURL = autor.urlFotoPerfil || '';
-        
-        // Optimizar URL de avatar
-        if (avatarURL && avatarURL.includes('ik.imagekit.io')) {
-            avatarURL += '?tr=w-64,h-64,q-80,f-auto';
-        }
-        
-        const nombreCompleto = autor.apellido ? `${autor.nombre} ${autor.apellido}` : autor.nombre;
-        const tituloCarrera = autor.tituloCarrera || '';
-        const esPropio = currentUser && currentUser.id === autor.id;
-        
-        // SIEMPRE limitar el nivel visual máximo a 2 (como Facebook)
-        const nivelVisual = Math.min(nivel, 2);
-
-        return `
-            <div class="respuesta-item nivel-${nivelVisual}" data-comentario-id="${id}" data-nivel="${nivel}">
-                <div class="comentario-avatar" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px; border-radius: 50%; overflow: hidden; flex-shrink: 0;">
-                    ${avatarURL ? `<img src="${avatarURL}" alt="${nombreCompleto}" loading="lazy" decoding="async" style="width: 32px !important; height: 32px !important; object-fit: cover; border-radius: 50%; display: block;">` : `
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #6366f1;">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <circle cx="12" cy="10" r="3"></circle>
-                            <path d="M6.168 18.849A4 4 0 0 1 10 16h4a4 4 0 0 1 3.834 2.855"></path>
-                        </svg>
-                    `}
-                </div>
-                <div class="comentario-content" style="flex: 1;">
-                    <div style="margin-bottom: 0.25rem; display: flex; justify-content: space-between; align-items: flex-start;">
-                        <div>
-                            <strong class="comentario-autor" style="color: #000 !important; font-weight: 600; font-size: 0.875rem; display: block; line-height: 1.3;">${nombreCompleto}</strong>
-                            ${tituloCarrera ? `<div class="comentario-subtitle" style="color: #6b7280 !important; font-size: 0.75rem; margin-top: 0.125rem; line-height: 1.3;">${tituloCarrera}</div>` : ''}
-                        </div>
-                        ${esPropio ? `
-                            <button class="btn-eliminar-comentario" data-comentario-id="${id}" style="background: none; border: none; color: #9ca3af; font-size: 1rem; cursor: pointer; padding: 0; line-height: 1; transition: color 0.2s;" onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='#9ca3af'" title="Eliminar respuesta">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                    <line x1="10" y1="11" x2="10" y2="17"></line>
-                                    <line x1="14" y1="11" x2="14" y2="17"></line>
-                                </svg>
-                            </button>
-                        ` : ''}
-                    </div>
-                    <p class="comentario-texto" style="color: #000 !important; margin: 0.375rem 0; font-size: 0.875rem; line-height: 1.4;">${contenido}</p>
-                    <div class="comentario-footer" style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
-                        <span class="comentario-tiempo" style="color: #9ca3af; font-size: 0.75rem;">${formatearTiempoRelativo(fechaCreacion)}</span>
-                        <button class="btn-responder" data-comentario-id="${id}" style="background: none; border: none; color: #6b7280; font-size: 0.75rem; font-weight: 500; cursor: pointer; padding: 0; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#6b7280'">Responder</button>
-                        ${totalRespuestas > 0 ? `
-                            <button class="btn-ver-respuestas" data-comentario-id="${id}" data-nivel="${Math.min(nivel + 1, 2)}" style="background: none; border: none; color: #2563eb; font-size: 0.75rem; font-weight: 500; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 0.25rem;">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icono-toggle">
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                </svg>
-                                <span class="texto-respuestas">Ver respuestas (${totalRespuestas})</span>
-                            </button>
-                        ` : ''}
-                        <button class="btn-like-comentario" data-comentario-id="${id}" data-liked="false" style="background: none; border: none; cursor: pointer; padding: 0.25rem 0.5rem; display: inline-flex; align-items: center; gap: 0.25rem; border-radius: 1rem; transition: all 0.2s; background-color: #f3f4f6; font-size: 0.75rem;" onmouseover="this.style.backgroundColor='#e5e7eb'" onmouseout="this.style.backgroundColor='#f3f4f6'">
-                            <svg class="like-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                            </svg>
-                            <span class="like-count" style="font-weight: 600; color: #6b7280;">${totalLikes > 0 ? totalLikes : '0'}</span>
-                        </button>
-                    </div>
-                    <div class="respuestas-container" data-comentario-id="${id}" style="display: none; margin-top: 0.75rem;">
-                        <div class="respuestas-list"></div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    async function toggleLikeComentario(comentarioId: number) {
-        const token = getAuthToken();
-        if (!token) {
-            showNotification('Debes iniciar sesión para dar me gusta', 'error');
-            return;
-        }
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/comentarios/${comentarioId}/like`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (response.status === 401) {
-                showNotification('Tu sesión ha expirado. Por favor inicia sesión nuevamente.', 'error');
-                setTimeout(() => {
-                    window.location.href = '/acceso';
-                }, 1500);
-                return;
-            }
-
-            const result = await response.json();
-
-            if (result.success) {
-                const { liked, totalLikes } = result.data;
-                actualizarUILike(comentarioId, liked, totalLikes);
-            } else {
-                showNotification(result.message || 'Error al dar me gusta', 'error');
-            }
-        } catch (error) {
-            console.error('Error al dar like:', error);
-            showNotification('Error al procesar tu reacción', 'error');
-        }
-    }
-
-    function actualizarUILike(comentarioId: number, liked: boolean, totalLikes: number) {
-        const btnLike = document.querySelector(`.btn-like-comentario[data-comentario-id="${comentarioId}"]`) as HTMLElement;
-        if (!btnLike) return;
-
-        const iconoLike = btnLike.querySelector('.like-icon');
-        const contadorLike = btnLike.querySelector('.like-count');
-        
-        btnLike.setAttribute('data-liked', liked ? 'true' : 'false');
-        
-        if (liked) {
-            iconoLike?.setAttribute('fill', '#dc2626');
-            iconoLike?.setAttribute('stroke', '#dc2626');
-            btnLike.style.backgroundColor = '#fee2e2';
-            if (contadorLike) (contadorLike as HTMLElement).style.color = '#dc2626';
-            btnLike.onmouseover = () => btnLike.style.backgroundColor = '#fecaca';
-            btnLike.onmouseout = () => btnLike.style.backgroundColor = '#fee2e2';
-        } else {
-            iconoLike?.setAttribute('fill', 'none');
-            iconoLike?.setAttribute('stroke', '#6b7280');
-            btnLike.style.backgroundColor = '#f3f4f6';
-            if (contadorLike) (contadorLike as HTMLElement).style.color = '#6b7280';
-            btnLike.onmouseover = () => btnLike.style.backgroundColor = '#e5e7eb';
-            btnLike.onmouseout = () => btnLike.style.backgroundColor = '#f3f4f6';
-        }
-        
-        if (contadorLike) contadorLike.textContent = totalLikes > 0 ? totalLikes.toString() : '0';
-    }
-
-    async function cargarEstadosLikesComentarios(comentarioIds: number[] | null = null) {
-        const token = getAuthToken();
-        if (!token) return;
-
-        let botonesLike: NodeListOf<Element> | Element[];
-        if (comentarioIds && comentarioIds.length > 0) {
-            botonesLike = comentarioIds.map(id => 
-                document.querySelector(`.btn-like-comentario[data-comentario-id="${id}"]`)
-            ).filter(btn => btn !== null) as Element[];
-        } else {
-            botonesLike = document.querySelectorAll('.btn-like-comentario');
-        }
-        
-        for (const btn of botonesLike) {
-            const comentarioId = btn.getAttribute('data-comentario-id');
-            if (!comentarioId) continue;
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/comentarios/${comentarioId}/mi-like`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (response.status === 401) {
-                    showNotification('Tu sesión ha expirado. Por favor inicia sesión nuevamente.', 'error');
-                    setTimeout(() => {
-                        window.location.href = '/acceso';
-                    }, 1500);
-                    return;
-                }
-
-                const result = await response.json();
-                if (result.success && result.data.liked) {
-                    const totalLikes = parseInt((btn.querySelector('.like-count') as HTMLElement)?.textContent || '0') || 0;
-                    actualizarUILike(parseInt(comentarioId), true, totalLikes);
-                }
-            } catch (error) {
-                console.error('Error verificando like:', error);
-            }
-        }
-    }
-
-    // Función para dar/quitar like
-    async function toggleLike(postId: number, btnElement: HTMLElement) {
-        const token = getAuthToken();
-        if (!token) {
-            window.location.href = '/acceso';
-            return;
-        }
-
-        const isLiked = btnElement.classList.contains('liked');
-        
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/likes/toggle/${postId}`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Error al procesar like');
-            }
-
-            const result = await response.json();
-
-            // Actualizar UI
-            btnElement.classList.toggle('liked');
-            const icon = btnElement.querySelector('svg');
-            if (icon) {
-                icon.setAttribute('fill', isLiked ? 'none' : 'currentColor');
-            }
-
-            const countSpan = btnElement.querySelector('.count');
-            if (countSpan && result.data) {
-                const newCount = result.data.totalLikes || 0;
-                countSpan.textContent = newCount >= 1000 ? (newCount / 1000).toFixed(1) + 'k' : newCount.toString();
-            }
-
-        } catch (error) {
-            console.error('Error al procesar like:', error);
-        }
-    }
-
     // Event listeners para botones de categoría
     categoryBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1294,76 +518,6 @@ const { query } = Astro.url.searchParams;
             }
         });
     });
-
-    // Configurar cierre del modal de comentarios
-    const closeModalBtn = document.getElementById('close-modal-btn');
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', cerrarModal);
-    }
-
-    // Cerrar modal al hacer click fuera de él
-    const modal = document.getElementById('comentarios-modal');
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                cerrarModal();
-            }
-        });
-    }
-
-    // Event delegation para comentarios
-    const comentariosList = document.getElementById('comentarios-list');
-    if (comentariosList) {
-        comentariosList.addEventListener('click', async (e) => {
-            const target = e.target as HTMLElement;
-            
-            // Botón de eliminar comentario
-            const btnEliminar = target?.closest('.btn-eliminar-comentario');
-            if (btnEliminar) {
-                const comentarioId = parseInt(btnEliminar.getAttribute('data-comentario-id') || '0');
-                if (comentarioId) {
-                    await eliminarComentario(comentarioId);
-                }
-                return;
-            }
-            
-            // Botón de like en comentario
-            const btnLike = target?.closest('.btn-like-comentario');
-            if (btnLike) {
-                const comentarioId = parseInt(btnLike.getAttribute('data-comentario-id') || '0');
-                if (comentarioId) {
-                    await toggleLikeComentario(comentarioId);
-                }
-                return;
-            }
-        });
-    }
-
-    // Formulario de crear comentario
-    const comentarioForm = document.getElementById('comentario-form');
-    if (comentarioForm) {
-        comentarioForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const input = document.getElementById('comentario-input') as HTMLInputElement;
-            const contenido = input?.value.trim();
-            
-            if (!contenido) {
-                showNotification('Escribe algo para comentar', 'error');
-                return;
-            }
-
-            if (currentPublicacionId) {
-                await crearComentario(currentPublicacionId, contenido);
-            }
-        });
-    }
-
-    // Exportar funciones como globales para que sean accesibles desde otros lugares
-    (window as any).toggleComments = toggleComments;
-    (window as any).crearComentario = crearComentario;
-    (window as any).eliminarComentario = eliminarComentario;
-    (window as any).toggleLikeComentario = toggleLikeComentario;
 
     // Ejecutar búsqueda al cargar la página
     realizarBusqueda();
