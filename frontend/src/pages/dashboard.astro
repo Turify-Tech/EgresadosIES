@@ -1848,6 +1848,20 @@ import "../styles/publicaciones-imagenes.css";
                 welcomeTitle.innerHTML = `Hola,  ${currentUser.nombre}! <img src="/images/Vector.png" alt="Saludo" style="width: 24px; height: 24px; vertical-align: middle; margin-left: 4px;" />`;
             }
 
+            // Actualizar enlaces de CV y Portafolio con el ID del usuario
+            if (currentUser && currentUser.id) {
+                const menuLinkCv = document.getElementById('menu-link-cv');
+                const menuMobileLinkCv = document.getElementById('menu-mobile-link-cv');
+                const cvUrl = `/perfil/${currentUser.id}`;
+                
+                if (menuLinkCv) {
+                    menuLinkCv.href = cvUrl;
+                }
+                if (menuMobileLinkCv) {
+                    menuMobileLinkCv.href = cvUrl;
+                }
+            }
+
             // Cargar datos del perfil desde la API
             await cargarDatosPerfil();
 
