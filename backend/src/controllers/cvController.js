@@ -89,6 +89,14 @@ export async function downloadMiCV(req, res) {
             cursos = cursosResult.rows;
         }
 
+        // Obtener habilidades
+        let habilidades = [];
+        const habilidadesResult = await client.execute({
+            sql: "SELECT * FROM Habilidades WHERE usuarioId = ? ORDER BY nombre ASC",
+            args: [usuarioId],
+        });
+        habilidades = habilidadesResult.rows;
+
         // Generar PDF
         const doc = new PDFDocument();
 
@@ -108,7 +116,7 @@ export async function downloadMiCV(req, res) {
         doc.pipe(res);
 
         // Generar contenido del PDF
-        generarContenidoPDF(doc, perfil, experiencias, formaciones, cursos);
+        generarContenidoPDF(doc, perfil, experiencias, formaciones, cursos, habilidades);
 
         // Finalizar el documento
         doc.end();
@@ -124,7 +132,7 @@ export async function downloadMiCV(req, res) {
 /**
  * Función auxiliar para generar el contenido del PDF
  */
-function generarContenidoPDF(doc, perfil, experiencias, formaciones, cursos) {
+function generarContenidoPDF(doc, perfil, experiencias, formaciones, cursos, habilidades) {
     const pageWidth = doc.page.width;
     const margin = 50;
     const contentWidth = pageWidth - 2 * margin;
@@ -373,6 +381,38 @@ function generarContenidoPDF(doc, perfil, experiencias, formaciones, cursos) {
 
             yPosition += 20;
         });
+    }
+
+    // HABILIDADES
+    if (habilidades.length > 0) {
+        // Verificar si necesitamos nueva página
+        if (yPosition > doc.page.height - 200) {
+            doc.addPage();
+            yPosition = margin;
+        }
+
+        doc.fillColor(primaryColor)
+            .fontSize(16)
+            .font("Helvetica-Bold")
+            .text("HABILIDADES", margin, yPosition);
+
+        yPosition += 25;
+
+        // Agrupar habilidades en columnas para mejor presentación
+        const habilidadesTexto = habilidades.map(h => h.nombre).join(" • ");
+        
+        doc.fillColor(textColor)
+            .fontSize(11)
+            .font("Helvetica")
+            .text(habilidadesTexto, margin, yPosition, {
+                width: contentWidth,
+                align: "left",
+            });
+
+        yPosition += doc.heightOfString(habilidadesTexto, {
+            width: contentWidth,
+            align: "left",
+        }) + 25;
     }
 
     // Footer con información adicional
