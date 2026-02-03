@@ -17,6 +17,7 @@ import "../styles/components.css";
 import MensajesSidebar from "../components/mensajes/MensajesSidebar.astro";
 import NotificacionesModal from "../components/NotificacionesModal.astro";
 import SearchBar from "../components/busqueda/SearchBar.astro";
+import DynamicBackground from "../components/DynamicBackground.astro";
 ---
 
 <!doctype html>
@@ -168,6 +169,10 @@ import SearchBar from "../components/busqueda/SearchBar.astro";
     </head>
     <body
         style="margin: 0; padding: 0; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column;">
+        
+        <!-- Fondo animado decorativo -->
+        <DynamicBackground />
+        
         <!-- Header -->
         <header style="background-color: #E6E6E6; padding: 0.75rem 2rem; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
             <div
@@ -177,11 +182,11 @@ import SearchBar from "../components/busqueda/SearchBar.astro";
                         <img
                             src="/images/logo.png"
                             alt="Logo"
-                            style="width: 45px; height: auto;"
+                            style="width: 50px; height: auto;"
                         />
                         <a href="/" id="logo-link" style="text-decoration: none;">
                             <h1
-                                style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.75rem; color: #1a1a1a;">
+                                style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.75rem; color: #0d0d0d;">
                                 EgresadosIES
                             </h1>
                         </a>
@@ -462,11 +467,11 @@ import SearchBar from "../components/busqueda/SearchBar.astro";
                             userNameNav.textContent = user.nombre || "Usuario";
                         }
 
-                        // Configure avatar if available
-                        // You can expand this to load user's actual avatar
-                        if (userAvatar) {
-                            userAvatar.src =
-                                user.avatar || "/default-avatar.svg";
+                        // Cargar foto de perfil real
+                        if (user.tipo_usuario === "Egresado") {
+                            cargarFotoPerfilHeader();
+                        } else if (userAvatar) {
+                            userAvatar.src = user.avatar || "/default-avatar.svg";
                         }
                     }
 
@@ -543,6 +548,43 @@ import SearchBar from "../components/busqueda/SearchBar.astro";
                 
                 // Exponer función globalmente para uso en modal
                 window.cargarContadorNotificaciones = cargarContadorNotificaciones;
+
+                // Función para cargar la foto de perfil en el header
+                async function cargarFotoPerfilHeader() {
+                    try {
+                        const token = localStorage.getItem("auth_token");
+                        if (!token) return;
+
+                        const response = await fetch(`${API_URL}/perfil/mi-perfil`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        if (!response.ok) return;
+
+                        const result = await response.json();
+                        
+                        if (result.success && result.data && result.data.perfil) {
+                            const perfilData = result.data.perfil;
+                            
+                            if (perfilData.urlFotoPerfil && userAvatar) {
+                                let fotoUrl = perfilData.urlFotoPerfil.startsWith('http') 
+                                    ? perfilData.urlFotoPerfil 
+                                    : `http://localhost:3000${perfilData.urlFotoPerfil}`;
+                                
+                                // Optimizar URL si es de ImageKit
+                                if (fotoUrl.includes('ik.imagekit.io')) {
+                                    fotoUrl += '?tr=w-100,h-100,q-80,f-auto';
+                                }
+                                
+                                userAvatar.src = fotoUrl;
+                            }
+                        }
+                    } catch (error) {
+                        console.debug('Error cargando foto de perfil:', error);
+                    }
+                }
 
                 // Iniciar polling de notificaciones para egresados
                 let notificacionesPolling = null;

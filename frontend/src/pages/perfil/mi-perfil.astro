@@ -17,7 +17,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
                     <!-- Avatar -->
                     <div class="profile-avatar-container">
                         <div class="profile-avatar" id="profile-avatar">
-                            <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <circle cx="12" cy="10" r="3"></circle>
                                 <path d="M6.168 18.849A4 4 0 0 1 10 16h4a4 4 0 0 1 3.834 2.855"></path>
@@ -42,7 +42,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
                 <div class="profile-actions">
                     <button class="btn-action" id="btn-editar" onclick="toggleEditMode()">Editar Perfil</button>
                     <button class="btn-action" onclick="window.location.href='/mis-publicaciones'">Mis Publicaciones</button>
-                    <button class="btn-action" onclick="descargarCV()">Mi Currículum</button>
+                    <button class="btn-action" onclick="descargarCV()">Descargar CV en PDF</button>
                 </div>
             </div>
 
@@ -155,7 +155,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 
     .mi-perfil-container {
         min-height: 100vh;
-        background: #f5f5f5;
+        background: transparent;
     }
 
     .profile-banner {
@@ -203,28 +203,29 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
         width: 180px;
         height: 180px;
         border-radius: 50%;
+        overflow: hidden;
+        border: 5px solid white;
         background: white;
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 5px solid white;
+        font-size: 72px;
+        color: #000;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         flex-shrink: 0;
-        overflow: hidden;
         margin-top: -100px;
     }
 
     .profile-avatar svg {
-        color: #000;
+        color: #666;
+        width: 80px;
+        height: 80px;
     }
 
     .profile-avatar img {
-        width: 180px !important;
-        height: 180px !important;
+        width: 100%;
+        height: 100%;
         object-fit: cover;
-        object-position: center;
-        border-radius: 50%;
-        display: block;
     }
 
     .btn-cambiar-foto {
@@ -1098,62 +1099,126 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     // Función para descargar el CV con autenticación
     async function descargarCV() {
         try {
-            // Intentar ambos nombres de token para compatibilidad
-            const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
+            showNotification('Preparando tu CV...', 'info');
             
-            console.log('=== DEBUG DESCARGAR CV ===');
-            console.log('Token auth_token:', localStorage.getItem('auth_token'));
-            console.log('Token token:', localStorage.getItem('token'));
-            console.log('Token final:', token);
+            // Obtener ID del usuario desde los datos del perfil ya cargados
+            let usuarioId = null;
             
-            if (!token) {
-                showNotification('Debes iniciar sesión para descargar tu CV', 'error');
-                setTimeout(() => {
-                    window.location.href = '/login';
-                }, 1500);
+            // Primero intentar desde los datos del perfil ya cargados
+            if (window.perfilData && window.perfilData.usuario && window.perfilData.usuario.id) {
+                usuarioId = window.perfilData.usuario.id;
+            } else {
+                // Intentar desde localStorage
+                const currentUserStr = localStorage.getItem('currentUser');
+                if (currentUserStr) {
+                    try {
+                        const currentUser = JSON.parse(currentUserStr);
+                        usuarioId = currentUser.id || currentUser.userId;
+                    } catch (e) {
+                        console.error('Error parseando currentUser:', e);
+                    }
+                }
+            }
+            
+            if (!usuarioId) {
+                showNotification('No se pudo obtener tu información de usuario. Por favor, recarga la página.', 'error');
                 return;
             }
 
-            console.log('Enviando request con token...');
+            console.log('ID de usuario para CV:', usuarioId);
+
+            // Abrir el perfil en una nueva pestaña oculta para capturar el CV
+            const perfilUrl = `${window.location.origin}/perfil/${usuarioId}`;
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'fixed';
+            iframe.style.top = '-10000px';
+            iframe.style.left = '-10000px';
+            iframe.style.width = '1200px';
+            iframe.style.height = '100vh';
+            document.body.appendChild(iframe);
             
-            const response = await fetch('http://localhost:3000/api/perfil/mi-cv', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+            showNotification('Cargando información del CV...', 'info');
+            
+            iframe.onload = async function() {
+                try {
+                    // Esperar a que cargue completamente
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    const cvElement = iframeDoc.querySelector('.perfil-wrap');
+                    
+                    if (!cvElement) {
+                        throw new Error('No se pudo encontrar el contenido del CV');
+                    }
+
+                    showNotification('Generando PDF...', 'info');
+                    
+                    // Importar bibliotecas dinámicamente
+                    const html2canvas = (await import('html2canvas')).default;
+                    const { jsPDF } = await import('jspdf');
+                    
+                    // Capturar el CV como imagen
+                    const canvas = await html2canvas(cvElement, {
+                        scale: 2,
+                        useCORS: true,
+                        logging: false,
+                        backgroundColor: '#ffffff',
+                        windowWidth: 1200
+                    });
+                    
+                    // Crear PDF
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jsPDF({
+                        orientation: 'portrait',
+                        unit: 'mm',
+                        format: 'a4'
+                    });
+                    
+                    const pageWidth = pdf.internal.pageSize.getWidth();
+                    const pageHeight = pdf.internal.pageSize.getHeight();
+                    const imgWidth = pageWidth;
+                    const imgHeight = (canvas.height * pageWidth) / canvas.width;
+                    
+                    let heightLeft = imgHeight;
+                    let position = 0;
+                    
+                    // Agregar primera página
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                    
+                    // Agregar páginas adicionales si es necesario
+                    while (heightLeft > 0) {
+                        position = heightLeft - imgHeight;
+                        pdf.addPage();
+                        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                        heightLeft -= pageHeight;
+                    }
+                    
+                    // Descargar PDF
+                    const fecha = new Date().toISOString().split('T')[0];
+                    const nombre = (window.perfilData && window.perfilData.usuario && window.perfilData.usuario.nombre) || 'CV';
+                    pdf.save(`CV_${nombre}_${fecha}.pdf`);
+                    
+                    // Limpiar
+                    document.body.removeChild(iframe);
+                    
+                    showNotification('✓ CV descargado correctamente', 'success');
+                } catch (error) {
+                    document.body.removeChild(iframe);
+                    throw error;
                 }
-            });
-
-            console.log('Response status:', response.status);
-            console.log('Response ok:', response.ok);
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error('Error response:', errorData);
-                throw new Error(errorData.message || 'Error al descargar el CV');
-            }
-
-            // Obtener el blob del PDF
-            const blob = await response.blob();
-            console.log('PDF recibido, tamaño:', blob.size);
+            };
             
-            // Crear un enlace temporal para descargar
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'Mi_Curriculum.pdf';
-            document.body.appendChild(a);
-            a.click();
+            iframe.onerror = function() {
+                document.body.removeChild(iframe);
+                throw new Error('Error al cargar el perfil');
+            };
             
-            // Limpiar
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
+            iframe.src = perfilUrl;
             
-            console.log('✅ CV descargado correctamente');
-            showNotification('CV descargado correctamente', 'success');
         } catch (error) {
             console.error('❌ Error al descargar CV:', error);
-            showNotification(error.message || 'Error al descargar el currículum', 'error');
+            showNotification(error.message || 'Error al generar el CV. Por favor, intenta nuevamente.', 'error');
         }
     }
 

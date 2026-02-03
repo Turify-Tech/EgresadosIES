@@ -4,11 +4,12 @@ import { generateToken } from "../utils/jwt.js";
 
 /**
  * Controlador de autenticación unificada
- * Maneja login para egresados (con registro automático) y administradores
+ * Maneja login para egresados y administradores
  */
 
 /**
  * Login unificado para egresados y administradores
+ * Solo permite login de usuarios ya registrados
  * @param {Object} req - Request object
  * @param {Object} res - Response object
  */
@@ -51,7 +52,7 @@ export async function login(req, res) {
     const client = database.getClient();
 
     try {
-        // 1. Buscar usuario existente por DNI
+        // Buscar usuario existente por DNI
         const existingUser = await findExistingUser(client, sanitizedDni);
 
         if (existingUser) {
@@ -64,14 +65,17 @@ export async function login(req, res) {
             );
         }
 
-        // 2. Usuario no existe, intentar registro automático para egresados
-        return await handleNewUserRegistration(
-            res,
-            client,
-            sanitizedDni,
-            sanitizedPassword,
-            req
+        // Usuario no existe - debe registrarse primero
+        console.warn(
+            `[SECURITY] Intento de login con DNI no registrado - DNI: ${sanitizedDni}, IP: ${
+                req.ip
+            }, User-Agent: ${req.get("User-Agent")}`
         );
+        return res.status(401).json({
+            success: false,
+            message: "El DNI no está registrado. Por favor, regístrate primero.",
+            requiresRegistration: true
+        });
     } catch (error) {
         console.error("Error en login:", error);
         return res.status(500).json({
@@ -184,7 +188,9 @@ async function handleExistingUserLogin(res, user, password, req) {
 }
 
 /**
- * Maneja el registro automático de un nuevo egresado
+ * [DEPRECATED] Función de registro automático - Ya no se usa
+ * El sistema ahora requiere registro completo antes del login (como Facebook/Instagram)
+ * Mantenida por compatibilidad con código existente pero no se invoca
  */
 async function handleNewUserRegistration(res, client, dni, password, req) {
     // 1. Validar DNI en tabla DniValido
