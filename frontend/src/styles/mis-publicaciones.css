@@ -151,7 +151,9 @@
 /* Acciones de la publicación */
 .post-actions {
     display: flex;
-    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
     padding-top: 1rem;
     border-top: 1px solid #e5e7eb;
 }
