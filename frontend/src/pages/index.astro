@@ -877,7 +877,26 @@ import "../styles/index.css";
         // Event listener para el botón de cargar más
         document.addEventListener('DOMContentLoaded', () => {
             // Cargar primera página al cargar la página
-            cargarPublicaciones(1);
+            cargarPublicaciones(1).then(() => {
+                // Verificar si hay parámetro de publicación para hacer scroll
+                const urlParams = new URLSearchParams(window.location.search);
+                const publicacionId = urlParams.get('publicacion');
+                
+                if (publicacionId) {
+                    // Esperar un poco para que el DOM se actualice
+                    setTimeout(() => {
+                        const postElement = document.querySelector(`[data-post-id="${publicacionId}"]`);
+                        if (postElement) {
+                            postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            // Resaltar brevemente la publicación
+                            postElement.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.5)';
+                            setTimeout(() => {
+                                postElement.style.boxShadow = '';
+                            }, 2000);
+                        }
+                    }, 500);
+                }
+            });
 
             // Configurar botón de cargar más
             const loadMoreBtn = document.getElementById('load-more-btn');
