@@ -202,7 +202,6 @@ import BuscarUsuario from "./BuscarUsuario.astro";
             chatMensajes: document.getElementById("chat-mensajes"),
             chatEmpty: document.getElementById("chat-empty"),
             chatLoading: document.getElementById("chat-loading"),
-            chatAvatar: document.getElementById("chat-avatar"),
             chatUsuarioNombre: document.getElementById("chat-usuario-nombre"),
             chatUsuarioEstado: document.getElementById("chat-usuario-estado"),
             chatFormContainer: document.getElementById("chat-form-container"),
@@ -356,7 +355,7 @@ import BuscarUsuario from "./BuscarUsuario.astro";
             estado.conversaciones = conversacionesBackend.map(conv => ({
                 contactoId: conv.usuario.id,
                 nombreContacto: conv.usuario.nombre,
-                fotoContacto: null,
+                fotoContacto: conv.usuario.urlFotoPerfil || null,
                 carrera: null,
                 ultimoMensaje: conv.ultimoMensaje?.contenido || null,
                 fechaUltimoMensaje: conv.ultimoMensaje?.fechaEnvio || null,
@@ -487,7 +486,7 @@ import BuscarUsuario from "./BuscarUsuario.astro";
                 conversacion = {
                     contactoId: response.data.otroUsuario.id,
                     nombreContacto: response.data.otroUsuario.nombre,
-                    fotoContacto: null,
+                    fotoContacto: response.data.otroUsuario.urlFotoPerfil || null,
                     carrera: null,
                     ultimoMensaje: null,
                     fechaUltimoMensaje: null,
@@ -597,17 +596,6 @@ import BuscarUsuario from "./BuscarUsuario.astro";
      */
     function actualizarHeaderChat(conversacion) {
         if (!conversacion) return;
-
-        const avatarInicial = conversacion.nombreContacto?.charAt(0).toUpperCase() || "?";
-        const avatarUrl = conversacion.fotoContacto || "";
-
-        if (elementos.chatAvatar) {
-            if (avatarUrl) {
-                elementos.chatAvatar.innerHTML = `<img src="${avatarUrl}" alt="${conversacion.nombreContacto}" />`;
-            } else {
-                elementos.chatAvatar.innerHTML = `<span>${avatarInicial}</span>`;
-            }
-        }
 
         if (elementos.chatUsuarioNombre) {
             elementos.chatUsuarioNombre.textContent = conversacion.nombreContacto || "Usuario";

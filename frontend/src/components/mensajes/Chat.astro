@@ -87,11 +87,8 @@
         </button>
         
         <div class="chat-usuario-info">
-            <div id="chat-avatar" class="chat-avatar">
-                <span>?</span>
-            </div>
             <div class="chat-usuario-datos">
-                <h3 id="chat-usuario-nombre">Selecciona una conversación</h3>
+                <h3 id="chat-usuario-nombre"></h3>
                 <p id="chat-usuario-estado" class="chat-estado"></p>
             </div>
         </div>
@@ -101,13 +98,6 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="11" cy="11" r="8"></circle>
                     <path d="m21 21-4.35-4.35"></path>
-                </svg>
-            </button>
-            <button id="btn-mas-opciones" class="btn-accion" title="Más opciones">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="1"></circle>
-                    <circle cx="12" cy="5" r="1"></circle>
-                    <circle cx="12" cy="19" r="1"></circle>
                 </svg>
             </button>
         </div>
@@ -383,8 +373,8 @@
     }
 
     .chat-avatar {
-        width: 40px;
-        height: 40px;
+        width: 48px;
+        height: 48px;
         border-radius: 50%;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         display: flex;
@@ -392,7 +382,10 @@
         justify-content: center;
         color: white;
         font-weight: 600;
+        font-size: 1.1rem;
         flex-shrink: 0;
+        position: relative;
+        overflow: hidden;
     }
 
     .chat-avatar img {
@@ -400,6 +393,10 @@
         height: 100%;
         object-fit: cover;
         border-radius: 50%;
+    }
+
+    .chat-avatar span {
+        font-size: 1.1rem;
     }
 
     .chat-usuario-datos {
@@ -540,7 +537,7 @@
     }
 
     :global(.mensaje-grupo.enviado .mensaje) {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #5284e0;
         color: white;
         border-bottom-right-radius: 4px;
     }
@@ -729,7 +726,7 @@
         width: 44px;
         height: 44px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #5284e0;
         border: none;
         color: white;
         cursor: pointer;
@@ -741,8 +738,9 @@
     }
 
     .btn-enviar:hover:not(:disabled) {
+        background: #4070c7;
         transform: scale(1.05);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 4px 12px rgba(82, 132, 224, 0.4);
     }
 
     .btn-enviar:disabled {
