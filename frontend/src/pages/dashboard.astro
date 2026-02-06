@@ -2543,6 +2543,12 @@ import "../styles/publicaciones-imagenes.css";
             // Event listeners para el modal de imágenes
             // ========================================
             
+            // Mover el modal al body para evitar problemas de stacking context
+            const modal = document.getElementById('imagen-modal');
+            if (modal && modal.parentElement !== document.body) {
+                document.body.appendChild(modal);
+            }
+            
             // Cerrar modal
             const cerrarModalBtn = document.getElementById('cerrar-modal-imagen');
             if (cerrarModalBtn) {
@@ -2561,11 +2567,11 @@ import "../styles/publicaciones-imagenes.css";
                 btnNext.addEventListener('click', () => navegarImagenModal('next'));
             }
             
-            // Cerrar con click en el fondo
-            const modal = document.getElementById('imagen-modal');
+            // Cerrar con click en el fondo (backdrop)
             if (modal) {
                 modal.addEventListener('click', (e) => {
-                    if (e.target === modal) {
+                    // Cerrar si se hace click en el fondo oscuro (no en la imagen o botones)
+                    if (e.target === modal || (e.target as HTMLElement).classList.contains('imagen-modal-content')) {
                         cerrarModalImagen();
                     }
                 });
