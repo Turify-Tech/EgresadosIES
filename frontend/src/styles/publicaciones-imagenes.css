@@ -257,8 +257,10 @@
     left: 0;
     right: 0;
     bottom: 0;
+    width: 100%;
+    height: 100%;
     background: rgba(0, 0, 0, 0.95);
-    z-index: 9999;
+    z-index: 9999 !important;
     justify-content: center;
     align-items: center;
 }
@@ -301,7 +303,7 @@
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
-    z-index: 10001;
+    z-index: 10001 !important;
 }
 
 .imagen-modal .btn-cerrar:hover {
@@ -330,7 +332,7 @@
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
-    z-index: 10001;
+    z-index: 10001 !important;
 }
 
 .imagen-modal .btn-nav:hover {
@@ -373,7 +375,7 @@
     border-radius: 20px;
     font-size: 0.9rem;
     font-weight: 500;
-    z-index: 10001;
+    z-index: 10001 !important;
 }
 
 /* Animación de fade */
