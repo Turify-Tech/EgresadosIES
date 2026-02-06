@@ -231,13 +231,17 @@
         ];
 
         if (!validTypes.includes(file.type)) {
-            alert("Por favor selecciona un archivo Excel (.xlsx, .xls)");
+            if ((window as any).mostrarToast) {
+                (window as any).mostrarToast("Por favor selecciona un archivo Excel (.xlsx, .xls)", "warning");
+            }
             return;
         }
 
         // Validar tamaño (10MB)
         if (file.size > 10 * 1024 * 1024) {
-            alert("El archivo no debe superar los 10MB");
+            if ((window as any).mostrarToast) {
+                (window as any).mostrarToast("El archivo no debe superar los 10MB", "warning");
+            }
             return;
         }
 

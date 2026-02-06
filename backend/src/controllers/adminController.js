@@ -171,7 +171,7 @@ export async function cargarExcel(req, res) {
             try {
                 const client = database.getClient();
                 
-                // Verificar si el DNI ya existe
+                // Verificar si el DNI ya existe en DniValido
                 const existente = await client.execute({
                     sql: 'SELECT dni FROM DniValido WHERE dni = ?',
                     args: [item.dni]
@@ -179,6 +179,28 @@ export async function cargarExcel(req, res) {
 
                 if (existente.rows.length > 0) {
                     duplicados++;
+                    continue;
+                }
+
+                // Verificar si el DNI ya está siendo usado por un egresado
+                const dniEgresado = await client.execute({
+                    sql: 'SELECT dni FROM Egresado WHERE dni = ?',
+                    args: [item.dni]
+                });
+
+                if (dniEgresado.rows.length > 0) {
+                    errores.push(`Fila ${procesados}: DNI "${item.dni}" ya está registrado por un egresado`);
+                    continue;
+                }
+
+                // Verificar si el DNI ya está siendo usado por un administrador
+                const dniAdmin = await client.execute({
+                    sql: 'SELECT dni FROM Administrador WHERE dni = ?',
+                    args: [item.dni]
+                });
+
+                if (dniAdmin.rows.length > 0) {
+                    errores.push(`Fila ${procesados}: DNI "${item.dni}" ya está registrado por un administrador`);
                     continue;
                 }
 
@@ -258,7 +280,7 @@ export async function agregarDNI(req, res) {
 
         const client = database.getClient();
 
-        // Verificar si el DNI ya existe
+        // Verificar si el DNI ya existe en la tabla DniValido
         const existente = await client.execute({
             sql: 'SELECT dni FROM DniValido WHERE dni = ?',
             args: [dni]
@@ -268,6 +290,32 @@ export async function agregarDNI(req, res) {
             return res.status(409).json({
                 success: false,
                 message: 'El DNI ya existe en la lista de válidos'
+            });
+        }
+
+        // Verificar si el DNI ya está siendo usado por un egresado registrado
+        const dniEgresado = await client.execute({
+            sql: 'SELECT dni FROM Egresado WHERE dni = ?',
+            args: [dni]
+        });
+
+        if (dniEgresado.rows.length > 0) {
+            return res.status(409).json({
+                success: false,
+                message: 'El DNI ya está registrado por un egresado'
+            });
+        }
+
+        // Verificar si el DNI ya está siendo usado por un administrador
+        const dniAdmin = await client.execute({
+            sql: 'SELECT dni FROM Administrador WHERE dni = ?',
+            args: [dni]
+        });
+
+        if (dniAdmin.rows.length > 0) {
+            return res.status(409).json({
+                success: false,
+                message: 'El DNI ya está registrado por un administrador'
             });
         }
 
@@ -426,7 +474,7 @@ export async function eliminarDNI(req, res) {
 
         const client = database.getClient();
 
-        // Verificar que el DNI existe
+        // Verificar que el DNI existe en DniValido
         const existente = await client.execute({
             sql: 'SELECT dni, carrera FROM DniValido WHERE dni = ?',
             args: [dni]
@@ -439,7 +487,24 @@ export async function eliminarDNI(req, res) {
             });
         }
 
-        // Eliminar DNI
+        // Verificar si existe un usuario registrado con este DNI
+        const usuarioEgresado = await client.execute({
+            sql: 'SELECT id FROM Egresado WHERE dni = ?',
+            args: [dni]
+        });
+
+        let usuarioEliminado = false;
+        if (usuarioEgresado.rows.length > 0) {
+            // Eliminar el usuario egresado (esto eliminará en cascada su perfil y datos relacionados)
+            const egresadoId = usuarioEgresado.rows[0].id;
+            await client.execute({
+                sql: 'DELETE FROM Usuario WHERE id = ?',
+                args: [egresadoId]
+            });
+            usuarioEliminado = true;
+        }
+
+        // Eliminar DNI de la tabla DniValido
         await client.execute({
             sql: 'DELETE FROM DniValido WHERE dni = ?',
             args: [dni]
@@ -455,14 +520,19 @@ export async function eliminarDNI(req, res) {
         await registrarActividad(
             req.user.id,
             TIPOS_ACCION.ELIMINAR_DNI,
-            `Eliminó DNI ${dni}`,
-            { dni, carrera: existente.rows[0].carrera }
+            `Eliminó DNI ${dni}${usuarioEliminado ? ' (y usuario asociado)' : ''}`,
+            { dni, carrera: existente.rows[0].carrera, usuarioEliminado }
         );
 
         res.status(200).json({
             success: true,
-            message: 'DNI eliminado exitosamente',
-            data: existente.rows[0]
+            message: usuarioEliminado 
+                ? 'DNI y usuario asociado eliminados exitosamente' 
+                : 'DNI eliminado exitosamente',
+            data: { 
+                ...existente.rows[0],
+                usuarioEliminado 
+            }
         });
 
     } catch (error) {
