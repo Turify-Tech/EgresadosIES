@@ -198,6 +198,30 @@
     </div>
 </div>
 
+<!-- Contenedor de notificaciones toast -->
+<div id="toast-container" class="toast-container"></div>
+
+<!-- Modal de confirmación personalizado -->
+<div id="confirm-modal" class="confirm-modal-overlay" style="display: none;">
+    <div class="confirm-modal">
+        <div class="confirm-modal-header">
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+        </div>
+        <div class="confirm-modal-body">
+            <h3 id="confirm-title">Confirmar acción</h3>
+            <p id="confirm-message">¿Estás seguro de realizar esta acción?</p>
+        </div>
+        <div class="confirm-modal-actions">
+            <button id="confirm-cancel" class="btn-secondary">Cancelar</button>
+            <button id="confirm-ok" class="btn-danger">Confirmar</button>
+        </div>
+    </div>
+</div>
+
 <script>
     const API_URL = "http://localhost:3000/api";
 
@@ -209,6 +233,97 @@
         hasNext: boolean;
         hasPrev: boolean;
     }
+
+    // Sistema de notificaciones toast
+    function mostrarToast(mensaje: string, tipo: 'success' | 'error' | 'warning' | 'info' = 'info') {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${tipo}`;
+        
+        const iconos = {
+            success: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',
+            error: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
+            warning: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>',
+            info: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>'
+        };
+
+        toast.innerHTML = `
+            <div class="toast-icon">${iconos[tipo]}</div>
+            <div class="toast-message">${mensaje}</div>
+            <button class="toast-close" onclick="this.parentElement.remove()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        `;
+
+        container.appendChild(toast);
+
+        // Animación de entrada
+        setTimeout(() => toast.classList.add('show'), 10);
+
+        // Auto-remover después de 5 segundos
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 5000);
+    }
+
+    // Sistema de confirmación personalizado
+    function mostrarConfirmacion(titulo: string, mensaje: string): Promise<boolean> {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('confirm-modal');
+            const titleEl = document.getElementById('confirm-title');
+            const messageEl = document.getElementById('confirm-message');
+            const cancelBtn = document.getElementById('confirm-cancel');
+            const okBtn = document.getElementById('confirm-ok');
+
+            if (!modal || !titleEl || !messageEl || !cancelBtn || !okBtn) {
+                resolve(false);
+                return;
+            }
+
+            titleEl.textContent = titulo;
+            messageEl.textContent = mensaje;
+            modal.style.display = 'flex';
+
+            const handleCancel = () => {
+                modal.style.display = 'none';
+                cleanup();
+                resolve(false);
+            };
+
+            const handleOk = () => {
+                modal.style.display = 'none';
+                cleanup();
+                resolve(true);
+            };
+
+            const cleanup = () => {
+                cancelBtn.removeEventListener('click', handleCancel);
+                okBtn.removeEventListener('click', handleOk);
+            };
+
+            cancelBtn.addEventListener('click', handleCancel);
+            okBtn.addEventListener('click', handleOk);
+
+            // Cerrar con ESC
+            const handleEsc = (e: KeyboardEvent) => {
+                if (e.key === 'Escape') {
+                    handleCancel();
+                    document.removeEventListener('keydown', handleEsc);
+                }
+            };
+            document.addEventListener('keydown', handleEsc);
+        });
+    }
+
+    // Exponer funciones globalmente para uso en otros componentes
+    (window as any).mostrarToast = mostrarToast;
+    (window as any).mostrarConfirmacion = mostrarConfirmacion;
 
     let currentPage = 1;
     let currentSearch = "";
@@ -275,7 +390,7 @@
             const token = localStorage.getItem("auth_token");
             const params = new URLSearchParams({
                 page: page.toString(),
-                limit: "20",
+                limit: "10",
             });
 
             if (currentSearch) params.append("search", currentSearch);
@@ -413,12 +528,12 @@
     };
 
     (window as any).eliminarDni = async function (dni: string) {
-        if (
-            !confirm(
-                `¿Estás seguro de eliminar el DNI ${dni}? Esta acción no se puede deshacer.`
-            )
-        )
-            return;
+        const confirmado = await mostrarConfirmacion(
+            'Eliminar DNI',
+            `¿Estás seguro de eliminar el DNI ${dni}? Si existe un usuario registrado con este DNI, su cuenta también será eliminada. Esta acción no se puede deshacer.`
+        );
+        
+        if (!confirmado) return;
 
         try {
             const token = localStorage.getItem("auth_token");
@@ -430,15 +545,15 @@
             const data = await response.json();
 
             if (response.ok && data.success) {
-                alert("DNI eliminado exitosamente");
+                mostrarToast(data.message || "DNI eliminado exitosamente", "success");
                 cargarDnis(currentPage);
                 window.dispatchEvent(new Event("dni-agregado"));
             } else {
-                alert(data.message || "Error eliminando DNI");
+                mostrarToast(data.message || "Error eliminando DNI", "error");
             }
         } catch (error) {
             console.error("Error:", error);
-            alert("Error de conexión");
+            mostrarToast("Error de conexión", "error");
         }
     };
 
@@ -454,7 +569,7 @@
         ).value;
 
         if (!carrera) {
-            alert("Por favor selecciona una carrera");
+            mostrarToast("Por favor selecciona una carrera", "warning");
             return;
         }
 
@@ -472,15 +587,15 @@
             const data = await response.json();
 
             if (response.ok && data.success) {
-                alert("DNI actualizado exitosamente");
+                mostrarToast("DNI actualizado exitosamente", "success");
                 cerrarModal();
                 cargarDnis(currentPage);
             } else {
-                alert(data.message || "Error actualizando DNI");
+                mostrarToast(data.message || "Error actualizando DNI", "error");
             }
         } catch (error) {
             console.error("Error:", error);
-            alert("Error de conexión");
+            mostrarToast("Error de conexión", "error");
         }
     }
 
