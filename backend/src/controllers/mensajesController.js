@@ -287,6 +287,7 @@ export async function listarConversaciones(req, res) {
             SELECT 
                 um.otroUsuarioId,
                 u.nombre as otroUsuario_nombre,
+                p.urlFotoPerfil as otroUsuario_foto,
                 um.id as ultimo_mensaje_id,
                 um.contenido as ultimo_mensaje_contenido,
                 um.fechaEnvio as ultimo_mensaje_fecha,
@@ -295,6 +296,8 @@ export async function listarConversaciones(req, res) {
                 COALESCE(nl.cantidad_no_leidos, 0) as mensajes_no_leidos
             FROM ultimo_mensaje um
             INNER JOIN Usuario u ON um.otroUsuarioId = u.id
+            LEFT JOIN Egresado e ON um.otroUsuarioId = e.id
+            LEFT JOIN Perfil p ON e.perfilId = p.id
             LEFT JOIN no_leidos nl ON um.otroUsuarioId = nl.otroUsuarioId
             WHERE um.rn = 1
             ORDER BY um.fechaEnvio DESC
@@ -331,6 +334,7 @@ export async function listarConversaciones(req, res) {
             usuario: {
                 id: row.otroUsuarioId,
                 nombre: row.otroUsuario_nombre,
+                urlFotoPerfil: row.otroUsuario_foto,
             },
             ultimoMensaje: {
                 id: row.ultimo_mensaje_id,
@@ -421,9 +425,10 @@ export async function verConversacion(req, res) {
     try {
         // Verificar que ambos usuarios son egresados
         const usuariosQuery = `
-            SELECT e.id, u.nombre 
+            SELECT e.id, u.nombre, p.urlFotoPerfil
             FROM Egresado e
             INNER JOIN Usuario u ON e.id = u.id
+            LEFT JOIN Perfil p ON e.perfilId = p.id
             WHERE e.id IN (?, ?)
         `;
 
@@ -506,6 +511,7 @@ export async function verConversacion(req, res) {
                 otroUsuario: {
                     id: otroUsuario.id,
                     nombre: otroUsuario.nombre,
+                    urlFotoPerfil: otroUsuario.urlFotoPerfil,
                 },
                 mensajes,
                 pagination: {

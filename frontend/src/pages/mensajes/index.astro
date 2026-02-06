@@ -26,8 +26,8 @@ import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
     .mensajes-page {
         display: grid;
         grid-template-columns: 380px 1fr;
-        height: calc(100vh - 70px); /* Altura total menos navbar */
-        max-height: calc(100vh - 70px);
+        height: calc(100vh - 85px); /* Altura total menos navbar (ajustado para el navbar actual) */
+        max-height: calc(100vh - 85px);
         overflow: hidden;
         background: transparent;
     }
@@ -53,6 +53,8 @@ import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
     @media (max-width: 768px) {
         .mensajes-page {
             grid-template-columns: 1fr;
+            height: calc(100vh - 70px);
+            max-height: calc(100vh - 70px);
         }
 
         .panel-conversaciones {
@@ -108,7 +110,6 @@ import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
         chatMensajes: document.getElementById("chat-mensajes"),
         chatEmpty: document.getElementById("chat-empty"),
         chatLoading: document.getElementById("chat-loading"),
-        chatAvatar: document.getElementById("chat-avatar"),
         chatUsuarioNombre: document.getElementById("chat-usuario-nombre"),
         chatUsuarioEstado: document.getElementById("chat-usuario-estado"),
         chatFormContainer: document.getElementById("chat-form-container"),
@@ -227,7 +228,7 @@ import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
             estado.conversaciones = conversacionesBackend.map(conv => ({
                 contactoId: conv.usuario.id,
                 nombreContacto: conv.usuario.nombre,
-                fotoContacto: null, // No está disponible en este endpoint
+                fotoContacto: conv.usuario.urlFotoPerfil || null,
                 carrera: null, // No está disponible en este endpoint
                 ultimoMensaje: conv.ultimoMensaje?.contenido || null,
                 fechaUltimoMensaje: conv.ultimoMensaje?.fechaEnvio || null,
@@ -313,6 +314,9 @@ import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
         const avatarInicial = conv.nombreContacto?.charAt(0).toUpperCase() || "?";
         const avatarUrl = conv.fotoContacto || "";
 
+        console.log("[DEBUG] crearElementoConversacion - conv:", conv);
+        console.log("[DEBUG] crearElementoConversacion - avatarUrl:", avatarUrl);
+
         return `
             <div class="conversacion-item ${isActive ? "active" : ""} ${tieneNoLeidos ? "no-leido" : ""}" 
                  data-user-id="${conv.contactoId}">
@@ -395,7 +399,7 @@ import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
                 conversacion = {
                     contactoId: response.data.otroUsuario.id,
                     nombreContacto: response.data.otroUsuario.nombre,
-                    fotoContacto: null,
+                    fotoContacto: response.data.otroUsuario.urlFotoPerfil || null,
                     carrera: null,
                     ultimoMensaje: null,
                     fechaUltimoMensaje: null,
@@ -506,17 +510,6 @@ import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
      */
     function actualizarHeaderChat(conversacion) {
         if (!conversacion) return;
-
-        const avatarInicial = conversacion.nombreContacto?.charAt(0).toUpperCase() || "?";
-        const avatarUrl = conversacion.fotoContacto || "";
-
-        if (elementos.chatAvatar) {
-            if (avatarUrl) {
-                elementos.chatAvatar.innerHTML = `<img src="${avatarUrl}" alt="${conversacion.nombreContacto}" />`;
-            } else {
-                elementos.chatAvatar.innerHTML = `<span>${avatarInicial}</span>`;
-            }
-        }
 
         if (elementos.chatUsuarioNombre) {
             elementos.chatUsuarioNombre.textContent = conversacion.nombreContacto || "Usuario";
@@ -801,6 +794,78 @@ import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
     }
 
     /**
+     * Buscar en mensajes del chat activo
+     */
+    function buscarEnChat(query: string) {
+        if (!query || query.trim() === '') {
+            // Si no hay búsqueda, renderizar todos los mensajes normalmente
+            renderizarMensajes();
+            return;
+        }
+
+        const container = elementos.chatMensajes;
+        if (!container || estado.mensajes.length === 0) return;
+
+        const queryLower = query.toLowerCase();
+        let html = "";
+        let fechaActual = "";
+        let hayResultados = false;
+
+        estado.mensajes.forEach((mensaje, index) => {
+            const contenidoLower = mensaje.contenido.toLowerCase();
+            const coincide = contenidoLower.includes(queryLower);
+
+            // Si el mensaje coincide con la búsqueda
+            if (coincide) {
+                hayResultados = true;
+                const fechaMensaje = formatearFecha(mensaje.fechaEnvio);
+
+                // Agregar separador de fecha si es diferente
+                if (fechaMensaje !== fechaActual) {
+                    html += `<div class="fecha-separador"><span>${fechaMensaje}</span></div>`;
+                    fechaActual = fechaMensaje;
+                }
+
+                const esEnviado = mensaje.esPropio === true;
+                const hora = formatearHora(mensaje.fechaEnvio);
+
+                // Resaltar el texto de búsqueda
+                const contenidoResaltado = mensaje.contenido.replace(
+                    new RegExp(query, 'gi'),
+                    (match) => `<mark style="background-color: #fef08a; padding: 0 2px; border-radius: 2px;">${match}</mark>`
+                );
+
+                html += `
+                    <div class="mensaje-grupo ${esEnviado ? "enviado" : "recibido"}">
+                        <div class="mensaje">
+                            <p class="mensaje-texto">${contenidoResaltado}</p>
+                            <div class="mensaje-meta">
+                                <span>${hora}</span>
+                                ${esEnviado && mensaje.estado === "LEIDO" ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ""}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        if (!hayResultados) {
+            html = `
+                <div class="chat-empty">
+                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <h3>Sin resultados</h3>
+                    <p>No se encontraron mensajes con "${query}"</p>
+                </div>
+            `;
+        }
+
+        container.innerHTML = html;
+    }
+
+    /**
      * Configurar event listeners
      */
     function configurarEventListeners() {
@@ -808,6 +873,80 @@ import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
         elementos.searchConversaciones?.addEventListener("input", (e) => {
             renderizarConversaciones((e.target as HTMLInputElement).value);
         });
+
+        // Búsqueda en mensajes del chat
+        const btnBuscarMensajes = document.getElementById('btn-buscar-mensajes');
+        const chatHeader = document.querySelector('.chat-header');
+        
+        if (btnBuscarMensajes && chatHeader) {
+            btnBuscarMensajes.addEventListener('click', () => {
+                // Verificar si ya existe el input de búsqueda
+                let searchInput = document.getElementById('search-mensajes-input');
+                
+                if (searchInput) {
+                    // Si existe, eliminarlo (toggle)
+                    searchInput.parentElement?.remove();
+                    renderizarMensajes(); // Volver a mostrar todos los mensajes
+                } else {
+                    // Crear input de búsqueda
+                    const searchContainer = document.createElement('div');
+                    searchContainer.style.cssText = 'padding: 0.75rem 1.5rem; border-bottom: 1px solid #e5e7eb; background: #f9fafb;';
+                    searchContainer.innerHTML = `
+                        <div style="position: relative;">
+                            <svg style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.35-4.35"></path>
+                            </svg>
+                            <input 
+                                type="text" 
+                                id="search-mensajes-input"
+                                placeholder="Buscar en esta conversación..."
+                                style="width: 100%; padding: 0.5rem 0.75rem 0.5rem 2.5rem; border: 1px solid #d1d5db; border-radius: 20px; font-size: 0.875rem; outline: none;"
+                            />
+                            <button 
+                                id="clear-search-btn"
+                                style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: #9ca3af; cursor: pointer; padding: 0.25rem; display: none;"
+                                title="Limpiar búsqueda"
+                            >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Insertar después del header
+                    chatHeader.after(searchContainer);
+                    
+                    // Focus en el input
+                    searchInput = document.getElementById('search-mensajes-input');
+                    searchInput?.focus();
+                    
+                    // Event listener para búsqueda en tiempo real
+                    const clearBtn = document.getElementById('clear-search-btn');
+                    searchInput?.addEventListener('input', (e) => {
+                        const query = (e.target as HTMLInputElement).value;
+                        if (clearBtn) {
+                            (clearBtn as HTMLElement).style.display = query ? 'block' : 'none';
+                        }
+                        buscarEnChat(query);
+                    });
+                    
+                    // Event listener para limpiar búsqueda
+                    clearBtn?.addEventListener('click', () => {
+                        if (searchInput) {
+                            (searchInput as HTMLInputElement).value = '';
+                            if (clearBtn) {
+                                (clearBtn as HTMLElement).style.display = 'none';
+                            }
+                            renderizarMensajes();
+                            searchInput.focus();
+                        }
+                    });
+                }
+            });
+        }
 
         // Nueva conversación
         elementos.btnNuevaConversacion?.addEventListener("click", abrirModalNuevaConversacion);

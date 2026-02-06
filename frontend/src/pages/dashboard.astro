@@ -5,6 +5,10 @@ import "../styles/dashboard.css";
 import "../styles/publicaciones-imagenes.css";
 ---
 
+<!-- Cargar Cropper.js en el head para que esté disponible cuando se necesite -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" slot="head" />
+<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
 <BaseLayout title="Dashboard | Feed" hideAccederButton={true}>
     <div class="feed-page">
         <div class="feed-container">
@@ -201,6 +205,28 @@ import "../styles/publicaciones-imagenes.css";
         </button>
         
         <div class="contador-imagenes" id="contador-imagenes">1 / 1</div>
+    </div>
+
+    <!-- Modal de recorte de imagen -->
+    <div class="crop-modal" id="crop-modal-publicacion" style="display: none;">
+        <div class="crop-modal-content">
+            <div class="crop-modal-header">
+                <h3>Ajustar imagen</h3>
+                <button class="btn-close-modal" id="btn-close-crop" type="button">×</button>
+            </div>
+            <div class="crop-container">
+                <img id="image-to-crop" src="" alt="Imagen para recortar" />
+            </div>
+            <div class="crop-modal-actions">
+                <button class="btn-cancelar-crop" id="btn-cancelar-crop" type="button">Cancelar</button>
+                <button class="btn-guardar-crop" id="btn-aplicar-crop" type="button">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Aplicar recorte
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -1937,6 +1963,14 @@ import "../styles/publicaciones-imagenes.css";
                 });
             }
 
+            // Variables para el recorte de imágenes
+            let imagenesEnCola: File[] = [];
+            let currentImageName = '';
+            let cropperInstance: any = null;
+
+            // Verificar que Cropper.js esté disponible
+            console.log('Cropper disponible:', typeof (window as any).Cropper !== 'undefined');
+
             // Manejo de selección de imágenes
             const postImages = document.getElementById('post-images');
             const imagePreview = document.getElementById('image-preview');
@@ -1953,7 +1987,8 @@ import "../styles/publicaciones-imagenes.css";
                         return;
                     }
 
-                    // Procesar cada archivo
+                    // Agregar archivos a la cola para recortar uno por uno
+                    imagenesEnCola = [];
                     Array.from(files).forEach((file: File) => {
                         if (file.size > maxSize) {
                             showNotification(`${file.name} es demasiado grande. Máximo 5MB`, 'error');
@@ -1965,15 +2000,139 @@ import "../styles/publicaciones-imagenes.css";
                             return;
                         }
 
-                        selectedImages.push(file);
+                        imagenesEnCola.push(file);
                     });
 
-                    // Mostrar preview
-                    renderImagePreview();
+                    // Procesar la primera imagen de la cola
+                    if (imagenesEnCola.length > 0) {
+                        procesarSiguienteImagen();
+                    }
                     
                     // Limpiar input
                     (e.target as HTMLInputElement).value = '';
                 });
+            }
+
+            function procesarSiguienteImagen() {
+                if (imagenesEnCola.length === 0) {
+                    return;
+                }
+
+                const file = imagenesEnCola.shift();
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (e.target?.result) {
+                        abrirModalRecorte(e.target.result as string, file.name);
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+
+            function abrirModalRecorte(imageSrc: string, fileName: string) {
+                const modal = document.getElementById('crop-modal-publicacion');
+                const image = document.getElementById('image-to-crop') as HTMLImageElement;
+                
+                if (modal && image) {
+                    image.src = imageSrc;
+                    modal.style.display = 'flex';
+                    currentImageName = fileName;
+                    
+                    // Inicializar Cropper.js
+                    setTimeout(() => {
+                        // Verificar que Cropper.js esté cargado
+                        if (typeof (window as any).Cropper === 'undefined') {
+                            showNotification('Error: Cropper.js no está cargado. Recarga la página.', 'error');
+                            cerrarModalRecorte();
+                            return;
+                        }
+                        
+                        if (cropperInstance) {
+                            cropperInstance.destroy();
+                        }
+                        
+                        try {
+                            cropperInstance = new (window as any).Cropper(image, {
+                                aspectRatio: NaN, // Permite cualquier proporción
+                                viewMode: 2,
+                                dragMode: 'move',
+                                autoCropArea: 0.9,
+                                restore: false,
+                                guides: true,
+                                center: true,
+                                highlight: false,
+                                cropBoxMovable: true,
+                                cropBoxResizable: true,
+                                toggleDragModeOnDblclick: false,
+                            });
+                        } catch (error) {
+                            console.error('Error inicializando Cropper:', error);
+                            showNotification('Error al abrir el editor de imágenes', 'error');
+                            cerrarModalRecorte();
+                        }
+                    }, 200);
+                }
+            }
+
+            function cerrarModalRecorte() {
+                const modal = document.getElementById('crop-modal-publicacion');
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+                
+                if (cropperInstance) {
+                    cropperInstance.destroy();
+                    cropperInstance = null;
+                }
+                
+                // Limpiar la cola si se cancela
+                imagenesEnCola = [];
+            }
+
+            function aplicarRecorte() {
+                if (!cropperInstance) return;
+                
+                // Obtener imagen recortada como blob
+                cropperInstance.getCroppedCanvas({
+                    maxWidth: 1200,
+                    maxHeight: 1200,
+                    imageSmoothingQuality: 'high'
+                }).toBlob((blob: Blob) => {
+                    if (blob) {
+                        // Crear archivo desde blob
+                        const file = new File([blob], currentImageName || 'imagen-recortada.jpg', {
+                            type: 'image/jpeg',
+                            lastModified: Date.now()
+                        });
+                        
+                        selectedImages.push(file);
+                        renderImagePreview();
+                        cerrarModalRecorte();
+                        
+                        // Procesar la siguiente imagen si hay más en cola
+                        if (imagenesEnCola.length > 0) {
+                            setTimeout(() => {
+                                procesarSiguienteImagen();
+                            }, 300);
+                        }
+                    }
+                }, 'image/jpeg', 0.9);
+            }
+
+            // Event listeners para los botones del modal de recorte
+            const btnCloseCrop = document.getElementById('btn-close-crop');
+            const btnCancelarCrop = document.getElementById('btn-cancelar-crop');
+            const btnAplicarCrop = document.getElementById('btn-aplicar-crop');
+            
+            if (btnCloseCrop) {
+                btnCloseCrop.addEventListener('click', cerrarModalRecorte);
+            }
+            if (btnCancelarCrop) {
+                btnCancelarCrop.addEventListener('click', cerrarModalRecorte);
+            }
+            if (btnAplicarCrop) {
+                btnAplicarCrop.addEventListener('click', aplicarRecorte);
             }
 
             function renderImagePreview() {
@@ -2466,4 +2625,132 @@ import "../styles/publicaciones-imagenes.css";
 
     <!-- Modal de comentarios -->
     <ComentariosModal />
+
+    <!-- Estilos para el modal de recorte -->
+    <style>
+        .crop-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .crop-modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .crop-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .crop-modal-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .btn-close-modal {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            line-height: 1;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-close-modal:hover {
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .crop-container {
+            flex: 1;
+            overflow: hidden;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f9fafb;
+            max-height: 500px;
+        }
+
+        .crop-container img {
+            max-width: 100%;
+            display: block;
+        }
+
+        .crop-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            padding: 1.5rem;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .btn-cancelar-crop {
+            background: #f3f4f6;
+            color: #374151;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn-cancelar-crop:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-guardar-crop {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-guardar-crop:hover {
+            background: #2563eb;
+        }
+
+        .btn-guardar-crop svg {
+            width: 18px;
+            height: 18px;
+        }
+    </style>
 </BaseLayout>
