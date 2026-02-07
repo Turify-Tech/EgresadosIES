@@ -30,9 +30,15 @@ class PerfilesController {
             let params = [];
             let conditions = [];
 
+            // Filtro por carrera - soporta múltiples valores separados por coma
             if (carrera) {
-                conditions.push("c.nombre = ?");
-                params.push(carrera);
+                const carreras = carrera.split(',').map(c => c.trim()).filter(c => c);
+                if (carreras.length > 0) {
+                    // Usar COLLATE NOCASE para comparación case-insensitive
+                    const placeholders = carreras.map(() => 'c.nombre = ? COLLATE NOCASE').join(' OR ');
+                    conditions.push(`(${placeholders})`);
+                    params.push(...carreras);
+                }
             }
 
             if (search) {

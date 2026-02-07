@@ -17,11 +17,11 @@ const datosCarreras = [
 ];
 
 const datosSituacionLaboral = [
-    "Empleado",
-    "Freelancer", 
-    "Emprendedor",
+    "Trabajando",
+    "Freelance", 
     "Buscando empleo",
-    "Estudiando"
+    "Estudiando",
+    "Estudiando y Trabajando"
 ];
 
 const datosEmpresas = [
@@ -58,7 +58,7 @@ const datosEgresados = [
         telefono: "+54 11 1234-5678",
         carrera: "Ingeniería en Sistemas",
         resumenProfesional: "Desarrolladora Full Stack con 3 años de experiencia en React y Node.js. Apasionada por crear soluciones innovadoras y trabajar en equipo.",
-        situacionLaboral: "Empleado",
+        situacionLaboral: "Trabajando",
         urlPortfolio: "https://mariagonzalez.dev",
         experiencias: [
             {
@@ -84,7 +84,7 @@ const datosEgresados = [
         telefono: "+54 11 2345-6789",
         carrera: "Tecnicatura en Programación",
         resumenProfesional: "Backend Developer especializado en APIs REST y microservicios. Experiencia en Java, Python y bases de datos.",
-        situacionLaboral: "Empleado",
+        situacionLaboral: "Trabajando",
         urlPortfolio: "https://github.com/carlosdev",
         experiencias: [
             {
@@ -103,7 +103,7 @@ const datosEgresados = [
         telefono: "+54 11 3456-7890",
         carrera: "Diseño Gráfico",
         resumenProfesional: "Diseñadora UX/UI con enfoque en experiencia de usuario. Trabajo con Figma, Adobe Creative Suite y prototipado.",
-        situacionLaboral: "Freelancer",
+        situacionLaboral: "Freelance",
         urlPortfolio: "https://anamartinez.design",
         experiencias: [
             {
@@ -129,7 +129,7 @@ const datosEgresados = [
         telefono: "+54 11 4567-8901",
         carrera: "Ingeniería en Sistemas",
         resumenProfesional: "DevOps Engineer con experiencia en AWS, Docker y Kubernetes. Automatización de procesos y CI/CD.",
-        situacionLaboral: "Empleado",
+        situacionLaboral: "Trabajando",
         urlPortfolio: "https://diegolopez.tech",
         experiencias: [
             {
@@ -155,7 +155,7 @@ const datosEgresados = [
         telefono: "+54 11 5678-9012",
         carrera: "Marketing Digital",
         resumenProfesional: "Especialista en marketing digital y growth hacking. Experiencia en Google Ads, Facebook Ads y analytics.",
-        situacionLaboral: "Emprendedor",
+        situacionLaboral: "Trabajando",
         urlPortfolio: "https://laurafernandez.marketing",
         experiencias: [
             {

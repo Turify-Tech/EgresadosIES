@@ -70,14 +70,26 @@ export const buscarPerfiles = async (req, res) => {
         }
 
         // Lógica para filtros específicos
+        // Filtro por carrera - soporta múltiples valores separados por coma
         if (carrera && carrera.trim()) {
-            condiciones.push("c.nombre = ?");
-            parametros.push(carrera.trim());
+            const carreras = carrera.split(',').map(c => c.trim()).filter(c => c);
+            if (carreras.length > 0) {
+                // Usar COLLATE NOCASE para comparación case-insensitive
+                const placeholders = carreras.map(() => 'c.nombre = ? COLLATE NOCASE').join(' OR ');
+                condiciones.push(`(${placeholders})`);
+                parametros.push(...carreras);
+            }
         }
 
+        // Filtro por situación laboral - soporta múltiples valores separados por coma
         if (situacionLaboral && situacionLaboral.trim()) {
-            condiciones.push("p.situacionLaboral = ?");
-            parametros.push(situacionLaboral.trim());
+            const situaciones = situacionLaboral.split(',').map(s => s.trim()).filter(s => s);
+            if (situaciones.length > 0) {
+                // Usar COLLATE NOCASE para comparación case-insensitive
+                const placeholders = situaciones.map(() => 'p.situacionLaboral = ? COLLATE NOCASE').join(' OR ');
+                condiciones.push(`(${placeholders})`);
+                parametros.push(...situaciones);
+            }
         }
 
         if (empresa && empresa.trim()) {

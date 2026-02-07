@@ -92,17 +92,50 @@ export class AdvancedSearchManagerSidebar {
     bindEvents() {
         // Botón para mostrar/ocultar filtros
         if (this.elements.toggleFiltersBtn) {
-            this.elements.toggleFiltersBtn.addEventListener("click", () => {
+            this.elements.toggleFiltersBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 this.toggleFilters();
             });
         }
 
-        // Overlay para cerrar filtros
+        // Overlay para cerrar filtros en móvil
         if (this.elements.sidebarOverlay) {
             this.elements.sidebarOverlay.addEventListener("click", () => {
                 this.hideFilters();
             });
         }
+
+        // Botón de cerrar en móvil
+        const closeMobileBtn = document.getElementById("close-filters-mobile");
+        if (closeMobileBtn) {
+            closeMobileBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.hideFilters();
+            });
+        }
+
+        // Cerrar filtros al hacer clic fuera del sidebar y del botón
+        // Usamos setTimeout para permitir que los checkboxes procesen el click primero
+        document.addEventListener("click", (e) => {
+            setTimeout(() => {
+                // Si el sidebar está visible
+                if (this.elements.filtersSidebar && this.elements.filtersSidebar.classList.contains("show")) {
+                    // En móvil, solo cerramos si se hace clic en el overlay
+                    const isMobile = window.innerWidth <= 768;
+                    if (isMobile) return; // En móvil, el overlay maneja el cierre
+                    
+                    // En desktop, verificar si el clic fue fuera del sidebar y del botón toggle
+                    const clickedInsideSidebar = this.elements.filtersSidebar.contains(e.target);
+                    const clickedToggleBtn = this.elements.toggleFiltersBtn && this.elements.toggleFiltersBtn.contains(e.target);
+                    
+                    if (!clickedInsideSidebar && !clickedToggleBtn) {
+                        this.hideFilters();
+                    }
+                }
+            }, 0);
+        });
 
         // Cerrar filtros con Escape
         document.addEventListener("keydown", (e) => {
@@ -386,19 +419,13 @@ export class AdvancedSearchManagerSidebar {
                     <div class="detail-row">
                         <span class="detail-label">Carrera:</span>
                         <span class="detail-value">${
-                            perfil.carrera || "I.E.S 9-012"
-                        }</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Año de egreso:</span>
-                        <span class="detail-value">${
-                            perfil.ano_egreso || "2026"
+                            perfil.carrera || "Sin especificar"
                         }</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Situación laboral:</span>
                         <span class="detail-value">${
-                            perfil.situacion_laboral || "Buscando empleo"
+                            perfil.situacionLaboral || "No especificada"
                         }</span>
                     </div>
                 </div>
@@ -661,6 +688,10 @@ export class AdvancedSearchManagerSidebar {
 
     // Métodos para mostrar/ocultar filtros
     toggleFilters() {
+        if (!this.elements.filtersSidebar) {
+            return;
+        }
+
         const isVisible =
             this.elements.filtersSidebar.classList.contains("show");
 
@@ -676,24 +707,29 @@ export class AdvancedSearchManagerSidebar {
             this.elements.filtersSidebar.classList.add("show");
         }
 
-        if (this.elements.sidebarOverlay) {
+        // Mostrar overlay en móvil
+        if (this.elements.sidebarOverlay && window.innerWidth <= 768) {
             this.elements.sidebarOverlay.classList.add("show");
         }
 
         if (this.elements.toggleFiltersBtn) {
             this.elements.toggleFiltersBtn.classList.add("active");
         }
-
-        // El texto del botón permanece igual para dropdown
-        // No necesitamos bloquear el scroll para un dropdown
     }
 
     hideFilters() {
-        this.elements.filtersSidebar.classList.remove("show");
-        this.elements.sidebarOverlay.classList.remove("show");
-        this.elements.toggleFiltersBtn.classList.remove("active");
-
-        // No hay cambio de texto ni bloqueo de scroll
+        if (this.elements.filtersSidebar) {
+            this.elements.filtersSidebar.classList.remove("show");
+        }
+        
+        // Ocultar overlay
+        if (this.elements.sidebarOverlay) {
+            this.elements.sidebarOverlay.classList.remove("show");
+        }
+        
+        if (this.elements.toggleFiltersBtn) {
+            this.elements.toggleFiltersBtn.classList.remove("active");
+        }
     }
 }
 
