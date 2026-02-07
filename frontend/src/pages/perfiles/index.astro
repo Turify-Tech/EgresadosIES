@@ -33,11 +33,19 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
                             <div class="filters-sidebar">
                                 <div class="sidebar-header">
                                     <h2>Filtros</h2>
-                                    <button
-                                        id="clear-all-filters"
-                                        class="clear-all-btn">
-                                        Limpiar todo
-                                    </button>
+                                    <div class="header-actions">
+                                        <button
+                                            id="close-filters-mobile"
+                                            class="close-filters-btn"
+                                            aria-label="Cerrar filtros">
+                                            ✕
+                                        </button>
+                                        <button
+                                            id="clear-all-filters"
+                                            class="clear-all-btn">
+                                            Limpiar todo
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <!-- Filtro de Carrera -->
@@ -72,20 +80,29 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
                                         <label class="checkbox-item">
                                             <input
                                                 type="checkbox"
-                                                value="Empleado"
+                                                value="Trabajando"
                                                 name="situacion"
                                             />
                                             <span class="checkmark"></span>
-                                            Empleado
+                                            Trabajando
                                         </label>
                                         <label class="checkbox-item">
                                             <input
                                                 type="checkbox"
-                                                value="Desempleado"
+                                                value="Freelance"
                                                 name="situacion"
                                             />
                                             <span class="checkmark"></span>
-                                            Desempleado
+                                            Freelance
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input
+                                                type="checkbox"
+                                                value="Buscando empleo"
+                                                name="situacion"
+                                            />
+                                            <span class="checkmark"></span>
+                                            Buscando empleo
                                         </label>
                                         <label class="checkbox-item">
                                             <input
@@ -99,20 +116,11 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
                                         <label class="checkbox-item">
                                             <input
                                                 type="checkbox"
-                                                value="Emprendedor"
+                                                value="Estudiando y Trabajando"
                                                 name="situacion"
                                             />
                                             <span class="checkmark"></span>
-                                            Emprendedor
-                                        </label>
-                                        <label class="checkbox-item">
-                                            <input
-                                                type="checkbox"
-                                                value="Freelancer"
-                                                name="situacion"
-                                            />
-                                            <span class="checkmark"></span>
-                                            Freelancer
+                                            Estudiando y Trabajando
                                         </label>
                                     </div>
                                 </div>
@@ -238,8 +246,9 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
         opacity: 0;
         visibility: hidden;
         transition: all 0.3s ease;
-        z-index: 100;
+        z-index: 1000;
         box-shadow: var(--shadow-lg);
+        pointer-events: none;
     }
 
     .filters-sidebar.show {
@@ -247,25 +256,18 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
         opacity: 1;
         visibility: visible;
         background: #fff;
+        pointer-events: auto;
     }
 
-    /* Overlay para pantallas móviles - Simplificado para dropdown */
+    /* Overlay para pantallas móviles - Deshabilitado para dropdown */
     .sidebar-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: transparent;
-        z-index: 99;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
+        /* En desktop no se usa, solo se mantiene para compatibilidad */
+        display: none;
     }
 
     .sidebar-overlay.show {
-        opacity: 1;
-        visibility: visible;
+        /* En desktop no se muestra */
+        display: none;
     }
 
     .sidebar-header {
@@ -282,6 +284,32 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
         font-weight: 600;
         color: var(--text-primary);
         margin: 0;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .close-filters-btn {
+        display: none; /* Oculto por defecto en desktop */
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: none;
+        background: var(--bg-gray);
+        color: var(--text-secondary);
+        font-size: 1.25rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .close-filters-btn:hover {
+        background-color: #e5e7eb;
+        color: var(--text-primary);
     }
 
     .clear-all-btn {
@@ -812,10 +840,51 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
 
     /* Estilos responsivos */
     @media (max-width: 768px) {
+        .close-filters-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .filters-sidebar {
+            position: fixed;
+            right: auto;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
             width: calc(100vw - 2rem);
-            max-width: 320px;
-            right: 1rem;
+            max-width: 400px;
+            max-height: 80vh;
+            border-radius: 12px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1001; /* Mayor que el overlay */
+        }
+
+        .filters-sidebar.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Overlay para cerrar en móvil */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+            opacity: 1;
         }
 
         .page-title {
@@ -863,12 +932,13 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
 
     @media (max-width: 480px) {
         .main-content {
-            padding: 1rem;
+            padding: 1rem 0.5rem;
         }
 
         .page-title-container {
             margin-bottom: 1rem;
             padding-bottom: 0.5rem;
+            padding: 0 1rem;
         }
 
         .page-title {
@@ -876,7 +946,7 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
         }
 
         .results-wrapper {
-            padding: 0 1rem;
+            padding: 0 0.5rem;
             margin-bottom: 0.5rem;
         }
 
@@ -884,22 +954,50 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
             flex-direction: column;
             align-items: flex-start;
             gap: 0.5rem;
+            padding: 0 0.5rem;
         }
 
         .header-right {
             align-self: flex-start;
+            width: 100%;
+        }
+
+        .toggle-filters-btn {
+            width: 100%;
+            justify-content: center;
         }
 
         .filters-sidebar {
             padding: 1rem;
-            right: 0.5rem;
-            width: calc(100vw - 1rem);
+            width: calc(100vw - 2rem);
             max-width: none;
+            left: 50%;
+            top: 50%;
+        }
+
+        .filter-section {
+            margin-bottom: 1rem;
+        }
+
+        .filter-label {
+            font-size: 0.75rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .checkbox-item {
+            font-size: 0.75rem;
+            padding: 0.3rem 0;
+        }
+
+        .checkmark {
+            width: 16px;
+            height: 16px;
+            margin-right: 0.4rem;
         }
 
         .perfiles-grid {
             gap: 1rem;
-            padding: 0 1rem;
+            padding: 0 0.5rem;
         }
 
         .perfil-card {
@@ -1045,20 +1143,8 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
         }
 
         bindSidebarEvents() {
-            // Event listener para el botón de mostrar/ocultar filtros
-            const toggleFiltersBtn =
-                document.getElementById("toggle-filters-btn");
-
-            if (toggleFiltersBtn) {
-                toggleFiltersBtn.addEventListener("click", () => {
-                    if (
-                        this.searchManager &&
-                        this.searchManager.toggleFilters
-                    ) {
-                        this.searchManager.toggleFilters();
-                    }
-                });
-            }
+            // NOTA: El botón de toggle filtros ya está manejado en AdvancedSearchManagerSidebar
+            // No agregamos listener duplicado aquí para evitar conflictos
 
             // Limpiar todos los filtros
             const clearAllBtn = document.getElementById("clear-all-filters");
