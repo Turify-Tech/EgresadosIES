@@ -373,8 +373,8 @@ export class AdvancedSearchManager {
             const count = this.totalResults;
             const text =
                 count === 1
-                    ? "1 perfil encontrado"
-                    : `${count} perfiles encontrados`;
+                    ? "1 Resultado encontrado"
+                    : `${count} Resultados encontrados`;
             this.elements.resultsCount.textContent = text;
         }
     }
