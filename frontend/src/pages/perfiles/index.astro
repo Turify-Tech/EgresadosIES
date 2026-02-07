@@ -9,106 +9,112 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
         <div class="perfiles-layout">
             <!-- Contenido principal -->
             <div class="main-content">
+                <!-- Título centrado -->
+                <div class="page-title-container">
+                    <h1 class="page-title">Perfiles</h1>
+                </div>
+                
                 <!-- Header de resultados -->
-                <div class="results-header">
-                    <div class="header-left">
-                        <h1>Perfiles</h1>
-                        <div class="results-info">
-                            <span id="results-count">Cargando...</span>
+                <div class="results-wrapper">
+                    <div class="results-header">
+                        <div class="header-left">
+                            <div class="results-info">
+                                <span id="results-count">Cargando...</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="header-right">
-                        <button
-                            id="toggle-filters-btn"
-                            class="toggle-filters-btn">
-                            Filtros
-                        </button>
+                        <div class="header-right">
+                            <button
+                                id="toggle-filters-btn"
+                                class="toggle-filters-btn">
+                                Filtros
+                            </button>
 
-                        <!-- Dropdown de filtros -->
-                        <div class="filters-sidebar">
-                            <div class="sidebar-header">
-                                <h2>Filtros</h2>
-                                <button
-                                    id="clear-all-filters"
-                                    class="clear-all-btn">
-                                    Limpiar todo
-                                </button>
-                            </div>
-
-                            <!-- Filtro de Carrera -->
-                            <div class="filter-section">
-                                <label class="filter-label">Carrera</label>
-                                <div
-                                    class="checkbox-group"
-                                    id="carrera-filter-group">
-                                    <label class="checkbox-item">
-                                        <input
-                                            type="checkbox"
-                                            value=""
-                                            name="carrera"
-                                            id="todas-carreras"
-                                            checked
-                                        />
-                                        <span class="checkmark"></span>
-                                        Todas
-                                    </label>
-                                    <!-- Las carreras se llenan dinámicamente aquí -->
+                            <!-- Dropdown de filtros -->
+                            <div class="filters-sidebar">
+                                <div class="sidebar-header">
+                                    <h2>Filtros</h2>
+                                    <button
+                                        id="clear-all-filters"
+                                        class="clear-all-btn">
+                                        Limpiar todo
+                                    </button>
                                 </div>
-                            </div>
 
-                            <!-- Filtro de Situación Laboral -->
-                            <div class="filter-section">
-                                <label
-                                    class="filter-label"
-                                    for="situacion-filter"
-                                    >Situación laboral actual</label
-                                >
-                                <div class="checkbox-group">
-                                    <label class="checkbox-item">
-                                        <input
-                                            type="checkbox"
-                                            value="Empleado"
-                                            name="situacion"
-                                        />
-                                        <span class="checkmark"></span>
-                                        Empleado
-                                    </label>
-                                    <label class="checkbox-item">
-                                        <input
-                                            type="checkbox"
-                                            value="Desempleado"
-                                            name="situacion"
-                                        />
-                                        <span class="checkmark"></span>
-                                        Desempleado
-                                    </label>
-                                    <label class="checkbox-item">
-                                        <input
-                                            type="checkbox"
-                                            value="Estudiando"
-                                            name="situacion"
-                                        />
-                                        <span class="checkmark"></span>
-                                        Estudiando
-                                    </label>
-                                    <label class="checkbox-item">
-                                        <input
-                                            type="checkbox"
-                                            value="Emprendedor"
-                                            name="situacion"
-                                        />
-                                        <span class="checkmark"></span>
-                                        Emprendedor
-                                    </label>
-                                    <label class="checkbox-item">
-                                        <input
-                                            type="checkbox"
-                                            value="Freelancer"
-                                            name="situacion"
-                                        />
-                                        <span class="checkmark"></span>
-                                        Freelancer
-                                    </label>
+                                <!-- Filtro de Carrera -->
+                                <div class="filter-section">
+                                    <label class="filter-label">Carrera</label>
+                                    <div
+                                        class="checkbox-group"
+                                        id="carrera-filter-group">
+                                        <label class="checkbox-item">
+                                            <input
+                                                type="checkbox"
+                                                value=""
+                                                name="carrera"
+                                                id="todas-carreras"
+                                                checked
+                                            />
+                                            <span class="checkmark"></span>
+                                            Todas
+                                        </label>
+                                        <!-- Las carreras se llenan dinámicamente aquí -->
+                                    </div>
+                                </div>
+
+                                <!-- Filtro de Situación Laboral -->
+                                <div class="filter-section">
+                                    <label
+                                        class="filter-label"
+                                        for="situacion-filter"
+                                        >Situación laboral actual</label
+                                    >
+                                    <div class="checkbox-group">
+                                        <label class="checkbox-item">
+                                            <input
+                                                type="checkbox"
+                                                value="Empleado"
+                                                name="situacion"
+                                            />
+                                            <span class="checkmark"></span>
+                                            Empleado
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input
+                                                type="checkbox"
+                                                value="Desempleado"
+                                                name="situacion"
+                                            />
+                                            <span class="checkmark"></span>
+                                            Desempleado
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input
+                                                type="checkbox"
+                                                value="Estudiando"
+                                                name="situacion"
+                                            />
+                                            <span class="checkmark"></span>
+                                            Estudiando
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input
+                                                type="checkbox"
+                                                value="Emprendedor"
+                                                name="situacion"
+                                            />
+                                            <span class="checkmark"></span>
+                                            Emprendedor
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input
+                                                type="checkbox"
+                                                value="Freelancer"
+                                                name="situacion"
+                                            />
+                                            <span class="checkmark"></span>
+                                            Freelancer
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -391,11 +397,18 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
         /* Ya no necesitamos margen porque el dropdown se superpone */
     }
 
+    /* Contenedor de resultados centrado con las cards */
+    .results-wrapper {
+        max-width: 800px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
     .results-header {
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 1.5rem;
+        align-items: center;
+        margin-bottom: 0.75rem;
         position: relative;
     }
 
@@ -438,11 +451,20 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
         border-color: var(--primary-color);
     }
 
-    .results-header h1 {
-        font-size: 1.5rem;
-        font-weight: 600;
+    /* Título de página centrado */
+    .page-title-container {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
         color: var(--text-primary);
         margin: 0;
+        letter-spacing: -0.025em;
     }
 
     .results-info {
@@ -450,13 +472,15 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
         font-size: 0.875rem;
     }
 
-    /* Grid de perfiles - Layout vertical de ancho completo */
+    /* Grid de perfiles - Layout vertical centrado con ancho limitado */
     .perfiles-grid {
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
-        padding: 0.5rem 0;
-        max-width: 100%;
+        padding: 0;
+        max-width: 800px;
+        margin: 0 auto;
+        width: 100%;
     }
 
     /* Tarjetas de perfil - estilo exacto del diseño */
@@ -794,19 +818,46 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
             right: 1rem;
         }
 
-        .results-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
+        .page-title {
+            font-size: 2rem;
         }
 
-        .header-right {
-            align-self: flex-end;
+        .results-wrapper {
+            padding: 0 1rem;
+        }
+
+        .results-header {
+            flex-direction: row;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
         }
 
         .toggle-filters-btn {
             font-size: 0.8rem;
             padding: 0.4rem 0.8rem;
+        }
+
+        .perfiles-grid {
+            gap: 1.25rem;
+        }
+
+        .card-header {
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .card-actions {
+            position: static;
+            width: 100%;
+            margin-top: 0.75rem;
+        }
+
+        .btn-ver-curriculum {
+            width: 100%;
+            text-align: center;
+            justify-content: center;
+            display: flex;
         }
     }
 
@@ -815,14 +866,149 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
             padding: 1rem;
         }
 
+        .page-title-container {
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+        }
+
+        .results-wrapper {
+            padding: 0 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .results-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .header-right {
+            align-self: flex-start;
+        }
+
         .filters-sidebar {
             padding: 1rem;
             right: 0.5rem;
             width: calc(100vw - 1rem);
+            max-width: none;
+        }
+
+        .perfiles-grid {
+            gap: 1rem;
+            padding: 0 1rem;
         }
 
         .perfil-card {
-            padding: 1rem;
+            padding: 1.25rem;
+        }
+
+        .card-header {
+            margin-bottom: 1.25rem;
+            gap: 1rem;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .avatar {
+            width: 70px;
+            height: 70px;
+            border-width: 2px;
+        }
+
+        .avatar-icon {
+            font-size: 2.25rem;
+        }
+
+        .card-title {
+            padding-top: 0;
+            width: 100%;
+        }
+
+        .card-title h3 {
+            font-size: 1.35rem;
+        }
+
+        .card-subtitle {
+            font-size: 0.9rem;
+        }
+
+        .card-actions {
+            position: static;
+            width: 100%;
+            margin-top: 0;
+        }
+
+        .btn-ver-curriculum {
+            width: 100%;
+            padding: 0.75rem 1.25rem;
+            font-size: 0.875rem;
+        }
+
+        .card-details {
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .detail-row {
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .detail-label {
+            min-width: 130px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            font-size: 0.875rem;
+            flex: 1;
+            word-break: break-word;
+        }
+
+        .card-footer {
+            margin-top: 1.25rem;
+            padding-top: 1.25rem;
+        }
+
+        .btn-enviar-mensaje {
+            width: 100%;
+            justify-content: center;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .pagination-container {
+            gap: 0.5rem;
+            padding: 1.5rem 1rem;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .pagination-btn {
+            padding: 0.625rem 0.875rem;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .pagination-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .page-info {
+            font-size: 0.8rem;
+            padding: 0 0.5rem;
+            text-align: center;
+            flex: 1;
+            min-width: 0;
         }
     }
 </style>
