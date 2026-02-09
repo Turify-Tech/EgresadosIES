@@ -104,10 +104,10 @@ export async function crearPublicacion(req, res) {
 }
 
 /**
- * Listar publicaciones (feed)
+ * Listar publicaciones (feed) - VERSIÓN OPTIMIZADA
  * @route GET /api/publicaciones
- * @desc Obtener feed paginado de publicaciones con contadores
- * @access Privado (solo egresados autenticados)
+ * @desc Obtener feed paginado de publicaciones con contadores usando una sola query
+ * @access Público
  */
 export async function listarPublicaciones(req, res) {
     try {
@@ -120,99 +120,108 @@ export async function listarPublicaciones(req, res) {
 
         const client = database.getClient();
 
-        // Consulta simplificada para diagnóstico
+        // Query optimizada con JOINs y contadores en una sola consulta
         const publicacionesQuery = `
             SELECT 
                 p.id,
                 p.contenido,
                 p.fechaCreacion,
-                p.autorId
+                p.autorId,
+                COALESCE(u.nombre, '') as nombreUsuario,
+                COALESCE(u.apellido, '') as apellido,
+                COALESCE(perf.tituloprofesional, '') as tituloprofesional,
+                COALESCE(perf.urlFotoPerfil, '') as urlFotoPerfil,
+                COALESCE(comment_counts.total_comentarios, 0) as totalComentarios,
+                COALESCE(like_counts.total_likes, 0) as totalLikes
             FROM Publicacion p
+            LEFT JOIN Usuario u ON p.autorId = u.id
+            LEFT JOIN Egresado e ON u.id = e.id
+            LEFT JOIN Perfil perf ON e.perfilId = perf.id
+            LEFT JOIN (
+                SELECT publicacionId, COUNT(*) as total_comentarios 
+                FROM Comentario 
+                GROUP BY publicacionId
+            ) comment_counts ON p.id = comment_counts.publicacionId
+            LEFT JOIN (
+                SELECT publicacionId, COUNT(*) as total_likes 
+                FROM LikePublicacion 
+                GROUP BY publicacionId
+            ) like_counts ON p.id = like_counts.publicacionId
             ORDER BY p.fechaCreacion DESC
-            LIMIT ${limit} OFFSET ${offset}
+            LIMIT ? OFFSET ?
         `;
 
-        const publicacionesResult = await client.execute(publicacionesQuery);
+        const publicacionesResult = await client.execute({
+            sql: publicacionesQuery,
+            args: [limit, offset]
+        });
 
         // Obtener total de publicaciones para metadatos de paginación
         const totalQuery = `SELECT COUNT(*) as total FROM Publicacion`;
         const totalResult = await client.execute(totalQuery);
         const total = Number(totalResult.rows[0]?.total || 0);
 
+        // Obtener todas las imágenes en batch para las publicaciones de esta página
+        const publicacionIds = publicacionesResult.rows.map(p => p.id);
+        let imagenesMap = {};
+        
+        if (publicacionIds.length > 0) {
+            const imagenesQuery = `
+                SELECT publicacionId, url, id
+                FROM ImagenPublicacion 
+                WHERE publicacionId IN (${publicacionIds.join(',')})
+                ORDER BY publicacionId, id
+            `;
+            const imagenesResult = await client.execute(imagenesQuery);
+            
+            // Agrupar imágenes por publicación
+            imagenesResult.rows.forEach(img => {
+                if (!imagenesMap[img.publicacionId]) {
+                    imagenesMap[img.publicacionId] = [];
+                }
+                imagenesMap[img.publicacionId].push(img.url);
+            });
+        }
+
         // Procesar resultados
         const publicaciones = [];
         for (const row of publicacionesResult.rows) {
             const publicacion = convertBigIntToNumber(row);
             
-            // Obtener autor con información del perfil si existe
-            const autorQuery = `
-                SELECT 
-                    u.nombre as nombreUsuario,
-                    u.apellido,
-                    p.tituloprofesional,
-                    p.urlFotoPerfil
-                FROM Usuario u
-                LEFT JOIN Egresado e ON u.id = e.id
-                LEFT JOIN Perfil p ON e.perfilId = p.id
-                WHERE u.id = ${publicacion.autorId}
-            `;
-            const autorResult = await client.execute(autorQuery);
-            
-            console.log('Datos del autor:', autorResult.rows[0]);
-            
+            // Construir nombre completo del autor
             let nombreCompleto = 'Usuario desconocido';
-            let urlFotoPerfil = null;
-            if (autorResult.rows.length > 0) {
-                const autor = autorResult.rows[0];
-                urlFotoPerfil = autor.urlFotoPerfil;
-                
-                // Prioridad: nombre + apellido de Usuario, si no existe usar tituloprofesional
-                if (autor.nombreUsuario && autor.apellido) {
-                    nombreCompleto = `${autor.nombreUsuario} ${autor.apellido}`;
-                } else if (autor.nombreUsuario) {
-                    nombreCompleto = autor.nombreUsuario;
-                } else if (autor.tituloprofesional) {
-                    nombreCompleto = autor.tituloprofesional;
-                } else {
-                    nombreCompleto = 'Usuario desconocido';
+            if (publicacion.nombreUsuario || publicacion.apellido) {
+                if (publicacion.nombreUsuario && publicacion.apellido) {
+                    nombreCompleto = `${publicacion.nombreUsuario} ${publicacion.apellido}`;
+                } else if (publicacion.nombreUsuario) {
+                    nombreCompleto = publicacion.nombreUsuario;
+                } else if (publicacion.apellido) {
+                    nombreCompleto = publicacion.apellido;
                 }
+            } else if (publicacion.tituloprofesional) {
+                nombreCompleto = publicacion.tituloprofesional;
             }
+
+            // Asignar imágenes desde el mapa
+            publicacion.imagenes = imagenesMap[publicacion.id] || [];
             
-            console.log('Nombre completo a mostrar:', nombreCompleto);
-
-            // Obtener imágenes de esta publicación
-            const imagenesQuery = `
-                SELECT url FROM ImagenPublicacion 
-                WHERE publicacionId = ${publicacion.id}
-                ORDER BY id
-            `;
-            const imagenesResult = await client.execute(imagenesQuery);
-
-            publicacion.imagenes = imagenesResult.rows.map(img => img.url);
+            // Construir objeto autor
             publicacion.autor = {
                 id: publicacion.autorId,
                 nombre: nombreCompleto,
-                urlFotoPerfil: urlFotoPerfil
+                urlFotoPerfil: publicacion.urlFotoPerfil || null
             };
             
-            // Obtener total de comentarios
-            const comentariosQuery = `
-                SELECT COUNT(*) as total FROM Comentario 
-                WHERE publicacionId = ${publicacion.id}
-            `;
-            const comentariosResult = await client.execute(comentariosQuery);
-            publicacion.totalComentarios = Number(comentariosResult.rows[0]?.total || 0);
-            
-            // Obtener total de likes
-            const likesQuery = `
-                SELECT COUNT(*) as total FROM LikePublicacion 
-                WHERE publicacionId = ${publicacion.id}
-            `;
-            const likesResult = await client.execute(likesQuery);
-            publicacion.totalLikes = Number(likesResult.rows[0]?.total || 0);
+            // Convertir contadores a números
+            publicacion.totalComentarios = Number(publicacion.totalComentarios);
+            publicacion.totalLikes = Number(publicacion.totalLikes);
             
             // Limpiar campos temporales
             delete publicacion.autorId;
+            delete publicacion.nombreUsuario;
+            delete publicacion.apellido;
+            delete publicacion.tituloprofesional;
+            delete publicacion.urlFotoPerfil;
 
             publicaciones.push(publicacion);
         }

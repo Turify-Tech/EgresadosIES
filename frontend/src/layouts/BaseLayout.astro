@@ -170,8 +170,8 @@ import DynamicBackground from "../components/DynamicBackground.astro";
     <body
         style="margin: 0; padding: 0; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column;">
         
-        <!-- Fondo animado decorativo -->
-        <DynamicBackground />
+        <!-- Fondo animado decorativo - solo en páginas principales -->
+        {title.includes("Dashboard") || title.includes("Inicio") || title.includes("EgresadosIES") ? <DynamicBackground /> : null}
         
         <!-- Header -->
         <header style="background-color: #E6E6E6; padding: 0.75rem 2rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">

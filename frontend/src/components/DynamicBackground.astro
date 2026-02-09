@@ -53,7 +53,14 @@
     (function() {
         console.log('🎨 DynamicBackground: Script cargado');
         
-        // Array de íconos disponibles
+        // Prevenir múltiples inicializaciones
+        if (window.dynamicBackgroundInitialized) {
+            console.log('🎨 DynamicBackground: Ya inicializado, omitiendo...');
+            return;
+        }
+        window.dynamicBackgroundInitialized = true;
+        
+        // Array de íconos disponibles - versión optimizada con cache
         const icons = [
             '/images/libro.png',
             '/images/gorro-de-graduacion.png',
@@ -61,20 +68,30 @@
             '/images/lista-de-verificacion.png',
         ];
 
-        // Configuración
+        // Configuración optimizada
         const CONFIG = {
-            symbolCount: 35, // Número de símbolos
-            repelDistance: 150, // Distancia de repulsión en pixels
-            repelStrength: 80, // Intensidad del desplazamiento
-            minDistance: 15, // Distancia mínima entre símbolos en vw/vh
+            symbolCount: 20, // Reducido aún más para mejor rendimiento
+            repelDistance: 150,
+            repelStrength: 80,
+            minDistance: 25, // Aumentado para menos solapamiento
         };
 
         let mouseHandler = null;
-        let symbolPositions = []; // Almacenar posiciones generadas
+        let symbolPositions = [];
+        let iconCache = new Map(); // Cache global para imágenes cargadas
+        let initializationInProgress = false;
 
-        // Inicializar fondo dinámico
-        function initDynamicBackground() {
+        // Inicializar fondo dinámico - VERSIÓN ANTI-DUPLICACIÓN
+        async function initDynamicBackground() {
+            // Prevenir inicializaciones concurrentes
+            if (initializationInProgress) {
+                console.log('🎨 DynamicBackground: Inicialización en progreso, esperando...');
+                return;
+            }
+            
+            initializationInProgress = true;
             console.log('🎨 DynamicBackground: Iniciando...');
+            
             try {
                 const container = document.querySelector('.dynamic-background');
                 console.log('🎨 DynamicBackground: Container encontrado:', container);
@@ -84,29 +101,46 @@
                     return;
                 }
 
-                // Limpiar símbolos existentes y posiciones
-                container.innerHTML = '';
-                symbolPositions = [];
+                // Solo limpiar si realmente está vacío o si es la primera carga
+                if (container.children.length === 0) {
+                    console.log('🧹 DynamicBackground: Container vacío, limpiando posiciones...');
+                    symbolPositions = [];
+                }
 
-                // Generar símbolos aleatorios con espaciado
-                for (let i = 0; i < CONFIG.symbolCount; i++) {
-                    createSymbol(container, i);
+                // Precargar iconos solo si no están cacheados
+                if (iconCache.size === 0) {
+                    await preloadIcons();
+                } else {
+                    console.log('📦 DynamicBackground: Usando cache de iconos existente');
                 }
                 
-                console.log(`✅ DynamicBackground: ${CONFIG.symbolCount} símbolos creados`);
+                // Generar símbolos solo si no existen
+                if (container.children.length === 0) {
+                    const symbolsToCreate = CONFIG.symbolCount - container.children.length;
+                    for (let i = 0; i < symbolsToCreate; i++) {
+                        await createSymbol(container, i);
+                    }
+                }
+                
+                console.log(`✅ DynamicBackground: ${container.children.length} símbolos activos`);
 
-                // Remover listener anterior si existe
+                // Remover listener anterior si existe para evitar duplicados
                 if (mouseHandler) {
                     document.removeEventListener('mousemove', mouseHandler);
+                    mouseHandler = null;
                 }
 
-                // Agregar nuevo listener de movimiento del mouse
-                mouseHandler = handleMouseMove;
-                document.addEventListener('mousemove', mouseHandler, { passive: true });
+                // Agregar nuevo listener solo si no existe
+                if (!mouseHandler) {
+                    mouseHandler = handleMouseMove;
+                    document.addEventListener('mousemove', mouseHandler, { passive: true });
+                }
                 
                 console.log('✅ DynamicBackground: Inicializado correctamente');
             } catch (error) {
                 console.error('❌ DynamicBackground: Error durante inicialización', error);
+            } finally {
+                initializationInProgress = false;
             }
         }
 
@@ -121,8 +155,36 @@
             return false;
         }
 
-        // Crear un símbolo individual
-        function createSymbol(container, index) {
+        // Precargar y cache de iconos - VERSIÓN MEJORADA
+        function preloadIcons() {
+            console.log('🚀 DynamicBackground: Precargando iconos...');
+            
+            const promises = icons.map(iconPath => {
+                // Si ya está en cache, resolver inmediatamente
+                if (iconCache.has(iconPath)) {
+                    return Promise.resolve(iconCache.get(iconPath));
+                }
+                
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        iconCache.set(iconPath, iconPath);
+                        console.log(`✅ Icono precargado: ${iconPath}`);
+                        resolve(iconPath);
+                    };
+                    img.onerror = () => {
+                        console.warn(`⚠️ Error precargando icono: ${iconPath}`);
+                        resolve(null); // Permitir continuar con iconos faltantes
+                    };
+                    img.src = iconPath;
+                });
+            });
+            
+            return Promise.all(promises);
+        }
+
+        // Crear un símbolo individual - VERSIÓN ANTI-DUPLICACIÓN
+        async function createSymbol(container, index) {
             const symbol = document.createElement('div');
             symbol.className = 'symbol';
             symbol.dataset.index = index.toString();
@@ -130,10 +192,10 @@
             // Generar posición aleatoria que no esté muy cerca de otras
             let x, y, attempts = 0;
             do {
-                x = Math.random() * 95 + 2.5; // Entre 2.5% y 97.5%
-                y = Math.random() * 95 + 2.5;
+                x = Math.random() * 90 + 5; // Entre 5% y 95%
+                y = Math.random() * 90 + 5;
                 attempts++;
-            } while (isTooClose(x, y) && attempts < 50);
+            } while (isTooClose(x, y) && attempts < 30);
 
             // Almacenar posición
             symbolPositions.push({x, y});
@@ -149,68 +211,84 @@
             // Aplicar transformación inicial
             symbol.style.transform = `translate(${x}vw, ${y}vh) rotate(${rotation}deg)`;
 
-            // Seleccionar ícono aleatorio
-            const iconPath = icons[Math.floor(Math.random() * icons.length)];
+            // Selección balanceada pero con variación para evitar patrones
+            const availableIcons = icons.filter(icon => iconCache.has(icon));
+            if (availableIcons.length === 0) {
+                console.warn('⚠️ No hay iconos cacheados disponibles');
+                return;
+            }
+            
+            const iconIndex = (index + Math.floor(Math.random() * 2)) % availableIcons.length;
+            const iconPath = availableIcons[iconIndex];
+            
             const img = document.createElement('img');
-            img.src = iconPath;
             img.alt = '';
             img.loading = 'lazy';
+            img.decoding = 'async'; // Decodificación asíncrona para mejor rendimiento
             
-            img.onerror = function() {
-                console.error('❌ Error cargando imagen:', iconPath);
-            };
-            
-            img.onload = function() {
-                console.log('✅ Imagen cargada:', iconPath);
-            };
-            
-            symbol.appendChild(img);
-            container.appendChild(symbol);
+            // Siempre usar cache
+            if (iconCache.has(iconPath)) {
+                img.src = iconPath;
+                symbol.appendChild(img);
+                container.appendChild(symbol);
+            } else {
+                console.warn('⚠️ Icono no encontrado en cache:', iconPath);
+                return; // No crear símbolo sin icono
+            }
         }
 
-        // Manejar movimiento del mouse
+        // Manejar movimiento del mouse - VERSIÓN OPTIMIZADA con throttling
+        let mouseMoveThrottle = null;
         function handleMouseMove(e) {
-            try {
-                const symbols = document.querySelectorAll('.symbol');
-                
-                symbols.forEach((symbol) => {
-                    const htmlSymbol = symbol;
-                    const rect = htmlSymbol.getBoundingClientRect();
-                    const symbolCenterX = rect.left + rect.width / 2;
-                    const symbolCenterY = rect.top + rect.height / 2;
+            // Throttling para mejorar rendimiento
+            if (mouseMoveThrottle) return;
+            
+            mouseMoveThrottle = requestAnimationFrame(() => {
+                try {
+                    const symbols = document.querySelectorAll('.symbol');
+                    
+                    // Usar for loop tradicional para mejor rendimiento
+                    for (let i = 0; i < symbols.length; i++) {
+                        const symbol = symbols[i];
+                        const rect = symbol.getBoundingClientRect();
+                        const symbolCenterX = rect.left + rect.width / 2;
+                        const symbolCenterY = rect.top + rect.height / 2;
 
-                    // Calcular distancia entre cursor y símbolo
-                    const deltaX = e.clientX - symbolCenterX;
-                    const deltaY = e.clientY - symbolCenterY;
-                    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                        // Calcular distancia entre cursor y símbolo
+                        const deltaX = e.clientX - symbolCenterX;
+                        const deltaY = e.clientY - symbolCenterY;
+                        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-                    // Si el cursor está cerca, aplicar repulsión
-                    if (distance < CONFIG.repelDistance) {
-                        htmlSymbol.classList.remove('returning');
-                        
-                        // Calcular fuerza de repulsión (inversa a la distancia)
-                        const force = (CONFIG.repelDistance - distance) / CONFIG.repelDistance;
-                        const repelX = -(deltaX / distance) * CONFIG.repelStrength * force;
-                        const repelY = -(deltaY / distance) * CONFIG.repelStrength * force;
+                        // Si el cursor está cerca, aplicar repulsión
+                        if (distance < CONFIG.repelDistance) {
+                            symbol.classList.remove('returning');
+                            
+                            // Calcular fuerza de repulsión (inversa a la distancia)
+                            const force = (CONFIG.repelDistance - distance) / CONFIG.repelDistance;
+                            const repelX = -(deltaX / distance) * CONFIG.repelStrength * force;
+                            const repelY = -(deltaY / distance) * CONFIG.repelStrength * force;
 
-                        // Obtener posición original
-                        const originalX = parseFloat(htmlSymbol.dataset.originalX || '0');
-                        const originalY = parseFloat(htmlSymbol.dataset.originalY || '0');
-                        const originalRotation = parseFloat(htmlSymbol.dataset.originalRotation || '0');
+                            // Obtener posición original
+                            const originalX = parseFloat(symbol.dataset.originalX || '0');
+                            const originalY = parseFloat(symbol.dataset.originalY || '0');
+                            const originalRotation = parseFloat(symbol.dataset.originalRotation || '0');
 
-                        // Aplicar desplazamiento
-                        htmlSymbol.style.transform = `
-                            translate(calc(${originalX}vw + ${repelX}px), calc(${originalY}vh + ${repelY}px))
-                            rotate(${originalRotation + force * 15}deg)
-                        `;
-                    } else {
-                        // Volver a posición original suavemente
-                        returnToOriginalPosition(htmlSymbol);
+                            // Aplicar desplazamiento
+                            symbol.style.transform = `
+                                translate(calc(${originalX}vw + ${repelX}px), calc(${originalY}vh + ${repelY}px))
+                                rotate(${originalRotation + force * 15}deg)
+                            `;
+                        } else {
+                            // Volver a posición original suavemente
+                            returnToOriginalPosition(symbol);
+                        }
                     }
-                });
-            } catch (error) {
-                console.error('DynamicBackground: Error in mouse handler', error);
-            }
+                } catch (error) {
+                    console.error('DynamicBackground: Error in mouse handler', error);
+                } finally {
+                    mouseMoveThrottle = null;
+                }
+            });
         }
 
         // Volver a posición original
@@ -226,15 +304,38 @@
             }
         }
 
-        // Inicializar cuando el DOM esté listo
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initDynamicBackground);
-        } else {
-            // Usar setTimeout para no bloquear otros scripts
-            setTimeout(initDynamicBackground, 100);
+        // Limpieza al cambiar de página
+        function cleanup() {
+            console.log('🧹 DynamicBackground: Limpiando recursos...');
+            
+            if (mouseHandler) {
+                document.removeEventListener('mousemove', mouseHandler);
+                mouseHandler = null;
+            }
+            
+            // Limpiar cache de imágenes
+            iconCache.clear();
+            
+            // Limpiar símbolos del DOM
+            const container = document.querySelector('.dynamic-background');
+            if (container) {
+                container.innerHTML = '';
+            }
+            
+            symbolPositions = [];
         }
 
-        // Reinicializar en navegación de Astro
-        document.addEventListener('astro:page-load', initDynamicBackground);
+        // Inicializar cuando el DOM esté listo - SOLO UNA VEZ
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(initDynamicBackground, 200); // Aumentado para evitar conflicts
+            });
+        } else {
+            setTimeout(initDynamicBackground, 200);
+        }
+
+        // Solo limpiar al descargar la página
+        // Eliminados los listeners de Astro para prevenir múltiples inicializaciones
+        window.addEventListener('beforeunload', cleanup);
     })();
 </script>

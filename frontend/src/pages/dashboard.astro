@@ -160,7 +160,32 @@ import "../styles/publicaciones-imagenes.css";
                 </form>
 
                 <div class="feed-intro">
-                    <h2>Feed de la comunidad</h2>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h2>Feed de la comunidad</h2>
+                        <button 
+                            id="refresh-feed-btn" 
+                            onclick="refreshFeed()" 
+                            style="
+                                padding: 0.5rem 1rem; 
+                                background: #3b82f6; 
+                                color: white; 
+                                border: none; 
+                                border-radius: 6px; 
+                                cursor: pointer; 
+                                font-size: 0.9rem;
+                                display: flex;
+                                align-items: center;
+                                gap: 0.5rem;
+                            "
+                        >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M23 4v6h-6"></path>
+                                <path d="M1 20v-6h6"></path>
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                            </svg>
+                            Actualizar
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Feed de publicaciones -->
@@ -618,16 +643,26 @@ import "../styles/publicaciones-imagenes.css";
                 for (let i = 0; i < maxDisplay; i++) {
                     let imgUrl = imagenes[i].startsWith('http') ? imagenes[i] : `http://localhost:3000${imagenes[i]}`;
                     
-                    // Optimizar URLs de ImageKit con parámetros de compresión
+                    // Optimizar URLs de ImageKit con parámetros de compresión más agresivos
                     if (imgUrl.includes('ik.imagekit.io')) {
-                        imgUrl += '?tr=w-800,q-80,f-auto';
+                        imgUrl += '?tr=w-600,q-75,f-auto,bl-30'; // Más compresión para carga rápida
                     }
                     
                     // Agregar clase especial a la última imagen si hay 5 en total
                     const extraClass = (imagenes.length === 5 && i === 3) ? ' imagen-con-indicador' : '';
+                    
+                    // Lazy loading optimizado con placeholder y aspect ratio
                     imagenesHTML += `
                         <div class="imagen-container${extraClass}" data-imagen-index="${i}">
-                            <img src="${imgUrl}" alt="Imagen ${i + 1}" loading="lazy" decoding="async" />
+                            <img 
+                                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%23f3f4f6' width='400' height='300'/%3E%3C/svg%3E"
+                                data-src="${imgUrl}"
+                                alt="Imagen ${i + 1}" 
+                                loading="lazy" 
+                                decoding="async" 
+                                class="lazy-image"
+                                style="aspect-ratio: 4/3; background: #f3f4f6;"
+                            />
                         </div>
                     `;
                 }
@@ -642,15 +677,22 @@ import "../styles/publicaciones-imagenes.css";
                     : `http://localhost:3000${autor.urlFotoPerfil}`)
                 : null;
             
-            // Optimizar URL si es de ImageKit o agregar parámetros para reducir tamaño
-            if (fotoUrl) {
-                if (fotoUrl.includes('ik.imagekit.io')) {
-                    fotoUrl += '?tr=w-100,h-100,q-80,f-auto';
-                }
+            // Optimizar URL si es de ImageKit
+            if (fotoUrl && fotoUrl.includes('ik.imagekit.io')) {
+                fotoUrl += '?tr=w-80,h-80,q-75,f-auto'; // Más pequeño y comprimido
             }
             
             const avatarHTML = fotoUrl 
-                ? `<div class="avatar"><img src="${fotoUrl}" alt="${nombreAutor}" loading="lazy" /></div>`
+                ? `<div class="avatar">
+                    <img 
+                        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle fill='%23e5e7eb' cx='20' cy='20' r='20'/%3E%3C/svg%3E"
+                        data-src="${fotoUrl}" 
+                        alt="${nombreAutor}" 
+                        loading="lazy" 
+                        class="lazy-image lazy-avatar"
+                        style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;"
+                    />
+                   </div>`
                 : `<div class="avatar"></div>`;
             
             return `
@@ -686,9 +728,26 @@ import "../styles/publicaciones-imagenes.css";
             `;
         }
 
-        // Función para cargar publicaciones
+        // Cache simple para publicaciones
+        const postsCache = new Map();
+        const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+
+        // Función para cargar publicaciones - VERSIÓN OPTIMIZADA
         async function cargarPublicaciones(page = 1) {
             if (isLoading) return;
+            
+            // Verificar cache para página 1
+            const cacheKey = `page_${page}`;
+            const now = Date.now();
+            
+            if (page === 1 && postsCache.has(cacheKey)) {
+                const cached = postsCache.get(cacheKey);
+                if (now - cached.timestamp < CACHE_DURATION) {
+                    console.log('📦 Usando cache para publicaciones');
+                    renderPublicaciones(cached.data, page);
+                    return;
+                }
+            }
             
             isLoading = true;
             const loadMoreBtn = document.getElementById('load-more-btn');
@@ -706,12 +765,18 @@ import "../styles/publicaciones-imagenes.css";
                     headers['Authorization'] = `Bearer ${token}`;
                 }
 
+                // Timeout optimizado de 8 segundos (reducido de 10+)
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 8000);
+
                 const response = await fetch(`${API_URL}/publicaciones?page=${page}&limit=10`, {
-                    headers
+                    headers,
+                    signal: controller.signal
                 });
 
+                clearTimeout(timeoutId);
+
                 if (response.status === 401) {
-                    // Si no está autenticado, mostrar mensaje pero continuar cargando publicaciones
                     console.log('Usuario no autenticado - modo lectura');
                 }
 
@@ -719,85 +784,23 @@ import "../styles/publicaciones-imagenes.css";
                 console.log('API Response:', result);
 
                 if (result.success && result.data.publicaciones) {
-                    const feedList = document.getElementById('feed-list');
-                    console.log('Publicaciones recibidas:', result.data.publicaciones);
-                    
-                    // Actualizar nombre del usuario en localStorage si encontramos su publicación
-                    if (page === 1 && currentUser) {
-                        const miPublicacion = result.data.publicaciones.find(p => p.autor.id === currentUser.id);
-                        if (miPublicacion && miPublicacion.autor.nombre) {
-                            const userData = getUserData();
-                            if (userData && userData.nombre !== miPublicacion.autor.nombre) {
-                                userData.nombre = miPublicacion.autor.nombre;
-                                localStorage.setItem('user_data', JSON.stringify(userData));
-                                // Actualizar también en BaseLayout
-                                window.dispatchEvent(new Event('storage'));
-                            }
-                        }
-                    }
-                    
-                    // Si es la primera página, limpiar el contenido
+                    // Guardar en cache solo página 1
                     if (page === 1) {
-                        feedList.innerHTML = '';
-                    }
-
-                    // Si no hay publicaciones
-                    if (result.data.publicaciones.length === 0 && page === 1) {
-                        feedList.innerHTML = `
-                            <div class="empty-feed">
-                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <path d="M12 2v20m8-10H4"></path>
-                                </svg>
-                                <h3>Aún no hay publicaciones</h3>
-                                <p>¡Sé el primero en compartir algo con la comunidad!</p>
-                            </div>
-                        `;
-                    } else {
-                        // Obtener IDs de todas las publicaciones
-                        const publicacionIds = result.data.publicaciones.map(p => p.id);
-                        
-                        // Obtener estados de likes en batch (una sola llamada)
-                        let likesMap = {};
-                        try {
-                            const likesRes = await fetch(`${API_URL}/likes/mi-estado-batch`, {
-                                method: 'POST',
-                                headers: {
-                                    'Authorization': `Bearer ${token}`,
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({ publicacionIds })
-                            });
-                            
-                            if (likesRes.ok) {
-                                const likesData = await likesRes.json();
-                                likesMap = likesData.data || {};
-                            }
-                        } catch (error) {
-                            console.warn('Error al obtener likes en batch:', error);
-                        }
-
-                        // Agregar las nuevas publicaciones con sus likes
-                        result.data.publicaciones.forEach(publicacion => {
-                            publicacion.userLiked = likesMap[publicacion.id] || false;
-                            const cardHTML = crearPostCard(publicacion, publicacion.userLiked);
-                            feedList.insertAdjacentHTML('beforeend', cardHTML);
+                        postsCache.set(cacheKey, {
+                            data: result.data,
+                            timestamp: now
                         });
-
-                        // Agregar event listeners a los botones
-                        agregarEventListeners();
                     }
-
-                    // Actualizar estado de paginación
-                    hasMorePages = result.data.pagination.hasNext;
                     
-                    // Mostrar/ocultar botón de cargar más
-                    const loadMoreSection = document.querySelector('.load-more');
-                    if (loadMoreSection) {
-                        loadMoreSection.style.display = hasMorePages ? 'block' : 'none';
-                    }
+                    renderPublicaciones(result.data, page);
                 }
             } catch (error) {
-                console.error('Error cargando publicaciones:', error);
+                if (error.name === 'AbortError') {
+                    console.error('Timeout cargando publicaciones (8s)');
+                } else {
+                    console.error('Error cargando publicaciones:', error);
+                }
+                
                 const feedList = document.getElementById('feed-list');
                 if (page === 1) {
                     feedList.innerHTML = `
@@ -815,6 +818,71 @@ import "../styles/publicaciones-imagenes.css";
                     loadMoreBtn.textContent = 'Cargar más';
                     loadMoreBtn.disabled = false;
                 }
+            }
+        }
+
+        // Función separada para renderizar publicaciones
+        function renderPublicaciones(data, page) {
+            const feedList = document.getElementById('feed-list');
+            console.log('📄 Renderizando publicaciones:', data.publicaciones.length);
+            
+            // Actualizar nombre del usuario en localStorage si encontramos su publicación
+            if (page === 1 && currentUser) {
+                const miPublicacion = data.publicaciones.find(p => p.autor.id === currentUser.id);
+                if (miPublicacion && miPublicacion.autor.nombre) {
+                    const userData = getUserData();
+                    if (userData && userData.nombre !== miPublicacion.autor.nombre) {
+                        userData.nombre = miPublicacion.autor.nombre;
+                        localStorage.setItem('user_data', JSON.stringify(userData));
+                        // Actualizar también en BaseLayout
+                        window.dispatchEvent(new Event('storage'));
+                    }
+                }
+            }
+            
+            // Si es la primera página, limpiar el contenido
+            if (page === 1) {
+                feedList.innerHTML = '';
+            }
+
+            // Si no hay publicaciones
+            if (data.publicaciones.length === 0 && page === 1) {
+                feedList.innerHTML = `
+                    <div class="empty-feed">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M12 2v20m8-10H4"></path>
+                        </svg>
+                        <h3>Aún no hay publicaciones</h3>
+                        <p>¡Sé el primero en compartir algo con la comunidad!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Renderizar publicaciones con requestAnimationFrame para mejor rendimiento
+            const fragment = document.createDocumentFragment();
+            const tempContainer = document.createElement('div');
+            
+            data.publicaciones.forEach(publicacion => {
+                const cardHTML = crearPostCard(publicacion, publicacion.userLiked || false);
+                tempContainer.innerHTML = cardHTML;
+                fragment.appendChild(tempContainer.firstElementChild);
+            });
+            
+            feedList.appendChild(fragment);
+
+            // Optimización: agregar event listeners solo para nuevos elementos
+            requestAnimationFrame(() => {
+                setupLazyLoading();
+            });
+
+            // Actualizar estado de paginación
+            hasMorePages = data.pagination.hasNext;
+            
+            // Mostrar/ocultar botón de cargar más
+            const loadMoreSection = document.querySelector('.load-more');
+            if (loadMoreSection) {
+                loadMoreSection.style.display = hasMorePages ? 'block' : 'none';
             }
         }
 
@@ -874,6 +942,45 @@ import "../styles/publicaciones-imagenes.css";
             } catch (error) {
                 console.error('Error creando publicación:', error);
                 showNotification('Error al crear la publicación', 'error');
+            }
+        }
+
+        // Función para refrescar el feed limpiando cache
+        async function refreshFeed() {
+            const refreshBtn = document.getElementById('refresh-feed-btn');
+            if (refreshBtn) {
+                refreshBtn.disabled = true;
+                refreshBtn.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="animate-spin">
+                        <path d="M23 4v6h-6"></path>
+                        <path d="M1 20v-6h6"></path>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                    Actualizando...
+                `;
+            }
+            
+            // Limpiar cache
+            postsCache.clear();
+            
+            // Recargar desde cero
+            currentPage = 1;
+            hasMorePages = true;
+            
+            try {
+                await cargarPublicaciones(1);
+            } finally {
+                if (refreshBtn) {
+                    refreshBtn.disabled = false;
+                    refreshBtn.innerHTML = `
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 4v6h-6"></path>
+                            <path d="M1 20v-6h6"></path>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                        Actualizar
+                    `;
+                }
             }
         }
 
@@ -1720,23 +1827,69 @@ import "../styles/publicaciones-imagenes.css";
             }
         }
 
-        // Función para agregar event listeners a los botones
-        function agregarEventListeners() {
-            // Botones de like
-            document.querySelectorAll('.like-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const postId = this.getAttribute('data-post-id');
-                    if (postId) toggleLike(parseInt(postId));
+        // Lazy loading para imágenes con Intersection Observer
+        function setupLazyLoading() {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        const src = img.getAttribute('data-src');
+                        
+                        if (src) {
+                            img.src = src;
+                            img.classList.remove('lazy-image');
+                            img.classList.add('loaded');
+                            observer.unobserve(img);
+                        }
+                    }
                 });
+            }, {
+                rootMargin: '100px', // Cargar imágenes 100px antes de entrar en viewport
+                threshold: 0.1
             });
 
-            // Botones de comentarios
-            document.querySelectorAll('.comment-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const postId = this.getAttribute('data-post-id');
-                    if (postId) toggleComments(parseInt(postId));
-                });
+            document.querySelectorAll('.lazy-image').forEach(img => {
+                imageObserver.observe(img);
             });
+        }
+
+        // Función para agregar event listeners a los botones - OPTIMIZADA
+        function agregarEventListeners() {
+            // Botones de like - usando delegación de eventos
+            const feedList = document.getElementById('feed-list');
+            
+            feedList.addEventListener('click', function(e) {
+                const target = e.target;
+                const likeBtn = target.closest('.like-btn');
+                const commentBtn = target.closest('.comment-btn');
+                const deleteBtn = target.closest('.delete-btn');
+                const imgContainer = target.closest('.imagen-container');
+                
+                if (likeBtn) {
+                    e.preventDefault();
+                    const postId = likeBtn.getAttribute('data-post-id');
+                    toggleLike(postId);
+                } else if (commentBtn) {
+                    e.preventDefault();
+                    const postId = commentBtn.getAttribute('data-post-id');
+                    toggleComments(postId);
+                } else if (deleteBtn) {
+                    e.preventDefault();
+                    const postId = deleteBtn.getAttribute('data-post-id');
+                    deletePost(postId);
+                } else if (imgContainer && target.tagName === 'IMG') {
+                    const container = imgContainer.closest('.publicacion-imagenes');
+                    if (container) {
+                        const imagesData = container.getAttribute('data-imagenes');
+                        const images = JSON.parse(imagesData);
+                        const currentIndex = parseInt(imgContainer.getAttribute('data-imagen-index'));
+                        abrirModalImagen(images, currentIndex);
+                    }
+                }
+            });
+
+            // Inicializar lazy loading
+            setupLazyLoading();
         }
 
         // Función para mostrar notificaciones
