@@ -33,37 +33,64 @@ import "../styles/publicaciones-imagenes.css";
     <!-- Modal de visor de imágenes -->
     <div id="imagen-modal" class="imagen-modal">
         <button class="btn-cerrar" id="cerrar-modal-imagen" aria-label="Cerrar">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
         </button>
-        
-        <button class="btn-nav btn-prev" id="btn-imagen-prev" aria-label="Anterior">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+        <button
+            class="btn-nav btn-prev"
+            id="btn-imagen-prev"
+            aria-label="Anterior">
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2">
                 <polyline points="15 18 9 12 15 6"></polyline>
             </svg>
         </button>
-        
+
         <div class="imagen-modal-content">
             <img id="modal-imagen" src="" alt="Imagen en vista completa" />
         </div>
-        
-        <button class="btn-nav btn-next" id="btn-imagen-next" aria-label="Siguiente">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+        <button
+            class="btn-nav btn-next"
+            id="btn-imagen-next"
+            aria-label="Siguiente">
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
         </button>
-        
+
         <div class="contador-imagenes" id="contador-imagenes">1 / 1</div>
     </div>
 
     <script>
-        const API_URL = 'http://localhost:3000/api';
+        const API_URL = "http://localhost:3000/api";
         let currentPage = 1;
         let isLoading = false;
         let hasMorePages = true;
-        
+
         // Variables para el modal de imágenes
         let modalImagenes = [];
         let modalImagenIndex = 0;
@@ -72,53 +99,59 @@ import "../styles/publicaciones-imagenes.css";
         function abrirModalImagen(imagenes, index) {
             modalImagenes = imagenes;
             modalImagenIndex = index;
-            
-            const modal = document.getElementById('imagen-modal');
+
+            const modal = document.getElementById("imagen-modal");
             if (modal) {
-                modal.style.display = 'flex';
+                modal.style.display = "flex";
                 actualizarImagenModal();
             }
         }
 
         // Función para cerrar el modal de imagen
         function cerrarModalImagen() {
-            const modal = document.getElementById('imagen-modal');
+            const modal = document.getElementById("imagen-modal");
             if (modal) {
-                modal.style.display = 'none';
+                modal.style.display = "none";
             }
         }
 
         // Función para actualizar la imagen mostrada en el modal
         function actualizarImagenModal() {
-            const imgElement = document.getElementById('modal-imagen');
-            const contador = document.getElementById('modal-contador');
-            const btnPrev = document.getElementById('modal-prev');
-            const btnNext = document.getElementById('modal-next');
-            
+            const imgElement = document.getElementById("modal-imagen");
+            const contador = document.getElementById("modal-contador");
+            const btnPrev = document.getElementById("modal-prev");
+            const btnNext = document.getElementById("modal-next");
+
             if (imgElement && modalImagenes.length > 0) {
                 imgElement.src = modalImagenes[modalImagenIndex];
             }
-            
+
             if (contador) {
                 contador.textContent = `${modalImagenIndex + 1} / ${modalImagenes.length}`;
-                contador.style.display = modalImagenes.length > 1 ? 'block' : 'none';
+                contador.style.display =
+                    modalImagenes.length > 1 ? "block" : "none";
             }
-            
+
             if (btnPrev) {
-                btnPrev.style.display = modalImagenes.length > 1 ? 'flex' : 'none';
+                btnPrev.style.display =
+                    modalImagenes.length > 1 ? "flex" : "none";
             }
-            
+
             if (btnNext) {
-                btnNext.style.display = modalImagenes.length > 1 ? 'flex' : 'none';
+                btnNext.style.display =
+                    modalImagenes.length > 1 ? "flex" : "none";
             }
         }
 
         // Función para navegar entre imágenes del modal
         function navegarImagenModal(direccion) {
-            if (direccion === 'prev') {
-                modalImagenIndex = (modalImagenIndex - 1 + modalImagenes.length) % modalImagenes.length;
-            } else if (direccion === 'next') {
-                modalImagenIndex = (modalImagenIndex + 1) % modalImagenes.length;
+            if (direccion === "prev") {
+                modalImagenIndex =
+                    (modalImagenIndex - 1 + modalImagenes.length) %
+                    modalImagenes.length;
+            } else if (direccion === "next") {
+                modalImagenIndex =
+                    (modalImagenIndex + 1) % modalImagenes.length;
             }
             actualizarImagenModal();
         }
@@ -129,17 +162,17 @@ import "../styles/publicaciones-imagenes.css";
 
         // Función para obtener el token
         function getAuthToken() {
-            return localStorage.getItem('auth_token');
+            return localStorage.getItem("auth_token");
         }
 
         // Función para mostrar notificaciones
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
+        function showNotification(message, type = "info") {
+            const notification = document.createElement("div");
             notification.style.cssText = `
                 position: fixed;
                 top: 20px;
                 right: 20px;
-                background: ${type === 'success' ? '#10b981' : type === 'error' ? '#dc2626' : '#3b82f6'};
+                background: ${type === "success" ? "#10b981" : type === "error" ? "#dc2626" : "#3b82f6"};
                 color: white;
                 padding: 1rem 1.5rem;
                 border-radius: 8px;
@@ -154,11 +187,11 @@ import "../styles/publicaciones-imagenes.css";
             document.body.appendChild(notification);
 
             setTimeout(() => {
-                notification.style.transform = 'translateX(0)';
+                notification.style.transform = "translateX(0)";
             }, 100);
 
             setTimeout(() => {
-                notification.style.transform = 'translateX(400px)';
+                notification.style.transform = "translateX(400px)";
                 setTimeout(() => {
                     document.body.removeChild(notification);
                 }, 300);
@@ -173,8 +206,8 @@ import "../styles/publicaciones-imagenes.css";
 
                 const response = await fetch(`${API_URL}/usuarios/perfil`, {
                     headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                        Authorization: `Bearer ${token}`,
+                    },
                 });
 
                 if (response.status === 401) {
@@ -187,7 +220,7 @@ import "../styles/publicaciones-imagenes.css";
                 }
                 return null;
             } catch (error) {
-                console.error('Error cargando usuario:', error);
+                console.error("Error cargando usuario:", error);
                 return null;
             }
         }
@@ -201,33 +234,45 @@ import "../styles/publicaciones-imagenes.css";
             const diffHoras = Math.floor(diffMs / 3600000);
             const diffDias = Math.floor(diffMs / 86400000);
 
-            if (diffMins < 1) return 'Ahora';
+            if (diffMins < 1) return "Ahora";
             if (diffMins < 60) return `${diffMins}m`;
             if (diffHoras < 24) return `${diffHoras}h`;
             if (diffDias < 7) return `${diffDias}d`;
-            
-            return fecha.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' });
+
+            return fecha.toLocaleDateString("es-AR", {
+                day: "numeric",
+                month: "short",
+            });
         }
 
         // Función para crear el HTML de una publicación
         function crearPostCard(publicacion) {
-            const { id, contenido, autor, fechaCreacion, totalComentarios, totalLikes, imagenes } = publicacion;
-            
+            const {
+                id,
+                contenido,
+                autor,
+                fechaCreacion,
+                totalComentarios,
+                totalLikes,
+                imagenes,
+            } = publicacion;
+
             return `
                 <article class="post-card" data-post-id="${id}">
                     <header class="post-header">
                         <div class="post-header-left">
                             <div class="avatar">
-                                ${autor.urlFotoPerfil ? 
-                                    `<img src="${autor.urlFotoPerfil}" alt="${autor.nombre}" />` : 
-                                    `<svg viewBox="0 0 24 24" fill="currentColor">
+                                ${
+                                    autor.urlFotoPerfil
+                                        ? `<img src="${autor.urlFotoPerfil}" alt="${autor.nombre}" />`
+                                        : `<svg viewBox="0 0 24 24" fill="currentColor">
                                         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                                     </svg>`
                                 }
                             </div>
                             <div class="post-meta">
                                 <strong>${autor.nombre}</strong>
-                                ${autor.tituloprofesional ? `<p class="subtitle">${autor.tituloprofesional}</p>` : ''}
+                                ${autor.tituloprofesional ? `<p class="subtitle">${autor.tituloprofesional}</p>` : ""}
                                 <time>${formatearFechaRelativa(fechaCreacion)}</time>
                             </div>
                         </div>
@@ -242,15 +287,29 @@ import "../styles/publicaciones-imagenes.css";
                     </header>
                     <div class="post-body">
                         <p>${contenido}</p>
-                        ${imagenes && imagenes.length > 0 ? `
+                        ${
+                            imagenes && imagenes.length > 0
+                                ? `
                             <div class="publicacion-imagenes imagenes-${Math.min(imagenes.length, 5)}" data-imagenes='${JSON.stringify(imagenes).replace(/'/g, "&apos;")}'>
-                                ${imagenes.slice(0, imagenes.length === 5 ? 4 : imagenes.length).map((img, index) => `
-                                    <div class="imagen-container${imagenes.length === 5 && index === 3 ? ' imagen-con-indicador' : ''}" data-imagen-index="${index}">
+                                ${imagenes
+                                    .slice(
+                                        0,
+                                        imagenes.length === 5
+                                            ? 4
+                                            : imagenes.length,
+                                    )
+                                    .map(
+                                        (img, index) => `
+                                    <div class="imagen-container${imagenes.length === 5 && index === 3 ? " imagen-con-indicador" : ""}" data-imagen-index="${index}">
                                         <img src="${img}" alt="Imagen de publicación ${index + 1}" />
                                     </div>
-                                `).join('')}
+                                `,
+                                    )
+                                    .join("")}
                             </div>
-                        ` : ''}
+                        `
+                                : ""
+                        }
                     </div>
                     <footer class="post-actions">
                         <button class="action-btn comment-btn" onclick="toggleComments(${id})">
@@ -258,13 +317,13 @@ import "../styles/publicaciones-imagenes.css";
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                             </svg>
                             <span class="action-text">Comentarios</span>
-                            ${totalComentarios > 0 ? `<span class="comment-count">${totalComentarios}</span>` : ''}
+                            ${totalComentarios > 0 ? `<span class="comment-count">${totalComentarios}</span>` : ""}
                         </button>
                         <button class="action-btn like-btn">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                             </svg>
-                            ${totalLikes > 0 ? `<span class="like-count">${totalLikes > 999 ? (totalLikes / 1000).toFixed(1) + 'k' : totalLikes}</span>` : ''}
+                            ${totalLikes > 0 ? `<span class="like-count">${totalLikes > 999 ? (totalLikes / 1000).toFixed(1) + "k" : totalLikes}</span>` : ""}
                         </button>
                     </footer>
                 </article>
@@ -274,37 +333,42 @@ import "../styles/publicaciones-imagenes.css";
         // Función para cargar mis publicaciones
         async function cargarMisPublicaciones(page = 1) {
             if (isLoading) return;
-            
+
             isLoading = true;
-            const loadMoreBtn = document.getElementById('load-more-btn');
+            const loadMoreBtn = document.getElementById("load-more-btn");
             if (loadMoreBtn) {
-                loadMoreBtn.textContent = 'Cargando...';
+                loadMoreBtn.textContent = "Cargando...";
                 loadMoreBtn.disabled = true;
             }
 
             const token = getAuthToken();
             if (!token) {
-                window.location.href = '/login';
+                window.location.href = "/login";
                 return;
             }
 
             try {
-                const response = await fetch(`${API_URL}/publicaciones/mis-publicaciones?page=${page}&limit=10`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                
+                const response = await fetch(
+                    `${API_URL}/publicaciones/mis-publicaciones?page=${page}&limit=10`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    },
+                );
+
                 const result = await response.json();
-                
-                console.log('Mis publicaciones:', result);
+
+                console.log("Mis publicaciones:", result);
 
                 if (result.success && result.data.publicaciones) {
-                    const feedList = document.getElementById('mis-publicaciones-list');
-                    
+                    const feedList = document.getElementById(
+                        "mis-publicaciones-list",
+                    );
+
                     // Si es la primera página, limpiar el contenido
                     if (page === 1) {
-                        feedList.innerHTML = '';
+                        feedList.innerHTML = "";
                     }
 
                     // Si no hay publicaciones
@@ -316,30 +380,35 @@ import "../styles/publicaciones-imagenes.css";
                                 </svg>
                                 <h2>No tienes publicaciones</h2>
                                 <p>Aún no has creado ninguna publicación. Ve al dashboard para crear tu primera publicación.</p>
-                                <a href="/dashboard" class="btn-primary">Ir al dashboard</a>
+                                <a href="/" class="btn-primary">Ir al dashboard</a>
                             </div>
                         `;
                         return;
                     }
 
                     // Agregar las nuevas publicaciones
-                    result.data.publicaciones.forEach(publicacion => {
+                    result.data.publicaciones.forEach((publicacion) => {
                         const cardHTML = crearPostCard(publicacion);
-                        feedList.insertAdjacentHTML('beforeend', cardHTML);
+                        feedList.insertAdjacentHTML("beforeend", cardHTML);
                     });
 
                     // Actualizar estado de paginación
                     hasMorePages = result.data.pagination.hasNext;
-                    
+
                     // Mostrar/ocultar botón de cargar más
-                    const loadMoreSection = document.querySelector('.load-more');
+                    const loadMoreSection =
+                        document.querySelector(".load-more");
                     if (loadMoreSection) {
-                        loadMoreSection.style.display = hasMorePages ? 'block' : 'none';
+                        loadMoreSection.style.display = hasMorePages
+                            ? "block"
+                            : "none";
                     }
                 }
             } catch (error) {
-                console.error('Error cargando mis publicaciones:', error);
-                const feedList = document.getElementById('mis-publicaciones-list');
+                console.error("Error cargando mis publicaciones:", error);
+                const feedList = document.getElementById(
+                    "mis-publicaciones-list",
+                );
                 if (page === 1) {
                     feedList.innerHTML = `
                         <div class="error-publicaciones">
@@ -351,7 +420,7 @@ import "../styles/publicaciones-imagenes.css";
             } finally {
                 isLoading = false;
                 if (loadMoreBtn) {
-                    loadMoreBtn.textContent = 'Cargar más';
+                    loadMoreBtn.textContent = "Cargar más";
                     loadMoreBtn.disabled = false;
                 }
             }
@@ -359,37 +428,48 @@ import "../styles/publicaciones-imagenes.css";
 
         // Función para eliminar publicación
         async function eliminarPublicacion(publicacionId) {
-            if (!confirm('¿Estás seguro de que quieres eliminar esta publicación?')) {
+            if (
+                !confirm(
+                    "¿Estás seguro de que quieres eliminar esta publicación?",
+                )
+            ) {
                 return;
             }
 
             const token = getAuthToken();
             if (!token) {
-                window.location.href = '/login';
+                window.location.href = "/login";
                 return;
             }
 
             try {
-                const response = await fetch(`${API_URL}/publicaciones/${publicacionId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
+                const response = await fetch(
+                    `${API_URL}/publicaciones/${publicacionId}`,
+                    {
+                        method: "DELETE",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    },
+                );
 
                 const result = await response.json();
 
                 if (result.success) {
                     // Eliminar la tarjeta del DOM con animación
-                    const postCard = document.querySelector(`[data-post-id="${publicacionId}"]`);
+                    const postCard = document.querySelector(
+                        `[data-post-id="${publicacionId}"]`,
+                    );
                     if (postCard) {
-                        postCard.style.opacity = '0';
-                        postCard.style.transform = 'scale(0.9)';
+                        postCard.style.opacity = "0";
+                        postCard.style.transform = "scale(0.9)";
                         setTimeout(() => {
                             postCard.remove();
-                            
+
                             // Verificar si quedan publicaciones
-                            const feedList = document.getElementById('mis-publicaciones-list');
+                            const feedList = document.getElementById(
+                                "mis-publicaciones-list",
+                            );
                             if (feedList && feedList.children.length === 0) {
                                 feedList.innerHTML = `
                                     <div class="no-publicaciones">
@@ -405,57 +485,77 @@ import "../styles/publicaciones-imagenes.css";
                         }, 300);
                     }
                 } else {
-                    alert(result.message || 'Error al eliminar la publicación');
+                    alert(result.message || "Error al eliminar la publicación");
                 }
             } catch (error) {
-                console.error('Error eliminando publicación:', error);
-                alert('Error al eliminar la publicación. Por favor, intenta de nuevo.');
+                console.error("Error eliminando publicación:", error);
+                alert(
+                    "Error al eliminar la publicación. Por favor, intenta de nuevo.",
+                );
             }
         }
 
         // Función para formatear tiempo relativo
         function formatearTiempoRelativo(fechaString) {
-            const fecha = new Date(fechaString + 'Z');
+            const fecha = new Date(fechaString + "Z");
             const ahora = new Date();
             const diffMs = ahora - fecha;
             const diffMins = Math.floor(diffMs / 60000);
             const diffHoras = Math.floor(diffMs / 3600000);
             const diffDias = Math.floor(diffMs / 86400000);
 
-            if (diffMins < 1) return 'Ahora';
+            if (diffMins < 1) return "Ahora";
             if (diffMins < 60) return `${diffMins}m`;
             if (diffHoras < 24) return `${diffHoras}h`;
             if (diffDias < 7) return `${diffDias}d`;
-            
-            return fecha.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' });
+
+            return fecha.toLocaleDateString("es-AR", {
+                day: "numeric",
+                month: "short",
+            });
         }
 
         // Función para crear HTML de comentario
         function crearComentarioHTML(comentario) {
-            const { id, contenido, autor, fechaCreacion, totalLikes, totalRespuestas } = comentario;
-            const avatarURL = autor.urlFotoPerfil || '';
-            const nombreCompleto = autor.apellido ? `${autor.nombre} ${autor.apellido}` : autor.nombre;
-            const tituloCarrera = autor.tituloCarrera || '';
+            const {
+                id,
+                contenido,
+                autor,
+                fechaCreacion,
+                totalLikes,
+                totalRespuestas,
+            } = comentario;
+            const avatarURL = autor.urlFotoPerfil || "";
+            const nombreCompleto = autor.apellido
+                ? `${autor.nombre} ${autor.apellido}`
+                : autor.nombre;
+            const tituloCarrera = autor.tituloCarrera || "";
             const esPropio = currentUser && currentUser.id === autor.id;
-            
+
             return `
                 <div class="comentario-item" data-comentario-id="${id}" style="display: flex; gap: 0.75rem; padding: 1rem 0; border-bottom: 1px solid #f3f4f6;">
                     <div class="comentario-avatar" style="width: 40px; height: 40px; min-width: 40px; min-height: 40px; border-radius: 50%; overflow: hidden; flex-shrink: 0;">
-                        ${avatarURL ? `<img src="${avatarURL}" alt="${nombreCompleto}" style="width: 40px !important; height: 40px !important; object-fit: cover; border-radius: 50%; display: block;">` : `
+                        ${
+                            avatarURL
+                                ? `<img src="${avatarURL}" alt="${nombreCompleto}" style="width: 40px !important; height: 40px !important; object-fit: cover; border-radius: 50%; display: block;">`
+                                : `
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #6366f1;">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <circle cx="12" cy="10" r="3"></circle>
                                 <path d="M6.168 18.849A4 4 0 0 1 10 16h4a4 4 0 0 1 3.834 2.855"></path>
                             </svg>
-                        `}
+                        `
+                        }
                     </div>
                     <div class="comentario-content" style="flex: 1;">
                         <div style="margin-bottom: 0.25rem; display: flex; justify-content: space-between; align-items: flex-start;">
                             <div>
                                 <strong class="comentario-autor" style="color: #000 !important; font-weight: 600; font-size: 0.9375rem; display: block; line-height: 1.3;">${nombreCompleto}</strong>
-                                ${tituloCarrera ? `<div class="comentario-subtitle" style="color: #6b7280 !important; font-size: 0.8125rem; margin-top: 0.125rem; line-height: 1.3;">${tituloCarrera}</div>` : ''}
+                                ${tituloCarrera ? `<div class="comentario-subtitle" style="color: #6b7280 !important; font-size: 0.8125rem; margin-top: 0.125rem; line-height: 1.3;">${tituloCarrera}</div>` : ""}
                             </div>
-                            ${esPropio ? `
+                            ${
+                                esPropio
+                                    ? `
                                 <div style="display: flex; gap: 0.5rem; align-items: center;">
                                     <button class="btn-editar-comentario" data-comentario-id="${id}" style="background: none; border: none; color: #9ca3af; font-size: 1.125rem; cursor: pointer; padding: 0; line-height: 1; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#9ca3af'" title="Editar comentario">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -472,25 +572,31 @@ import "../styles/publicaciones-imagenes.css";
                                         </svg>
                                     </button>
                                 </div>
-                            ` : ''}
+                            `
+                                    : ""
+                            }
                         </div>
                         <p class="comentario-texto" data-comentario-id="${id}" style="color: #000 !important; margin: 0.5rem 0 0.625rem 0; font-size: 0.9375rem; line-height: 1.4;">${contenido}</p>
                         <div class="comentario-footer" style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
                             <span class="comentario-tiempo" style="color: #9ca3af; font-size: 0.8125rem;">${formatearTiempoRelativo(fechaCreacion)}</span>
                             <button class="btn-responder" data-comentario-id="${id}" style="background: none; border: none; color: #6b7280; font-size: 0.8125rem; font-weight: 500; cursor: pointer; padding: 0; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#6b7280'">Responder</button>
-                            ${totalRespuestas > 0 ? `
+                            ${
+                                totalRespuestas > 0
+                                    ? `
                                 <button class="btn-ver-respuestas" data-comentario-id="${id}" style="background: none; border: none; color: #2563eb; font-size: 0.8125rem; font-weight: 500; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 0.25rem;">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icono-toggle">
                                         <polyline points="6 9 12 15 18 9"></polyline>
                                     </svg>
                                     <span class="texto-respuestas">Ver respuestas (${totalRespuestas})</span>
                                 </button>
-                            ` : ''}
+                            `
+                                    : ""
+                            }
                             <button class="btn-like-comentario" data-comentario-id="${id}" data-liked="false" style="background: none; border: none; cursor: pointer; padding: 0.25rem 0.5rem; display: inline-flex; align-items: center; gap: 0.25rem; border-radius: 1rem; transition: all 0.2s; background-color: #f3f4f6; font-size: 0.75rem;" onmouseover="this.style.backgroundColor='#e5e7eb'" onmouseout="this.style.backgroundColor='#f3f4f6'">
                                 <svg class="like-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                                 </svg>
-                                <span class="like-count" style="font-weight: 600; color: #6b7280;">${totalLikes > 0 ? totalLikes : '0'}</span>
+                                <span class="like-count" style="font-weight: 600; color: #6b7280;">${totalLikes > 0 ? totalLikes : "0"}</span>
                             </button>
                         </div>
                         <!-- Contenedor de respuestas (oculto por defecto) -->
@@ -503,33 +609,48 @@ import "../styles/publicaciones-imagenes.css";
         }
 
         function crearRespuestaHTML(respuesta, nivel = 1) {
-            const { id, contenido, autor, fechaCreacion, totalLikes, totalRespuestas } = respuesta;
-            const avatarURL = autor.urlFotoPerfil || '';
-            const nombreCompleto = autor.apellido ? `${autor.nombre} ${autor.apellido}` : autor.nombre;
-            const tituloCarrera = autor.tituloCarrera || '';
+            const {
+                id,
+                contenido,
+                autor,
+                fechaCreacion,
+                totalLikes,
+                totalRespuestas,
+            } = respuesta;
+            const avatarURL = autor.urlFotoPerfil || "";
+            const nombreCompleto = autor.apellido
+                ? `${autor.nombre} ${autor.apellido}`
+                : autor.nombre;
+            const tituloCarrera = autor.tituloCarrera || "";
             const esPropio = currentUser && currentUser.id === autor.id;
-            
+
             // SIEMPRE limitar el nivel visual máximo a 2 (como Facebook)
             const nivelVisual = Math.min(nivel, 2);
 
             return `
                 <div class="respuesta-item nivel-${nivelVisual}" data-comentario-id="${id}" data-nivel="${nivel}">
                     <div class="comentario-avatar" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px; border-radius: 50%; overflow: hidden; flex-shrink: 0;">
-                        ${avatarURL ? `<img src="${avatarURL}" alt="${nombreCompleto}" style="width: 32px !important; height: 32px !important; object-fit: cover; border-radius: 50%; display: block;">` : `
+                        ${
+                            avatarURL
+                                ? `<img src="${avatarURL}" alt="${nombreCompleto}" style="width: 32px !important; height: 32px !important; object-fit: cover; border-radius: 50%; display: block;">`
+                                : `
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #6366f1;">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <circle cx="12" cy="10" r="3"></circle>
                                 <path d="M6.168 18.849A4 4 0 0 1 10 16h4a4 4 0 0 1 3.834 2.855"></path>
                             </svg>
-                        `}
+                        `
+                        }
                     </div>
                     <div class="comentario-content" style="flex: 1;">
                         <div style="margin-bottom: 0.25rem; display: flex; justify-content: space-between; align-items: flex-start;">
                             <div>
                                 <strong class="comentario-autor" style="color: #000 !important; font-weight: 600; font-size: 0.875rem; display: block; line-height: 1.3;">${nombreCompleto}</strong>
-                                ${tituloCarrera ? `<div class="comentario-subtitle" style="color: #6b7280 !important; font-size: 0.75rem; margin-top: 0.125rem; line-height: 1.3;">${tituloCarrera}</div>` : ''}
+                                ${tituloCarrera ? `<div class="comentario-subtitle" style="color: #6b7280 !important; font-size: 0.75rem; margin-top: 0.125rem; line-height: 1.3;">${tituloCarrera}</div>` : ""}
                             </div>
-                            ${esPropio ? `
+                            ${
+                                esPropio
+                                    ? `
                                 <button class="btn-eliminar-comentario" data-comentario-id="${id}" style="background: none; border: none; color: #9ca3af; font-size: 1rem; cursor: pointer; padding: 0; line-height: 1; transition: color 0.2s;" onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='#9ca3af'" title="Eliminar respuesta">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <polyline points="3 6 5 6 21 6"></polyline>
@@ -538,25 +659,31 @@ import "../styles/publicaciones-imagenes.css";
                                         <line x1="14" y1="11" x2="14" y2="17"></line>
                                     </svg>
                                 </button>
-                            ` : ''}
+                            `
+                                    : ""
+                            }
                         </div>
                         <p class="comentario-texto" style="color: #000 !important; margin: 0.375rem 0; font-size: 0.875rem; line-height: 1.4;">${contenido}</p>
                         <div class="comentario-footer" style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
                             <span class="comentario-tiempo" style="color: #9ca3af; font-size: 0.75rem;">${formatearTiempoRelativo(fechaCreacion)}</span>
                             <button class="btn-responder" data-comentario-id="${id}" style="background: none; border: none; color: #6b7280; font-size: 0.75rem; font-weight: 500; cursor: pointer; padding: 0; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#6b7280'">Responder</button>
-                            ${totalRespuestas > 0 ? `
+                            ${
+                                totalRespuestas > 0
+                                    ? `
                                 <button class="btn-ver-respuestas" data-comentario-id="${id}" data-nivel="${Math.min(nivel + 1, 2)}" style="background: none; border: none; color: #2563eb; font-size: 0.75rem; font-weight: 500; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 0.25rem;">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icono-toggle">
                                         <polyline points="6 9 12 15 18 9"></polyline>
                                     </svg>
                                     <span class="texto-respuestas">Ver respuestas (${totalRespuestas})</span>
                                 </button>
-                            ` : ''}
+                            `
+                                    : ""
+                            }
                             <button class="btn-like-comentario" data-comentario-id="${id}" data-liked="false" style="background: none; border: none; cursor: pointer; padding: 0.25rem 0.5rem; display: inline-flex; align-items: center; gap: 0.25rem; border-radius: 1rem; transition: all 0.2s; background-color: #f3f4f6; font-size: 0.75rem;" onmouseover="this.style.backgroundColor='#e5e7eb'" onmouseout="this.style.backgroundColor='#f3f4f6'">
                                 <svg class="like-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                                 </svg>
-                                <span class="like-count" style="font-weight: 600; color: #6b7280;">${totalLikes > 0 ? totalLikes : '0'}</span>
+                                <span class="like-count" style="font-weight: 600; color: #6b7280;">${totalLikes > 0 ? totalLikes : "0"}</span>
                             </button>
                         </div>
                         <div class="respuestas-container" data-comentario-id="${id}" style="display: none; margin-top: 0.75rem;">
@@ -568,33 +695,46 @@ import "../styles/publicaciones-imagenes.css";
         }
 
         async function toggleVerRespuestas(comentarioId) {
-            const btnVerRespuestas = document.querySelector(`.btn-ver-respuestas[data-comentario-id="${comentarioId}"]`);
+            const btnVerRespuestas = document.querySelector(
+                `.btn-ver-respuestas[data-comentario-id="${comentarioId}"]`,
+            );
             if (!btnVerRespuestas) return;
-            
-            const nivelActual = parseInt(btnVerRespuestas.getAttribute('data-nivel') || '1');
+
+            const nivelActual = parseInt(
+                btnVerRespuestas.getAttribute("data-nivel") || "1",
+            );
             const nivelMaximo = Math.min(nivelActual, 2);
-            
-            let comentarioItem = document.querySelector(`.comentario-item[data-comentario-id="${comentarioId}"]`);
+
+            let comentarioItem = document.querySelector(
+                `.comentario-item[data-comentario-id="${comentarioId}"]`,
+            );
             if (!comentarioItem) {
-                comentarioItem = document.querySelector(`.respuesta-item[data-comentario-id="${comentarioId}"]`);
+                comentarioItem = document.querySelector(
+                    `.respuesta-item[data-comentario-id="${comentarioId}"]`,
+                );
             }
             if (!comentarioItem) return;
-            
+
             let nivelComentario = 0;
-            if (comentarioItem.classList.contains('respuesta-item')) {
+            if (comentarioItem.classList.contains("respuesta-item")) {
                 const classList = Array.from(comentarioItem.classList);
-                const nivelClass = classList.find(c => c.startsWith('nivel-'));
+                const nivelClass = classList.find((c) =>
+                    c.startsWith("nivel-"),
+                );
                 if (nivelClass) {
-                    nivelComentario = parseInt(nivelClass.replace('nivel-', ''));
+                    nivelComentario = parseInt(
+                        nivelClass.replace("nivel-", ""),
+                    );
                 }
             }
-            
+
             let respuestasContainer;
             let respuestasList;
             let isHermano = false;
-            
+
             if (nivelComentario >= 2) {
-                const contenedorPadre = comentarioItem.closest('.respuestas-list');
+                const contenedorPadre =
+                    comentarioItem.closest(".respuestas-list");
                 if (contenedorPadre) {
                     respuestasList = contenedorPadre;
                     isHermano = true;
@@ -602,113 +742,162 @@ import "../styles/publicaciones-imagenes.css";
                     return;
                 }
             } else {
-                respuestasContainer = comentarioItem.querySelector(':scope > .comentario-content > .respuestas-container');
+                respuestasContainer = comentarioItem.querySelector(
+                    ":scope > .comentario-content > .respuestas-container",
+                );
                 if (!respuestasContainer) return;
-                respuestasList = respuestasContainer.querySelector('.respuestas-list');
+                respuestasList =
+                    respuestasContainer.querySelector(".respuestas-list");
             }
 
             let isVisible = false;
             if (isHermano) {
-                const respuestasHermanas = document.querySelectorAll(`.respuesta-item[data-parent-id="${comentarioId}"]`);
+                const respuestasHermanas = document.querySelectorAll(
+                    `.respuesta-item[data-parent-id="${comentarioId}"]`,
+                );
                 isVisible = respuestasHermanas.length > 0;
             } else {
-                isVisible = respuestasContainer.style.display !== 'none';
+                isVisible = respuestasContainer.style.display !== "none";
             }
-            
+
             if (isVisible) {
                 if (isHermano) {
-                    const respuestasHermanas = respuestasList.querySelectorAll(`.respuesta-item[data-parent-id="${comentarioId}"]`);
-                    respuestasHermanas.forEach(r => r.remove());
+                    const respuestasHermanas = respuestasList.querySelectorAll(
+                        `.respuesta-item[data-parent-id="${comentarioId}"]`,
+                    );
+                    respuestasHermanas.forEach((r) => r.remove());
                 } else {
-                    respuestasContainer.style.display = 'none';
+                    respuestasContainer.style.display = "none";
                 }
-                btnVerRespuestas.querySelector('.icono-toggle').style.transform = 'rotate(0deg)';
-                const totalRespuestas = btnVerRespuestas.querySelector('.texto-respuestas').textContent.match(/\d+/)[0];
-                btnVerRespuestas.querySelector('.texto-respuestas').textContent = `Ver respuestas (${totalRespuestas})`;
-                btnVerRespuestas.classList.remove('active');
+                btnVerRespuestas.querySelector(
+                    ".icono-toggle",
+                ).style.transform = "rotate(0deg)";
+                const totalRespuestas = btnVerRespuestas
+                    .querySelector(".texto-respuestas")
+                    .textContent.match(/\d+/)[0];
+                btnVerRespuestas.querySelector(
+                    ".texto-respuestas",
+                ).textContent = `Ver respuestas (${totalRespuestas})`;
+                btnVerRespuestas.classList.remove("active");
             } else {
-                const needsLoading = isHermano ? true : (respuestasList.children.length === 0);
-                
+                const needsLoading = isHermano
+                    ? true
+                    : respuestasList.children.length === 0;
+
                 if (needsLoading) {
-                    const loadingMsg = document.createElement('p');
-                    loadingMsg.style.cssText = 'color: #9ca3af; font-size: 0.875rem; padding: 0.5rem 0;';
-                    loadingMsg.textContent = 'Cargando respuestas...';
-                    
+                    const loadingMsg = document.createElement("p");
+                    loadingMsg.style.cssText =
+                        "color: #9ca3af; font-size: 0.875rem; padding: 0.5rem 0;";
+                    loadingMsg.textContent = "Cargando respuestas...";
+
                     if (isHermano) {
-                        comentarioItem.insertAdjacentElement('afterend', loadingMsg);
+                        comentarioItem.insertAdjacentElement(
+                            "afterend",
+                            loadingMsg,
+                        );
                     } else {
                         respuestasList.appendChild(loadingMsg);
                     }
-                    
+
                     const respuestas = await cargarRespuestas(comentarioId);
                     loadingMsg.remove();
-                    
+
                     if (respuestas.length > 0) {
                         const token = getAuthToken();
                         for (const respuesta of respuestas) {
-                            const respuestaHTML = crearRespuestaHTML(respuesta, nivelMaximo);
-                            const tempDiv = document.createElement('div');
+                            const respuestaHTML = crearRespuestaHTML(
+                                respuesta,
+                                nivelMaximo,
+                            );
+                            const tempDiv = document.createElement("div");
                             tempDiv.innerHTML = respuestaHTML;
                             const respuestaElement = tempDiv.firstElementChild;
-                            respuestaElement.setAttribute('data-parent-id', comentarioId.toString());
-                            
+                            respuestaElement.setAttribute(
+                                "data-parent-id",
+                                comentarioId.toString(),
+                            );
+
                             if (isHermano) {
-                                comentarioItem.insertAdjacentElement('afterend', respuestaElement);
+                                comentarioItem.insertAdjacentElement(
+                                    "afterend",
+                                    respuestaElement,
+                                );
                             } else {
                                 respuestasList.appendChild(respuestaElement);
                             }
-                            
+
                             try {
-                                const likeRes = await fetch(`${API_URL}/comentarios/${respuesta.id}/mi-like`, {
-                                    headers: { 'Authorization': `Bearer ${token}` }
-                                });
-                                
+                                const likeRes = await fetch(
+                                    `${API_URL}/comentarios/${respuesta.id}/mi-like`,
+                                    {
+                                        headers: {
+                                            Authorization: `Bearer ${token}`,
+                                        },
+                                    },
+                                );
+
                                 if (likeRes.status === 401) continue;
-                                
+
                                 const likeData = await likeRes.json();
                                 if (likeData.success && likeData.data.liked) {
-                                    actualizarUILike(respuesta.id, true, respuesta.totalLikes);
+                                    actualizarUILike(
+                                        respuesta.id,
+                                        true,
+                                        respuesta.totalLikes,
+                                    );
                                 }
                             } catch {}
                         }
                     }
                 }
-                
+
                 if (!isHermano) {
-                    respuestasContainer.style.display = 'block';
+                    respuestasContainer.style.display = "block";
                 }
-                btnVerRespuestas.classList.add('active');
-                btnVerRespuestas.querySelector('.icono-toggle').style.transform = 'rotate(180deg)';
-                const totalRespuestas = btnVerRespuestas.querySelector('.texto-respuestas').textContent.match(/\d+/)[0];
-                btnVerRespuestas.querySelector('.texto-respuestas').textContent = `Ocultar respuestas (${totalRespuestas})`;
+                btnVerRespuestas.classList.add("active");
+                btnVerRespuestas.querySelector(
+                    ".icono-toggle",
+                ).style.transform = "rotate(180deg)";
+                const totalRespuestas = btnVerRespuestas
+                    .querySelector(".texto-respuestas")
+                    .textContent.match(/\d+/)[0];
+                btnVerRespuestas.querySelector(
+                    ".texto-respuestas",
+                ).textContent = `Ocultar respuestas (${totalRespuestas})`;
             }
         }
 
         async function crearRespuesta(comentarioPadreId, contenido) {
             const token = getAuthToken();
             if (!token) {
-                showNotification('Debes iniciar sesión para responder', 'error');
+                showNotification(
+                    "Debes iniciar sesión para responder",
+                    "error",
+                );
                 return false;
             }
 
             try {
                 const response = await fetch(`${API_URL}/comentarios`, {
-                    method: 'POST',
+                    method: "POST",
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify({
                         publicacionId: currentPublicacionId,
                         contenido: contenido,
-                        comentarioPadreId: comentarioPadreId
-                    })
+                        comentarioPadreId: comentarioPadreId,
+                    }),
                 });
 
                 if (response.status === 401) {
-                    showNotification('Tu sesión ha expirado. Por favor inicia sesión nuevamente.', 'error');
+                    showNotification(
+                        "Tu sesión ha expirado. Por favor inicia sesión nuevamente.",
+                        "error",
+                    );
                     setTimeout(() => {
-                        window.location.href = '/acceso';
+                        window.location.href = "/acceso";
                     }, 1500);
                     return false;
                 }
@@ -716,33 +905,42 @@ import "../styles/publicaciones-imagenes.css";
                 const result = await response.json();
 
                 if (result.success) {
-                    showNotification('Respuesta publicada', 'success');
+                    showNotification("Respuesta publicada", "success");
                     return result.data;
                 } else {
-                    showNotification(result.message || 'Error al publicar respuesta', 'error');
+                    showNotification(
+                        result.message || "Error al publicar respuesta",
+                        "error",
+                    );
                     return false;
                 }
             } catch (error) {
-                console.error('Error creando respuesta:', error);
-                showNotification('Error al publicar respuesta', 'error');
+                console.error("Error creando respuesta:", error);
+                showNotification("Error al publicar respuesta", "error");
                 return false;
             }
         }
 
         async function cargarRespuestas(comentarioId) {
             const token = getAuthToken();
-            
+
             try {
-                const response = await fetch(`${API_URL}/comentarios/${comentarioId}/respuestas?limit=20`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
+                const response = await fetch(
+                    `${API_URL}/comentarios/${comentarioId}/respuestas?limit=20`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    },
+                );
 
                 if (response.status === 401) {
-                    showNotification('Tu sesión ha expirado. Por favor inicia sesión nuevamente.', 'error');
+                    showNotification(
+                        "Tu sesión ha expirado. Por favor inicia sesión nuevamente.",
+                        "error",
+                    );
                     setTimeout(() => {
-                        window.location.href = '/acceso';
+                        window.location.href = "/acceso";
                     }, 1500);
                     return [];
                 }
@@ -754,7 +952,7 @@ import "../styles/publicaciones-imagenes.css";
                 }
                 return [];
             } catch (error) {
-                console.error('Error cargando respuestas:', error);
+                console.error("Error cargando respuestas:", error);
                 return [];
             }
         }
@@ -762,100 +960,134 @@ import "../styles/publicaciones-imagenes.css";
         async function editarComentario(comentarioId, nuevoContenido) {
             const token = getAuthToken();
             if (!token) {
-                showNotification('Debes iniciar sesión', 'error');
+                showNotification("Debes iniciar sesión", "error");
                 return false;
             }
 
             try {
-                const response = await fetch(`${API_URL}/comentarios/${comentarioId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                const response = await fetch(
+                    `${API_URL}/comentarios/${comentarioId}`,
+                    {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${token}`,
+                        },
+                        body: JSON.stringify({ contenido: nuevoContenido }),
                     },
-                    body: JSON.stringify({ contenido: nuevoContenido })
-                });
+                );
 
                 const result = await response.json();
 
                 if (result.success) {
-                    showNotification('Comentario editado', 'success');
+                    showNotification("Comentario editado", "success");
                     return true;
                 } else {
-                    showNotification(result.message || 'Error al editar comentario', 'error');
+                    showNotification(
+                        result.message || "Error al editar comentario",
+                        "error",
+                    );
                     return false;
                 }
             } catch (error) {
-                console.error('Error editando comentario:', error);
-                showNotification('Error al editar comentario', 'error');
+                console.error("Error editando comentario:", error);
+                showNotification("Error al editar comentario", "error");
                 return false;
             }
         }
 
         async function eliminarComentario(comentarioId) {
-            if (!confirm('¿Estás seguro de que quieres eliminar este comentario?')) {
+            if (
+                !confirm(
+                    "¿Estás seguro de que quieres eliminar este comentario?",
+                )
+            ) {
                 return;
             }
 
             const token = getAuthToken();
             if (!token) {
-                showNotification('Debes iniciar sesión', 'error');
+                showNotification("Debes iniciar sesión", "error");
                 return;
             }
 
             try {
-                const response = await fetch(`${API_URL}/comentarios/${comentarioId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
+                const response = await fetch(
+                    `${API_URL}/comentarios/${comentarioId}`,
+                    {
+                        method: "DELETE",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    },
+                );
 
                 const result = await response.json();
 
                 if (result.success) {
-                    const comentarioItem = document.querySelector(`.comentario-item[data-comentario-id="${comentarioId}"]`);
+                    const comentarioItem = document.querySelector(
+                        `.comentario-item[data-comentario-id="${comentarioId}"]`,
+                    );
                     if (comentarioItem) {
                         comentarioItem.remove();
                     } else {
-                        const respuestaItem = document.querySelector(`.respuesta-item[data-comentario-id="${comentarioId}"]`);
+                        const respuestaItem = document.querySelector(
+                            `.respuesta-item[data-comentario-id="${comentarioId}"]`,
+                        );
                         if (respuestaItem) respuestaItem.remove();
                     }
-                    
-                    const comentariosContainer = document.getElementById('comentarios-list');
-                    if (comentariosContainer && comentariosContainer.children.length === 0) {
-                        comentariosContainer.innerHTML = '<p class="no-comentarios">No hay comentarios en esta publicación.</p>';
+
+                    const comentariosContainer =
+                        document.getElementById("comentarios-list");
+                    if (
+                        comentariosContainer &&
+                        comentariosContainer.children.length === 0
+                    ) {
+                        comentariosContainer.innerHTML =
+                            '<p class="no-comentarios">No hay comentarios en esta publicación.</p>';
                     }
-                    
-                    showNotification('Comentario eliminado', 'success');
+
+                    showNotification("Comentario eliminado", "success");
                 } else {
-                    showNotification(result.message || 'Error al eliminar comentario', 'error');
+                    showNotification(
+                        result.message || "Error al eliminar comentario",
+                        "error",
+                    );
                 }
             } catch (error) {
-                console.error('Error eliminando comentario:', error);
-                showNotification('Error al eliminar comentario', 'error');
+                console.error("Error eliminando comentario:", error);
+                showNotification("Error al eliminar comentario", "error");
             }
         }
 
         async function toggleLikeComentario(comentarioId) {
             const token = getAuthToken();
             if (!token) {
-                showNotification('Debes iniciar sesión para dar me gusta', 'error');
+                showNotification(
+                    "Debes iniciar sesión para dar me gusta",
+                    "error",
+                );
                 return;
             }
 
             try {
-                const response = await fetch(`${API_URL}/comentarios/${comentarioId}/like`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
+                const response = await fetch(
+                    `${API_URL}/comentarios/${comentarioId}/like`,
+                    {
+                        method: "POST",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    },
+                );
 
                 if (response.status === 401) {
-                    showNotification('Tu sesión ha expirado. Por favor inicia sesión nuevamente.', 'error');
+                    showNotification(
+                        "Tu sesión ha expirado. Por favor inicia sesión nuevamente.",
+                        "error",
+                    );
                     setTimeout(() => {
-                        window.location.href = '/acceso';
+                        window.location.href = "/acceso";
                     }, 1500);
                     return;
                 }
@@ -866,79 +1098,107 @@ import "../styles/publicaciones-imagenes.css";
                     const { liked, totalLikes } = result.data;
                     actualizarUILike(comentarioId, liked, totalLikes);
                 } else {
-                    showNotification(result.message || 'Error al dar me gusta', 'error');
+                    showNotification(
+                        result.message || "Error al dar me gusta",
+                        "error",
+                    );
                 }
             } catch (error) {
-                console.error('Error al dar like:', error);
-                showNotification('Error al procesar tu reacción', 'error');
+                console.error("Error al dar like:", error);
+                showNotification("Error al procesar tu reacción", "error");
             }
         }
 
         function actualizarUILike(comentarioId, liked, totalLikes) {
-            const btnLike = document.querySelector(`.btn-like-comentario[data-comentario-id="${comentarioId}"]`);
+            const btnLike = document.querySelector(
+                `.btn-like-comentario[data-comentario-id="${comentarioId}"]`,
+            );
             if (!btnLike) return;
 
-            const iconoLike = btnLike.querySelector('.like-icon');
-            const contadorLike = btnLike.querySelector('.like-count');
-            
-            btnLike.setAttribute('data-liked', liked ? 'true' : 'false');
-            
+            const iconoLike = btnLike.querySelector(".like-icon");
+            const contadorLike = btnLike.querySelector(".like-count");
+
+            btnLike.setAttribute("data-liked", liked ? "true" : "false");
+
             if (liked) {
-                iconoLike?.setAttribute('fill', '#dc2626');
-                iconoLike?.setAttribute('stroke', '#dc2626');
-                btnLike.style.backgroundColor = '#fee2e2';
-                if (contadorLike) contadorLike.style.color = '#dc2626';
-                btnLike.onmouseover = () => btnLike.style.backgroundColor = '#fecaca';
-                btnLike.onmouseout = () => btnLike.style.backgroundColor = '#fee2e2';
+                iconoLike?.setAttribute("fill", "#dc2626");
+                iconoLike?.setAttribute("stroke", "#dc2626");
+                btnLike.style.backgroundColor = "#fee2e2";
+                if (contadorLike) contadorLike.style.color = "#dc2626";
+                btnLike.onmouseover = () =>
+                    (btnLike.style.backgroundColor = "#fecaca");
+                btnLike.onmouseout = () =>
+                    (btnLike.style.backgroundColor = "#fee2e2");
             } else {
-                iconoLike?.setAttribute('fill', 'none');
-                iconoLike?.setAttribute('stroke', '#6b7280');
-                btnLike.style.backgroundColor = '#f3f4f6';
-                if (contadorLike) contadorLike.style.color = '#6b7280';
-                btnLike.onmouseover = () => btnLike.style.backgroundColor = '#e5e7eb';
-                btnLike.onmouseout = () => btnLike.style.backgroundColor = '#f3f4f6';
+                iconoLike?.setAttribute("fill", "none");
+                iconoLike?.setAttribute("stroke", "#6b7280");
+                btnLike.style.backgroundColor = "#f3f4f6";
+                if (contadorLike) contadorLike.style.color = "#6b7280";
+                btnLike.onmouseover = () =>
+                    (btnLike.style.backgroundColor = "#e5e7eb");
+                btnLike.onmouseout = () =>
+                    (btnLike.style.backgroundColor = "#f3f4f6");
             }
-            
+
             if (contadorLike) {
-                contadorLike.textContent = totalLikes > 0 ? totalLikes : '0';
+                contadorLike.textContent = totalLikes > 0 ? totalLikes : "0";
             }
         }
 
         // Función para cargar comentarios
         async function cargarComentarios(publicacionId, page = 1) {
-            const comentariosList = document.getElementById('comentarios-list');
+            const comentariosList = document.getElementById("comentarios-list");
             if (!comentariosList) return;
 
             try {
-                const response = await fetch(`${API_URL}/comentarios/publicacion/${publicacionId}?page=${page}&limit=10`);
+                const response = await fetch(
+                    `${API_URL}/comentarios/publicacion/${publicacionId}?page=${page}&limit=10`,
+                );
                 const result = await response.json();
 
                 if (result.success) {
                     if (page === 1) {
-                        comentariosList.innerHTML = '';
+                        comentariosList.innerHTML = "";
                     }
 
                     const comentarios = result.data || [];
 
                     if (comentarios.length === 0 && page === 1) {
-                        comentariosList.innerHTML = '<p class="no-comentarios">No hay comentarios en esta publicación.</p>';
+                        comentariosList.innerHTML =
+                            '<p class="no-comentarios">No hay comentarios en esta publicación.</p>';
                     } else {
                         const token = getAuthToken();
                         for (const comentario of comentarios) {
-                            const comentarioHTML = crearComentarioHTML(comentario);
-                            comentariosList.insertAdjacentHTML('beforeend', comentarioHTML);
-                            
+                            const comentarioHTML =
+                                crearComentarioHTML(comentario);
+                            comentariosList.insertAdjacentHTML(
+                                "beforeend",
+                                comentarioHTML,
+                            );
+
                             // Verificar si el usuario dio like
                             if (token) {
                                 try {
-                                    const likeRes = await fetch(`${API_URL}/comentarios/${comentario.id}/mi-like`, {
-                                        headers: { 'Authorization': `Bearer ${token}` }
-                                    });
-                                    
+                                    const likeRes = await fetch(
+                                        `${API_URL}/comentarios/${comentario.id}/mi-like`,
+                                        {
+                                            headers: {
+                                                Authorization: `Bearer ${token}`,
+                                            },
+                                        },
+                                    );
+
                                     if (likeRes.status !== 401) {
                                         const likeData = await likeRes.json();
-                                        if (likeData.success && likeData.data.liked) {
-                                            actualizarUILike(comentario.id, true, comentario.totalLikes);
+                                        if (
+                                            likeData.success &&
+                                            likeData.data.liked
+                                        ) {
+                                            actualizarUILike(
+                                                comentario.id,
+                                                true,
+                                                comentario.totalLikes,
+                                            );
                                         }
                                     }
                                 } catch {}
@@ -946,81 +1206,90 @@ import "../styles/publicaciones-imagenes.css";
                         }
                     }
 
-                    const pagination = document.getElementById('comentarios-pagination');
+                    const pagination = document.getElementById(
+                        "comentarios-pagination",
+                    );
                     if (pagination && result.pagination) {
-                        pagination.style.display = result.pagination.hasNextPage ? 'block' : 'none';
+                        pagination.style.display = result.pagination.hasNextPage
+                            ? "block"
+                            : "none";
                     }
                 }
             } catch (error) {
-                console.error('Error cargando comentarios:', error);
-                comentariosList.innerHTML = '<p class="error-comentarios">Error al cargar comentarios</p>';
+                console.error("Error cargando comentarios:", error);
+                comentariosList.innerHTML =
+                    '<p class="error-comentarios">Error al cargar comentarios</p>';
             }
         }
 
         // Función para mostrar/ocultar modal de comentarios
         function toggleComments(publicacionId) {
             currentPublicacionId = publicacionId;
-            const modal = document.getElementById('comentarios-modal');
+            const modal = document.getElementById("comentarios-modal");
             if (!modal) return;
 
-            const isVisible = modal.style.display === 'flex';
-            
+            const isVisible = modal.style.display === "flex";
+
             if (isVisible) {
-                modal.style.display = 'none';
+                modal.style.display = "none";
                 currentPublicacionId = null;
             } else {
-                modal.style.display = 'flex';
+                modal.style.display = "flex";
                 cargarComentarios(publicacionId, 1);
             }
         }
 
         // Event listener para inicialización
-        document.addEventListener('DOMContentLoaded', async () => {
+        document.addEventListener("DOMContentLoaded", async () => {
             // Cargar datos del usuario actual
             currentUser = await cargarUsuarioActual();
-            
+
             // Cargar primera página al cargar la página
             cargarMisPublicaciones(1);
 
             // Configurar botón de cargar más
-            const loadMoreBtn = document.getElementById('load-more-btn');
+            const loadMoreBtn = document.getElementById("load-more-btn");
             if (loadMoreBtn) {
-                loadMoreBtn.addEventListener('click', () => {
+                loadMoreBtn.addEventListener("click", () => {
                     currentPage++;
                     cargarMisPublicaciones(currentPage);
                 });
             }
 
             // Cerrar modal de comentarios
-            const closeModalBtn = document.getElementById('close-modal-btn');
+            const closeModalBtn = document.getElementById("close-modal-btn");
             if (closeModalBtn) {
-                closeModalBtn.addEventListener('click', () => {
-                    const modal = document.getElementById('comentarios-modal');
+                closeModalBtn.addEventListener("click", () => {
+                    const modal = document.getElementById("comentarios-modal");
                     if (modal) {
-                        modal.style.display = 'none';
+                        modal.style.display = "none";
                         currentPublicacionId = null;
                     }
                 });
             }
 
             // Cerrar modal al hacer clic fuera
-            const modal = document.getElementById('comentarios-modal');
+            const modal = document.getElementById("comentarios-modal");
             if (modal) {
-                modal.addEventListener('click', (e) => {
+                modal.addEventListener("click", (e) => {
                     if (e.target === modal) {
-                        modal.style.display = 'none';
+                        modal.style.display = "none";
                         currentPublicacionId = null;
                     }
                 });
             }
 
             // Cargar más comentarios
-            const loadMoreCommentsBtn = document.getElementById('load-more-comments-btn');
+            const loadMoreCommentsBtn = document.getElementById(
+                "load-more-comments-btn",
+            );
             if (loadMoreCommentsBtn) {
-                loadMoreCommentsBtn.addEventListener('click', () => {
+                loadMoreCommentsBtn.addEventListener("click", () => {
                     if (currentPublicacionId) {
-                        const comentariosList = document.getElementById('comentarios-list');
-                        const currentCount = comentariosList?.children.length || 0;
+                        const comentariosList =
+                            document.getElementById("comentarios-list");
+                        const currentCount =
+                            comentariosList?.children.length || 0;
                         const page = Math.floor(currentCount / 10) + 1;
                         cargarComentarios(currentPublicacionId, page);
                     }
@@ -1028,64 +1297,79 @@ import "../styles/publicaciones-imagenes.css";
             }
 
             // Event listeners para el modal de imágenes
-            const imagenModal = document.getElementById('imagen-modal');
-            const modalCerrar = document.getElementById('modal-cerrar');
-            const modalPrev = document.getElementById('modal-prev');
-            const modalNext = document.getElementById('modal-next');
-            
+            const imagenModal = document.getElementById("imagen-modal");
+            const modalCerrar = document.getElementById("modal-cerrar");
+            const modalPrev = document.getElementById("modal-prev");
+            const modalNext = document.getElementById("modal-next");
+
             // Cerrar modal con botón X
             if (modalCerrar) {
-                modalCerrar.addEventListener('click', cerrarModalImagen);
+                modalCerrar.addEventListener("click", cerrarModalImagen);
             }
-            
+
             // Navegación con botones
             if (modalPrev) {
-                modalPrev.addEventListener('click', () => navegarImagenModal('prev'));
+                modalPrev.addEventListener("click", () =>
+                    navegarImagenModal("prev"),
+                );
             }
-            
+
             if (modalNext) {
-                modalNext.addEventListener('click', () => navegarImagenModal('next'));
+                modalNext.addEventListener("click", () =>
+                    navegarImagenModal("next"),
+                );
             }
-            
+
             // Cerrar modal al hacer clic en el fondo
             if (imagenModal) {
-                imagenModal.addEventListener('click', (e) => {
+                imagenModal.addEventListener("click", (e) => {
                     if (e.target === imagenModal) {
                         cerrarModalImagen();
                     }
                 });
             }
-            
+
             // Navegación con teclado
-            document.addEventListener('keydown', (e) => {
-                if (imagenModal && imagenModal.style.display === 'flex') {
-                    if (e.key === 'Escape') {
+            document.addEventListener("keydown", (e) => {
+                if (imagenModal && imagenModal.style.display === "flex") {
+                    if (e.key === "Escape") {
                         cerrarModalImagen();
-                    } else if (e.key === 'ArrowLeft') {
-                        navegarImagenModal('prev');
-                    } else if (e.key === 'ArrowRight') {
-                        navegarImagenModal('next');
+                    } else if (e.key === "ArrowLeft") {
+                        navegarImagenModal("prev");
+                    } else if (e.key === "ArrowRight") {
+                        navegarImagenModal("next");
                     }
                 }
             });
-            
+
             // Event delegation para clicks en imágenes de publicaciones
-            document.addEventListener('click', async (e) => {
+            document.addEventListener("click", async (e) => {
                 const target = e.target;
-                
+
                 // Clicks en imágenes de publicaciones
-                const container = target.closest('.imagen-container');
+                const container = target.closest(".imagen-container");
                 if (container) {
-                    const publicacionImagenes = container.closest('.publicacion-imagenes');
+                    const publicacionImagenes = container.closest(
+                        ".publicacion-imagenes",
+                    );
                     if (publicacionImagenes) {
-                        const imagenesJSON = publicacionImagenes.getAttribute('data-imagenes');
+                        const imagenesJSON =
+                            publicacionImagenes.getAttribute("data-imagenes");
                         if (imagenesJSON) {
                             try {
                                 const imagenes = JSON.parse(imagenesJSON);
-                                const index = parseInt(container.getAttribute('data-imagen-index')) || 0;
+                                const index =
+                                    parseInt(
+                                        container.getAttribute(
+                                            "data-imagen-index",
+                                        ),
+                                    ) || 0;
                                 abrirModalImagen(imagenes, index);
                             } catch (error) {
-                                console.error('Error parseando imágenes:', error);
+                                console.error(
+                                    "Error parseando imágenes:",
+                                    error,
+                                );
                             }
                         }
                     }
@@ -1093,43 +1377,57 @@ import "../styles/publicaciones-imagenes.css";
                 }
 
                 // Botón responder
-                const btnResponder = target?.closest('.btn-responder');
+                const btnResponder = target?.closest(".btn-responder");
                 if (btnResponder) {
-                    const comentarioId = parseInt(btnResponder.getAttribute('data-comentario-id') || '0');
+                    const comentarioId = parseInt(
+                        btnResponder.getAttribute("data-comentario-id") || "0",
+                    );
                     if (comentarioId) {
-                        let comentarioItem = document.querySelector(`.comentario-item[data-comentario-id="${comentarioId}"]`);
+                        let comentarioItem = document.querySelector(
+                            `.comentario-item[data-comentario-id="${comentarioId}"]`,
+                        );
                         if (!comentarioItem) {
-                            comentarioItem = document.querySelector(`.respuesta-item[data-comentario-id="${comentarioId}"]`);
+                            comentarioItem = document.querySelector(
+                                `.respuesta-item[data-comentario-id="${comentarioId}"]`,
+                            );
                         }
                         if (!comentarioItem) return;
 
-                        const comentarioContent = comentarioItem.querySelector('.comentario-content');
+                        const comentarioContent = comentarioItem.querySelector(
+                            ".comentario-content",
+                        );
                         if (!comentarioContent) return;
 
-                        let existingForm = comentarioContent.querySelector('.form-responder');
+                        let existingForm =
+                            comentarioContent.querySelector(".form-responder");
                         if (existingForm) {
                             existingForm.remove();
                             return;
                         }
 
-                        const formContainer = document.createElement('div');
-                        formContainer.className = 'form-responder';
-                        formContainer.style.cssText = 'margin-top: 0.75rem; padding: 0.75rem; background-color: #f9fafb; border-radius: 8px;';
+                        const formContainer = document.createElement("div");
+                        formContainer.className = "form-responder";
+                        formContainer.style.cssText =
+                            "margin-top: 0.75rem; padding: 0.75rem; background-color: #f9fafb; border-radius: 8px;";
 
-                        const textarea = document.createElement('textarea');
-                        textarea.placeholder = 'Escribe tu respuesta...';
-                        textarea.style.cssText = 'width: 100%; min-height: 60px; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-family: inherit; font-size: 0.875rem; resize: none;';
+                        const textarea = document.createElement("textarea");
+                        textarea.placeholder = "Escribe tu respuesta...";
+                        textarea.style.cssText =
+                            "width: 100%; min-height: 60px; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-family: inherit; font-size: 0.875rem; resize: none;";
 
-                        const botonesDiv = document.createElement('div');
-                        botonesDiv.style.cssText = 'display: flex; gap: 0.5rem; margin-top: 0.5rem;';
+                        const botonesDiv = document.createElement("div");
+                        botonesDiv.style.cssText =
+                            "display: flex; gap: 0.5rem; margin-top: 0.5rem;";
 
-                        const btnPublicar = document.createElement('button');
-                        btnPublicar.textContent = 'Publicar';
-                        btnPublicar.style.cssText = 'padding: 0.5rem 1rem; background-color: #3b82f6; color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 0.875rem; font-weight: 500;';
+                        const btnPublicar = document.createElement("button");
+                        btnPublicar.textContent = "Publicar";
+                        btnPublicar.style.cssText =
+                            "padding: 0.5rem 1rem; background-color: #3b82f6; color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 0.875rem; font-weight: 500;";
 
-                        const btnCancelar = document.createElement('button');
-                        btnCancelar.textContent = 'Cancelar';
-                        btnCancelar.style.cssText = 'padding: 0.5rem 1rem; background-color: #6b7280; color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 0.875rem; font-weight: 500;';
+                        const btnCancelar = document.createElement("button");
+                        btnCancelar.textContent = "Cancelar";
+                        btnCancelar.style.cssText =
+                            "padding: 0.5rem 1rem; background-color: #6b7280; color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 0.875rem; font-weight: 500;";
 
                         botonesDiv.appendChild(btnPublicar);
                         botonesDiv.appendChild(btnCancelar);
@@ -1139,57 +1437,110 @@ import "../styles/publicaciones-imagenes.css";
                         comentarioContent.appendChild(formContainer);
                         textarea.focus();
 
-                        btnPublicar.addEventListener('click', async () => {
+                        btnPublicar.addEventListener("click", async () => {
                             const contenido = textarea.value.trim();
                             if (!contenido) {
-                                showNotification('Escribe algo para responder', 'error');
+                                showNotification(
+                                    "Escribe algo para responder",
+                                    "error",
+                                );
                                 return;
                             }
 
                             btnPublicar.disabled = true;
-                            btnPublicar.textContent = 'Publicando...';
+                            btnPublicar.textContent = "Publicando...";
 
-                            const respuestaCreada = await crearRespuesta(comentarioId, contenido);
+                            const respuestaCreada = await crearRespuesta(
+                                comentarioId,
+                                contenido,
+                            );
 
                             if (respuestaCreada) {
                                 formContainer.remove();
 
                                 let nivelPadre = 0;
-                                if (comentarioItem.classList.contains('respuesta-item')) {
-                                    const nivelStr = comentarioItem.getAttribute('data-nivel');
-                                    nivelPadre = nivelStr ? parseInt(nivelStr) : 1;
+                                if (
+                                    comentarioItem.classList.contains(
+                                        "respuesta-item",
+                                    )
+                                ) {
+                                    const nivelStr =
+                                        comentarioItem.getAttribute(
+                                            "data-nivel",
+                                        );
+                                    nivelPadre = nivelStr
+                                        ? parseInt(nivelStr)
+                                        : 1;
                                 }
 
-                                const respuestaHTML = crearRespuestaHTML(respuestaCreada, nivelPadre + 1);
-                                const tempDiv = document.createElement('div');
+                                const respuestaHTML = crearRespuestaHTML(
+                                    respuestaCreada,
+                                    nivelPadre + 1,
+                                );
+                                const tempDiv = document.createElement("div");
                                 tempDiv.innerHTML = respuestaHTML;
-                                const respuestaElement = tempDiv.firstElementChild;
+                                const respuestaElement =
+                                    tempDiv.firstElementChild;
 
                                 if (nivelPadre >= 2) {
-                                    const respuestasList = comentarioItem.closest('.respuestas-list');
+                                    const respuestasList =
+                                        comentarioItem.closest(
+                                            ".respuestas-list",
+                                        );
                                     if (respuestasList) {
-                                        respuestaElement.setAttribute('data-parent-id', comentarioId.toString());
-                                        comentarioItem.insertAdjacentElement('afterend', respuestaElement);
+                                        respuestaElement.setAttribute(
+                                            "data-parent-id",
+                                            comentarioId.toString(),
+                                        );
+                                        comentarioItem.insertAdjacentElement(
+                                            "afterend",
+                                            respuestaElement,
+                                        );
                                     }
                                 } else {
-                                    let respuestasContainer = comentarioItem.querySelector(':scope > .comentario-content > .respuestas-container');
+                                    let respuestasContainer =
+                                        comentarioItem.querySelector(
+                                            ":scope > .comentario-content > .respuestas-container",
+                                        );
                                     if (!respuestasContainer) return;
-                                    
-                                    const respuestasList = respuestasContainer.querySelector('.respuestas-list');
-                                    if (respuestasList) {
-                                        respuestasList.appendChild(respuestaElement);
-                                    }
-                                    respuestasContainer.style.display = 'block';
 
-                                    let btnVerRespuestas = comentarioContent?.querySelector('.btn-ver-respuestas');
+                                    const respuestasList =
+                                        respuestasContainer.querySelector(
+                                            ".respuestas-list",
+                                        );
+                                    if (respuestasList) {
+                                        respuestasList.appendChild(
+                                            respuestaElement,
+                                        );
+                                    }
+                                    respuestasContainer.style.display = "block";
+
+                                    let btnVerRespuestas =
+                                        comentarioContent?.querySelector(
+                                            ".btn-ver-respuestas",
+                                        );
                                     if (!btnVerRespuestas) {
-                                        const comentarioFooter = comentarioContent.querySelector('.comentario-footer');
+                                        const comentarioFooter =
+                                            comentarioContent.querySelector(
+                                                ".comentario-footer",
+                                            );
                                         if (comentarioFooter) {
-                                            const btnResponderExistente = comentarioFooter.querySelector('.btn-responder');
-                                            const verRespuestasBtn = document.createElement('button');
-                                            verRespuestasBtn.className = 'btn-ver-respuestas active';
-                                            verRespuestasBtn.setAttribute('data-comentario-id', comentarioId.toString());
-                                            verRespuestasBtn.style.cssText = 'background: none; border: none; color: #2563eb; font-size: 0.8125rem; font-weight: 500; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 0.25rem;';
+                                            const btnResponderExistente =
+                                                comentarioFooter.querySelector(
+                                                    ".btn-responder",
+                                                );
+                                            const verRespuestasBtn =
+                                                document.createElement(
+                                                    "button",
+                                                );
+                                            verRespuestasBtn.className =
+                                                "btn-ver-respuestas active";
+                                            verRespuestasBtn.setAttribute(
+                                                "data-comentario-id",
+                                                comentarioId.toString(),
+                                            );
+                                            verRespuestasBtn.style.cssText =
+                                                "background: none; border: none; color: #2563eb; font-size: 0.8125rem; font-weight: 500; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 0.25rem;";
                                             verRespuestasBtn.innerHTML = `
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icono-toggle" style="transform: rotate(180deg);">
                                                     <polyline points="6 9 12 15 18 9"></polyline>
@@ -1197,20 +1548,25 @@ import "../styles/publicaciones-imagenes.css";
                                                 <span class="texto-respuestas">Ocultar respuestas (1)</span>
                                             `;
                                             if (btnResponderExistente) {
-                                                btnResponderExistente.insertAdjacentElement('afterend', verRespuestasBtn);
+                                                btnResponderExistente.insertAdjacentElement(
+                                                    "afterend",
+                                                    verRespuestasBtn,
+                                                );
                                             } else {
-                                                comentarioFooter.appendChild(verRespuestasBtn);
+                                                comentarioFooter.appendChild(
+                                                    verRespuestasBtn,
+                                                );
                                             }
                                         }
                                     }
                                 }
                             } else {
                                 btnPublicar.disabled = false;
-                                btnPublicar.textContent = 'Publicar';
+                                btnPublicar.textContent = "Publicar";
                             }
                         });
 
-                        btnCancelar.addEventListener('click', () => {
+                        btnCancelar.addEventListener("click", () => {
                             formContainer.remove();
                         });
                     }
@@ -1218,9 +1574,12 @@ import "../styles/publicaciones-imagenes.css";
                 }
 
                 // Botón de ver respuestas
-                const btnVerRespuestas = target?.closest('.btn-ver-respuestas');
+                const btnVerRespuestas = target?.closest(".btn-ver-respuestas");
                 if (btnVerRespuestas) {
-                    const comentarioId = parseInt(btnVerRespuestas.getAttribute('data-comentario-id') || '0');
+                    const comentarioId = parseInt(
+                        btnVerRespuestas.getAttribute("data-comentario-id") ||
+                            "0",
+                    );
                     if (comentarioId) {
                         await toggleVerRespuestas(comentarioId);
                     }
@@ -1228,9 +1587,11 @@ import "../styles/publicaciones-imagenes.css";
                 }
 
                 // Botón de like en comentarios
-                const btnLike = target?.closest('.btn-like-comentario');
+                const btnLike = target?.closest(".btn-like-comentario");
                 if (btnLike) {
-                    const comentarioId = parseInt(btnLike.getAttribute('data-comentario-id') || '0');
+                    const comentarioId = parseInt(
+                        btnLike.getAttribute("data-comentario-id") || "0",
+                    );
                     if (comentarioId) {
                         await toggleLikeComentario(comentarioId);
                     }
@@ -1238,78 +1599,96 @@ import "../styles/publicaciones-imagenes.css";
                 }
 
                 // Botón de editar
-                const btnEditar = target?.closest('.btn-editar-comentario');
+                const btnEditar = target?.closest(".btn-editar-comentario");
                 if (btnEditar) {
-                    const comentarioId = parseInt(btnEditar.getAttribute('data-comentario-id') || '0');
+                    const comentarioId = parseInt(
+                        btnEditar.getAttribute("data-comentario-id") || "0",
+                    );
                     if (comentarioId) {
-                        const comentarioItem = document.querySelector(`.comentario-item[data-comentario-id="${comentarioId}"]`);
+                        const comentarioItem = document.querySelector(
+                            `.comentario-item[data-comentario-id="${comentarioId}"]`,
+                        );
                         if (!comentarioItem) return;
 
-                        const parrafo = comentarioItem.querySelector(`p[data-comentario-id="${comentarioId}"]`);
+                        const parrafo = comentarioItem.querySelector(
+                            `p[data-comentario-id="${comentarioId}"]`,
+                        );
                         if (!parrafo) return;
 
-                        const contenidoOriginal = parrafo.textContent || '';
-                        
-                        const textarea = document.createElement('textarea');
+                        const contenidoOriginal = parrafo.textContent || "";
+
+                        const textarea = document.createElement("textarea");
                         textarea.value = contenidoOriginal;
-                        textarea.className = 'editar-comentario-textarea';
-                        textarea.style.cssText = 'width: 100%; min-height: 60px; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-family: inherit; font-size: 0.875rem; resize: none;';
-                        
-                        const botonesDiv = document.createElement('div');
-                        botonesDiv.style.cssText = 'display: flex; gap: 0.5rem; margin-top: 0.5rem;';
-                        
-                        const btnGuardar = document.createElement('button');
-                        btnGuardar.textContent = 'Guardar';
-                        btnGuardar.style.cssText = 'padding: 0.5rem 1rem; background-color: #3b82f6; color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 0.875rem; font-weight: 500;';
-                        
-                        const btnCancelar = document.createElement('button');
-                        btnCancelar.textContent = 'Cancelar';
-                        btnCancelar.style.cssText = 'padding: 0.5rem 1rem; background-color: #6b7280; color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 0.875rem; font-weight: 500;';
-                        
+                        textarea.className = "editar-comentario-textarea";
+                        textarea.style.cssText =
+                            "width: 100%; min-height: 60px; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-family: inherit; font-size: 0.875rem; resize: none;";
+
+                        const botonesDiv = document.createElement("div");
+                        botonesDiv.style.cssText =
+                            "display: flex; gap: 0.5rem; margin-top: 0.5rem;";
+
+                        const btnGuardar = document.createElement("button");
+                        btnGuardar.textContent = "Guardar";
+                        btnGuardar.style.cssText =
+                            "padding: 0.5rem 1rem; background-color: #3b82f6; color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 0.875rem; font-weight: 500;";
+
+                        const btnCancelar = document.createElement("button");
+                        btnCancelar.textContent = "Cancelar";
+                        btnCancelar.style.cssText =
+                            "padding: 0.5rem 1rem; background-color: #6b7280; color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 0.875rem; font-weight: 500;";
+
                         botonesDiv.appendChild(btnGuardar);
                         botonesDiv.appendChild(btnCancelar);
-                        
-                        parrafo.style.display = 'none';
-                        parrafo.insertAdjacentElement('afterend', botonesDiv);
-                        parrafo.insertAdjacentElement('afterend', textarea);
+
+                        parrafo.style.display = "none";
+                        parrafo.insertAdjacentElement("afterend", botonesDiv);
+                        parrafo.insertAdjacentElement("afterend", textarea);
                         textarea.focus();
-                        
-                        btnGuardar.addEventListener('click', async () => {
+
+                        btnGuardar.addEventListener("click", async () => {
                             const nuevoContenido = textarea.value.trim();
                             if (!nuevoContenido) {
-                                showNotification('El comentario no puede estar vacío', 'error');
+                                showNotification(
+                                    "El comentario no puede estar vacío",
+                                    "error",
+                                );
                                 return;
                             }
-                            
+
                             btnGuardar.disabled = true;
-                            btnGuardar.textContent = 'Guardando...';
-                            
-                            const exito = await editarComentario(comentarioId, nuevoContenido);
-                            
+                            btnGuardar.textContent = "Guardando...";
+
+                            const exito = await editarComentario(
+                                comentarioId,
+                                nuevoContenido,
+                            );
+
                             if (exito) {
                                 parrafo.textContent = nuevoContenido;
                                 textarea.remove();
                                 botonesDiv.remove();
-                                parrafo.style.display = '';
+                                parrafo.style.display = "";
                             } else {
                                 btnGuardar.disabled = false;
-                                btnGuardar.textContent = 'Guardar';
+                                btnGuardar.textContent = "Guardar";
                             }
                         });
-                        
-                        btnCancelar.addEventListener('click', () => {
+
+                        btnCancelar.addEventListener("click", () => {
                             textarea.remove();
                             botonesDiv.remove();
-                            parrafo.style.display = '';
+                            parrafo.style.display = "";
                         });
                     }
                     return;
                 }
 
                 // Botón de eliminar
-                const btnEliminar = target?.closest('.btn-eliminar-comentario');
+                const btnEliminar = target?.closest(".btn-eliminar-comentario");
                 if (btnEliminar) {
-                    const comentarioId = parseInt(btnEliminar.getAttribute('data-comentario-id') || '0');
+                    const comentarioId = parseInt(
+                        btnEliminar.getAttribute("data-comentario-id") || "0",
+                    );
                     if (comentarioId) {
                         await eliminarComentario(comentarioId);
                     }

@@ -3,100 +3,159 @@
  * Página de resultados de búsqueda global
  * Muestra los resultados filtrados por categoría
  */
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import ComentariosModal from '../../components/ComentariosModal.astro';
-import '../../styles/search-results.css';
-import '../../styles/dashboard.css';
-import '../../styles/publicaciones-imagenes.css';
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ComentariosModal from "../../components/ComentariosModal.astro";
+import "../../styles/search-results.css";
+import "../../styles/dashboard.css";
+import "../../styles/publicaciones-imagenes.css";
 
 const { query } = Astro.url.searchParams;
 ---
 
-<BaseLayout title={`Resultados de búsqueda: ${query || ''}`}>
-    <div class="search-results-page" style="background-image: url('/images/imgen_de_fondo.jpg'); background-size: cover; background-position: center; background-attachment: fixed; min-height: 100vh;">
-        <div class="search-results-container" style="background-color: transparent;">
+<BaseLayout title={`Resultados de búsqueda: ${query || ""}`}>
+    <div
+        class="search-results-page"
+        style="background-image: url('/images/imgen_de_fondo.jpg'); background-size: cover; background-position: center; background-attachment: fixed; min-height: 100vh;">
+        <div
+            class="search-results-container"
+            style="background-color: transparent;">
             <!-- Header de búsqueda -->
-        <div class="search-header">
-            <div class="search-header-content">
-                <h1 class="search-title" id="search-title">
-                    Resultados de búsqueda
-                </h1>
-                <p class="search-subtitle" id="results-count">Buscando...</p>
-            </div>
-        </div>
-
-        <!-- Filtros por categoría -->
-        <div class="category-filters">
-            <button class="category-btn active" data-category="todos">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.35-4.35"></path>
-                </svg>
-                <span>Todos</span>
-                <span class="category-count" data-count="todos">0</span>
-            </button>
-
-            <button class="category-btn" data-category="personas">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-                <span>Personas</span>
-                <span class="category-count" data-count="personas">0</span>
-            </button>
-
-            <button class="category-btn" data-category="publicaciones">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                </svg>
-                <span>Publicaciones</span>
-                <span class="category-count" data-count="publicaciones">0</span>
-            </button>
-        </div>
-
-        <!-- Contenedor de resultados -->
-        <div class="results-content">
-            <!-- Loader -->
-            <div id="loading-results" class="loading-container">
-                <div class="loader"></div>
-                <p>Buscando resultados...</p>
+            <div class="search-header">
+                <div class="search-header-content">
+                    <h1 class="search-title" id="search-title">
+                        Resultados de búsqueda
+                    </h1>
+                    <p class="search-subtitle" id="results-count">
+                        Buscando...
+                    </p>
+                </div>
             </div>
 
-            <!-- Sin resultados -->
-            <div id="no-results" class="no-results" style="display: none;">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.35-4.35"></path>
-                </svg>
-                <h3>No se encontraron resultados</h3>
-                <p>Intenta con otras palabras clave o términos más generales</p>
-            </div>
+            <!-- Filtros por categoría -->
+            <div class="category-filters">
+                <button class="category-btn active" data-category="todos">
+                    <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <span>Todos</span>
+                    <span class="category-count" data-count="todos">0</span>
+                </button>
 
-            <!-- Resultados de personas -->
-            <div id="personas-results" class="results-section" style="display: none;">
-                <h2 class="section-title">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <button class="category-btn" data-category="personas">
+                    <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+                        ></path>
                         <circle cx="12" cy="7" r="4"></circle>
                     </svg>
-                    Personas
-                </h2>
-                <div id="personas-list" class="results-list"></div>
-            </div>
+                    <span>Personas</span>
+                    <span class="category-count" data-count="personas">0</span>
+                </button>
 
-            <!-- Resultados de publicaciones -->
-            <div id="publicaciones-results" class="results-section" style="display: none;">
-                <h2 class="section-title">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <button class="category-btn" data-category="publicaciones">
+                    <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2">
+                        <path
+                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                        ></path>
                         <polyline points="14 2 14 8 20 8"></polyline>
                     </svg>
-                    Publicaciones
-                </h2>
-                <div id="publicaciones-list" class="results-list"></div>
+                    <span>Publicaciones</span>
+                    <span class="category-count" data-count="publicaciones"
+                        >0</span
+                    >
+                </button>
             </div>
-        </div>
+
+            <!-- Contenedor de resultados -->
+            <div class="results-content">
+                <!-- Loader -->
+                <div id="loading-results" class="loading-container">
+                    <div class="loader"></div>
+                    <p>Buscando resultados...</p>
+                </div>
+
+                <!-- Sin resultados -->
+                <div id="no-results" class="no-results" style="display: none;">
+                    <svg
+                        width="64"
+                        height="64"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <h3>No se encontraron resultados</h3>
+                    <p>
+                        Intenta con otras palabras clave o términos más
+                        generales
+                    </p>
+                </div>
+
+                <!-- Resultados de personas -->
+                <div
+                    id="personas-results"
+                    class="results-section"
+                    style="display: none;">
+                    <h2 class="section-title">
+                        <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+                            ></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        Personas
+                    </h2>
+                    <div id="personas-list" class="results-list"></div>
+                </div>
+
+                <!-- Resultados de publicaciones -->
+                <div
+                    id="publicaciones-results"
+                    class="results-section"
+                    style="display: none;">
+                    <h2 class="section-title">
+                        <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                            ></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        Publicaciones
+                    </h2>
+                    <div id="publicaciones-list" class="results-list"></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -105,15 +164,17 @@ const { query } = Astro.url.searchParams;
 </BaseLayout>
 
 <script>
-    const API_BASE_URL = (import.meta.env.PUBLIC_API_URL || 'http://localhost:3000').replace(/\/api$/, '');
-    
+    const API_BASE_URL = (
+        import.meta.env.PUBLIC_API_URL || "http://localhost:3000"
+    ).replace(/\/api$/, "");
+
     // Funciones auxiliares
     function getAuthToken() {
-        return localStorage.getItem('auth_token');
+        return localStorage.getItem("auth_token");
     }
 
     function getUserData() {
-        const userData = localStorage.getItem('user_data');
+        const userData = localStorage.getItem("user_data");
         return userData ? JSON.parse(userData) : null;
     }
 
@@ -125,17 +186,23 @@ const { query } = Astro.url.searchParams;
         const diffHoras = Math.floor(diffMs / 3600000);
         const diffDias = Math.floor(diffMs / 86400000);
 
-        if (diffMins < 1) return 'Ahora';
+        if (diffMins < 1) return "Ahora";
         if (diffMins < 60) return `${diffMins}m`;
         if (diffHoras < 24) return `${diffHoras}h`;
         if (diffDias < 7) return `${diffDias}d`;
-        
-        return fecha.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' });
+
+        return fecha.toLocaleDateString("es-AR", {
+            day: "numeric",
+            month: "short",
+        });
     }
 
-    function showNotification(message: string, type: 'success' | 'error' = 'success') {
+    function showNotification(
+        message: string,
+        type: "success" | "error" = "success",
+    ) {
         // Crear elemento de notificación
-        const notification = document.createElement('div');
+        const notification = document.createElement("div");
         notification.className = `notification ${type}`;
         notification.textContent = message;
         notification.style.cssText = `
@@ -143,7 +210,7 @@ const { query } = Astro.url.searchParams;
             top: 20px;
             right: 20px;
             padding: 1rem 1.5rem;
-            background: ${type === 'success' ? '#10b981' : '#ef4444'};
+            background: ${type === "success" ? "#10b981" : "#ef4444"};
             color: white;
             border-radius: 0.5rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -151,18 +218,18 @@ const { query } = Astro.url.searchParams;
             font-weight: 500;
             animation: slideIn 0.3s ease;
         `;
-        
+
         document.body.appendChild(notification);
-        
+
         setTimeout(() => {
-            notification.style.animation = 'slideOut 0.3s ease';
+            notification.style.animation = "slideOut 0.3s ease";
             setTimeout(() => notification.remove(), 300);
         }, 3000);
     }
 
     // Obtener usuario actual
     const currentUser = getUserData();
-    
+
     interface Persona {
         id: number;
         nombre: string;
@@ -198,24 +265,24 @@ const { query } = Astro.url.searchParams;
         };
     }
 
-    let currentCategory = 'todos';
+    let currentCategory = "todos";
     let resultadosGlobales: ResultadosBusqueda | null = null;
 
     // Obtener elementos del DOM
-    const loadingEl = document.getElementById('loading-results');
-    const noResultsEl = document.getElementById('no-results');
-    const categoryBtns = document.querySelectorAll('.category-btn');
-    const resultsCountEl = document.getElementById('results-count');
+    const loadingEl = document.getElementById("loading-results");
+    const noResultsEl = document.getElementById("no-results");
+    const categoryBtns = document.querySelectorAll(".category-btn");
+    const resultsCountEl = document.getElementById("results-count");
 
     // Función principal para realizar la búsqueda
     async function realizarBusqueda() {
         const urlParams = new URLSearchParams(window.location.search);
-        const query = urlParams.get('query');
+        const query = urlParams.get("query");
 
-        console.log('🔍 Query de búsqueda:', query);
+        console.log("🔍 Query de búsqueda:", query);
 
         // Actualizar el título con el término de búsqueda
-        const searchTitleEl = document.getElementById('search-title');
+        const searchTitleEl = document.getElementById("search-title");
         if (searchTitleEl && query) {
             searchTitleEl.innerHTML = `Resultados para: <span class="search-query">"${query}"</span>`;
         }
@@ -227,35 +294,35 @@ const { query } = Astro.url.searchParams;
 
         try {
             const url = `${API_BASE_URL}/api/buscar/global?query=${encodeURIComponent(query)}`;
-            console.log('📡 URL de búsqueda:', url);
-            
+            console.log("📡 URL de búsqueda:", url);
+
             const response = await fetch(url);
 
-            console.log('📡 Respuesta:', response.status, response.statusText);
+            console.log("📡 Respuesta:", response.status, response.statusText);
 
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error('❌ Error en respuesta:', errorText);
-                throw new Error('Error al realizar la búsqueda');
+                console.error("❌ Error en respuesta:", errorText);
+                throw new Error("Error al realizar la búsqueda");
             }
 
             const data: ResultadosBusqueda = await response.json();
-            console.log('✅ Datos recibidos:', data);
-            
+            console.log("✅ Datos recibidos:", data);
+
             resultadosGlobales = data;
 
-            if (loadingEl) loadingEl.style.display = 'none';
+            if (loadingEl) loadingEl.style.display = "none";
 
             if (tieneResultados(data)) {
                 mostrarResultados(data);
                 actualizarContadores(data);
             } else {
-                console.log('⚠️ No hay resultados');
+                console.log("⚠️ No hay resultados");
                 mostrarSinResultados();
             }
         } catch (error) {
-            console.error('💥 Error al realizar la búsqueda:', error);
-            if (loadingEl) loadingEl.style.display = 'none';
+            console.error("💥 Error al realizar la búsqueda:", error);
+            if (loadingEl) loadingEl.style.display = "none";
             mostrarSinResultados();
         }
     }
@@ -263,32 +330,35 @@ const { query } = Astro.url.searchParams;
     // Verificar si hay resultados
     function tieneResultados(data: ResultadosBusqueda): boolean {
         const { personas, publicaciones } = data.resultados;
-        return (
-            personas.length > 0 ||
-            publicaciones.length > 0
-        );
+        return personas.length > 0 || publicaciones.length > 0;
     }
 
     // Mostrar resultados
     function mostrarResultados(data: ResultadosBusqueda) {
         const { personas, publicaciones } = data.resultados;
 
-        console.log('📊 Mostrando resultados:', { 
-            personas: personas.length, 
-            publicaciones: publicaciones.length
+        console.log("📊 Mostrando resultados:", {
+            personas: personas.length,
+            publicaciones: publicaciones.length,
         });
 
         if (personas.length > 0) {
             renderPersonas(personas);
         } else {
-            renderEmptyState('personas-list', 'No se encontraron personas para esta búsqueda');
+            renderEmptyState(
+                "personas-list",
+                "No se encontraron personas para esta búsqueda",
+            );
         }
 
         if (publicaciones.length > 0) {
-            console.log('🔍 Publicaciones a renderizar:', publicaciones);
+            console.log("🔍 Publicaciones a renderizar:", publicaciones);
             renderPublicaciones(publicaciones);
         } else {
-            renderEmptyState('publicaciones-list', 'No se encontraron publicaciones para esta búsqueda');
+            renderEmptyState(
+                "publicaciones-list",
+                "No se encontraron publicaciones para esta búsqueda",
+            );
         }
 
         filtrarPorCategoria(currentCategory);
@@ -296,127 +366,157 @@ const { query } = Astro.url.searchParams;
 
     // Renderizar personas
     function renderPersonas(personas: Persona[]) {
-        const container = document.getElementById('personas-list');
+        const container = document.getElementById("personas-list");
         if (!container) return;
 
-        container.innerHTML = personas.map(persona => `
+        container.innerHTML = personas
+            .map(
+                (persona) => `
             <a href="/perfil/${persona.id}" class="result-card persona-card">
                 <div class="persona-avatar">
-                    ${persona.urlFotoPerfil 
-                        ? `<img src="${persona.urlFotoPerfil}" alt="${persona.nombre}">`
-                        : `<div class="avatar-placeholder">${persona.nombre.charAt(0)}${persona.apellido ? persona.apellido.charAt(0) : ''}</div>`
+                    ${
+                        persona.urlFotoPerfil
+                            ? `<img src="${persona.urlFotoPerfil}" alt="${persona.nombre}">`
+                            : `<div class="avatar-placeholder">${persona.nombre.charAt(0)}${persona.apellido ? persona.apellido.charAt(0) : ""}</div>`
                     }
                 </div>
                 <div class="persona-info">
-                    <h3 class="persona-nombre">${persona.nombre} ${persona.apellido || ''}</h3>
-                    ${persona.tituloprofesional ? `<p class="persona-titulo">${persona.tituloprofesional}</p>` : ''}
-                    ${persona.carrera ? `<p class="persona-carrera">${persona.carrera}</p>` : ''}
-                    ${persona.situacionLaboral ? `<span class="persona-estado">${persona.situacionLaboral}</span>` : ''}
+                    <h3 class="persona-nombre">${persona.nombre} ${persona.apellido || ""}</h3>
+                    ${persona.tituloprofesional ? `<p class="persona-titulo">${persona.tituloprofesional}</p>` : ""}
+                    ${persona.carrera ? `<p class="persona-carrera">${persona.carrera}</p>` : ""}
+                    ${persona.situacionLaboral ? `<span class="persona-estado">${persona.situacionLaboral}</span>` : ""}
                 </div>
             </a>
-        `).join('');
+        `,
+            )
+            .join("");
 
-        const section = document.getElementById('personas-results');
-        if (section) section.style.display = 'block';
+        const section = document.getElementById("personas-results");
+        if (section) section.style.display = "block";
     }
 
     // Renderizar publicaciones (versión simplificada para búsqueda)
     function renderPublicaciones(publicaciones: any[]) {
-        console.log('🎨 Iniciando renderizado de publicaciones:', publicaciones);
-        
-        const container = document.getElementById('publicaciones-list');
+        console.log(
+            "🎨 Iniciando renderizado de publicaciones:",
+            publicaciones,
+        );
+
+        const container = document.getElementById("publicaciones-list");
         if (!container) {
-            console.error('❌ Container de publicaciones no encontrado');
+            console.error("❌ Container de publicaciones no encontrado");
             return;
         }
 
         // Transformar publicaciones al formato esperado por crearPostCard
-        const publicacionesTransformadas = publicaciones.map(pub => {
+        const publicacionesTransformadas = publicaciones.map((pub) => {
             const transformed = {
                 id: pub.id,
                 contenido: pub.contenido,
                 fechaCreacion: pub.fechaCreacion,
                 autor: {
                     id: pub.autorId || 0,
-                    nombre: pub.autorNombre || 'Usuario',
-                    apellido: pub.autorApellido || '',
-                    urlFotoPerfil: pub.urlFotoPerfil || null
+                    nombre: pub.autorNombre || "Usuario",
+                    apellido: pub.autorApellido || "",
+                    urlFotoPerfil: pub.urlFotoPerfil || null,
                 },
-                imagenes: pub.imagenes ? pub.imagenes.split('||').filter(Boolean) : []
+                imagenes: pub.imagenes
+                    ? pub.imagenes.split("||").filter(Boolean)
+                    : [],
             };
-            console.log('🔄 Publicación transformada:', transformed);
+            console.log("🔄 Publicación transformada:", transformed);
             return transformed;
         });
 
-        container.innerHTML = publicacionesTransformadas.map(pub => {
-            return crearPostCard(pub);
-        }).join('');
+        container.innerHTML = publicacionesTransformadas
+            .map((pub) => {
+                return crearPostCard(pub);
+            })
+            .join("");
 
-        console.log('✅ HTML de publicaciones generado');
+        console.log("✅ HTML de publicaciones generado");
 
-        const section = document.getElementById('publicaciones-results');
-        if (section) section.style.display = 'block';
+        const section = document.getElementById("publicaciones-results");
+        if (section) section.style.display = "block";
     }
 
     // Función para crear card de publicación (simplificada para búsqueda)
     function crearPostCard(publicacion: Publicacion) {
         const { id, contenido, autor, fechaCreacion, imagenes } = publicacion;
-        
+
         // Escapar HTML para prevenir XSS
-        const contenidoEscapado = contenido.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        const nombreAutor = autor.nombre || 'Usuario';
+        const contenidoEscapado = contenido
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+        const nombreAutor = autor.nombre || "Usuario";
 
         // Renderizar imágenes
-        let imagenesHTML = '';
+        let imagenesHTML = "";
         if (imagenes && imagenes.length > 0) {
             const numImagenes = Math.min(imagenes.length, 5);
-            const imagenesJSON = JSON.stringify(imagenes.map(img => 
-                img.startsWith('http') ? img : `http://localhost:3000${img}`
-            )).replace(/"/g, '&quot;');
-            
+            const imagenesJSON = JSON.stringify(
+                imagenes.map((img) =>
+                    img.startsWith("http")
+                        ? img
+                        : `http://localhost:3000${img}`,
+                ),
+            ).replace(/"/g, "&quot;");
+
             imagenesHTML = `<div class="publicacion-imagenes imagenes-${numImagenes}" data-imagenes='${imagenesJSON}'>`;
-            
-            const maxDisplay = imagenes.length === 5 ? 4 : Math.min(4, imagenes.length);
-            
+
+            const maxDisplay =
+                imagenes.length === 5 ? 4 : Math.min(4, imagenes.length);
+
             for (let i = 0; i < maxDisplay; i++) {
-                let imgUrl = imagenes[i].startsWith('http') ? imagenes[i] : `http://localhost:3000${imagenes[i]}`;
-                
-                if (imgUrl.includes('ik.imagekit.io')) {
-                    imgUrl += '?tr=w-800,q-80,f-auto';
+                let imgUrl = imagenes[i].startsWith("http")
+                    ? imagenes[i]
+                    : `http://localhost:3000${imagenes[i]}`;
+
+                if (imgUrl.includes("ik.imagekit.io")) {
+                    imgUrl += "?tr=w-800,q-80,f-auto";
                 }
-                
-                const extraClass = (imagenes.length === 5 && i === 3) ? ' imagen-con-indicador' : '';
+
+                const extraClass =
+                    imagenes.length === 5 && i === 3
+                        ? " imagen-con-indicador"
+                        : "";
                 imagenesHTML += `
                     <div class="imagen-container${extraClass}" data-imagen-index="${i}">
                         <img src="${imgUrl}" alt="Imagen ${i + 1}" loading="lazy" decoding="async" />
                     </div>
                 `;
             }
-            
-            imagenesHTML += '</div>';
+
+            imagenesHTML += "</div>";
         }
-        
+
         // Avatar
-        let fotoUrl = autor.urlFotoPerfil 
-            ? (autor.urlFotoPerfil.startsWith('http') 
-                ? autor.urlFotoPerfil 
-                : `http://localhost:3000${autor.urlFotoPerfil}`)
+        let fotoUrl = autor.urlFotoPerfil
+            ? autor.urlFotoPerfil.startsWith("http")
+                ? autor.urlFotoPerfil
+                : `http://localhost:3000${autor.urlFotoPerfil}`
             : null;
-        
-        console.log('🖼️ Procesando avatar:', { autorId: autor.id, urlFotoPerfil: autor.urlFotoPerfil, fotoUrl });
-        
-        if (fotoUrl && fotoUrl.includes('ik.imagekit.io')) {
-            fotoUrl += '?tr=w-100,h-100,q-80,f-auto';
+
+        console.log("🖼️ Procesando avatar:", {
+            autorId: autor.id,
+            urlFotoPerfil: autor.urlFotoPerfil,
+            fotoUrl,
+        });
+
+        if (fotoUrl && fotoUrl.includes("ik.imagekit.io")) {
+            fotoUrl += "?tr=w-100,h-100,q-80,f-auto";
         }
-        
-        const avatarHTML = fotoUrl 
+
+        const avatarHTML = fotoUrl
             ? `<div class="avatar"><img src="${fotoUrl}" alt="${nombreAutor}" loading="lazy" /></div>`
             : `<div class="avatar"></div>`;
-        
+
         // Determinar a dónde redirigir según autenticación
         const token = getAuthToken();
-        const redirectUrl = token ? `/dashboard?publicacion=${id}` : `/?publicacion=${id}`;
-        
+        const redirectUrl = token
+            ? `/dashboard?publicacion=${id}`
+            : `/?publicacion=${id}`;
+
         return `
             <article class="post-card post-card-clickable" data-post-id="${id}" onclick="window.location.href='${redirectUrl}'" style="cursor: pointer;">
                 <header class="post-header">
@@ -448,14 +548,14 @@ const { query } = Astro.url.searchParams;
             </div>
         `;
 
-        const section = container.closest('.results-section') as HTMLElement;
-        if (section) section.style.display = 'block';
+        const section = container.closest(".results-section") as HTMLElement;
+        if (section) section.style.display = "block";
     }
 
     // Actualizar contadores
     function actualizarContadores(data: ResultadosBusqueda) {
         const { personas, publicaciones } = data.resultados;
-        
+
         const total = personas.length + publicaciones.length;
 
         const contadores: Record<string, number> = {
@@ -465,14 +565,16 @@ const { query } = Astro.url.searchParams;
         };
 
         Object.entries(contadores).forEach(([category, count]) => {
-            const countEl = document.querySelector(`[data-count="${category}"]`);
+            const countEl = document.querySelector(
+                `[data-count="${category}"]`,
+            );
             if (countEl) {
                 countEl.textContent = count.toString();
             }
         });
 
         if (resultsCountEl) {
-            resultsCountEl.textContent = `${total} resultado${total !== 1 ? 's' : ''} encontrado${total !== 1 ? 's' : ''}`;
+            resultsCountEl.textContent = `${total} resultado${total !== 1 ? "s" : ""} encontrado${total !== 1 ? "s" : ""}`;
         }
     }
 
@@ -480,39 +582,44 @@ const { query } = Astro.url.searchParams;
     function filtrarPorCategoria(category: string) {
         currentCategory = category;
 
-        const sections = document.querySelectorAll('.results-section');
-        
-        if (category === 'todos') {
-            sections.forEach(section => {
-                (section as HTMLElement).style.display = 'block';
+        const sections = document.querySelectorAll(".results-section");
+
+        if (category === "todos") {
+            sections.forEach((section) => {
+                (section as HTMLElement).style.display = "block";
             });
         } else {
-            sections.forEach(section => {
+            sections.forEach((section) => {
                 const sectionId = (section as HTMLElement).id;
-                (section as HTMLElement).style.display = sectionId.includes(category) ? 'block' : 'none';
+                (section as HTMLElement).style.display = sectionId.includes(
+                    category,
+                )
+                    ? "block"
+                    : "none";
             });
         }
 
         // Actualizar botones activos
-        categoryBtns.forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.getAttribute('data-category') === category) {
-                btn.classList.add('active');
+        categoryBtns.forEach((btn) => {
+            btn.classList.remove("active");
+            if (btn.getAttribute("data-category") === category) {
+                btn.classList.add("active");
             }
         });
     }
 
     // Mostrar mensaje de sin resultados
     function mostrarSinResultados() {
-        if (loadingEl) loadingEl.style.display = 'none';
-        if (noResultsEl) noResultsEl.style.display = 'flex';
-        if (resultsCountEl) resultsCountEl.textContent = '0 resultados encontrados';
+        if (loadingEl) loadingEl.style.display = "none";
+        if (noResultsEl) noResultsEl.style.display = "flex";
+        if (resultsCountEl)
+            resultsCountEl.textContent = "0 resultados encontrados";
     }
 
     // Event listeners para botones de categoría
-    categoryBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const category = btn.getAttribute('data-category');
+    categoryBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const category = btn.getAttribute("data-category");
             if (category) {
                 filtrarPorCategoria(category);
             }

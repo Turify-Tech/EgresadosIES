@@ -88,17 +88,29 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                     </form>
 
                     <!-- Mensaje de error -->
-                    <div id="acceso-error" class="mensaje-toast error" style="display: none;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="15" y1="9" x2="9" y2="15"/>
-                            <line x1="9" y1="9" x2="15" y2="15"/>
+                    <div
+                        id="acceso-error"
+                        class="mensaje-toast error"
+                        style="display: none;">
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="15" y1="9" x2="9" y2="15"></line>
+                            <line x1="9" y1="9" x2="15" y2="15"></line>
                         </svg>
                         <span id="acceso-error-text"></span>
                     </div>
 
                     <div class="register-link">
-                        <p>¿No tenés cuenta? <a href="/registro">Registrate acá</a></p>
+                        <p>
+                            ¿No tenés cuenta? <a href="/registro"
+                                >Registrate acá</a>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -376,10 +388,10 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     const loading = document.getElementById("acceso-loading") as HTMLElement;
     const errorMsg = document.getElementById("acceso-error") as HTMLElement;
     const togglePasswordBtn = document.getElementById(
-        "toggle-password"
+        "toggle-password",
     ) as HTMLButtonElement;
     const passwordInput = document.getElementById(
-        "password"
+        "password",
     ) as HTMLInputElement;
     const dniInput = document.getElementById("dni") as HTMLInputElement;
     const eyeIcon = document.getElementById("eye-icon") as HTMLElement;
@@ -399,7 +411,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         eyeOffIcon.style.display = isPassword ? "block" : "none";
         togglePasswordBtn.setAttribute(
             "aria-label",
-            isPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+            isPassword ? "Ocultar contraseña" : "Mostrar contraseña",
         );
     });
 
@@ -409,13 +421,15 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
         const dni = dniInput.value.trim();
         const password = passwordInput.value;
-        const errorText = document.getElementById("acceso-error-text") as HTMLElement;
+        const errorText = document.getElementById(
+            "acceso-error-text",
+        ) as HTMLElement;
 
         // Validación del DNI
         if (dni.length < 7 || dni.length > 8 || !/^\d+$/.test(dni)) {
             errorText.textContent = "El DNI debe tener 7 u 8 dígitos numéricos";
             errorMsg.style.display = "flex";
-            setTimeout(() => errorMsg.style.display = "none", 5000);
+            setTimeout(() => (errorMsg.style.display = "none"), 5000);
             return;
         }
 
@@ -430,7 +444,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             if (data.success && data.token) {
                 // Guardar token
                 localStorage.setItem("auth_token", data.token);
-                
+
                 // Guardar datos de usuario
                 const userData = {
                     id: data.user.id,
@@ -438,7 +452,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                     email: data.user.email,
                     nombre: data.user.nombre || `Usuario ${data.user.id}`,
                 };
-                
+
                 console.log("Guardando userData:", userData); // Debug
                 localStorage.setItem("user_data", JSON.stringify(userData));
 
@@ -447,7 +461,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
                 // Redirección según tipo de usuario
                 console.log("Tipo de usuario:", data.user.tipo_usuario); // Debug
-                
+
                 if (data.user.tipo_usuario === "Administrador") {
                     console.log("Redirigiendo a /admin");
                     window.location.href = "/admin";
@@ -455,19 +469,21 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                     console.log("Redirigiendo a /perfil/editar");
                     window.location.href = "/perfil/editar";
                 } else {
-                    console.log("Redirigiendo a /dashboard");
-                    window.location.href = "/dashboard";
+                    console.log("Redirigiendo a /");
+                    window.location.href = "/";
                 }
             } else {
-                errorText.textContent = data.message || "Credenciales incorrectas";
+                errorText.textContent =
+                    data.message || "Credenciales incorrectas";
                 errorMsg.style.display = "flex";
-                setTimeout(() => errorMsg.style.display = "none", 5000);
+                setTimeout(() => (errorMsg.style.display = "none"), 5000);
             }
         } catch (err: any) {
             console.error("Error en login:", err); // Debug
-            errorText.textContent = err.message || "Error de conexión con el servidor";
+            errorText.textContent =
+                err.message || "Error de conexión con el servidor";
             errorMsg.style.display = "flex";
-            setTimeout(() => errorMsg.style.display = "none", 5000);
+            setTimeout(() => (errorMsg.style.display = "none"), 5000);
         } finally {
             loading.style.display = "none";
             btn.disabled = false;

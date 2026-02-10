@@ -199,15 +199,15 @@
 
     const form = document.getElementById("acceso-form") as HTMLFormElement;
     const btn = document.getElementById(
-        "acceso-btn-submit"
+        "acceso-btn-submit",
     ) as HTMLButtonElement;
     const loading = document.getElementById("acceso-loading") as HTMLElement;
     const errorMsg = document.getElementById("acceso-error") as HTMLElement;
     const togglePasswordBtn = document.getElementById(
-        "toggle-password"
+        "toggle-password",
     ) as HTMLButtonElement;
     const passwordInput = document.getElementById(
-        "password"
+        "password",
     ) as HTMLInputElement;
     const dniInput = document.getElementById("dni") as HTMLInputElement;
     const eyeIcon = document.getElementById("eye-icon") as HTMLElement;
@@ -230,7 +230,7 @@
             eyeOffIcon.style.display = isPassword ? "block" : "none";
             togglePasswordBtn.setAttribute(
                 "aria-label",
-                isPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                isPassword ? "Ocultar contraseña" : "Mostrar contraseña",
             );
         });
     }
@@ -245,7 +245,7 @@
 
             const dniInputForm = form.querySelector("#dni") as HTMLInputElement;
             const passwordInputForm = form.querySelector(
-                "#password"
+                "#password",
             ) as HTMLInputElement;
 
             const dni = dniInputForm.value.trim();
@@ -272,13 +272,14 @@
                             dni: data.dni,
                             tipoUsuario: data.tipoUsuario,
                             email: data.email,
-                        })
+                        }),
                     );
 
                     // Verificar si hay una redirección pendiente desde otra página
-                    const redirectAfterLogin = sessionStorage.getItem('redirectAfterLogin');
+                    const redirectAfterLogin =
+                        sessionStorage.getItem("redirectAfterLogin");
                     if (redirectAfterLogin) {
-                        sessionStorage.removeItem('redirectAfterLogin');
+                        sessionStorage.removeItem("redirectAfterLogin");
                         window.location.href = redirectAfterLogin;
                         return;
                     }
@@ -289,7 +290,7 @@
                     } else if (data.isNewUser) {
                         window.location.href = "/perfil/editar";
                     } else {
-                        window.location.href = "/dashboard";
+                        window.location.href = "/";
                     }
                 } else {
                     errorMsg.textContent =
