@@ -230,7 +230,7 @@ export async function obtenerComentariosPorPublicacion(req, res) {
 
         // Contar total de comentarios
         const countResult = await client.execute({
-            sql: `SELECT COUNT(*) as total FROM Comentario WHERE publicacionId = ?`,
+            sql: `SELECT COUNT(*) as total FROM Comentario WHERE publicacionId = ? AND comentarioPadreId IS NULL`,
             args: [publicacionId]
         });
 

@@ -465,7 +465,6 @@ import "../styles/publicaciones-imagenes.css";
         let hasMorePages = true;
         let currentUser: any = null;
         let currentPublicacionId: number | null = null;
-        let currentComentariosPage = 1;
         let selectedImages: File[] = [];
 
         // Variables para el modal de imágenes
@@ -652,7 +651,7 @@ import "../styles/publicaciones-imagenes.css";
 
                 // 1. Abrir modal de comentarios INMEDIATAMENTE
                 console.log("📂 Abriendo modal...");
-                await toggleComments(postIdNum);
+                await toggleComments(postIdNum, null);
 
                 // 2. Esperar a que los comentarios principales se carguen (optimizado)
                 await new Promise((resolve) => setTimeout(resolve, 500));
@@ -829,7 +828,7 @@ import "../styles/publicaciones-imagenes.css";
                         );
                         const postIdNum = parseInt(targetPostId);
                         if (typeof toggleComments === "function") {
-                            await toggleComments(postIdNum);
+                            await toggleComments(postIdNum, null);
                             console.log("✓ Modal de comentarios abierto");
                         }
                     }
@@ -1012,7 +1011,7 @@ import "../styles/publicaciones-imagenes.css";
                         ${imagenesHTML}
                     </div>
                     <footer class="post-actions">
-                        <button class="action-btn comment-btn" data-post-id="${id}" onclick="toggleComments(${id})">
+                        <button class="action-btn comment-btn" data-post-id="${id}" onclick="toggleComments(${id}, event)">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                             </svg>
@@ -1126,6 +1125,15 @@ import "../styles/publicaciones-imagenes.css";
             }
         }
 
+        // Función para actualizar contadores de comentarios después de renderizar
+        function actualizarContadoresComentariosEnCards(publicaciones) {
+            publicaciones.forEach(publicacion => {
+                if (publicacion.totalComentarios !== undefined) {
+                    actualizarContadorComentarios(publicacion.id, publicacion.totalComentarios);
+                }
+            });
+        }
+
         // Función separada para renderizar publicaciones
         function renderPublicaciones(data, page) {
             const feedList = document.getElementById("feed-list");
@@ -1195,6 +1203,9 @@ import "../styles/publicaciones-imagenes.css";
                 setupLazyLoading();
             });
 
+            // Actualizar contadores de comentarios en las cards
+            actualizarContadoresComentariosEnCards(data.publicaciones);
+
             // Actualizar estado de paginación
             hasMorePages = data.pagination.hasNext;
 
@@ -1203,6 +1214,47 @@ import "../styles/publicaciones-imagenes.css";
             if (loadMoreSection) {
                 loadMoreSection.style.display = hasMorePages ? "block" : "none";
             }
+        }
+
+        // Función para actualizar contador de comentarios en la card
+        function actualizarContadorComentarios(publicacionId, nuevoTotal) {
+            const postCard = document.querySelector(`[data-post-id="${publicacionId}"]`);
+            if (!postCard) return;
+
+            const commentBtn = postCard.querySelector('.comment-btn');
+            if (!commentBtn) return;
+
+            const countSpan = commentBtn.querySelector('.comment-count');
+            if (countSpan) {
+                if (nuevoTotal > 0) {
+                    countSpan.textContent = nuevoTotal;
+                    countSpan.style.display = 'inline';
+                } else {
+                    countSpan.style.display = 'none';
+                }
+            } else if (nuevoTotal > 0) {
+                // Si no existe el span, crearlo
+                const span = document.createElement('span');
+                span.className = 'comment-count';
+                span.textContent = nuevoTotal;
+                span.style.cssText = 'display: inline; margin-left: 0.25rem;';
+                commentBtn.appendChild(span);
+            }
+        }
+
+        // Función para obtener contador actual de comentarios de una card
+        function getContadorActualComentarios(publicacionId) {
+            const postCard = document.querySelector(`[data-post-id="${publicacionId}"]`);
+            if (!postCard) return 0;
+
+            const commentBtn = postCard.querySelector('.comment-btn');
+            if (!commentBtn) return 0;
+
+            const countSpan = commentBtn.querySelector('.comment-count');
+            if (!countSpan || countSpan.style.display === 'none') return 0;
+
+            const count = parseInt(countSpan.textContent) || 0;
+            return count;
         }
 
         // Función para crear nueva publicación
@@ -1491,9 +1543,14 @@ import "../styles/publicaciones-imagenes.css";
             }
         }
 
-        async function toggleComments(postId) {
+        async function toggleComments(postId, event = null) {
             currentPublicacionId = postId;
-            currentComentariosPage = 1;
+
+            // Prevenir comportamiento default del evento si se proporciona
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
 
             const modal = document.getElementById("comentarios-modal");
             const comentariosList = document.getElementById("comentarios-list");
@@ -1510,7 +1567,7 @@ import "../styles/publicaciones-imagenes.css";
                 if (comentariosList) {
                     comentariosList.setAttribute("data-publicacion-id", postId);
                 }
-                await cargarComentarios(postId, 1);
+                await cargarComentarios(postId);
             }
         }
 
@@ -1532,60 +1589,100 @@ import "../styles/publicaciones-imagenes.css";
             }
         }
 
-        async function cargarComentarios(publicacionId, page = 1) {
+        async function cargarComentarios(publicacionId, preserveScroll = false) {
             const comentariosList = document.getElementById("comentarios-list");
             if (!comentariosList) return;
 
             try {
+                // Guardar información de scroll antes de cualquier modificación
+                const scrollInfo = {
+                    scrollTop: comentariosList.scrollTop,
+                    scrollHeight: comentariosList.scrollHeight,
+                    wasAtBottom: comentariosList.scrollHeight - comentariosList.scrollTop <= comentariosList.clientHeight + 50,
+                    isFirstLoad: comentariosList.querySelector('.no-comentarios, .comentario-item, .respuesta-item') === null
+                };
+
+                // Cargar todos los comentarios - usar un límite muy alto para obtener todos
                 const response = await fetch(
-                    `${API_URL}/comentarios/publicacion/${publicacionId}?page=${page}&limit=10`,
+                    `${API_URL}/comentarios/publicacion/${publicacionId}?limit=1000`,
                 );
                 const result = await response.json();
 
                 console.log("Comentarios recibidos:", result);
 
                 if (result.success) {
-                    // Guardar scroll position antes de modificar el DOM
-                    const wasAtBottom = comentariosList.scrollHeight - comentariosList.scrollTop === comentariosList.clientHeight;
+                    let comentarios = result.data || [];
                     
-                    if (page === 1) {
-                        comentariosList.innerHTML = "";
+                    // Si hay paginación y hay más páginas, cargarlas todas
+                    if (result.pagination && result.pagination.totalPages > 1) {
+                        console.log(`Cargando ${result.pagination.totalPages} páginas de comentarios...`);
+                        
+                        const todasLasPaginas = [comentarios];
+                        
+                        // Cargar el resto de las páginas
+                        for (let page = 2; page <= result.pagination.totalPages; page++) {
+                            try {
+                                const pageResponse = await fetch(
+                                    `${API_URL}/comentarios/publicacion/${publicacionId}?page=${page}&limit=1000`,
+                                );
+                                const pageResult = await pageResponse.json();
+                                
+                                if (pageResult.success && pageResult.data) {
+                                    todasLasPaginas.push(pageResult.data);
+                                }
+                            } catch (error) {
+                                console.error(`Error cargando página ${page}:`, error);
+                            }
+                        }
+                        
+                        // Combinar todos los comentarios
+                        comentarios = todasLasPaginas.flat();
+                        console.log(`Total de comentarios cargados: ${comentarios.length}`);
                     }
-
-                    const comentarios = result.data || [];
-
-                    if (comentarios.length === 0 && page === 1) {
+                    
+                    if (comentarios.length === 0) {
                         comentariosList.innerHTML =
                             '<p class="no-comentarios">No hay comentarios en esta publicación.</p>';
                     } else {
+                        // Limpiar contenedor
+                        comentariosList.innerHTML = "";
+                        
+                        // Usar DocumentFragment para mejor rendimiento
+                        const fragment = document.createDocumentFragment();
+                        const tempContainer = document.createElement('div');
+                        
                         comentarios.forEach((comentario) => {
-                            const comentarioHTML =
-                                crearComentarioHTML(comentario);
-                            comentariosList.insertAdjacentHTML(
-                                "beforeend",
-                                comentarioHTML,
-                            );
+                            const comentarioHTML = crearComentarioHTML(comentario);
+                            tempContainer.innerHTML = comentarioHTML;
+                            while (tempContainer.firstChild) {
+                                fragment.appendChild(tempContainer.firstChild);
+                            }
                         });
-
+                        
+                        comentariosList.appendChild(fragment);
+                        
                         // Cargar estado de likes de todos los comentarios
                         await cargarEstadosLikesComentarios();
                         
-                        // Si estaba al final antes de cargar, mantenerse al final
-                        if (wasAtBottom || page === 1) {
-                            comentariosList.scrollTop = comentariosList.scrollHeight;
+                        // Manejar scroll de forma inteligente
+                        if (!scrollInfo.isFirstLoad && preserveScroll) {
+                            // Para actualizaciones posteriores, mantener posición
+                            requestAnimationFrame(() => {
+                                if (scrollInfo.wasAtBottom) {
+                                    comentariosList.scrollTop = comentariosList.scrollHeight;
+                                } else {
+                                    // Calcular nueva posición relativa
+                                    const newScrollHeight = comentariosList.scrollHeight;
+                                    const scrollRatio = scrollInfo.scrollTop / scrollInfo.scrollHeight;
+                                    comentariosList.scrollTop = newScrollHeight * scrollRatio;
+                                }
+                            });
+                        } else {
+                            // Primera carga, ir al final para ver comentarios más recientes
+                            requestAnimationFrame(() => {
+                                comentariosList.scrollTop = comentariosList.scrollHeight;
+                            });
                         }
-                    }
-
-                    const pagination = document.getElementById(
-                        "comentarios-pagination",
-                    );
-                    if (pagination && result.pagination) {
-                        pagination.style.display = result.pagination.hasNextPage
-                            ? "block"
-                            : "none";
-                    } else if (pagination && !result.pagination) {
-                        // Si no hay información de paginación, mostrar siempre si hay comentarios
-                        pagination.style.display = comentarios.length >= 10 ? "block" : "none";
                     }
                 }
             } catch (error) {
@@ -1752,10 +1849,31 @@ import "../styles/publicaciones-imagenes.css";
                 console.log("Resultado crear comentario:", result);
 
                 if (result.success) {
-                    console.log("Comentario creado, recargando lista...");
-                    await cargarComentarios(publicacionId, 1);
+                    console.log("Comentario creado, actualizando...");
+                    
+                    // Guardar la posición actual del scroll en el modal
+                    const comentariosList = document.getElementById("comentarios-list");
+                    const wasAtBottom = comentariosList ? 
+                        (comentariosList.scrollHeight - comentariosList.scrollTop <= comentariosList.clientHeight + 50) : false;
+                    
+                    // Recargar comentarios preservando scroll
+                    await cargarComentarios(publicacionId, true);
+                    
+                    // Actualizar contador en la card
+                    const contadorActual = getContadorActualComentarios(publicacionId);
+                    actualizarContadorComentarios(publicacionId, contadorActual + 1);
+                    
+                    // Restaurar scroll posición o ir al final
+                    if (comentariosList) {
+                        if (wasAtBottom) {
+                            comentariosList.scrollTop = comentariosList.scrollHeight;
+                        }
+                    }
+                    
+                    // Limpiar input
                     const input = document.getElementById("comentario-input");
                     if (input) input.value = "";
+                    
                     showNotification("Comentario publicado", "success");
                 } else {
                     showNotification(
@@ -1838,21 +1956,25 @@ import "../styles/publicaciones-imagenes.css";
 
                 if (result.success) {
                     const comentarioItem = document.querySelector(
-                        `.comentario-item[data-comentario-id="${comentarioId}"]`,
+                        `.comentario-item[data-comentario-id="${comentarioId}"], .respuesta-item[data-comentario-id="${comentarioId}"]`,
                     );
                     if (comentarioItem) {
                         comentarioItem.remove();
                     }
 
+                    // Actualizar contador en la card de la publicación
+                    const contadorActual = getContadorActualComentarios(currentPublicacionId);
+                    actualizarContadorComentarios(currentPublicacionId, Math.max(0, contadorActual - 1));
+
                     // Verificar si ya no hay más comentarios y mostrar el mensaje
                     const comentariosContainer =
                         document.getElementById("comentarios-list");
-                    if (
-                        comentariosContainer &&
-                        comentariosContainer.children.length === 0
-                    ) {
-                        comentariosContainer.innerHTML =
-                            '<p class="no-comentarios">No hay comentarios en esta publicación.</p>';
+                    if (comentariosContainer) {
+                        const remainingComments = comentariosContainer.querySelectorAll('.comentario-item, .respuesta-item').length;
+                        if (remainingComments === 0) {
+                            comentariosContainer.innerHTML =
+                                '<p class="no-comentarios">No hay comentarios en esta publicación.</p>';
+                        }
                     }
 
                     showNotification("Comentario eliminado", "success");
@@ -1910,6 +2032,10 @@ import "../styles/publicaciones-imagenes.css";
                 const result = await response.json();
 
                 if (result.success) {
+                    // Actualizar contador en la card de la publicación (las respuestas también son comentarios)
+                    const contadorActual = getContadorActualComentarios(currentPublicacionId);
+                    actualizarContadorComentarios(currentPublicacionId, contadorActual + 1);
+                    
                     showNotification("Respuesta publicada", "success");
                     return result.data;
                 } else {
@@ -2473,8 +2599,9 @@ import "../styles/publicaciones-imagenes.css";
                     toggleLike(postId);
                 } else if (commentBtn) {
                     e.preventDefault();
+                    e.stopPropagation();
                     const postId = commentBtn.getAttribute("data-post-id");
-                    toggleComments(postId);
+                    toggleComments(postId, e);
                 } else if (deleteBtn) {
                     e.preventDefault();
                     const postId = deleteBtn.getAttribute("data-post-id");
@@ -3054,29 +3181,7 @@ import "../styles/publicaciones-imagenes.css";
                 });
             }
 
-            // Cargar más comentarios
-            const loadMoreCommentsBtn = document.getElementById(
-                "load-more-comments-btn",
-            );
-            if (loadMoreCommentsBtn) {
-                loadMoreCommentsBtn.addEventListener("click", async () => {
-                    // Deshabilitar botón durante la carga
-                    loadMoreCommentsBtn.disabled = true;
-                    loadMoreCommentsBtn.textContent = "Cargando...";
-                    
-                    currentComentariosPage++;
-                    if (currentPublicacionId) {
-                        await cargarComentarios(
-                            currentPublicacionId,
-                            currentComentariosPage,
-                        );
-                    }
-                    
-                    // Restaurar estado del botón
-                    loadMoreCommentsBtn.disabled = false;
-                    loadMoreCommentsBtn.textContent = "Cargar más comentarios";
-                });
-            }
+            // La paginación de comentarios ha sido eliminada - ahora se cargan todos los comentarios de una vez
 
             // Event delegation para botones de eliminar comentarios
             const comentariosList = document.getElementById("comentarios-list");

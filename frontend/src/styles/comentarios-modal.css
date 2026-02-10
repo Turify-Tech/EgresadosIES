@@ -333,36 +333,7 @@
     font-size: 0.875rem;
 }
 
-/* Paginación */
-.comentarios-pagination {
-    text-align: center;
-    padding: 1rem 1.5rem;
-    border-top: 1px solid #f3f4f6;
-    background: white;
-    flex-shrink: 0;
-}
-
-.btn-load-more {
-    background: white;
-    color: #3b82f6;
-    border: 1px solid #e5e7eb;
-    padding: 0.65rem 1.5rem;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.btn-load-more:hover {
-    background: #f3f4f6;
-    border-color: #3b82f6;
-}
-
-.btn-load-more:disabled {
-    color: #9ca3af;
-    cursor: not-allowed;
-}
+/* Los estilos de paginación han sido eliminados - ahora se muestran todos los comentarios */
 
 /* Estado vacío */
 .comentarios-empty {
