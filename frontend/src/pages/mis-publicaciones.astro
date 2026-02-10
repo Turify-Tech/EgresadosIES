@@ -312,7 +312,7 @@ import "../styles/publicaciones-imagenes.css";
                         }
                     </div>
                     <footer class="post-actions">
-                        <button class="action-btn comment-btn" onclick="toggleComments(${id})">
+                        <button class="action-btn comment-btn" onclick="toggleComments(${id}, event)">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                             </svg>
@@ -1223,8 +1223,14 @@ import "../styles/publicaciones-imagenes.css";
         }
 
         // Función para mostrar/ocultar modal de comentarios
-        function toggleComments(publicacionId) {
+        function toggleComments(publicacionId, event = null) {
             currentPublicacionId = publicacionId;
+
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
             const modal = document.getElementById("comentarios-modal");
             if (!modal) return;
 
@@ -1233,9 +1239,23 @@ import "../styles/publicaciones-imagenes.css";
             if (isVisible) {
                 modal.style.display = "none";
                 currentPublicacionId = null;
+                document.documentElement.style.overflow = "";
+                document.body.style.overflow = "";
             } else {
                 modal.style.display = "flex";
+                document.documentElement.style.overflow = "hidden";
+                document.body.style.overflow = "hidden";
                 cargarComentarios(publicacionId, 1);
+            }
+        }
+
+        function cerrarModal() {
+            const modal = document.getElementById("comentarios-modal");
+            if (modal) {
+                modal.style.display = "none";
+                currentPublicacionId = null;
+                document.documentElement.style.overflow = "";
+                document.body.style.overflow = "";
             }
         }
 
@@ -1259,13 +1279,7 @@ import "../styles/publicaciones-imagenes.css";
             // Cerrar modal de comentarios
             const closeModalBtn = document.getElementById("close-modal-btn");
             if (closeModalBtn) {
-                closeModalBtn.addEventListener("click", () => {
-                    const modal = document.getElementById("comentarios-modal");
-                    if (modal) {
-                        modal.style.display = "none";
-                        currentPublicacionId = null;
-                    }
-                });
+                closeModalBtn.addEventListener("click", cerrarModal);
             }
 
             // Cerrar modal al hacer clic fuera
@@ -1273,8 +1287,7 @@ import "../styles/publicaciones-imagenes.css";
             if (modal) {
                 modal.addEventListener("click", (e) => {
                     if (e.target === modal) {
-                        modal.style.display = "none";
-                        currentPublicacionId = null;
+                        cerrarModal();
                     }
                 });
             }
