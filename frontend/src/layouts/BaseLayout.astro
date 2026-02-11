@@ -124,6 +124,11 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                     width: 32px !important;
                 }
 
+                /* Ocultar el texto "EgresadosIES" en móvil */
+                #logo-text {
+                    display: none !important;
+                }
+
                 header h1 {
                     font-size: 1.2rem !important;
                 }
@@ -132,8 +137,22 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                     display: none !important;
                 }
 
-                header a[href="/perfiles"] span {
+                /* Ocultar textos de iconos del nav, solo mostrar iconos */
+                header a[href="/perfiles"] span,
+                header #navbar-mensajes-link span:not(.mensajes-badge),
+                header #notificaciones-btn span:not(#notificaciones-badge),
+                header #admin-link span {
                     display: none !important;
+                }
+
+                /* Ajustar padding de los botones de iconos */
+                header #navbar-mensajes-link,
+                header #notificaciones-btn,
+                header #admin-link {
+                    padding: 0.5rem !important;
+                    min-width: 44px;
+                    min-height: 44px;
+                    justify-content: center;
                 }
 
                 header #acceder-btn {
@@ -141,17 +160,49 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                     font-size: 0.8rem !important;
                 }
 
-                header #user-profile > div {
-                    padding: 0.4rem 0.75rem !important;
+                /* Ocultar nombre de usuario en móvil, solo mostrar avatar */
+                header #user-name-nav {
+                    display: none !important;
                 }
 
-                header #user-name-nav {
-                    font-size: 0.8rem !important;
+                /* Ocultar la flecha del dropdown en móvil */
+                header #user-profile svg {
+                    display: none !important;
+                }
+
+                /* Ajustar padding del contenedor de perfil en móvil */
+                header #user-profile > div {
+                    padding: 0.4rem !important;
+                    gap: 0 !important;
+                }
+
+                /* Hacer el avatar un poco más grande en móvil para mejor visibilidad */
+                header #user-avatar {
+                    width: 32px !important;
+                    height: 32px !important;
                 }
 
                 /* Ocultar barra de búsqueda en móvil para mantener el header limpio */
                 #search-bar-nav {
                     display: none !important;
+                }
+            }
+
+            /* Media query para tablets (768px - 1024px) */
+            @media (min-width: 769px) and (max-width: 1024px) {
+                /* Ocultar textos de iconos en tablets también */
+                header a[href="/perfiles"] span,
+                header #navbar-mensajes-link span:not(.mensajes-badge),
+                header #notificaciones-btn span:not(#notificaciones-badge),
+                header #admin-link span {
+                    display: none !important;
+                }
+
+                /* Ajustar padding de los botones de iconos en tablets */
+                header #navbar-mensajes-link,
+                header #notificaciones-btn,
+                header #admin-link {
+                    padding: 0.5rem !important;
                 }
             }
 
@@ -170,7 +221,8 @@ import DynamicBackground from "../components/DynamicBackground.astro";
         </style>
     </head>
     <body
-        style="margin: 0; padding: 0; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column;">
+        style="margin: 0; padding: 0; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column;"
+    >
         <!-- Fondo animado decorativo - solo en páginas principales -->
         {
             title.includes("Dashboard") ||
@@ -182,22 +234,33 @@ import DynamicBackground from "../components/DynamicBackground.astro";
 
         <!-- Header -->
         <header
-            style="background-color: #E6E6E6; padding: 0.75rem 2rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            style="background-color: #E6E6E6; padding: 0.75rem 2rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
+        >
             <div
-                style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+                style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem;"
+            >
                 <div style="display: flex; align-items: center; gap: 2rem;">
                     <div style="display: flex; align-items: center; gap: 1rem;">
-                        <img
-                            src="/images/logo.png"
-                            alt="Logo"
-                            style="width: 50px; height: auto;"
-                        />
+                        <a
+                            href="/"
+                            id="logo-image-link"
+                            style="text-decoration: none; display: flex; align-items: center;"
+                        >
+                            <img
+                                src="/images/logo.png"
+                                alt="Logo"
+                                style="width: 50px; height: auto;"
+                            />
+                        </a>
                         <a
                             href="/"
                             id="logo-link"
-                            style="text-decoration: none;">
+                            style="text-decoration: none;"
+                        >
                             <h1
-                                style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.75rem; color: #0d0d0d;">
+                                id="logo-text"
+                                style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.75rem; color: #0d0d0d;"
+                            >
                                 EgresadosIES
                             </h1>
                         </a>
@@ -205,7 +268,8 @@ import DynamicBackground from "../components/DynamicBackground.astro";
 
                     <!-- Navegación -->
                     <nav
-                        style="display: flex; gap: 1.5rem; align-items: center;">
+                        style="display: flex; gap: 1.5rem; align-items: center;"
+                    >
                     </nav>
 
                     <!-- Barra de búsqueda global -->
@@ -220,7 +284,8 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                         style="background: none; border: none; cursor: pointer; color: #374151; text-decoration: none; font-family: 'Inter', sans-serif; font-weight: 500; transition: all 0.3s ease; display: none; flex-direction: column; align-items: center; gap: 0.25rem; position: relative; padding: 0;"
                         class="mensajes-btn"
                         onmouseover="this.style.color='#3b82f6'"
-                        onmouseout="this.style.color='#374151'">
+                        onmouseout="this.style.color='#374151'"
+                    >
                         <svg
                             width="24"
                             height="24"
@@ -228,7 +293,8 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                             fill="none"
                             stroke="currentColor"
                             stroke-width="2"
-                            style="color: inherit; transition: transform 0.3s ease;">
+                            style="color: inherit; transition: transform 0.3s ease;"
+                        >
                             <path
                                 d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
                             ></path>
@@ -237,7 +303,8 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                         <span
                             id="navbar-mensajes-badge"
                             class="mensajes-badge"
-                            style="display: none; position: absolute; top: -6px; right: -10px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border-radius: 12px; padding: 0.2rem 0.45rem; font-size: 0.7rem; font-weight: 700; min-width: 20px; text-align: center; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4); border: 2px solid white;">
+                            style="display: none; position: absolute; top: -6px; right: -10px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border-radius: 12px; padding: 0.2rem 0.45rem; font-size: 0.7rem; font-weight: 700; min-width: 20px; text-align: center; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4); border: 2px solid white;"
+                        >
                         </span>
                     </button>
 
@@ -246,7 +313,8 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                         href="/perfiles"
                         style="color: #374151; text-decoration: none; font-family: 'Inter', sans-serif; font-weight: 500; transition: color 0.2s ease; display: flex; flex-direction: column; align-items: center; gap: 0.25rem;"
                         onmouseover="this.style.color='#3b82f6'"
-                        onmouseout="this.style.color='#374151'">
+                        onmouseout="this.style.color='#374151'"
+                    >
                         <img
                             src="/images/Group%2099.png"
                             alt="Ver egresados"
@@ -261,7 +329,8 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                         id="admin-link"
                         style="color: #374151; text-decoration: none; font-family: 'Inter', sans-serif; font-weight: 500; transition: color 0.2s ease; display: none; flex-direction: column; align-items: center; gap: 0.25rem;"
                         onmouseover="this.style.color='#3b82f6'"
-                        onmouseout="this.style.color='#374151'">
+                        onmouseout="this.style.color='#374151'"
+                    >
                         <img
                             src="/images/Icono Admin.png"
                             alt="Admin"
@@ -275,7 +344,8 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                         id="notificaciones-btn"
                         style="color: #374151; text-decoration: none; font-family: 'Inter', sans-serif; font-weight: 500; transition: color 0.2s ease; display: none; flex-direction: column; align-items: center; gap: 0.25rem; position: relative; background: none; border: none; cursor: pointer; padding: 0;"
                         onmouseover="this.style.color='#3b82f6'"
-                        onmouseout="this.style.color='#374151'">
+                        onmouseout="this.style.color='#374151'"
+                    >
                         <div style="position: relative;">
                             <img
                                 src="/images/notificaciones.png"
@@ -295,7 +365,8 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                             <a
                                 href="/acceso"
                                 id="acceder-btn"
-                                style="background: #5284e0; color: white; padding: 0.5rem 1.5rem; border-radius: 25px; text-decoration: none; font-family: 'Pontano Sans', sans-serif; font-weight: 700; font-size: 0.9rem; transition: background 0.3s ease;">
+                                style="background: #5284e0; color: white; padding: 0.5rem 1.5rem; border-radius: 25px; text-decoration: none; font-family: 'Pontano Sans', sans-serif; font-weight: 700; font-size: 0.9rem; transition: background 0.3s ease;"
+                            >
                                 Ingresar
                             </a>
                         )
@@ -304,9 +375,11 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                     <!-- Perfil de usuario autenticado -->
                     <div
                         id="user-profile"
-                        style="display: none; position: relative; cursor: pointer;">
+                        style="display: none; position: relative; cursor: pointer;"
+                    >
                         <div
-                            style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 25px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2);">
+                            style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 25px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2);"
+                        >
                             <img
                                 id="user-avatar"
                                 src="/default-avatar.svg"
@@ -315,14 +388,16 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                             />
                             <span
                                 id="user-name-nav"
-                                style="font-family: 'Inter', sans-serif; font-weight: 500; color: #374151; font-size: 0.9rem;">
+                                style="font-family: 'Inter', sans-serif; font-weight: 500; color: #374151; font-size: 0.9rem;"
+                            >
                                 Usuario
                             </span>
                             <svg
                                 width="12"
                                 height="12"
                                 fill="currentColor"
-                                style="color: #6b7280;">
+                                style="color: #6b7280;"
+                            >
                                 <path d="M6 9l3-3H3l3 3z"></path>
                             </svg>
                         </div>
@@ -330,13 +405,15 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                         <!-- Dropdown menu -->
                         <div
                             id="user-dropdown"
-                            style="display: none; position: absolute; top: 100%; right: 0; margin-top: 0.5rem; background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); min-width: 160px; z-index: 1000;">
+                            style="display: none; position: absolute; top: 100%; right: 0; margin-top: 0.5rem; background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); min-width: 160px; z-index: 1000;"
+                        >
                             <a
                                 id="mi-perfil-link"
                                 href="/perfil/mi-perfil"
                                 style="display: none; padding: 0.75rem 1rem; color: #374151; text-decoration: none; font-family: 'Inter', sans-serif; font-size: 0.875rem; transition: background 0.2s;"
                                 onmouseover="this.style.background='#f3f4f6'"
-                                onmouseout="this.style.background='transparent'">
+                                onmouseout="this.style.background='transparent'"
+                            >
                                 Mi Perfil
                             </a>
                             <hr
@@ -347,7 +424,8 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                                 id="logout-btn"
                                 style="display: block; width: 100%; text-align: left; padding: 0.75rem 1rem; color: #dc2626; background: none; border: none; font-family: 'Inter', sans-serif; font-size: 0.875rem; cursor: pointer; transition: background 0.2s;"
                                 onmouseover="this.style.background='#fef2f2'"
-                                onmouseout="this.style.background='transparent'">
+                                onmouseout="this.style.background='transparent'"
+                            >
                                 Cerrar Sesión
                             </button>
                         </div>
@@ -358,21 +436,25 @@ import DynamicBackground from "../components/DynamicBackground.astro";
 
         <!-- Contenido principal -->
         <main
-            style="flex: 1; overflow-y: auto; display: flex; flex-direction: column;">
+            style="flex: 1; overflow-y: auto; display: flex; flex-direction: column;"
+        >
             <slot />
         </main>
 
         <!-- Footer -->
         <footer
-            style="color: var(--color-white); margin-top: auto; padding: 1.5rem 0;">
+            style="color: var(--color-white); margin-top: auto; padding: 1.5rem 0;"
+        >
             <div class="container" style="padding: 0 2rem;">
                 <div class="text-center">
                     <h3
-                        style="font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem;">
+                        style="font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem;"
+                    >
                         Instituto de Educación Superior
                     </h3>
                     <p
-                        style="color: var(--color-gray-300); margin-bottom: 0.5rem; font-size: 0.875rem;">
+                        style="color: var(--color-gray-300); margin-bottom: 0.5rem; font-size: 0.875rem;"
+                    >
                         Sistema de Egresados - Conectando nuestra comunidad
                         educativa
                     </p>
@@ -443,6 +525,10 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                     "logo-link",
                 ) as HTMLElement;
 
+                const logoImageLink = document.getElementById(
+                    "logo-image-link",
+                ) as HTMLElement;
+
                 // Verificar autenticaciónes
                 const token = localStorage.getItem("auth_token");
                 const userData = localStorage.getItem("user_data");
@@ -453,8 +539,13 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                         setupAuthenticatedUI(user);
 
                         // Cambiar el link del logo a dashboard si está autenticado como egresado
-                        if (logoLink && user.tipo_usuario === "Egresado") {
-                            (logoLink as HTMLAnchorElement).href = "/";
+                        if (user.tipo_usuario === "Egresado") {
+                            if (logoLink) {
+                                (logoLink as HTMLAnchorElement).href = "/";
+                            }
+                            if (logoImageLink) {
+                                (logoImageLink as HTMLAnchorElement).href = "/";
+                            }
                         }
                     } catch (error) {
                         console.error("Error parsing user data:", error);

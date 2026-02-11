@@ -929,7 +929,13 @@ import "../styles/publicaciones-imagenes.css";
                     ),
                 ).replace(/"/g, "&quot;");
 
-                imagenesHTML = `<div class="publicacion-imagenes imagenes-${numImagenes}" data-imagenes='${imagenesJSON}'>`;
+                // Agregar clase dinámica basada en el número de imágenes para responsive
+                let imageGridClass = "post-images";
+                if (numImagenes === 2) imageGridClass += " has-2-images";
+                else if (numImagenes === 3) imageGridClass += " has-3-images";
+                else if (numImagenes >= 4) imageGridClass += " has-4-images";
+
+                imagenesHTML = `<div class="${imageGridClass}" data-imagenes='${imagenesJSON}'>`;
 
                 // Mostrar hasta 4 imágenes (si hay 5, solo mostramos 4 con +1 en la última)
                 const maxDisplay =

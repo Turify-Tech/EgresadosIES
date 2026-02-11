@@ -199,7 +199,9 @@
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .comentario-item {
@@ -351,7 +353,8 @@
 @media (max-width: 768px) {
     .modal-overlay {
         padding: 1rem;
-        align-items: flex-end;
+        align-items: center;
+        /* Centrado verticalmente */
     }
 
     .modal-container {
@@ -397,7 +400,8 @@
 @media (max-width: 480px) {
     .modal-overlay {
         padding: 0.5rem;
-        align-items: flex-end;
+        align-items: center;
+        /* Centrado verticalmente */
     }
 
     .modal-container {
@@ -442,28 +446,28 @@
         top: 8px;
         right: 8px;
     }
-    
+
     .respuesta-form-container {
         margin-top: 0.5rem;
     }
-    
+
     .respuesta-form input {
         font-size: 0.8125rem;
         height: 36px;
     }
-    
+
     .btn-responder-enviar,
     .btn-responder-cancelar {
         height: 36px;
         padding: 0 0.875rem;
         font-size: 0.8125rem;
     }
-    
+
     /* Reducir indentación en móvil para aprovechar mejor el espacio */
     .respuestas-container {
         padding-left: 1.5rem !important;
     }
-    
+
     .respuesta-item.nivel-1,
     .respuesta-item.nivel-2,
     .respuesta-item.nivel-3,
@@ -493,6 +497,7 @@
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -579,7 +584,8 @@
 /* Contenedor de respuestas */
 .respuestas-container {
     margin-top: 1rem;
-    padding-left: 2.5rem; /* Espaciado fijo para todas las respuestas */
+    padding-left: 2.5rem;
+    /* Espaciado fijo para todas las respuestas */
     border-left: 0px solid #e5e7eb;
     animation: slideDown 0.3s ease-out;
 }
@@ -616,6 +622,7 @@
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
@@ -700,4 +707,3 @@
     font-weight: 500;
     font-size: 0.875rem;
 }
-
