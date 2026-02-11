@@ -132,7 +132,11 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                     display: none !important;
                 }
 
-                header a[href="/perfiles"] span {
+                /* Ocultar TODOS los textos de los botones del header en móvil */
+                header a[href="/perfiles"] span,
+                header #admin-link span,
+                header #notificaciones-btn > span,
+                header .mensajes-btn > span {
                     display: none !important;
                 }
 
@@ -141,12 +145,53 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                     font-size: 0.8rem !important;
                 }
 
+                /* Perfil: solo mostrar foto, ocultar nombre y flecha */
                 header #user-profile > div {
-                    padding: 0.4rem 0.75rem !important;
+                    padding: 0.35rem !important;
+                    background: transparent !important;
+                    border: none !important;
                 }
 
-                header #user-name-nav {
-                    font-size: 0.8rem !important;
+                header #user-name-nav,
+                header #user-profile svg {
+                    display: none !important;
+                }
+
+                header #user-avatar {
+                    width: 32px !important;
+                    height: 32px !important;
+                }
+
+                /* Dropdown del perfil - aparece debajo de la foto en móvil */
+                header #user-dropdown {
+                    position: absolute !important;
+                    top: 100% !important;
+                    right: 0 !important;
+                    left: auto !important;
+                    width: auto !important;
+                    min-width: 180px !important;
+                    height: auto !important;
+                    margin-top: 0.5rem !important;
+                    border-radius: 8px !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+                    z-index: 10000 !important;
+                    padding: 0.5rem 0 !important;
+                    background-color: white !important;
+                    border: 1px solid #d1d5db !important;
+                    opacity: 1 !important;
+                }
+
+                header #user-dropdown a,
+                header #user-dropdown button {
+                    padding: 0.85rem 1.25rem !important;
+                    font-size: 0.95rem !important;
+                    background-color: white !important;
+                    display: block !important;
+                }
+
+                /* Ocultar botón cerrar en móvil - no es necesario */
+                header #dropdown-close-btn {
+                    display: none !important;
                 }
 
                 /* Ocultar barra de búsqueda en móvil para mantener el header limpio */
@@ -175,7 +220,13 @@ import DynamicBackground from "../components/DynamicBackground.astro";
         {
             title.includes("Dashboard") ||
             title.includes("Inicio") ||
-            title.includes("EgresadosIES") ? (
+            title.includes("EgresadosIES") ||
+            title.includes("Desarrollo de Software") ||
+            title.includes("Perfiles de Egresados") ||
+            title.includes("Editar Perfil") ||
+            title.includes("Mis publicaciones") ||
+            title.includes("Mi Perfil") ||
+            title === "Perfil" ? (
                 <DynamicBackground />
             ) : null
         }
@@ -331,6 +382,17 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                         <div
                             id="user-dropdown"
                             style="display: none; position: absolute; top: 100%; right: 0; margin-top: 0.5rem; background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); min-width: 160px; z-index: 1000;">
+                            
+                            <!-- Botón cerrar (solo visible en móvil) -->
+                            <button
+                                id="dropdown-close-btn"
+                                style="display: none; position: absolute; top: 15px; right: 15px; background: none; border: none; cursor: pointer; padding: 0.5rem; color: #6b7280;">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                            
                             <a
                                 id="mi-perfil-link"
                                 href="/perfil/mi-perfil"
@@ -704,11 +766,8 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                     // Toggle dropdown
                     userProfile.addEventListener("click", (e) => {
                         e.stopPropagation();
-                        const isVisible =
-                            userDropdown.style.display === "block";
-                        userDropdown.style.display = isVisible
-                            ? "none"
-                            : "block";
+                        const isVisible = userDropdown.style.display === "block";
+                        userDropdown.style.display = isVisible ? "none" : "block";
                     });
 
                     // Close dropdown when clicking outside

@@ -176,6 +176,7 @@
                         <option value="">Selecciona una opción</option>
                         <option value="Empleado">Empleado</option>
                         <option value="Desempleado">Desempleado</option>
+                        <option value="En búsqueda de trabajo">En búsqueda de trabajo</option>
                         <option value="Emprendedor">Emprendedor</option>
                         <option value="Freelancer">Freelancer</option>
                         <option value="Estudiando">Estudiando</option>
@@ -673,6 +674,9 @@
             this.setFieldValue("descripcion", perfil.resumenProfesional);
             this.setFieldValue("url-portfolio", perfil.urlPortfolio);
             this.setFieldValue("ubicacion", perfil.ciudad);
+            
+            // Poblar situación laboral con log de depuración
+            console.log("🏢 Situación laboral a establecer:", perfil.situacionLaboral);
             this.setFieldValue("situacion-laboral", perfil.situacionLaboral);
 
             // Los checkboxes de privacidad (futura funcionalidad)
