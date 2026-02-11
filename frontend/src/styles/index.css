@@ -236,7 +236,7 @@
 
 /* Menu Mobile */
 .menu-mobile {
-    display: none !important;
+    display: none;
     background: white;
     border-radius: 8px;
     padding: 1rem;
@@ -932,6 +932,11 @@
     .menu-card {
         display: none;
     }
+
+    /* Ocultar sidebar de tecnicaturas en tablet */
+    #tecnicaturas-sidebar {
+        display: none !important;
+    }
 }
 
 /* ===== MOBILE LANDSCAPE (orientación horizontal) ===== */
@@ -944,8 +949,13 @@
         display: none;
     }
 
+    /* Ocultar sidebar de tecnicaturas en móvil landscape */
+    #tecnicaturas-sidebar {
+        display: none !important;
+    }
+
     .menu-mobile {
-        display: block !important;
+        display: block;
     }
 
     .feed-container {
@@ -992,8 +1002,13 @@
         display: none;
     }
 
+    /* Ocultar sidebar de tecnicaturas en móvil */
+    #tecnicaturas-sidebar {
+        display: none !important;
+    }
+
     .menu-mobile {
-        display: block !important;
+        display: block;
         margin: 0 0.5rem 1rem 0.5rem;
         padding: 0.875rem;
     }
@@ -1384,6 +1399,6 @@
     }
 
     .menu-mobile {
-        display: block !important;
+        display: block;
     }
 }
