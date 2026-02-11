@@ -6,7 +6,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ComentariosModal from "../../components/ComentariosModal.astro";
 import "../../styles/search-results.css";
-import "../../styles/dashboard.css";
+import "../../styles/index.css";
 import "../../styles/publicaciones-imagenes.css";
 
 const { query } = Astro.url.searchParams;
@@ -511,9 +511,8 @@ const { query } = Astro.url.searchParams;
             ? `<div class="avatar"><img src="${fotoUrl}" alt="${nombreAutor}" loading="lazy" /></div>`
             : `<div class="avatar"></div>`;
 
-        // Determinar a dónde redirigir según autenticación
-        const token = getAuthToken();
-const redirectUrl = `/?publicacion=${id}`;
+        // Redirigir a la página principal con la publicación
+        const redirectUrl = `/?publicacion=${id}`;
 
         return `
             <article class="post-card post-card-clickable" data-post-id="${id}" onclick="window.location.href='${redirectUrl}'" style="cursor: pointer;">

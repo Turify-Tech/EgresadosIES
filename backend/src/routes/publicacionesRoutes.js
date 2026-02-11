@@ -1,6 +1,6 @@
 import express from "express";
 import rateLimit from "express-rate-limit";
-import { authenticateToken } from "../middleware/auth.js";
+import { authenticateToken, optionalAuth } from "../middleware/auth.js";
 import { requireEgresado } from "../middleware/roles.js";
 import * as publicacionesController from "../controllers/publicacionesController.js";
 import { uploadPublicacionImages, handleMulterError } from "../middleware/uploadImagesCloudinary.js";
