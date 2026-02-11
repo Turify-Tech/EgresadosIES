@@ -532,7 +532,7 @@ class NotificationService {
                 return;
             }
 
-            const urlDestino = `/dashboard?publicacion=${publicacionId}${comentarioId ? `&comentario=${comentarioId}` : ''}`;
+            const urlDestino = `/?publicacion=${publicacionId}${comentarioId ? `&comentario=${comentarioId}` : ''}`;
 
             // Crear notificación interna
             const notifId = await this.crearNotificacion({
@@ -593,7 +593,7 @@ class NotificationService {
                 return;
             }
 
-            const urlDestino = `/dashboard?publicacion=${publicacionId}`;
+            const urlDestino = `/?publicacion=${publicacionId}`;
 
             // Crear notificación interna
             const notifId = await this.crearNotificacion({
@@ -652,7 +652,7 @@ class NotificationService {
                 return;
             }
 
-            const urlDestino = `/dashboard?publicacion=${publicacionId}${comentarioId ? `&comentario=${comentarioId}` : ''}`;
+            const urlDestino = `/?publicacion=${publicacionId}${comentarioId ? `&comentario=${comentarioId}` : ''}`;
 
             // Crear notificación interna
             const notifId = await this.crearNotificacion({
@@ -712,7 +712,7 @@ class NotificationService {
                 return;
             }
 
-            const urlDestino = `/dashboard?publicacion=${publicacionId}${comentarioId ? `&comentario=${comentarioId}` : ''}`;
+            const urlDestino = `/?publicacion=${publicacionId}${comentarioId ? `&comentario=${comentarioId}` : ''}`;
 
             // Crear notificación interna
             const notifId = await this.crearNotificacion({
@@ -771,7 +771,7 @@ class NotificationService {
                 return;
             }
 
-            const urlDestino = `/dashboard?publicacion=${publicacionId}${respuestaId ? `&comentario=${respuestaId}` : ''}`;
+            const urlDestino = `/?publicacion=${publicacionId}${respuestaId ? `&comentario=${respuestaId}` : ''}`;
 
             // Crear notificación interna
             const notifId = await this.crearNotificacion({

@@ -27,14 +27,12 @@ searchTitleEl.innerHTML = `Resultados para: <span class="search-query">"${query}
 ```
 
 #### Publicaciones clickeables
-Las publicaciones ahora son totalmente clickeables y redirigen según el estado de autenticación:
+Las publicaciones ahora son totalmente clickeables y redirigen a la página principal con la publicación específica:
 
-**Usuario autenticado** → `/dashboard?publicacion={id}`
-**Usuario NO autenticado** → `/?publicacion={id}`
+**Todos los usuarios** → `/?publicacion={id}`
 
 ```javascript
-const token = getAuthToken();
-const redirectUrl = token ? `/dashboard?publicacion=${id}` : `/?publicacion=${id}`;
+const redirectUrl = `/?publicacion=${id}`;
 ```
 
 **Características visuales:**
