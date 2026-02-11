@@ -3111,10 +3111,10 @@ import "../styles/publicaciones-imagenes.css";
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         const div = document.createElement("div");
-                        div.className = "preview-item";
+                        div.className = "image-preview-item";
                         div.innerHTML = `
                             <img src="${(e.target as FileReader)?.result}" alt="Preview ${index + 1}">
-                            <button type="button" class="remove-image" data-index="${index}">
+                            <button type="button" class="remove-image-btn" data-index="${index}">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <line x1="18" y1="6" x2="6" y2="18"></line>
                                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -3124,7 +3124,7 @@ import "../styles/publicaciones-imagenes.css";
                         imagePreview.appendChild(div);
 
                         // Agregar evento de eliminar
-                        const removeBtn = div.querySelector(".remove-image");
+                        const removeBtn = div.querySelector(".remove-image-btn");
                         if (removeBtn) {
                             removeBtn.addEventListener("click", () => {
                                 const idx = parseInt(
