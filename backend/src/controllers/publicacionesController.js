@@ -1,5 +1,6 @@
 import database from "../config/database.js";
 import cloudinary from "../config/cloudinary.js";
+import { verifyToken, extractToken } from "../utils/jwt.js";
 
 /**
  * Controlador para el sistema de publicaciones sociales
@@ -167,13 +168,17 @@ export async function listarPublicaciones(req, res) {
         let imagenesMap = {};
         
         if (publicacionIds.length > 0) {
+            const placeholders = publicacionIds.map(() => '?').join(',');
             const imagenesQuery = `
                 SELECT publicacionId, url, id
                 FROM ImagenPublicacion 
-                WHERE publicacionId IN (${publicacionIds.join(',')})
+                WHERE publicacionId IN (${placeholders})
                 ORDER BY publicacionId, id
             `;
-            const imagenesResult = await client.execute(imagenesQuery);
+            const imagenesResult = await client.execute({
+                sql: imagenesQuery,
+                args: publicacionIds
+            });
             
             // Agrupar imágenes por publicación
             imagenesResult.rows.forEach(img => {
@@ -182,6 +187,34 @@ export async function listarPublicaciones(req, res) {
                 }
                 imagenesMap[img.publicacionId].push(img.url);
             });
+        }
+
+        // Obtener likes del usuario autenticado (si existe) - sin fallar si no hay token
+        let likesMap = {};
+        try {
+            const authHeader = req.headers.authorization;
+            const token = extractToken(authHeader);
+            
+            if (token && publicacionIds.length > 0) {
+                const decoded = verifyToken(token);
+                const usuarioId = decoded.id;
+                
+                // Query individual por cada publicación para evitar problemas con placeholders
+                const promises = publicacionIds.map(async (pubId) => {
+                    const result = await client.execute({
+                        sql: 'SELECT publicacionId FROM LikePublicacion WHERE egresadoId = ? AND publicacionId = ?',
+                        args: [usuarioId, pubId]
+                    });
+                    if (result.rows.length > 0) {
+                        likesMap[pubId] = true;
+                    }
+                });
+                
+                await Promise.all(promises);
+            }
+        } catch (error) {
+            // Si falla la autenticación o query de likes, simplemente continuamos sin likes
+            likesMap = {};
         }
 
         // Procesar resultados
@@ -205,6 +238,9 @@ export async function listarPublicaciones(req, res) {
 
             // Asignar imágenes desde el mapa
             publicacion.imagenes = imagenesMap[publicacion.id] || [];
+            
+            // Asignar estado de like del usuario (true si existe en likesMap, false si no)
+            publicacion.userLiked = likesMap[publicacion.id] || false;
             
             // Construir objeto autor
             publicacion.autor = {
