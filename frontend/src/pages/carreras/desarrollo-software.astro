@@ -1,0 +1,251 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Desarrollo de Software | IES Egresados">
+    <div class="carrera-page">
+        <div class="carrera-container">
+            <!-- Botón volver -->
+            <a href="/" class="btn-volver">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Volver
+            </a>
+
+            <!-- Contenido principal -->
+            <div class="carrera-content">
+                <h1 class="carrera-titulo">Sobre "Tecnicatura Superior en Desarrollo de Software"</h1>
+                
+                <div class="carrera-info">
+                    <p>La Tecnicatura Superior en Desarrollo de Software es una carrera del área informática que forma profesionales capaces de analizar requerimientos, diseñar y desarrollar soluciones de software, aplicar metodologías de trabajo y participar en proyectos tecnológicos.</p>
+                    
+                    <p>Tiene una duración de 6 cuatrimestres (3 años) y otorga el título de Técnico Superior en Desarrollo de Software, con certificación intermedia como Programador o Desarrollador Full Stack Junior en su nueva resolución y Analista de Laboratorio Informático en la resolución anterior.</p>
+                    
+                    <p>A lo largo de la formación se adquieren conocimientos en programación, bases de datos, sistemas operativos, redes, seguridad, diseño de interfaces y gestión de proyectos, junto con habilidades de resolución de problemas, trabajo en equipo y aprendizaje continuo.</p>
+                </div>
+
+                <div class="carrera-detalles">
+                    <div class="detalle-card">
+                        <div class="detalle-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                        </div>
+                        <div class="detalle-info">
+                            <h3>Duración</h3>
+                            <p>3 años (6 cuatrimestres)</p>
+                        </div>
+                    </div>
+
+                    <div class="detalle-card">
+                        <div class="detalle-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                                <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                            </svg>
+                        </div>
+                        <div class="detalle-info">
+                            <h3>Título</h3>
+                            <p>Técnico Superior en Desarrollo de Software</p>
+                        </div>
+                    </div>
+
+                    <div class="detalle-card">
+                        <div class="detalle-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="16 18 22 12 16 6"/>
+                                <polyline points="8 6 2 12 8 18"/>
+                            </svg>
+                        </div>
+                        <div class="detalle-info">
+                            <h3>Área</h3>
+                            <p>Informática y Tecnología</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="carrera-conocimientos">
+                    <h2>Conocimientos que se adquieren</h2>
+                    <ul>
+                        <li>Programación en múltiples lenguajes</li>
+                        <li>Bases de datos relacionales y no relacionales</li>
+                        <li>Sistemas operativos</li>
+                        <li>Redes y seguridad informática</li>
+                        <li>Diseño de interfaces de usuario</li>
+                        <li>Gestión de proyectos de software</li>
+                        <li>Metodologías ágiles de desarrollo</li>
+                        <li>Testing y calidad de software</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</BaseLayout>
+
+<style>
+    .carrera-page {
+        min-height: 100vh;
+        background: transparent;
+        padding: 1rem;
+    }
+
+    .carrera-container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: transparent;
+    }
+
+    .btn-volver {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #1437C3;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.95rem;
+        padding: 0.5rem 0;
+        margin-bottom: 1rem;
+        transition: all 0.2s;
+    }
+
+    .btn-volver:hover {
+        color: #0f2a8a;
+        transform: translateX(-4px);
+    }
+
+    .btn-volver svg {
+        transition: transform 0.2s;
+    }
+
+    .btn-volver:hover svg {
+        transform: translateX(-2px);
+    }
+
+    .carrera-content {
+        padding: 2rem;
+    }
+
+    .carrera-titulo {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0 0 1.5rem 0;
+        line-height: 1.3;
+    }
+
+    .carrera-info {
+        color: #374151;
+        font-size: 1rem;
+        line-height: 1.8;
+        margin-bottom: 2rem;
+    }
+
+    .carrera-info p {
+        margin: 0 0 1.25rem 0;
+    }
+
+    .carrera-info p:last-child {
+        margin-bottom: 0;
+    }
+
+    .carrera-detalles {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .detalle-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem;
+        background: linear-gradient(135deg, #eef2ff 0%, #dbeafe 100%);
+        border-radius: 12px;
+        border-left: 4px solid #1437C3;
+    }
+
+    .detalle-icon {
+        width: 48px;
+        height: 48px;
+        background: white;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #1437C3;
+        flex-shrink: 0;
+    }
+
+    .detalle-info h3 {
+        margin: 0 0 0.25rem 0;
+        font-size: 0.85rem;
+        color: #6b7280;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .detalle-info p {
+        margin: 0;
+        font-size: 1rem;
+        color: #1f2937;
+        font-weight: 600;
+    }
+
+    .carrera-conocimientos {
+        background: #f9fafb;
+        padding: 1.5rem;
+        border-radius: 12px;
+    }
+
+    .carrera-conocimientos h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0 0 1rem 0;
+    }
+
+    .carrera-conocimientos ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .carrera-conocimientos li {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #374151;
+        font-size: 0.95rem;
+    }
+
+    .carrera-conocimientos li::before {
+        content: "✓";
+        color: #1437C3;
+        font-weight: 700;
+    }
+
+    @media (max-width: 768px) {
+        .carrera-content {
+            padding: 1.5rem;
+        }
+
+        .carrera-titulo {
+            font-size: 1.4rem;
+        }
+
+        .carrera-detalles {
+            grid-template-columns: 1fr;
+        }
+
+        .carrera-conocimientos ul {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
