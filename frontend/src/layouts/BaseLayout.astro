@@ -47,7 +47,8 @@ import DynamicBackground from "../components/DynamicBackground.astro";
 
             /* Animaciones para el badge de mensajes */
             @keyframes pulse-badge {
-                0%, 100% {
+                0%,
+                100% {
                     transform: scale(1);
                     box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
                 }
@@ -81,7 +82,8 @@ import DynamicBackground from "../components/DynamicBackground.astro";
             }
 
             @keyframes pulse-icon {
-                0%, 100% {
+                0%,
+                100% {
                     transform: scale(1);
                 }
                 50% {
@@ -95,7 +97,7 @@ import DynamicBackground from "../components/DynamicBackground.astro";
             }
 
             .mensajes-btn.has-notifications::after {
-                content: '';
+                content: "";
                 position: absolute;
                 top: -2px;
                 left: -2px;
@@ -117,23 +119,23 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                 header {
                     padding: 0.5rem 1rem !important;
                 }
-                
+
                 header img[alt="Logo"] {
                     width: 32px !important;
                 }
-                
+
                 header h1 {
                     font-size: 1.2rem !important;
                 }
-                
+
                 header nav {
                     display: none !important;
                 }
-                
+
                 header a[href="/perfiles"] span {
                     display: none !important;
                 }
-                
+
                 header #acceder-btn {
                     padding: 0.4rem 1rem !important;
                     font-size: 0.8rem !important;
@@ -169,12 +171,18 @@ import DynamicBackground from "../components/DynamicBackground.astro";
     </head>
     <body
         style="margin: 0; padding: 0; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column;">
-        
         <!-- Fondo animado decorativo - solo en páginas principales -->
-        {title.includes("Dashboard") || title.includes("Inicio") || title.includes("EgresadosIES") ? <DynamicBackground /> : null}
-        
+        {
+            title.includes("Dashboard") ||
+            title.includes("Inicio") ||
+            title.includes("EgresadosIES") ? (
+                <DynamicBackground />
+            ) : null
+        }
+
         <!-- Header -->
-        <header style="background-color: #E6E6E6; padding: 0.75rem 2rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <header
+            style="background-color: #E6E6E6; padding: 0.75rem 2rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
             <div
                 style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
                 <div style="display: flex; align-items: center; gap: 2rem;">
@@ -184,7 +192,10 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                             alt="Logo"
                             style="width: 50px; height: auto;"
                         />
-                        <a href="/" id="logo-link" style="text-decoration: none;">
+                        <a
+                            href="/"
+                            id="logo-link"
+                            style="text-decoration: none;">
                             <h1
                                 style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.75rem; color: #0d0d0d;">
                                 EgresadosIES
@@ -196,7 +207,7 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                     <nav
                         style="display: flex; gap: 1.5rem; align-items: center;">
                     </nav>
-                    
+
                     <!-- Barra de búsqueda global -->
                     <div id="search-bar-nav">
                         <SearchBar />
@@ -210,17 +221,26 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                         class="mensajes-btn"
                         onmouseover="this.style.color='#3b82f6'"
                         onmouseout="this.style.color='#374151'">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: inherit; transition: transform 0.3s ease;">
-                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            style="color: inherit; transition: transform 0.3s ease;">
+                            <path
+                                d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                            ></path>
                         </svg>
                         <span style="font-size: 0.85rem;">Mensajes</span>
-                        <span 
-                            id="navbar-mensajes-badge" 
+                        <span
+                            id="navbar-mensajes-badge"
                             class="mensajes-badge"
                             style="display: none; position: absolute; top: -6px; right: -10px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border-radius: 12px; padding: 0.2rem 0.45rem; font-size: 0.7rem; font-weight: 700; min-width: 20px; text-align: center; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4); border: 2px solid white;">
                         </span>
                     </button>
-                    
+
                     <!-- Ver egresados link -->
                     <a
                         href="/perfiles"
@@ -234,7 +254,7 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                         />
                         <span style="font-size: 0.85rem;">Ver egresados</span>
                     </a>
-                    
+
                     <!-- Admin link -->
                     <a
                         href="/admin"
@@ -262,11 +282,14 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                                 alt="Notificaciones"
                                 style="width: 24px; height: 24px; display: block;"
                             />
-                            <span id="notificaciones-badge" style="display: none; position: absolute; top: -5px; right: -5px; background-color: #dc3545; color: white; border-radius: 50%; min-width: 16px; height: 16px; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></span>
+                            <span
+                                id="notificaciones-badge"
+                                style="display: none; position: absolute; top: -5px; right: -5px; background-color: #dc3545; color: white; border-radius: 50%; min-width: 16px; height: 16px; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"
+                            ></span>
                         </div>
                         <span style="font-size: 0.85rem;">Notificaciones</span>
                     </button>
-                    
+
                     {
                         !hideAccederButton && (
                             <a
@@ -341,7 +364,7 @@ import DynamicBackground from "../components/DynamicBackground.astro";
 
         <!-- Footer -->
         <footer
-            style="background-color: var(--color-gray-900); color: var(--color-white); margin-top: auto; padding: 1.5rem 0;">
+            style="color: var(--color-white); margin-top: auto; padding: 1.5rem 0;">
             <div class="container" style="padding: 0 2rem;">
                 <div class="text-center">
                     <h3
@@ -354,8 +377,8 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                         educativa
                     </p>
                     <p style="color: var(--color-gray-400); font-size: 0.8rem;">
-                        &copy; <span id="current-year"></span> Instituto de Educación Superior. Todos los
-                        derechos reservados.
+                        &copy; <span id="current-year"></span> Instituto de Educación
+                        Superior. Todos los derechos reservados.
                     </p>
                 </div>
             </div>
@@ -369,52 +392,55 @@ import DynamicBackground from "../components/DynamicBackground.astro";
             document.addEventListener("DOMContentLoaded", () => {
                 // API URL
                 const API_URL = "http://localhost:3000/api";
-                
+
                 // Actualizar año en el footer
-                const currentYearElement = document.getElementById("current-year");
+                const currentYearElement =
+                    document.getElementById("current-year");
                 if (currentYearElement) {
-                    currentYearElement.textContent = new Date().getFullYear().toString();
+                    currentYearElement.textContent = new Date()
+                        .getFullYear()
+                        .toString();
                 }
 
                 // Referencias a elementos
                 const accederBtn = document.getElementById(
-                    "acceder-btn"
+                    "acceder-btn",
                 ) as HTMLElement;
                 const userProfile = document.getElementById(
-                    "user-profile"
+                    "user-profile",
                 ) as HTMLElement;
                 const userAvatar = document.getElementById(
-                    "user-avatar"
+                    "user-avatar",
                 ) as HTMLImageElement;
                 const userNameNav = document.getElementById(
-                    "user-name-nav"
+                    "user-name-nav",
                 ) as HTMLElement;
                 const userDropdown = document.getElementById(
-                    "user-dropdown"
+                    "user-dropdown",
                 ) as HTMLElement;
                 const logoutBtn = document.getElementById(
-                    "logout-btn"
+                    "logout-btn",
                 ) as HTMLButtonElement;
 
                 // Enlaces de navegación
                 const adminLink = document.getElementById(
-                    "admin-link"
+                    "admin-link",
                 ) as HTMLElement;
-                
+
                 const mensajesLink = document.getElementById(
-                    "navbar-mensajes-link"
+                    "navbar-mensajes-link",
                 ) as HTMLElement;
-                
+
                 const notificacionesBtn = document.getElementById(
-                    "notificaciones-btn"
+                    "notificaciones-btn",
                 ) as HTMLElement;
-                
+
                 const notificacionesBadge = document.getElementById(
-                    "notificaciones-badge"
+                    "notificaciones-badge",
                 ) as HTMLElement;
-                
+
                 const logoLink = document.getElementById(
-                    "logo-link"
+                    "logo-link",
                 ) as HTMLElement;
 
                 // Verificar autenticaciónes
@@ -425,10 +451,10 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                     try {
                         const user = JSON.parse(userData);
                         setupAuthenticatedUI(user);
-                        
+
                         // Cambiar el link del logo a dashboard si está autenticado como egresado
                         if (logoLink && user.tipo_usuario === "Egresado") {
-                            (logoLink as HTMLAnchorElement).href = "/dashboard";
+                            (logoLink as HTMLAnchorElement).href = "/";
                         }
                     } catch (error) {
                         console.error("Error parsing user data:", error);
@@ -440,13 +466,14 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                 }
 
                 // Escuchar cambios en localStorage para actualizar el nombre
-                window.addEventListener('storage', () => {
+                window.addEventListener("storage", () => {
                     const updatedUserData = localStorage.getItem("user_data");
                     if (updatedUserData) {
                         try {
                             const user = JSON.parse(updatedUserData);
                             if (userNameNav) {
-                                userNameNav.textContent = user.nombre || "Usuario";
+                                userNameNav.textContent =
+                                    user.nombre || "Usuario";
                             }
                         } catch (error) {
                             console.error("Error updating user data:", error);
@@ -473,13 +500,16 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                         if (user.tipo_usuario === "Egresado") {
                             cargarFotoPerfilHeader();
                         } else if (userAvatar) {
-                            userAvatar.src = user.avatar || "/default-avatar.svg";
+                            userAvatar.src =
+                                user.avatar || "/default-avatar.svg";
                         }
                     }
 
                     // Referencias a elementos del dropdown
-                    const miPerfilLink = document.getElementById('mi-perfil-link');
-                    const miPerfilDivider = document.getElementById('mi-perfil-divider');
+                    const miPerfilLink =
+                        document.getElementById("mi-perfil-link");
+                    const miPerfilDivider =
+                        document.getElementById("mi-perfil-divider");
 
                     // Mostrar navegación según el tipo de usuario
                     if (user.tipo_usuario === "Egresado") {
@@ -489,42 +519,50 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                             // Redirigir a /mensajes (no abrir sidebar)
                             mensajesLink.addEventListener("click", (e) => {
                                 e.preventDefault();
-                                window.location.href = '/mensajes';
+                                window.location.href = "/mensajes";
                             });
                         }
                         if (notificacionesBtn) {
                             notificacionesBtn.style.display = "flex";
-                            
+
                             // Agregar evento click para abrir modal
-                            notificacionesBtn.addEventListener('click', () => {
-                                const modal = document.getElementById("notificaciones-modal-overlay");
+                            notificacionesBtn.addEventListener("click", () => {
+                                const modal = document.getElementById(
+                                    "notificaciones-modal-overlay",
+                                );
                                 if (modal) {
-                                    modal.classList.add('show');
+                                    modal.classList.add("show");
                                     // Cargar notificaciones cuando se abra el modal
-                                    if (typeof window.cargarNotificacionesModal === 'function') {
+                                    if (
+                                        typeof window.cargarNotificacionesModal ===
+                                        "function"
+                                    ) {
                                         window.cargarNotificacionesModal();
                                     }
                                 }
                             });
-                            
+
                             // Iniciar polling de notificaciones
                             iniciarPollingNotificaciones();
                         }
-                        
+
                         // Mostrar "Mi Perfil" solo para egresados
-                        if (miPerfilLink) miPerfilLink.style.display = 'block';
-                        if (miPerfilDivider) miPerfilDivider.style.display = 'block';
-                        
+                        if (miPerfilLink) miPerfilLink.style.display = "block";
+                        if (miPerfilDivider)
+                            miPerfilDivider.style.display = "block";
+
                         // Iniciar actualización de mensajes no leídos
                         iniciarActualizacionMensajes();
                     } else if (user.tipo_usuario === "Administrador") {
                         if (adminLink) adminLink.style.display = "flex";
                         if (mensajesLink) mensajesLink.style.display = "none";
-                        if (notificacionesBtn) notificacionesBtn.style.display = "none";
-                        
+                        if (notificacionesBtn)
+                            notificacionesBtn.style.display = "none";
+
                         // Ocultar "Mi Perfil" para administradores
-                        if (miPerfilLink) miPerfilLink.style.display = 'none';
-                        if (miPerfilDivider) miPerfilDivider.style.display = 'none';
+                        if (miPerfilLink) miPerfilLink.style.display = "none";
+                        if (miPerfilDivider)
+                            miPerfilDivider.style.display = "none";
                     }
 
                     // Setup dropdown functionality
@@ -537,31 +575,41 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                         const token = localStorage.getItem("auth_token");
                         if (!token) return;
 
-                        const response = await fetch(`${API_URL}/notificaciones/no-leidas/contador`, {
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
-                            }
-                        });
+                        const response = await fetch(
+                            `${API_URL}/notificaciones/no-leidas/contador`,
+                            {
+                                headers: {
+                                    Authorization: `Bearer ${token}`,
+                                    "Content-Type": "application/json",
+                                },
+                            },
+                        );
 
                         if (response.ok) {
                             const data = await response.json();
                             if (notificacionesBadge) {
                                 if (data.noLeidas > 0) {
-                                    notificacionesBadge.textContent = data.noLeidas > 99 ? '99+' : data.noLeidas.toString();
-                                    notificacionesBadge.style.display = 'flex';
+                                    notificacionesBadge.textContent =
+                                        data.noLeidas > 99
+                                            ? "99+"
+                                            : data.noLeidas.toString();
+                                    notificacionesBadge.style.display = "flex";
                                 } else {
-                                    notificacionesBadge.style.display = 'none';
+                                    notificacionesBadge.style.display = "none";
                                 }
                             }
                         }
                     } catch (error) {
-                        console.debug('Error al cargar contador de notificaciones:', error);
+                        console.debug(
+                            "Error al cargar contador de notificaciones:",
+                            error,
+                        );
                     }
                 }
-                
+
                 // Exponer función globalmente para uso en modal
-                window.cargarContadorNotificaciones = cargarContadorNotificaciones;
+                window.cargarContadorNotificaciones =
+                    cargarContadorNotificaciones;
 
                 // Función para cargar la foto de perfil en el header
                 async function cargarFotoPerfilHeader() {
@@ -569,34 +617,42 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                         const token = localStorage.getItem("auth_token");
                         if (!token) return;
 
-                        const response = await fetch(`${API_URL}/perfil/mi-perfil`, {
-                            headers: {
-                                'Authorization': `Bearer ${token}`
-                            }
-                        });
+                        const response = await fetch(
+                            `${API_URL}/perfil/mi-perfil`,
+                            {
+                                headers: {
+                                    Authorization: `Bearer ${token}`,
+                                },
+                            },
+                        );
 
                         if (!response.ok) return;
 
                         const result = await response.json();
-                        
-                        if (result.success && result.data && result.data.perfil) {
+
+                        if (
+                            result.success &&
+                            result.data &&
+                            result.data.perfil
+                        ) {
                             const perfilData = result.data.perfil;
-                            
+
                             if (perfilData.urlFotoPerfil && userAvatar) {
-                                let fotoUrl = perfilData.urlFotoPerfil.startsWith('http') 
-                                    ? perfilData.urlFotoPerfil 
-                                    : `http://localhost:3000${perfilData.urlFotoPerfil}`;
-                                
+                                let fotoUrl =
+                                    perfilData.urlFotoPerfil.startsWith("http")
+                                        ? perfilData.urlFotoPerfil
+                                        : `http://localhost:3000${perfilData.urlFotoPerfil}`;
+
                                 // Optimizar URL si es de ImageKit
-                                if (fotoUrl.includes('ik.imagekit.io')) {
-                                    fotoUrl += '?tr=w-100,h-100,q-80,f-auto';
+                                if (fotoUrl.includes("ik.imagekit.io")) {
+                                    fotoUrl += "?tr=w-100,h-100,q-80,f-auto";
                                 }
-                                
+
                                 userAvatar.src = fotoUrl;
                             }
                         }
                     } catch (error) {
-                        console.debug('Error cargando foto de perfil:', error);
+                        console.debug("Error cargando foto de perfil:", error);
                     }
                 }
 
@@ -605,9 +661,12 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                 async function iniciarPollingNotificaciones() {
                     // Actualizar inmediatamente
                     await cargarContadorNotificaciones();
-                    
+
                     // Actualizar cada 30 segundos
-                    notificacionesPolling = setInterval(cargarContadorNotificaciones, 30000);
+                    notificacionesPolling = setInterval(
+                        cargarContadorNotificaciones,
+                        30000,
+                    );
                 }
 
                 function setupUnauthenticatedUI() {
@@ -635,7 +694,8 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                     // Ocultar navegación autenticada
                     if (adminLink) adminLink.style.display = "none";
                     if (mensajesLink) mensajesLink.style.display = "none";
-                    if (notificacionesBtn) notificacionesBtn.style.display = "none";
+                    if (notificacionesBtn)
+                        notificacionesBtn.style.display = "none";
                 }
 
                 function setupDropdown() {
@@ -676,17 +736,21 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                 }
 
                 // Sistema de actualización de mensajes no leídos
-                let mensajesPolling: ReturnType<typeof setInterval> | null = null;
+                let mensajesPolling: ReturnType<typeof setInterval> | null =
+                    null;
 
                 async function iniciarActualizacionMensajes() {
                     // Esperar 500ms antes de la primera petición para evitar conflictos
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    
+                    await new Promise((resolve) => setTimeout(resolve, 500));
+
                     // Actualizar inmediatamente
                     await actualizarMensajesNoLeidos();
 
                     // Actualizar cada 30 segundos
-                    mensajesPolling = setInterval(actualizarMensajesNoLeidos, 30000);
+                    mensajesPolling = setInterval(
+                        actualizarMensajesNoLeidos,
+                        30000,
+                    );
                 }
 
                 async function actualizarMensajesNoLeidos() {
@@ -695,15 +759,20 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                         if (!token) return;
 
                         const API_URL = "http://localhost:3000/api";
-                        const response = await fetch(`${API_URL}/mensajes/no-leidos`, {
-                            headers: {
-                                "Authorization": `Bearer ${token}`
-                            }
-                        });
+                        const response = await fetch(
+                            `${API_URL}/mensajes/no-leidos`,
+                            {
+                                headers: {
+                                    Authorization: `Bearer ${token}`,
+                                },
+                            },
+                        );
 
                         // Si es rate limit, esperar y no mostrar error
                         if (response.status === 429) {
-                            console.debug("[NAVBAR] Rate limit alcanzado, esperando...");
+                            console.debug(
+                                "[NAVBAR] Rate limit alcanzado, esperando...",
+                            );
                             return;
                         }
 
@@ -712,23 +781,31 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                         const data = await response.json();
                         const total = data.data?.totalNoLeidos || 0;
 
-                        const badge = document.getElementById("navbar-mensajes-badge");
-                        const mensajesBtn = document.getElementById("navbar-mensajes-link");
-                        
+                        const badge = document.getElementById(
+                            "navbar-mensajes-badge",
+                        );
+                        const mensajesBtn = document.getElementById(
+                            "navbar-mensajes-link",
+                        );
+
                         if (badge && mensajesBtn) {
-                            const anteriorTotal = badge.textContent ? parseInt(badge.textContent) : 0;
-                            const huboNuevosMensajes = total > anteriorTotal && anteriorTotal > 0;
+                            const anteriorTotal = badge.textContent
+                                ? parseInt(badge.textContent)
+                                : 0;
+                            const huboNuevosMensajes =
+                                total > anteriorTotal && anteriorTotal > 0;
 
                             if (total > 0) {
-                                badge.textContent = total > 99 ? "99+" : total.toString();
+                                badge.textContent =
+                                    total > 99 ? "99+" : total.toString();
                                 badge.style.display = "flex";
-                                
+
                                 // Agregar clase pulse al badge
                                 badge.classList.add("pulse");
-                                
+
                                 // Agregar clase al botón
                                 mensajesBtn.classList.add("has-notifications");
-                                
+
                                 // Si hay nuevos mensajes, hacer una animación extra
                                 if (huboNuevosMensajes) {
                                     // Remover y volver a agregar la animación
@@ -740,7 +817,9 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                             } else {
                                 badge.style.display = "none";
                                 badge.classList.remove("pulse");
-                                mensajesBtn.classList.remove("has-notifications");
+                                mensajesBtn.classList.remove(
+                                    "has-notifications",
+                                );
                             }
                         }
                     } catch (error) {
@@ -770,7 +849,7 @@ import DynamicBackground from "../components/DynamicBackground.astro";
 
         <!-- Modal de Notificaciones -->
         <NotificacionesModal />
-        
+
         <!-- Sidebar de Mensajes Global -->
         <MensajesSidebar />
     </body>

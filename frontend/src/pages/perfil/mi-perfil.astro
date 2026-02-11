@@ -6,7 +6,12 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     <div class="mi-perfil-container">
         <!-- Banner superior -->
         <div class="profile-banner">
-            <img src="/images/Fondo Azul card.jpg" alt="Banner" class="banner-image" id="banner-image"/>
+            <img
+                src="/images/Fondo Azul card.jpg"
+                alt="Banner"
+                class="banner-image"
+                id="banner-image"
+            />
         </div>
 
         <!-- Contenedor principal -->
@@ -17,32 +22,72 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
                     <!-- Avatar -->
                     <div class="profile-avatar-container">
                         <div class="profile-avatar" id="profile-avatar">
-                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <svg
+                                width="80"
+                                height="80"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.5">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <circle cx="12" cy="10" r="3"></circle>
-                                <path d="M6.168 18.849A4 4 0 0 1 10 16h4a4 4 0 0 1 3.834 2.855"></path>
+                                <path
+                                    d="M6.168 18.849A4 4 0 0 1 10 16h4a4 4 0 0 1 3.834 2.855"
+                                ></path>
                             </svg>
                         </div>
-                        <button class="btn-cambiar-foto" id="btn-cambiar-foto" style="display: none;" onclick="document.getElementById('input-foto-perfil').click()">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <button
+                            class="btn-cambiar-foto"
+                            id="btn-cambiar-foto"
+                            style="display: none;"
+                            onclick="document.getElementById('input-foto-perfil').click()">
+                            <svg
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+                                ></path>
                                 <circle cx="12" cy="13" r="4"></circle>
                             </svg>
                         </button>
-                        <input type="file" id="input-foto-perfil" accept="image/*" style="display: none;" onchange="handleFotoChange(event)" />
+                        <input
+                            type="file"
+                            id="input-foto-perfil"
+                            accept="image/*"
+                            style="display: none;"
+                            onchange="handleFotoChange(event)"
+                        />
                     </div>
                     <!-- Nombre y carrera -->
                     <div class="profile-info">
-                        <h1 class="profile-name" id="profile-name">Cargando...</h1>
-                        <p class="profile-career" id="profile-career">Cargando...</p>
+                        <h1 class="profile-name" id="profile-name">
+                            Cargando...
+                        </h1>
+                        <p class="profile-career" id="profile-career">
+                            Cargando...
+                        </p>
                     </div>
                 </div>
 
                 <!-- Botones de acción -->
                 <div class="profile-actions">
-                    <button class="btn-action" id="btn-editar" onclick="toggleEditMode()">Editar Perfil</button>
-                    <button class="btn-action" onclick="window.location.href='/mis-publicaciones'">Mis Publicaciones</button>
-                    <button class="btn-action" onclick="descargarCV()">Descargar CV en PDF</button>
+                    <button
+                        class="btn-action"
+                        id="btn-editar"
+                        onclick="toggleEditMode()">Editar Perfil</button
+                    >
+                    <button
+                        class="btn-action"
+                        onclick="window.location.href='/mis-publicaciones'"
+                        >Mis Publicaciones</button
+                    >
+                    <button class="btn-action" onclick="descargarCV()"
+                        >Descargar CV en PDF</button
+                    >
                 </div>
             </div>
 
@@ -52,13 +97,27 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
                 <div class="datos-card">
                     <div class="dato-row">
                         <span class="dato-label">Nombre:</span>
-                        <span class="dato-value dato-display" id="dato-nombre">-</span>
-                        <input type="text" class="dato-input" id="input-nombre" style="display: none;" />
+                        <span class="dato-value dato-display" id="dato-nombre"
+                            >-</span
+                        >
+                        <input
+                            type="text"
+                            class="dato-input"
+                            id="input-nombre"
+                            style="display: none;"
+                        />
                     </div>
                     <div class="dato-row">
                         <span class="dato-label">Apellido:</span>
-                        <span class="dato-value dato-display" id="dato-apellido">-</span>
-                        <input type="text" class="dato-input" id="input-apellido" style="display: none;" />
+                        <span class="dato-value dato-display" id="dato-apellido"
+                            >-</span
+                        >
+                        <input
+                            type="text"
+                            class="dato-input"
+                            id="input-apellido"
+                            style="display: none;"
+                        />
                     </div>
                     <div class="dato-row">
                         <span class="dato-label">DNI:</span>
@@ -67,46 +126,98 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
                     </div>
                     <div class="dato-row">
                         <span class="dato-label">Correo:</span>
-                        <span class="dato-value dato-display" id="dato-email">-</span>
-                        <input type="email" class="dato-input" id="input-email" style="display: none;" />
+                        <span class="dato-value dato-display" id="dato-email"
+                            >-</span
+                        >
+                        <input
+                            type="email"
+                            class="dato-input"
+                            id="input-email"
+                            style="display: none;"
+                        />
                     </div>
                     <div class="dato-row">
                         <span class="dato-label">Teléfono:</span>
-                        <span class="dato-value dato-display" id="dato-telefono">-</span>
-                        <input type="tel" class="dato-input" id="input-telefono" style="display: none;" />
+                        <span class="dato-value dato-display" id="dato-telefono"
+                            >-</span
+                        >
+                        <input
+                            type="tel"
+                            class="dato-input"
+                            id="input-telefono"
+                            style="display: none;"
+                        />
                     </div>
                     <div class="dato-row">
                         <span class="dato-label">Carrera:</span>
-                        <span class="dato-value dato-display" id="dato-carrera">-</span>
-                        <select class="dato-input" id="input-carrera" style="display: none;">
+                        <span class="dato-value dato-display" id="dato-carrera"
+                            >-</span
+                        >
+                        <select
+                            class="dato-input"
+                            id="input-carrera"
+                            style="display: none;">
                             <option value="">Cargando carreras...</option>
                         </select>
                     </div>
                     <div class="dato-row">
                         <span class="dato-label">Año de egreso:</span>
-                        <span class="dato-value dato-display" id="dato-anio">-</span>
-                        <input type="number" class="dato-input" id="input-anio" min="1990" max="2030" style="display: none;" />
+                        <span class="dato-value dato-display" id="dato-anio"
+                            >-</span
+                        >
+                        <input
+                            type="number"
+                            class="dato-input"
+                            id="input-anio"
+                            min="1990"
+                            max="2030"
+                            style="display: none;"
+                        />
                     </div>
                     <div class="dato-row">
                         <span class="dato-label">Situación laboral:</span>
-                        <span class="dato-value dato-display" id="dato-situacion">-</span>
-                        <select class="dato-input" id="input-situacion" style="display: none;">
+                        <span
+                            class="dato-value dato-display"
+                            id="dato-situacion">-</span
+                        >
+                        <select
+                            class="dato-input"
+                            id="input-situacion"
+                            style="display: none;">
                             <option value="">Selecciona una opción</option>
                             <option value="Trabajando">Trabajando</option>
                             <option value="Freelance">Freelance</option>
-                            <option value="Buscando empleo">Buscando empleo</option>
+                            <option value="Buscando empleo"
+                                >Buscando empleo</option
+                            >
                             <option value="Estudiando">Estudiando</option>
-                            <option value="Estudiando y Trabajando">Estudiando y Trabajando</option>
+                            <option value="Estudiando y Trabajando"
+                                >Estudiando y Trabajando</option
+                            >
                         </select>
                     </div>
-                    
+
                     <!-- Botones de edición -->
-                    <div class="edit-actions" id="edit-actions" style="display: none;">
-                        <button class="btn-cancelar" onclick="cancelarEdicion()">Cancelar</button>
+                    <div
+                        class="edit-actions"
+                        id="edit-actions"
+                        style="display: none;">
+                        <button class="btn-cancelar" onclick="cancelarEdicion()"
+                            >Cancelar</button
+                        >
                         <button class="btn-guardar" onclick="guardarCambios()">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <svg
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
+                                ></path>
+                                <polyline points="17 21 17 13 7 13 7 21"
+                                ></polyline>
                                 <polyline points="7 3 7 8 15 8"></polyline>
                             </svg>
                             Guardar cambios
@@ -127,15 +238,26 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
             <div class="crop-modal-content">
                 <div class="crop-modal-header">
                     <h3>Ajustar foto de perfil</h3>
-                    <button class="btn-close-modal" onclick="cerrarModalRecorte()">×</button>
+                    <button
+                        class="btn-close-modal"
+                        onclick="cerrarModalRecorte()">×</button
+                    >
                 </div>
                 <div class="crop-container">
                     <img id="image-to-crop" src="" alt="Imagen para recortar" />
                 </div>
                 <div class="crop-modal-actions">
-                    <button class="btn-cancelar" onclick="cerrarModalRecorte()">Cancelar</button>
+                    <button class="btn-cancelar" onclick="cerrarModalRecorte()"
+                        >Cancelar</button
+                    >
                     <button class="btn-guardar" onclick="aplicarRecorte()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                         Aplicar recorte
@@ -227,7 +349,6 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
         height: 100%;
         object-fit: cover;
     }
-
     .btn-cambiar-foto {
         position: absolute;
         bottom: 5px;
@@ -235,7 +356,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: #5B7FDB;
+        background: #5b7fdb;
         color: white;
         border: 3px solid white;
         display: flex;
@@ -247,7 +368,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     }
 
     .btn-cambiar-foto:hover {
-        background: #4A6BC9;
+        background: #4a6bc9;
         transform: scale(1.1);
     }
 
@@ -280,7 +401,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     }
 
     .btn-action {
-        background: #5B7FDB;
+        background: #5b7fdb;
         color: white;
         border: none;
         padding: 0.5rem 1rem;
@@ -298,7 +419,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     }
 
     .btn-action:hover {
-        background: #4A6BC9;
+        background: #4a6bc9;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(91, 127, 219, 0.3);
     }
@@ -346,7 +467,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     .dato-input {
         flex: 1;
         padding: 0.5rem;
-        border: 2px solid #5B7FDB;
+        border: 2px solid #5b7fdb;
         border-radius: 6px;
         font-size: 1rem;
         font-family: inherit;
@@ -354,7 +475,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 
     .dato-input:focus {
         outline: none;
-        border-color: #4A6BC9;
+        border-color: #4a6bc9;
     }
 
     .dato-note {
@@ -384,12 +505,12 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        background: #5B7FDB !important;
+        background: #5b7fdb !important;
         color: white;
     }
 
     .btn-guardar:hover {
-        background: #4A6BC9 !important;
+        background: #4a6bc9 !important;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(91, 127, 219, 0.3);
     }
@@ -522,13 +643,15 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
         width: 50px;
         height: 50px;
         border: 4px solid #f0f0f0;
-        border-top-color: #5B7FDB;
+        border-top-color: #5b7fdb;
         border-radius: 50%;
         animation: spin 0.8s linear infinite;
     }
 
     @keyframes spin {
-        to { transform: rotate(360deg); }
+        to {
+            transform: rotate(360deg);
+        }
     }
 
     @media (max-width: 968px) {
@@ -597,104 +720,120 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     }
 
     // Esperar a que el DOM esté listo
-    document.addEventListener('DOMContentLoaded', async () => {
+    document.addEventListener("DOMContentLoaded", async () => {
         await cargarCarreras();
         await cargarMiPerfil();
     });
 
     async function cargarCarreras() {
         try {
-            const response = await fetch('http://localhost:3000/api/carreras');
+            const response = await fetch("http://localhost:3000/api/carreras");
             if (response.ok) {
                 const result = await response.json();
                 const carreras = result.data || [];
-                
-                const selectCarrera = document.getElementById('input-carrera') as HTMLSelectElement;
+
+                const selectCarrera = document.getElementById(
+                    "input-carrera",
+                ) as HTMLSelectElement;
                 if (selectCarrera) {
-                    selectCarrera.innerHTML = '<option value="">Selecciona una carrera</option>' + 
-                        carreras.map((c: any) => `<option value="${c.id}">${c.nombre}</option>`).join('');
+                    selectCarrera.innerHTML =
+                        '<option value="">Selecciona una carrera</option>' +
+                        carreras
+                            .map(
+                                (c: any) =>
+                                    `<option value="${c.id}">${c.nombre}</option>`,
+                            )
+                            .join("");
                 }
             }
         } catch (error) {
-            console.error('Error cargando carreras:', error);
+            console.error("Error cargando carreras:", error);
         }
     }
 
     async function cargarMiPerfil() {
-        const loadingOverlay = document.getElementById('loading-overlay');
-        
+        const loadingOverlay = document.getElementById("loading-overlay");
+
         try {
             // Obtener token - IMPORTANTE: el token se guarda como "auth_token"
-            const token = localStorage.getItem('auth_token');
-            const userData = localStorage.getItem('currentUser');
-            
-            console.log('=== DEBUG MI PERFIL ===');
-            console.log('Token encontrado:', token ? 'Sí (' + token.substring(0, 30) + '...)' : 'No');
-            console.log('UserData:', userData);
-            
+            const token = localStorage.getItem("auth_token");
+            const userData = localStorage.getItem("currentUser");
+
+            console.log("=== DEBUG MI PERFIL ===");
+            console.log(
+                "Token encontrado:",
+                token ? "Sí (" + token.substring(0, 30) + "...)" : "No",
+            );
+            console.log("UserData:", userData);
+
             if (!token) {
-                console.error('❌ No hay token en localStorage');
-                alert('No se encontró tu sesión. Por favor, inicia sesión.');
+                console.error("❌ No hay token en localStorage");
+                alert("No se encontró tu sesión. Por favor, inicia sesión.");
                 setTimeout(() => {
-                    window.location.href = '/acceso';
+                    window.location.href = "/acceso";
                 }, 2000);
                 return;
             }
 
             // Llamar a la API
-            console.log('📡 Llamando a la API /api/perfil/mi-perfil...');
-            const response = await fetch('http://localhost:3000/api/perfil/mi-perfil', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+            console.log("📡 Llamando a la API /api/perfil/mi-perfil...");
+            const response = await fetch(
+                "http://localhost:3000/api/perfil/mi-perfil",
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                },
+            );
 
-            console.log('📥 Respuesta de la API:', {
+            console.log("📥 Respuesta de la API:", {
                 status: response.status,
                 statusText: response.statusText,
-                ok: response.ok
+                ok: response.ok,
             });
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
-                console.error('❌ Error de la API:', {
+                console.error("❌ Error de la API:", {
                     status: response.status,
-                    error: errorData
+                    error: errorData,
                 });
-                
+
                 if (response.status === 401 || response.status === 403) {
-                    showNotification('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'error');
-                    localStorage.removeItem('auth_token');
-                    localStorage.removeItem('currentUser');
+                    showNotification(
+                        "Tu sesión ha expirado. Por favor, inicia sesión nuevamente.",
+                        "error",
+                    );
+                    localStorage.removeItem("auth_token");
+                    localStorage.removeItem("currentUser");
                     setTimeout(() => {
-                        window.location.href = '/acceso';
+                        window.location.href = "/acceso";
                     }, 2000);
                     return;
                 }
-                throw new Error(errorData.error || 'Error al cargar el perfil');
+                throw new Error(errorData.error || "Error al cargar el perfil");
             }
 
             const result = await response.json();
-            console.log('✅ Datos del perfil recibidos:', result);
-            
+            console.log("✅ Datos del perfil recibidos:", result);
+
             if (!result.success || !result.data) {
-                throw new Error('Respuesta inválida del servidor');
+                throw new Error("Respuesta inválida del servidor");
             }
-            
+
             const perfil = result.data;
 
             // Actualizar información en la página
             actualizarInterfaz(perfil);
-            console.log('✅ Interfaz actualizada correctamente');
-
+            console.log("✅ Interfaz actualizada correctamente");
         } catch (error) {
-            console.error('❌ Error completo:', error);
-            alert('Error al cargar tu perfil: ' + error.message);
+            console.error("❌ Error completo:", error);
+            alert("Error al cargar tu perfil: " + error.message);
         } finally {
             if (loadingOverlay) {
-                loadingOverlay.classList.add('hidden');
+                loadingOverlay.classList.add("hidden");
             }
         }
     }
@@ -703,64 +842,76 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
         // Guardar datos globalmente para el modo edición
         window.perfilData = perfil;
 
-        console.log('=== ACTUALIZAR INTERFAZ ===');
-        console.log('Datos usuario:', perfil.usuario);
-        console.log('Nombre:', perfil.usuario.nombre);
-        console.log('Apellido:', perfil.usuario.apellido);
-        console.log('Email:', perfil.usuario.email);
+        console.log("=== ACTUALIZAR INTERFAZ ===");
+        console.log("Datos usuario:", perfil.usuario);
+        console.log("Nombre:", perfil.usuario.nombre);
+        console.log("Apellido:", perfil.usuario.apellido);
+        console.log("Email:", perfil.usuario.email);
 
         // Avatar
-        const avatarEl = document.getElementById('profile-avatar');
+        const avatarEl = document.getElementById("profile-avatar");
         if (perfil.perfil?.urlFotoPerfil && avatarEl) {
-            const fotoUrl = perfil.perfil.urlFotoPerfil.startsWith('http') 
-                ? perfil.perfil.urlFotoPerfil 
+            const fotoUrl = perfil.perfil.urlFotoPerfil.startsWith("http")
+                ? perfil.perfil.urlFotoPerfil
                 : `http://localhost:3000${perfil.perfil.urlFotoPerfil}`;
-            avatarEl.innerHTML = `<img src="${fotoUrl}" alt="Foto de perfil" />`;
+            avatarEl.innerHTML = `<img style="width: 200px;" src="${fotoUrl}" alt="Foto de perfil" />`;
         }
 
         // Banner
-        const bannerEl = document.getElementById('banner-image') as HTMLImageElement;
+        const bannerEl = document.getElementById(
+            "banner-image",
+        ) as HTMLImageElement;
         if (perfil.perfil?.urlBanner && bannerEl) {
             bannerEl.src = perfil.perfil.urlBanner;
         }
 
         // Nombre y carrera
-        const nombreCompleto = `${perfil.usuario.nombre} ${perfil.usuario.apellido || ''}`.trim();
-        const nombreEl = document.getElementById('profile-name');
-        const carreraHeaderEl = document.getElementById('profile-career');
-        
+        const nombreCompleto =
+            `${perfil.usuario.nombre} ${perfil.usuario.apellido || ""}`.trim();
+        const nombreEl = document.getElementById("profile-name");
+        const carreraHeaderEl = document.getElementById("profile-career");
+
         if (nombreEl) nombreEl.textContent = nombreCompleto;
-        if (carreraHeaderEl) carreraHeaderEl.textContent = perfil.carrera?.nombre || 'Sin carrera asignada';
+        if (carreraHeaderEl)
+            carreraHeaderEl.textContent =
+                perfil.carrera?.nombre || "Sin carrera asignada";
 
         // Datos personales
-        const datoNombreEl = document.getElementById('dato-nombre');
-        const datoApellidoEl = document.getElementById('dato-apellido');
-        const datoDniEl = document.getElementById('dato-dni');
-        const datoEmailEl = document.getElementById('dato-email');
-        const datoTelefonoEl = document.getElementById('dato-telefono');
-        const datoCarreraEl = document.getElementById('dato-carrera');
-        const datoAnioEl = document.getElementById('dato-anio');
-        const datoSituacionEl = document.getElementById('dato-situacion');
+        const datoNombreEl = document.getElementById("dato-nombre");
+        const datoApellidoEl = document.getElementById("dato-apellido");
+        const datoDniEl = document.getElementById("dato-dni");
+        const datoEmailEl = document.getElementById("dato-email");
+        const datoTelefonoEl = document.getElementById("dato-telefono");
+        const datoCarreraEl = document.getElementById("dato-carrera");
+        const datoAnioEl = document.getElementById("dato-anio");
+        const datoSituacionEl = document.getElementById("dato-situacion");
 
-        if (datoNombreEl) datoNombreEl.textContent = perfil.usuario.nombre || '-';
-        if (datoApellidoEl) datoApellidoEl.textContent = perfil.usuario.apellido || '-';
-        if (datoDniEl) datoDniEl.textContent = perfil.usuario.dni || '-';
-        if (datoEmailEl) datoEmailEl.textContent = perfil.usuario.email || '-';
-        if (datoTelefonoEl) datoTelefonoEl.textContent = perfil.usuario.telefono || 'No especificado';
-        if (datoCarreraEl) datoCarreraEl.textContent = perfil.carrera?.nombre || '-';
-        if (datoAnioEl) datoAnioEl.textContent = '2026'; // Puedes ajustar esto según tu lógica
-        if (datoSituacionEl) datoSituacionEl.textContent = perfil.perfil?.situacionLaboral || 'No especificada';
+        if (datoNombreEl)
+            datoNombreEl.textContent = perfil.usuario.nombre || "-";
+        if (datoApellidoEl)
+            datoApellidoEl.textContent = perfil.usuario.apellido || "-";
+        if (datoDniEl) datoDniEl.textContent = perfil.usuario.dni || "-";
+        if (datoEmailEl) datoEmailEl.textContent = perfil.usuario.email || "-";
+        if (datoTelefonoEl)
+            datoTelefonoEl.textContent =
+                perfil.usuario.telefono || "No especificado";
+        if (datoCarreraEl)
+            datoCarreraEl.textContent = perfil.carrera?.nombre || "-";
+        if (datoAnioEl) datoAnioEl.textContent = "2026"; // Puedes ajustar esto según tu lógica
+        if (datoSituacionEl)
+            datoSituacionEl.textContent =
+                perfil.perfil?.situacionLaboral || "No especificada";
     }
 
     function toggleEditMode() {
-        const btnEditar = document.getElementById('btn-editar');
-        const editActions = document.getElementById('edit-actions');
-        const btnCambiarFoto = document.getElementById('btn-cambiar-foto');
+        const btnEditar = document.getElementById("btn-editar");
+        const editActions = document.getElementById("edit-actions");
+        const btnCambiarFoto = document.getElementById("btn-cambiar-foto");
 
         // Mostrar/ocultar botones
-        if (btnEditar) btnEditar.style.display = 'none';
-        if (editActions) editActions.style.display = 'flex';
-        if (btnCambiarFoto) btnCambiarFoto.style.display = 'flex';
+        if (btnEditar) btnEditar.style.display = "none";
+        if (editActions) editActions.style.display = "flex";
+        if (btnCambiarFoto) btnCambiarFoto.style.display = "flex";
 
         // Convertir campos a inputs
         const perfil = window.perfilData;
@@ -769,78 +920,92 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 
     function activarModoEdicion(perfil) {
         // Nombre
-        const datoNombre = document.getElementById('dato-nombre');
-        const inputNombre = document.getElementById('input-nombre') as HTMLInputElement;
+        const datoNombre = document.getElementById("dato-nombre");
+        const inputNombre = document.getElementById(
+            "input-nombre",
+        ) as HTMLInputElement;
         if (datoNombre && inputNombre) {
-            datoNombre.style.display = 'none';
-            inputNombre.style.display = 'block';
-            inputNombre.value = perfil.usuario.nombre || '';
+            datoNombre.style.display = "none";
+            inputNombre.style.display = "block";
+            inputNombre.value = perfil.usuario.nombre || "";
         }
 
         // Apellido
-        const datoApellido = document.getElementById('dato-apellido');
-        const inputApellido = document.getElementById('input-apellido') as HTMLInputElement;
+        const datoApellido = document.getElementById("dato-apellido");
+        const inputApellido = document.getElementById(
+            "input-apellido",
+        ) as HTMLInputElement;
         if (datoApellido && inputApellido) {
-            datoApellido.style.display = 'none';
-            inputApellido.style.display = 'block';
-            inputApellido.value = perfil.usuario.apellido || '';
+            datoApellido.style.display = "none";
+            inputApellido.style.display = "block";
+            inputApellido.value = perfil.usuario.apellido || "";
         }
 
         // Email
-        const datoEmail = document.getElementById('dato-email');
-        const inputEmail = document.getElementById('input-email') as HTMLInputElement;
+        const datoEmail = document.getElementById("dato-email");
+        const inputEmail = document.getElementById(
+            "input-email",
+        ) as HTMLInputElement;
         if (datoEmail && inputEmail) {
-            datoEmail.style.display = 'none';
-            inputEmail.style.display = 'block';
-            inputEmail.value = perfil.usuario.email || '';
+            datoEmail.style.display = "none";
+            inputEmail.style.display = "block";
+            inputEmail.value = perfil.usuario.email || "";
         }
 
         // Teléfono
-        const datoTelefono = document.getElementById('dato-telefono');
-        const inputTelefono = document.getElementById('input-telefono') as HTMLInputElement;
+        const datoTelefono = document.getElementById("dato-telefono");
+        const inputTelefono = document.getElementById(
+            "input-telefono",
+        ) as HTMLInputElement;
         if (datoTelefono && inputTelefono) {
-            datoTelefono.style.display = 'none';
-            inputTelefono.style.display = 'block';
-            inputTelefono.value = perfil.usuario.telefono || '';
+            datoTelefono.style.display = "none";
+            inputTelefono.style.display = "block";
+            inputTelefono.value = perfil.usuario.telefono || "";
         }
 
         // Situación laboral
-        const datoSituacion = document.getElementById('dato-situacion');
-        const inputSituacion = document.getElementById('input-situacion') as HTMLSelectElement;
+        const datoSituacion = document.getElementById("dato-situacion");
+        const inputSituacion = document.getElementById(
+            "input-situacion",
+        ) as HTMLSelectElement;
         if (datoSituacion && inputSituacion) {
-            datoSituacion.style.display = 'none';
-            inputSituacion.style.display = 'block';
-            inputSituacion.value = perfil.perfil?.situacionLaboral || '';
+            datoSituacion.style.display = "none";
+            inputSituacion.style.display = "block";
+            inputSituacion.value = perfil.perfil?.situacionLaboral || "";
         }
 
         // Carrera
-        const datoCarrera = document.getElementById('dato-carrera');
-        const inputCarrera = document.getElementById('input-carrera') as HTMLSelectElement;
+        const datoCarrera = document.getElementById("dato-carrera");
+        const inputCarrera = document.getElementById(
+            "input-carrera",
+        ) as HTMLSelectElement;
         if (datoCarrera && inputCarrera) {
-            datoCarrera.style.display = 'none';
-            inputCarrera.style.display = 'block';
-            inputCarrera.value = perfil.carrera?.id?.toString() || '';
+            datoCarrera.style.display = "none";
+            inputCarrera.style.display = "block";
+            inputCarrera.value = perfil.carrera?.id?.toString() || "";
         }
 
         // Año de egreso
-        const datoAnio = document.getElementById('dato-anio');
-        const inputAnio = document.getElementById('input-anio') as HTMLInputElement;
+        const datoAnio = document.getElementById("dato-anio");
+        const inputAnio = document.getElementById(
+            "input-anio",
+        ) as HTMLInputElement;
         if (datoAnio && inputAnio) {
-            datoAnio.style.display = 'none';
-            inputAnio.style.display = 'block';
-            inputAnio.value = '2026'; // TODO: obtener del perfil cuando esté disponible
+            datoAnio.style.display = "none";
+            inputAnio.style.display = "block";
+            inputAnio.value = "2026"; // TODO: obtener del perfil cuando esté disponible
         }
     }
 
     function cancelarEdicion() {
-        const btnEditar = document.getElementById('btn-editar');
-        const editActions = document.getElementById('edit-actions');
-        const btnCambiarFoto = document.getElementById('btn-cambiar-foto');
+        const btnEditar = document.getElementById("btn-editar");
+        const editActions = document.getElementById("edit-actions");
+        const btnCambiarFoto = document.getElementById("btn-cambiar-foto");
 
         // Mostrar/ocultar botones
-        if (btnEditar) btnEditar.style.display = 'flex';
-        if (editActions) editActions.style.display = 'none';
-        if (btnCambiarFoto) btnCambiarFoto.style.display = 'none';
+        if (btnEditar) btnEditar.style.display = "flex";
+        if (editActions) editActions.style.display = "none";
+        if (btnCambiarFoto) btnCambiarFoto.style.display = "none";
 
         // Limpiar foto temporal si existe
         window.nuevaFotoPerfil = null;
@@ -851,52 +1016,72 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 
     function desactivarModoEdicion() {
         // Ocultar inputs y mostrar valores
-        document.querySelectorAll('.dato-display').forEach((el: Element) => {
-            (el as HTMLElement).style.display = 'block';
+        document.querySelectorAll(".dato-display").forEach((el: Element) => {
+            (el as HTMLElement).style.display = "block";
         });
-        document.querySelectorAll('.dato-input').forEach((el: Element) => {
-            (el as HTMLElement).style.display = 'none';
+        document.querySelectorAll(".dato-input").forEach((el: Element) => {
+            (el as HTMLElement).style.display = "none";
         });
     }
 
     async function guardarCambios() {
         try {
-            const token = localStorage.getItem('auth_token');
+            const token = localStorage.getItem("auth_token");
             if (!token) {
-                window.location.href = '/acceso';
+                window.location.href = "/acceso";
                 return;
             }
 
             // Recoger datos del formulario
-            const nombre = (document.getElementById('input-nombre') as HTMLInputElement).value.trim();
-            const apellido = (document.getElementById('input-apellido') as HTMLInputElement).value.trim();
-            const email = (document.getElementById('input-email') as HTMLInputElement).value.trim();
-            const telefono = (document.getElementById('input-telefono') as HTMLInputElement).value.trim();
-            const situacionLaboral = (document.getElementById('input-situacion') as HTMLSelectElement).value;
-            const carreraId = (document.getElementById('input-carrera') as HTMLSelectElement).value;
-            const anioEgreso = (document.getElementById('input-anio') as HTMLInputElement).value;
+            const nombre = (
+                document.getElementById("input-nombre") as HTMLInputElement
+            ).value.trim();
+            const apellido = (
+                document.getElementById("input-apellido") as HTMLInputElement
+            ).value.trim();
+            const email = (
+                document.getElementById("input-email") as HTMLInputElement
+            ).value.trim();
+            const telefono = (
+                document.getElementById("input-telefono") as HTMLInputElement
+            ).value.trim();
+            const situacionLaboral = (
+                document.getElementById("input-situacion") as HTMLSelectElement
+            ).value;
+            const carreraId = (
+                document.getElementById("input-carrera") as HTMLSelectElement
+            ).value;
+            const anioEgreso = (
+                document.getElementById("input-anio") as HTMLInputElement
+            ).value;
 
             // Si hay nueva foto, subirla primero
             let urlFotoPerfil = null;
             if (window.nuevaFotoPerfil) {
                 const fotoFormData = new FormData();
-                fotoFormData.append('foto', window.nuevaFotoPerfil);
+                fotoFormData.append("foto", window.nuevaFotoPerfil);
 
-                const fotoResponse = await fetch('http://localhost:3000/api/perfil/subir-foto', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
+                const fotoResponse = await fetch(
+                    "http://localhost:3000/api/perfil/subir-foto",
+                    {
+                        method: "POST",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                        body: fotoFormData,
                     },
-                    body: fotoFormData
-                });
+                );
 
                 if (fotoResponse.ok) {
                     const fotoResult = await fotoResponse.json();
                     urlFotoPerfil = fotoResult.url;
-                    console.log('✅ Foto subida correctamente:', urlFotoPerfil);
+                    console.log("✅ Foto subida correctamente:", urlFotoPerfil);
                 } else {
-                    console.error('❌ Error al subir foto');
-                    showNotification('Error al subir la foto. Se guardarán los demás cambios.', 'error');
+                    console.error("❌ Error al subir foto");
+                    showNotification(
+                        "Error al subir la foto. Se guardarán los demás cambios.",
+                        "error",
+                    );
                 }
             }
 
@@ -907,7 +1092,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
                 contacto: telefono,
                 situacionLaboral,
                 carreraId: carreraId ? parseInt(carreraId) : null,
-                anioEgreso: anioEgreso ? parseInt(anioEgreso) : null
+                anioEgreso: anioEgreso ? parseInt(anioEgreso) : null,
             };
 
             // Agregar URL de foto si se subió
@@ -915,39 +1100,52 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
                 formData.urlFotoPerfil = urlFotoPerfil;
             }
 
-            console.log('=== GUARDAR CAMBIOS ===');
-            console.log('Datos del formulario:', formData);
-            console.log('Valor del input apellido:', apellido);
-            console.log('Elemento input-apellido:', document.getElementById('input-apellido'));
+            console.log("=== GUARDAR CAMBIOS ===");
+            console.log("Datos del formulario:", formData);
+            console.log("Valor del input apellido:", apellido);
+            console.log(
+                "Elemento input-apellido:",
+                document.getElementById("input-apellido"),
+            );
 
-            const response = await fetch('http://localhost:3000/api/perfil/mi-perfil', {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+            const response = await fetch(
+                "http://localhost:3000/api/perfil/mi-perfil",
+                {
+                    method: "PUT",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(formData),
                 },
-                body: JSON.stringify(formData)
-            });
+            );
 
             if (!response.ok) {
                 const errorData = await response.json();
-                console.error('❌ Error del servidor:', errorData);
-                console.error('Detalles de validación:', errorData.errors || errorData.details);
-                throw new Error(errorData.error || 'Error al guardar los cambios');
+                console.error("❌ Error del servidor:", errorData);
+                console.error(
+                    "Detalles de validación:",
+                    errorData.errors || errorData.details,
+                );
+                throw new Error(
+                    errorData.error || "Error al guardar los cambios",
+                );
             }
 
-            showNotification('Cambios guardados exitosamente', 'success');
-            
+            showNotification("Cambios guardados exitosamente", "success");
+
             // Limpiar foto temporal
             window.nuevaFotoPerfil = null;
-            
+
             // Recargar datos
             await cargarMiPerfil();
             cancelarEdicion();
-
         } catch (error) {
-            console.error('Error:', error);
-            showNotification('Error al guardar los cambios: ' + (error as Error).message, 'error');
+            console.error("Error:", error);
+            showNotification(
+                "Error al guardar los cambios: " + (error as Error).message,
+                "error",
+            );
         }
     }
 
@@ -955,54 +1153,62 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     window.toggleEditMode = toggleEditMode;
     window.cancelarEdicion = cancelarEdicion;
     window.guardarCambios = guardarCambios;
-    
-    (window as any).handleFotoChange = function(event: Event) {
+
+    (window as any).handleFotoChange = function (event: Event) {
         const target = event.target as HTMLInputElement;
         const file = target.files?.[0];
         if (!file) return;
 
         // Validar tipo de archivo
-        if (!file.type.startsWith('image/')) {
-            showNotification('Por favor selecciona una imagen válida', 'error');
+        if (!file.type.startsWith("image/")) {
+            showNotification("Por favor selecciona una imagen válida", "error");
             return;
         }
 
         // Validar tamaño (máximo 5MB)
         if (file.size > 5 * 1024 * 1024) {
-            showNotification('La imagen es muy grande. Máximo 5MB', 'error');
+            showNotification("La imagen es muy grande. Máximo 5MB", "error");
             return;
         }
 
         // Leer archivo y abrir modal de recorte
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             if (e.target?.result) {
                 (window as any).abrirModalRecorte(e.target.result);
             }
         };
         reader.readAsDataURL(file);
 
-        console.log('📷 Nueva foto seleccionada:', file.name, 'Tamaño:', (file.size / 1024).toFixed(2), 'KB');
+        console.log(
+            "📷 Nueva foto seleccionada:",
+            file.name,
+            "Tamaño:",
+            (file.size / 1024).toFixed(2),
+            "KB",
+        );
     };
 
-    (window as any).abrirModalRecorte = function(imageSrc: string) {
-        const modal = document.getElementById('crop-modal');
-        const image = document.getElementById('image-to-crop') as HTMLImageElement;
-        
+    (window as any).abrirModalRecorte = function (imageSrc: string) {
+        const modal = document.getElementById("crop-modal");
+        const image = document.getElementById(
+            "image-to-crop",
+        ) as HTMLImageElement;
+
         if (modal && image) {
             image.src = imageSrc;
-            modal.style.display = 'flex';
-            
+            modal.style.display = "flex";
+
             // Inicializar Cropper.js
             setTimeout(() => {
                 if ((window as any).cropper) {
                     (window as any).cropper.destroy();
                 }
-                
+
                 (window as any).cropper = new (window as any).Cropper(image, {
                     aspectRatio: 1,
                     viewMode: 2,
-                    dragMode: 'move',
+                    dragMode: "move",
                     autoCropArea: 0.8,
                     restore: false,
                     guides: true,
@@ -1016,61 +1222,74 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
         }
     };
 
-    (window as any).cerrarModalRecorte = function() {
-        const modal = document.getElementById('crop-modal');
+    (window as any).cerrarModalRecorte = function () {
+        const modal = document.getElementById("crop-modal");
         if (modal) {
-            modal.style.display = 'none';
+            modal.style.display = "none";
         }
-        
+
         if ((window as any).cropper) {
             (window as any).cropper.destroy();
             (window as any).cropper = null;
         }
-        
+
         // Limpiar input
-        const input = document.getElementById('input-foto-perfil') as HTMLInputElement;
+        const input = document.getElementById(
+            "input-foto-perfil",
+        ) as HTMLInputElement;
         if (input) {
-            input.value = '';
+            input.value = "";
         }
     };
 
-    (window as any).aplicarRecorte = function() {
+    (window as any).aplicarRecorte = function () {
         if (!(window as any).cropper) return;
-        
+
         // Obtener imagen recortada como blob
-        (window as any).cropper.getCroppedCanvas({
-            width: 400,
-            height: 400,
-            imageSmoothingQuality: 'high'
-        }).toBlob((blob) => {
-            if (blob) {
-                // Crear archivo desde blob
-                window.nuevaFotoPerfil = new File([blob], 'foto-perfil.jpg', {
-                    type: 'image/jpeg',
-                    lastModified: Date.now()
-                });
-                
-                // Mostrar vista previa en el avatar
-                const avatarEl = document.getElementById('profile-avatar');
-                if (avatarEl) {
-                    const previewUrl = URL.createObjectURL(blob);
-                    avatarEl.innerHTML = `<img src="${previewUrl}" alt="Vista previa" />`;
-                }
-                
-                console.log('✅ Imagen recortada lista para subir');
-                (window as any).cerrarModalRecorte();
-            }
-        }, 'image/jpeg', 0.9);
+        (window as any).cropper
+            .getCroppedCanvas({
+                width: 400,
+                height: 400,
+                imageSmoothingQuality: "high",
+            })
+            .toBlob(
+                (blob) => {
+                    if (blob) {
+                        // Crear archivo desde blob
+                        window.nuevaFotoPerfil = new File(
+                            [blob],
+                            "foto-perfil.jpg",
+                            {
+                                type: "image/jpeg",
+                                lastModified: Date.now(),
+                            },
+                        );
+
+                        // Mostrar vista previa en el avatar
+                        const avatarEl =
+                            document.getElementById("profile-avatar");
+                        if (avatarEl) {
+                            const previewUrl = URL.createObjectURL(blob);
+                            avatarEl.innerHTML = `<img src="${previewUrl}" alt="Vista previa" />`;
+                        }
+
+                        console.log("✅ Imagen recortada lista para subir");
+                        (window as any).cerrarModalRecorte();
+                    }
+                },
+                "image/jpeg",
+                0.9,
+            );
     };
 
     // Función para mostrar notificaciones
-    function showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
+    function showNotification(message, type = "info") {
+        const notification = document.createElement("div");
         notification.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
-            background: ${type === 'success' ? '#10b981' : type === 'error' ? '#dc2626' : '#3b82f6'};
+            background: ${type === "success" ? "#10b981" : type === "error" ? "#dc2626" : "#3b82f6"};
             color: white;
             padding: 1rem 1.5rem;
             border-radius: 8px;
@@ -1085,11 +1304,11 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
         document.body.appendChild(notification);
 
         setTimeout(() => {
-            notification.style.transform = 'translateX(0)';
+            notification.style.transform = "translateX(0)";
         }, 100);
 
         setTimeout(() => {
-            notification.style.transform = 'translateX(400px)';
+            notification.style.transform = "translateX(400px)";
             setTimeout(() => {
                 document.body.removeChild(notification);
             }, 300);
@@ -1099,126 +1318,161 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     // Función para descargar el CV con autenticación
     async function descargarCV() {
         try {
-            showNotification('Preparando tu CV...', 'info');
-            
+            showNotification("Preparando tu CV...", "info");
+
             // Obtener ID del usuario desde los datos del perfil ya cargados
             let usuarioId = null;
-            
+
             // Primero intentar desde los datos del perfil ya cargados
-            if (window.perfilData && window.perfilData.usuario && window.perfilData.usuario.id) {
+            if (
+                window.perfilData &&
+                window.perfilData.usuario &&
+                window.perfilData.usuario.id
+            ) {
                 usuarioId = window.perfilData.usuario.id;
             } else {
                 // Intentar desde localStorage
-                const currentUserStr = localStorage.getItem('currentUser');
+                const currentUserStr = localStorage.getItem("currentUser");
                 if (currentUserStr) {
                     try {
                         const currentUser = JSON.parse(currentUserStr);
                         usuarioId = currentUser.id || currentUser.userId;
                     } catch (e) {
-                        console.error('Error parseando currentUser:', e);
+                        console.error("Error parseando currentUser:", e);
                     }
                 }
             }
-            
+
             if (!usuarioId) {
-                showNotification('No se pudo obtener tu información de usuario. Por favor, recarga la página.', 'error');
+                showNotification(
+                    "No se pudo obtener tu información de usuario. Por favor, recarga la página.",
+                    "error",
+                );
                 return;
             }
 
-            console.log('ID de usuario para CV:', usuarioId);
+            console.log("ID de usuario para CV:", usuarioId);
 
             // Abrir el perfil en una nueva pestaña oculta para capturar el CV
             const perfilUrl = `${window.location.origin}/perfil/${usuarioId}`;
-            const iframe = document.createElement('iframe');
-            iframe.style.position = 'fixed';
-            iframe.style.top = '-10000px';
-            iframe.style.left = '-10000px';
-            iframe.style.width = '1200px';
-            iframe.style.height = '100vh';
+            const iframe = document.createElement("iframe");
+            iframe.style.position = "fixed";
+            iframe.style.top = "-10000px";
+            iframe.style.left = "-10000px";
+            iframe.style.width = "1200px";
+            iframe.style.height = "100vh";
             document.body.appendChild(iframe);
-            
-            showNotification('Cargando información del CV...', 'info');
-            
-            iframe.onload = async function() {
+
+            showNotification("Cargando información del CV...", "info");
+
+            iframe.onload = async function () {
                 try {
                     // Esperar a que cargue completamente
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                    
-                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                    const cvElement = iframeDoc.querySelector('.perfil-wrap');
-                    
+                    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+                    const iframeDoc =
+                        iframe.contentDocument || iframe.contentWindow.document;
+                    const cvElement = iframeDoc.querySelector(".perfil-wrap");
+
                     if (!cvElement) {
-                        throw new Error('No se pudo encontrar el contenido del CV');
+                        throw new Error(
+                            "No se pudo encontrar el contenido del CV",
+                        );
                     }
 
-                    showNotification('Generando PDF...', 'info');
-                    
+                    showNotification("Generando PDF...", "info");
+
                     // Importar bibliotecas dinámicamente
-                    const html2canvas = (await import('html2canvas')).default;
-                    const { jsPDF } = await import('jspdf');
-                    
+                    const html2canvas = (await import("html2canvas")).default;
+                    const { jsPDF } = await import("jspdf");
+
                     // Capturar el CV como imagen
                     const canvas = await html2canvas(cvElement, {
                         scale: 2,
                         useCORS: true,
                         logging: false,
-                        backgroundColor: '#ffffff',
-                        windowWidth: 1200
+                        backgroundColor: "#ffffff",
+                        windowWidth: 1200,
                     });
-                    
+
                     // Crear PDF
-                    const imgData = canvas.toDataURL('image/png');
+                    const imgData = canvas.toDataURL("image/png");
                     const pdf = new jsPDF({
-                        orientation: 'portrait',
-                        unit: 'mm',
-                        format: 'a4'
+                        orientation: "portrait",
+                        unit: "mm",
+                        format: "a4",
                     });
-                    
+
                     const pageWidth = pdf.internal.pageSize.getWidth();
                     const pageHeight = pdf.internal.pageSize.getHeight();
                     const imgWidth = pageWidth;
-                    const imgHeight = (canvas.height * pageWidth) / canvas.width;
-                    
+                    const imgHeight =
+                        (canvas.height * pageWidth) / canvas.width;
+
                     let heightLeft = imgHeight;
                     let position = 0;
-                    
+
                     // Agregar primera página
-                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    pdf.addImage(
+                        imgData,
+                        "PNG",
+                        0,
+                        position,
+                        imgWidth,
+                        imgHeight,
+                    );
                     heightLeft -= pageHeight;
-                    
+
                     // Agregar páginas adicionales si es necesario
                     while (heightLeft > 0) {
                         position = heightLeft - imgHeight;
                         pdf.addPage();
-                        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                        pdf.addImage(
+                            imgData,
+                            "PNG",
+                            0,
+                            position,
+                            imgWidth,
+                            imgHeight,
+                        );
                         heightLeft -= pageHeight;
                     }
-                    
+
                     // Descargar PDF
-                    const fecha = new Date().toISOString().split('T')[0];
-                    const nombre = (window.perfilData && window.perfilData.usuario && window.perfilData.usuario.nombre) || 'CV';
+                    const fecha = new Date().toISOString().split("T")[0];
+                    const nombre =
+                        (window.perfilData &&
+                            window.perfilData.usuario &&
+                            window.perfilData.usuario.nombre) ||
+                        "CV";
                     pdf.save(`CV_${nombre}_${fecha}.pdf`);
-                    
+
                     // Limpiar
                     document.body.removeChild(iframe);
-                    
-                    showNotification('✓ CV descargado correctamente', 'success');
+
+                    showNotification(
+                        "✓ CV descargado correctamente",
+                        "success",
+                    );
                 } catch (error) {
                     document.body.removeChild(iframe);
                     throw error;
                 }
             };
-            
-            iframe.onerror = function() {
+
+            iframe.onerror = function () {
                 document.body.removeChild(iframe);
-                throw new Error('Error al cargar el perfil');
+                throw new Error("Error al cargar el perfil");
             };
-            
+
             iframe.src = perfilUrl;
-            
         } catch (error) {
-            console.error('❌ Error al descargar CV:', error);
-            showNotification(error.message || 'Error al generar el CV. Por favor, intenta nuevamente.', 'error');
+            console.error("❌ Error al descargar CV:", error);
+            showNotification(
+                error.message ||
+                    "Error al generar el CV. Por favor, intenta nuevamente.",
+                "error",
+            );
         }
     }
 
@@ -1226,5 +1480,10 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 </script>
 
 <!-- Cropper.js -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"
+/>
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"
+></script>

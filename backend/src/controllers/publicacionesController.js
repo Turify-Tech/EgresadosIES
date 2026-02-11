@@ -140,6 +140,7 @@ export async function listarPublicaciones(req, res) {
             LEFT JOIN (
                 SELECT publicacionId, COUNT(*) as total_comentarios 
                 FROM Comentario 
+                WHERE comentarioPadreId IS NULL
                 GROUP BY publicacionId
             ) comment_counts ON p.id = comment_counts.publicacionId
             LEFT JOIN (
