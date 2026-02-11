@@ -466,6 +466,7 @@ import "../styles/publicaciones-imagenes.css";
         let currentUser: any = null;
         let currentPublicacionId: number | null = null;
         let selectedImages: File[] = [];
+        let eventListenersAdded = false; // Flag para evitar duplicación de event listeners
 
         // Variables para el modal de imágenes
         let modalImagenes: string[] = [];
@@ -801,7 +802,7 @@ import "../styles/publicaciones-imagenes.css";
                                 publicacion,
                                 publicacion.userLiked,
                             );
-                            agregarEventListeners();
+                            // No es necesario llamar agregarEventListeners aquí, ya se agregó al inicio
                         }
 
                         console.log("✓ Publicación renderizada");
@@ -1483,7 +1484,9 @@ import "../styles/publicaciones-imagenes.css";
 
         // Funciones para likes y comentarios
         async function toggleLike(postId) {
+            console.log("🎯 toggleLike llamado con postId:", postId);
             const token = getAuthToken();
+            console.log("🔑 Token encontrado:", !!token);
             if (!token) {
                 showNotification(
                     "Debes iniciar sesión para dar me gusta",
@@ -1493,8 +1496,10 @@ import "../styles/publicaciones-imagenes.css";
             }
 
             try {
+                const url = `${API_URL}/likes/toggle/${postId}`;
+                console.log("📡 Haciendo petición a:", url);
                 const response = await fetch(
-                    `${API_URL}/likes/toggle/${postId}`,
+                    url,
                     {
                         method: "POST",
                         headers: {
@@ -1503,7 +1508,9 @@ import "../styles/publicaciones-imagenes.css";
                     },
                 );
 
+                console.log("📨 Respuesta recibida:", response.status);
                 const result = await response.json();
+                console.log("📊 Resultado:", result);
 
                 if (result.success) {
                     const likeBtn = document.querySelector(
@@ -2573,6 +2580,12 @@ import "../styles/publicaciones-imagenes.css";
 
         // Función para agregar event listeners a los botones - OPTIMIZADA
         function agregarEventListeners() {
+            // Evitar agregar event listeners duplicados
+            if (eventListenersAdded) return;
+            eventListenersAdded = true;
+            
+            console.log("🎯 Agregando event listeners al feed");
+            
             // Botones de like - usando delegación de eventos
             const feedList = document.getElementById("feed-list");
 
@@ -2584,8 +2597,10 @@ import "../styles/publicaciones-imagenes.css";
                 const imgContainer = target.closest(".imagen-container");
 
                 if (likeBtn) {
+                    console.log("🔍 Click en botón de like detectado", likeBtn);
                     e.preventDefault();
                     const postId = likeBtn.getAttribute("data-post-id");
+                    console.log("📝 Post ID:", postId);
                     toggleLike(postId);
                 } else if (commentBtn) {
                     e.preventDefault();
@@ -2762,6 +2777,9 @@ import "../styles/publicaciones-imagenes.css";
 
         // Event listeners
         document.addEventListener("DOMContentLoaded", async () => {
+            // Agregar event listeners al inicio (solo una vez)
+            agregarEventListeners();
+            
             // Verificar autenticación
             currentUser = getUserData();
             const isAuthenticated =
