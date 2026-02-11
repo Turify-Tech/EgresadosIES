@@ -23,7 +23,7 @@ async function fixNotificacionesComentarios() {
             sql: `SELECT n.id, n.url_destino, n.tipo, n.mensaje, n.origen_usuario_id
                   FROM Notificacion n
                   WHERE (n.tipo = 'comentario' OR n.tipo = 'mencion')
-                    AND n.url_destino LIKE '%/dashboard?publicacion=%'
+                    AND n.url_destino LIKE '%?publicacion=%'
                     AND n.url_destino NOT LIKE '%&comentario=%'`,
             args: []
         });
@@ -72,7 +72,7 @@ async function fixNotificacionesComentarios() {
                 }
 
                 const comentarioId = comentarioResult.rows[0].id;
-                const nuevaUrl = `/dashboard?publicacion=${publicacionId}&comentario=${comentarioId}`;
+                const nuevaUrl = `/?publicacion=${publicacionId}&comentario=${comentarioId}`;
 
                 // Actualizar la notificación
                 await db.execute({

@@ -513,9 +513,7 @@ const { query } = Astro.url.searchParams;
 
         // Determinar a dónde redirigir según autenticación
         const token = getAuthToken();
-        const redirectUrl = token
-            ? `/dashboard?publicacion=${id}`
-            : `/?publicacion=${id}`;
+const redirectUrl = `/?publicacion=${id}`;
 
         return `
             <article class="post-card post-card-clickable" data-post-id="${id}" onclick="window.location.href='${redirectUrl}'" style="cursor: pointer;">
