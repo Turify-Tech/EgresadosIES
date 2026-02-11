@@ -395,9 +395,7 @@ import "../styles/publicaciones-imagenes.css";
             </svg>
         </button>
 
-        <div class="imagen-modal-content">
-            <img id="modal-imagen" src="" alt="Imagen en vista completa" />
-        </div>
+        <img id="modal-imagen" src="" alt="Imagen en vista completa" class="imagen-modal-img" />
 
         <button
             class="btn-nav btn-next"
@@ -3727,12 +3725,10 @@ import "../styles/publicaciones-imagenes.css";
             // Cerrar con click en el fondo (backdrop)
             if (modal) {
                 modal.addEventListener("click", (e) => {
-                    // Cerrar si se hace click en el fondo oscuro (no en la imagen o botones)
+                    const target = e.target as HTMLElement;
+                    // Cerrar solo si se hace click en el fondo oscuro (no en la imagen o botones)
                     if (
-                        e.target === modal ||
-                        (e.target as HTMLElement).classList.contains(
-                            "imagen-modal-content",
-                        )
+                        target === modal
                     ) {
                         cerrarModalImagen();
                     }

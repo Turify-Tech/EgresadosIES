@@ -772,9 +772,10 @@
     z-index: 10000;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
+    padding: 80px 100px;
 }
 
+/* DEPRECATED: Usar .imagen-modal-img directamente */
 .imagen-modal-content {
     max-width: 90%;
     max-height: 90%;
@@ -787,7 +788,26 @@
     max-width: 100%;
     max-height: 85vh;
     object-fit: contain;
-    border-radius: 8px;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+    outline: none;
+}
+
+/* Imagen directamente en el modal */
+.imagen-modal-img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    border-radius: 0;
+    display: block;
+    margin: 0;
+    padding: 0;
 }
 
 .btn-cerrar {
