@@ -1,6 +1,6 @@
 /**
  * Script de Migración: Actualizar URLs de Notificaciones
- * Actualiza las URLs antiguas (/feed#publicacion-X) a las nuevas (/dashboard?publicacion=X)
+ * Actualiza las URLs antiguas (/feed#publicacion-X) a las nuevas (/?publicacion=X)
  */
 
 import dotenv from 'dotenv';
@@ -58,7 +58,7 @@ async function migrarNotificaciones() {
                 }
 
                 const publicacionId = match[1];
-                const nuevaUrl = `/dashboard?publicacion=${publicacionId}`;
+                const nuevaUrl = `/?publicacion=${publicacionId}`;
 
                 // Actualizar la notificación
                 await db.execute({
