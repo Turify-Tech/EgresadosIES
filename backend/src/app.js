@@ -27,6 +27,7 @@ import publicacionesRoutes from "./routes/publicacionesRoutes.js";
 import comentariosRoutes from "./routes/comentariosRoutes.js";
 import likesRoutes from "./routes/likesRoutes.js";
 import notificacionesRoutes from "./routes/notificacionesRoutes.js";
+import egresadosRoutes from "./routes/egresadosRoutes.js";
 
 // Debug: Verificar configuración básica
 console.log("🔍 Environment Check:", {
@@ -120,6 +121,7 @@ app.use("/api/publicaciones", publicacionesRoutes);
 app.use("/api/comentarios", comentariosRoutes);
 app.use("/api/likes", likesRoutes);
 app.use("/api/notificaciones", notificacionesRoutes);
+app.use("/api/egresados", egresadosRoutes);
 
 // Middleware de manejo de errores globales
 app.use((err, req, res, next) => {

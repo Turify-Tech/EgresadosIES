@@ -1,6 +1,7 @@
 import database from "../config/database.js";
 import cloudinary from "../config/cloudinary.js";
 import { verifyToken, extractToken } from "../utils/jwt.js";
+import notificationService from "../services/notificationService.js";
 
 /**
  * Controlador para el sistema de publicaciones sociales
@@ -83,6 +84,18 @@ export async function crearPublicacion(req, res) {
                 
                 imagenesUrls.push(imageUrl);
             }
+        }
+
+        // Detectar y notificar menciones (en background)
+        const usuariosMencionados = await notificationService.detectarMenciones(contenido.trim());
+        for (const usuarioMencionadoId of usuariosMencionados) {
+            notificationService.notificarMencion({
+                usuarioMencionadoId,
+                autorMencionId: usuarioId,
+                contenido: contenido.trim(),
+                publicacionId: Number(publicacionId),
+                comentarioId: null
+            }).catch(err => console.error('Error al notificar mención en publicación:', err));
         }
 
         res.status(201).json({

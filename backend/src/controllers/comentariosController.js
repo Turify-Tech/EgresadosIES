@@ -129,7 +129,7 @@ export async function crearComentario(req, res) {
             notificationService.notificarMencion({
                 usuarioMencionadoId,
                 autorMencionId: usuarioId,
-                comentarioTexto: contenido.trim(),
+                contenido: contenido.trim(),
                 publicacionId: Number(publicacionId),
                 comentarioId: Number(comentarioId)
             }).catch(err => console.error('Error al notificar mención:', err));
