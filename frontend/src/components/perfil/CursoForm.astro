@@ -411,21 +411,93 @@
     /* Responsive */
     @media (max-width: 768px) {
         .habilidades-form {
-            padding: 1rem;
+            padding: 1rem 0.75rem;
+        }
+
+        .form-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+        }
+
+        .form-header h2 {
+            font-size: 1.25rem;
+        }
+
+        .section-header h3 {
+            font-size: 1.1rem;
         }
 
         .field-row {
             grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            padding: 0.875rem;
+            font-size: 0.9rem;
+        }
+
+        .habilidades-list {
             gap: 0.5rem;
         }
 
         .habilidad-item {
-            font-size: 0.8rem;
-            padding: 0.375rem 0.625rem;
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
+            min-height: 40px;
+        }
+
+        .add-habilidad-btn {
+            width: 100%;
+            justify-content: center;
+            font-size: 0.95rem;
+            min-height: 48px;
+            padding: 0.875rem 1rem;
         }
 
         .btn-siguiente {
             width: 100%;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            min-height: 48px;
+        }
+    }
+
+    /* Dispositivos muy pequeños */
+    @media (max-width: 480px) {
+        .habilidades-form {
+            padding: 0.75rem 0.5rem;
+        }
+
+        .form-header h2 {
+            font-size: 1.1rem;
+        }
+
+        .section-header h3 {
+            font-size: 1rem;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+        }
+
+        .form-input {
+            padding: 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        .habilidad-item {
+            font-size: 0.8rem;
+            padding: 0.45rem 0.65rem;
+        }
+
+        .add-habilidad-btn {
+            font-size: 0.9rem;
+            padding: 0.75rem 1rem;
         }
     }
 </style>

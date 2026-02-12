@@ -501,52 +501,58 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
 
         /* Responsive Design */
         @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 250px 1fr;
+                gap: 1.5rem;
+                padding: 1.5rem 1rem;
+            }
+
             .sidebar-navigation {
-                width: 250px;
+                width: 100%;
             }
         }
 
         @media (max-width: 768px) {
+            /* Contenedor principal */
             .profile-edit-container {
-                flex-direction: column;
-                width: 100%;
                 min-height: 100vh;
             }
 
-            .main-layout {
-                flex-direction: column;
+            /* Banner responsive */
+            .profile-banner {
+                height: 150px;
             }
 
-            .sidebar-navigation {
-                width: 100%;
-                padding: 0;
-                border-right: none;
-                border-bottom: 1px solid #e5e7eb;
-            }
-
-            .main-content {
-                padding: 1rem;
-            }
-
-            .profile-hero-banner {
-                margin: 0;
-            }
-
-            .hero-background {
-                border-radius: 0;
-                padding: 1.5rem 1rem;
-            }
-
-            .hero-content {
+            /* Header con avatar responsive */
+            .profile-header-content {
                 flex-direction: column;
                 align-items: center;
                 text-align: center;
                 gap: 1rem;
+                margin-top: -60px;
             }
 
             .profile-avatar {
-                width: 80px;
-                height: 80px;
+                width: 120px;
+                height: 120px;
+                border: 4px solid white;
+            }
+
+            .profile-avatar svg {
+                width: 60px;
+                height: 60px;
+            }
+
+            .change-photo-btn {
+                width: 36px;
+                height: 36px;
+                min-width: 44px; /* Touch target */
+                min-height: 44px;
+            }
+
+            .change-photo-btn svg {
+                width: 16px;
+                height: 16px;
             }
 
             .profile-info {
@@ -554,138 +560,173 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
             }
 
             .profile-name {
-                font-size: 1.25rem;
+                font-size: 1.5rem;
             }
 
             .profile-subtitle {
-                font-size: 0.875rem;
+                font-size: 1rem;
+            }
+
+            /* Layout principal: sidebar arriba en mobile */
+            .main-layout {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 1rem 0.75rem;
+                max-width: 100%;
+            }
+
+            /* Sidebar: navegación horizontal scrolleable */
+            .sidebar-navigation {
+                position: static;
+                max-height: none;
+                order: 1;
             }
 
             .section-navigation {
+                display: flex;
                 flex-direction: row;
-                gap: 0.5rem;
                 overflow-x: auto;
-                padding: 0.5rem 1rem 1rem;
+                overflow-y: hidden;
+                gap: 0.5rem;
+                padding: 0.75rem;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: thin;
+                scrollbar-color: #cbd5e1 #f1f5f9;
+            }
+
+            .section-navigation::-webkit-scrollbar {
+                height: 4px;
+            }
+
+            .section-navigation::-webkit-scrollbar-track {
+                background: #f1f5f9;
+                border-radius: 4px;
+            }
+
+            .section-navigation::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 4px;
             }
 
             .nav-btn {
                 flex-direction: column;
-                gap: 0.25rem;
-                padding: 0.75rem;
+                gap: 0.35rem;
+                padding: 0.75rem 1rem;
                 font-size: 0.75rem;
-                min-width: 80px;
+                min-width: 85px;
+                flex-shrink: 0;
                 text-align: center;
+                white-space: nowrap;
+                min-height: 44px; /* Touch target */
             }
 
             .nav-btn svg {
-                width: 16px;
-                height: 16px;
+                width: 20px;
+                height: 20px;
+                flex-shrink: 0;
             }
 
-            .global-actions {
-                flex-direction: row;
-                gap: 0.5rem;
-                padding: 1rem;
-            }
-
+            /* Contenido principal */
             .main-content {
-                order: -1;
-            }
-
-            .content-header {
-                padding: 1rem;
+                order: 2;
+                padding: 0;
             }
 
             .sections-container {
                 padding: 1rem;
+                border-radius: 8px;
             }
 
-            .section-title {
-                font-size: 1.25rem;
-            }
-        }
-
-        /* Media query para tablets */
-        @media (min-width: 769px) and (max-width: 1024px) {
-            .hero-background {
-                padding: 1.5rem;
+            /* Botones globales */
+            .global-actions {
+                display: none;
             }
 
-            .profile-avatar {
-                width: 90px;
-                height: 90px;
-            }
-
-            .profile-name {
-                font-size: 1.375rem;
-            }
-
-            .sidebar-navigation {
-                width: 200px;
-            }
-
-            .main-content {
-                padding: 1.5rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .hero-background {
-                padding: 1rem 0.75rem;
-            }
-
-            .hero-content {
-                gap: 0.75rem;
-            }
-
-            .profile-avatar {
-                width: 70px;
-                height: 70px;
-            }
-
-            .profile-name {
-                font-size: 1.125rem;
-            }
-
-            .profile-subtitle {
-                font-size: 0.875rem;
-            }
-
-            .profile-email {
-                font-size: 0.8rem;
-            }
-
-            .nav-btn {
-                padding: 0.75rem 0.5rem;
-                min-width: 75px;
-                font-size: 0.7rem;
-                min-height: 44px; /* Touch target iOS guidelines */
-            }
-
+            /* Asegurar que los botones sean touch-friendly */
             .btn-primary,
             .btn-secondary {
                 min-height: 48px;
                 font-size: 1rem;
-                padding: 0.875rem 1rem;
+                padding: 1rem;
+                touch-action: manipulation;
+            }
+        }
+
+        /* Media query para dispositivos muy pequeños */
+        @media (max-width: 480px) {
+            .profile-header-wrapper {
+                padding: 0 0.5rem;
+            }
+
+            .profile-banner {
+                height: 120px;
+            }
+
+            .profile-header-content {
+                margin-top: -50px;
+            }
+
+            .profile-avatar {
+                width: 100px;
+                height: 100px;
+                border: 3px solid white;
+            }
+
+            .profile-avatar svg {
+                width: 50px;
+                height: 50px;
+            }
+
+            .profile-name {
+                font-size: 1.25rem;
+            }
+
+            .profile-subtitle {
+                font-size: 0.9rem;
+            }
+
+            .main-layout {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .section-navigation {
+                padding: 0.5rem;
+            }
+
+            .nav-btn {
+                padding: 0.65rem 0.75rem;
+                font-size: 0.7rem;
+                min-width: 75px;
+            }
+
+            .nav-btn svg {
+                width: 18px;
+                height: 18px;
+            }
+
+            .sections-container {
+                padding: 0.75rem;
             }
 
             .change-photo-btn {
                 width: 32px;
                 height: 32px;
-                min-height: 44px;
-                min-width: 44px;
+            }
+        }
+
+        /* Mejoras para tablets */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .profile-avatar {
+                width: 150px;
+                height: 150px;
             }
 
-            .content-header {
-                padding: 0.75rem;
+            .profile-name {
+                font-size: 2rem;
             }
 
-            .sections-container {
-                padding: 0.75rem;
-            }
-
-            .global-actions {
-                padding: 0.75rem;
+            .main-layout {
+                padding: 1.5rem 1rem;
             }
         }
     </style>

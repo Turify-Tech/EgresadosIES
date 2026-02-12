@@ -418,13 +418,28 @@
     /* Responsive */
     @media (max-width: 768px) {
         .datos-personales-form {
-            padding: 1rem;
+            padding: 1rem 0.75rem;
         }
 
+        .form-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+        }
+
+        .form-header h2 {
+            font-size: 1.25rem;
+        }
+
+        /* Sección superior: cambiar a columna única */
         .profile-top-section {
             grid-template-columns: 1fr;
             text-align: center;
-            gap: 1rem;
+            gap: 1.5rem;
+        }
+
+        .profile-image-section {
+            align-items: center;
+            margin: 0 auto;
         }
 
         .image-preview {
@@ -432,13 +447,96 @@
             height: 120px;
         }
 
+        .upload-btn {
+            width: 36px;
+            height: 36px;
+            min-width: 44px; /* Touch target */
+            min-height: 44px;
+        }
+
+        /* Descripción en ancho completo */
+        .description-section {
+            text-align: left;
+        }
+
+        .description-section label {
+            font-size: 0.9rem;
+        }
+
+        .form-textarea {
+            font-size: 0.9rem;
+            padding: 0.875rem;
+        }
+
+        /* Campos en una sola columna */
         .field-row {
             grid-template-columns: 1fr;
             gap: 1rem;
         }
 
+        .form-group label {
+            font-size: 0.9rem;
+        }
+
+        .form-input,
+        .form-textarea {
+            padding: 0.875rem;
+            font-size: 0.9rem;
+        }
+
+        /* Botón siguiente */
+        .form-actions {
+            padding-top: 1.5rem;
+        }
+
         .btn-siguiente {
             width: 100%;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            min-height: 48px; /* Touch target */
+        }
+    }
+
+    /* Dispositivos muy pequeños */
+    @media (max-width: 480px) {
+        .datos-personales-form {
+            padding: 0.75rem 0.5rem;
+        }
+
+        .form-header h2 {
+            font-size: 1.1rem;
+        }
+
+        .image-preview {
+            width: 100px;
+            height: 100px;
+        }
+
+        .upload-btn {
+            width: 32px;
+            height: 32px;
+            bottom: -6px;
+            right: -6px;
+        }
+
+        .upload-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+        }
+
+        .form-input,
+        .form-textarea {
+            padding: 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-siguiente {
+            padding: 0.875rem 1.5rem;
+            font-size: 0.95rem;
         }
     }
 </style>

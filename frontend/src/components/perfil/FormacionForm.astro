@@ -456,7 +456,16 @@
     /* Responsive */
     @media (max-width: 768px) {
         .formaciones-form {
-            padding: 1rem;
+            padding: 1rem 0.75rem;
+        }
+
+        .form-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+        }
+
+        .form-header h2 {
+            font-size: 1.25rem;
         }
 
         .formaciones-header,
@@ -468,20 +477,122 @@
 
         .nav-controls {
             justify-content: center;
-        }
-
-        .field-row {
-            grid-template-columns: 1fr;
+            flex-wrap: wrap;
             gap: 0.5rem;
         }
 
         .nav-btn {
             flex: 1;
-            max-width: 120px;
+            min-width: 100px;
+            max-width: 130px;
+            font-size: 0.85rem;
+            padding: 0.65rem 1rem;
+            min-height: 44px; /* Touch target */
+        }
+
+        .nav-info {
+            font-size: 0.9rem;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .add-formacion-btn,
+        .add-curso-btn {
+            width: 100%;
+            justify-content: center;
+            font-size: 0.95rem;
+            min-height: 48px;
+        }
+
+        .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .section-header h3 {
+            font-size: 1.1rem;
+        }
+
+        .delete-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 0.75rem;
+            font-size: 0.95rem;
+            min-height: 44px;
+        }
+
+        .field-row {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            padding: 0.875rem;
+            font-size: 0.9rem;
+        }
+
+        .checkbox-field {
+            padding: 0.75rem 0;
         }
 
         .btn-siguiente {
             width: 100%;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            min-height: 48px;
+        }
+
+        /* Separador entre secciones */
+        .cursos-header {
+            margin-top: 2rem;
+        }
+    }
+
+    /* Dispositivos muy pequeños */
+    @media (max-width: 480px) {
+        .formaciones-form {
+            padding: 0.75rem 0.5rem;
+        }
+
+        .form-header h2 {
+            font-size: 1.1rem;
+        }
+
+        .nav-btn {
+            font-size: 0.75rem;
+            padding: 0.6rem 0.75rem;
+        }
+
+        .nav-info {
+            font-size: 0.85rem;
+        }
+
+        .add-formacion-btn,
+        .add-curso-btn {
+            font-size: 0.9rem;
+            padding: 0.75rem 1rem;
+        }
+
+        .section-header h3 {
+            font-size: 1rem;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            padding: 0.75rem;
+            font-size: 0.85rem;
         }
     }
 </style>

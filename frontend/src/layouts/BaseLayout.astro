@@ -45,6 +45,17 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                 visibility: visible;
             }
 
+            /* CRÍTICO: Dropdown del perfil debe estar oculto por defecto */
+            #user-dropdown:not([style*="display: block"]):not([style*="display:block"]) {
+                display: none !important;
+            }
+            
+            /* Solo mostrar cuando JavaScript lo active explícitamente */
+            #user-dropdown[style*="display: block"],
+            #user-dropdown[style*="display:block"] {
+                display: block !important;
+            }
+
             /* Animaciones para el badge de mensajes */
             @keyframes pulse-badge {
                 0%,
@@ -117,17 +128,21 @@ import DynamicBackground from "../components/DynamicBackground.astro";
             /* Responsive header */
             @media (max-width: 768px) {
                 header {
-                    padding: 0.5rem 1rem !important;
+                    padding: 0.5rem 0.75rem !important;
                 }
 
+                /* Logo más pequeño en mobile */
                 header img[alt="Logo"] {
-                    width: 32px !important;
+                    width: 36px !important;
+                    height: 36px !important;
                 }
 
+                /* Título más pequeño */
                 header h1 {
-                    font-size: 1.2rem !important;
+                    font-size: 1.1rem !important;
                 }
 
+                /* Ocultar navegación adicional */
                 header nav {
                     display: none !important;
                 }
@@ -140,16 +155,61 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                     display: none !important;
                 }
 
+                /* Ajustar botones de navegación para solo iconos */
+                /* SOLO aplicar a elementos que NO tengan display: none */
+                header a[href="/perfiles"]:not([style*="display: none"]),
+                header #admin-link:not([style*="display: none"]),
+                header #notificaciones-btn:not([style*="display: none"]),
+                header .mensajes-btn:not([style*="display: none"]) {
+                    padding: 0.5rem !important;
+                    min-width: 44px !important; /* Touch target iOS guidelines */
+                    min-height: 44px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    border-radius: 8px !important;
+                    transition: background-color 0.2s ease !important;
+                }
+
+                /* Hover para botones de iconos en mobile */
+                header a[href="/perfiles"]:active,
+                header #admin-link:not([style*="display: none"]):active,
+                header #notificaciones-btn:active,
+                header .mensajes-btn:active {
+                    background-color: rgba(59, 130, 246, 0.1) !important;
+                }
+
+                /* Iconos más visibles */
+                header a[href="/perfiles"] img,
+                header #admin-link img,
+                header #notificaciones-btn img {
+                    width: 24px !important;
+                    height: 24px !important;
+                }
+
+                /* SVG de mensajes */
+                header .mensajes-btn svg {
+                    width: 24px !important;
+                    height: 24px !important;
+                }
+
+                /* Botón acceder más compacto */
                 header #acceder-btn {
-                    padding: 0.4rem 1rem !important;
-                    font-size: 0.8rem !important;
+                    padding: 0.5rem 1rem !important;
+                    font-size: 0.875rem !important;
+                    white-space: nowrap !important;
                 }
 
                 /* Perfil: solo mostrar foto, ocultar nombre y flecha */
                 header #user-profile > div {
-                    padding: 0.35rem !important;
+                    padding: 0.25rem !important;
                     background: transparent !important;
                     border: none !important;
+                    min-width: 44px !important;
+                    min-height: 44px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
                 }
 
                 header #user-name-nav,
@@ -158,35 +218,44 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                 }
 
                 header #user-avatar {
-                    width: 32px !important;
-                    height: 32px !important;
+                    width: 36px !important;
+                    height: 36px !important;
+                    border: 2px solid rgba(59, 130, 246, 0.3) !important;
                 }
 
                 /* Dropdown del perfil - aparece debajo de la foto en móvil */
-                header #user-dropdown {
+                /* SOLO cuando está visible (display: block por JS) */
+                header #user-dropdown[style*="display: block"] {
                     position: absolute !important;
                     top: 100% !important;
                     right: 0 !important;
                     left: auto !important;
                     width: auto !important;
-                    min-width: 180px !important;
+                    min-width: 200px !important;
                     height: auto !important;
                     margin-top: 0.5rem !important;
-                    border-radius: 8px !important;
-                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+                    border-radius: 12px !important;
+                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
                     z-index: 10000 !important;
-                    padding: 0.5rem 0 !important;
+                    padding: 0.75rem 0 !important;
                     background-color: white !important;
-                    border: 1px solid #d1d5db !important;
-                    opacity: 1 !important;
+                    border: 1px solid #e5e7eb !important;
+                }
+                
+                /* ASEGURAR que cuando NO está visible, esté oculto */
+                header #user-dropdown:not([style*="display: block"]):not([style*="display:block"]) {
+                    display: none !important;
+                    visibility: hidden !important;
+                    opacity: 0 !important;
+                    pointer-events: none !important;
                 }
 
                 header #user-dropdown a,
                 header #user-dropdown button {
-                    padding: 0.85rem 1.25rem !important;
-                    font-size: 0.95rem !important;
+                    padding: 1rem 1.5rem !important;
+                    font-size: 1rem !important;
                     background-color: white !important;
-                    display: block !important;
+                    min-height: 48px !important; /* Touch target */
                 }
 
                 /* Ocultar botón cerrar en móvil - no es necesario */
@@ -197,6 +266,19 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                 /* Ocultar barra de búsqueda en móvil para mantener el header limpio */
                 #search-bar-nav {
                     display: none !important;
+                }
+
+                /* Ajustar espaciado del header en mobile */
+                header > div {
+                    gap: 0.5rem !important;
+                }
+
+                header > div > div:first-child {
+                    gap: 0.5rem !important;
+                }
+
+                header > div > div:last-child {
+                    gap: 0.25rem !important;
                 }
             }
 
@@ -484,6 +566,15 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                     "logout-btn",
                 ) as HTMLButtonElement;
 
+                // 🔍 DEBUG: Estado inicial del dropdown
+                console.log("🔍 [DROPDOWN DEBUG] Estado inicial:");
+                console.log("  - Elemento encontrado:", !!userDropdown);
+                if (userDropdown) {
+                    console.log("  - Display inicial:", userDropdown.style.display);
+                    console.log("  - Computed display:", window.getComputedStyle(userDropdown).display);
+                    console.log("  - Inline styles:", userDropdown.getAttribute("style"));
+                }
+
                 // Enlaces de navegación
                 const adminLink = document.getElementById(
                     "admin-link",
@@ -544,6 +635,8 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                 });
 
                 function setupAuthenticatedUI(user) {
+                    console.log("🔍 [DROPDOWN DEBUG] setupAuthenticatedUI iniciado");
+                    
                     // Ocultar botón de acceder
                     if (accederBtn) {
                         accederBtn.style.display = "none";
@@ -552,6 +645,7 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                     // Mostrar perfil de usuario
                     if (userProfile) {
                         userProfile.style.display = "block";
+                        console.log("🔍 [DROPDOWN DEBUG] User profile mostrado");
 
                         // Configure user info
                         if (userNameNav) {
@@ -567,6 +661,13 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                         }
                     }
 
+                    // 🔍 DEBUG: Verificar estado del dropdown antes de mostrar elementos
+                    if (userDropdown) {
+                        console.log("🔍 [DROPDOWN DEBUG] Antes de mostrar elementos del dropdown:");
+                        console.log("  - Display:", userDropdown.style.display);
+                        console.log("  - Computed:", window.getComputedStyle(userDropdown).display);
+                    }
+
                     // Referencias a elementos del dropdown
                     const miPerfilLink =
                         document.getElementById("mi-perfil-link");
@@ -575,7 +676,9 @@ import DynamicBackground from "../components/DynamicBackground.astro";
 
                     // Mostrar navegación según el tipo de usuario
                     if (user.tipo_usuario === "Egresado") {
+                        // Ocultar enlace de admin para egresados
                         if (adminLink) adminLink.style.display = "none";
+                        
                         if (mensajesLink) {
                             mensajesLink.style.display = "flex";
                             // Redirigir a /mensajes (no abrir sidebar)
@@ -612,6 +715,12 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                         if (miPerfilLink) miPerfilLink.style.display = "block";
                         if (miPerfilDivider)
                             miPerfilDivider.style.display = "block";
+
+                        // 🔍 DEBUG: Después de mostrar elementos internos
+                        console.log("🔍 [DROPDOWN DEBUG] Después de mostrar Mi Perfil:");
+                        console.log("  - miPerfilLink display:", miPerfilLink?.style.display);
+                        console.log("  - Dropdown display:", userDropdown?.style.display);
+                        console.log("  - Dropdown computed:", userDropdown ? window.getComputedStyle(userDropdown).display : "N/A");
 
                         // Iniciar actualización de mensajes no leídos
                         iniciarActualizacionMensajes();
@@ -761,17 +870,34 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                 }
 
                 function setupDropdown() {
-                    if (!userProfile || !userDropdown) return;
+                    console.log("🔍 [DROPDOWN DEBUG] setupDropdown iniciado");
+                    console.log("  - userProfile existe:", !!userProfile);
+                    console.log("  - userDropdown existe:", !!userDropdown);
+                    
+                    if (!userProfile || !userDropdown) {
+                        console.log("❌ [DROPDOWN DEBUG] No se puede configurar dropdown - elementos faltantes");
+                        return;
+                    }
+
+                    // 🔍 DEBUG: Asegurar que dropdown esté oculto al inicio
+                    console.log("🔍 [DROPDOWN DEBUG] Forzando dropdown a display: none");
+                    userDropdown.style.display = "none";
+                    console.log("  - Display después de forzar:", userDropdown.style.display);
+                    console.log("  - Computed después de forzar:", window.getComputedStyle(userDropdown).display);
 
                     // Toggle dropdown
                     userProfile.addEventListener("click", (e) => {
+                        console.log("🔍 [DROPDOWN DEBUG] Click en perfil detectado");
                         e.stopPropagation();
                         const isVisible = userDropdown.style.display === "block";
+                        console.log("  - Estado actual (isVisible):", isVisible);
                         userDropdown.style.display = isVisible ? "none" : "block";
+                        console.log("  - Nuevo estado:", userDropdown.style.display);
                     });
 
                     // Close dropdown when clicking outside
                     document.addEventListener("click", () => {
+                        console.log("🔍 [DROPDOWN DEBUG] Click fuera detectado - cerrando dropdown");
                         userDropdown.style.display = "none";
                     });
 
