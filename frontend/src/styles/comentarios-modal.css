@@ -93,7 +93,8 @@
     flex-shrink: 0;
 }
 
-.comentario-form input {
+.comentario-form input,
+.comentario-form textarea {
     flex: 1;
     padding: 0.75rem 1rem;
     border: 1px solid #d1d5db;
@@ -105,14 +106,23 @@
     height: 44px;
 }
 
-.comentario-form input:focus {
+.comentario-form input:focus,
+.comentario-form textarea:focus {
     outline: none;
     border-color: #3b82f6;
     background: white;
 }
 
-.comentario-form input::placeholder {
+.comentario-form input::placeholder,
+.comentario-form textarea::placeholder {
     color: #9ca3af;
+}
+
+.comentario-form textarea {
+    min-height: 40px;
+    max-height: 120px;
+    resize: vertical;
+    font-family: inherit;
 }
 
 .btn-publicar {

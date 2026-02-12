@@ -813,40 +813,114 @@ class NotificationService {
     }
 
     /**
-     * Detecta menciones en texto (@usuario) y devuelve IDs de usuarios
+     * Detecta menciones en texto (@usuario_id) y devuelve IDs de usuarios egresados
+     * Formato esperado: @[id:123] (generado por el frontend)
      * @param {String} texto - Texto a analizar
      * @returns {Promise<Array>} Array de IDs de usuarios mencionados
      */
     async detectarMenciones(texto) {
         try {
-            // Detectar patrones @usuario
-            const mencionesMatch = texto.match(/@(\w+)/g);
+            // Detectar patrones @[id:123]
+            const mencionesMatch = texto.match(/@\[id:(\d+)\]/g);
             if (!mencionesMatch) {
                 return [];
             }
 
             const db = database.getClient();
-            const usuariosMencionados = [];
+            const usuariosIds = [];
 
             for (const mencion of mencionesMatch) {
-                const username = mencion.substring(1); // Remover @
-                
-                // Buscar usuario por nombre (esto depende de cómo identifiques usuarios)
-                const result = await db.execute({
-                    sql: `SELECT u.id FROM Usuario u 
-                          WHERE LOWER(u.nombre) = LOWER(?) OR LOWER(u.email) LIKE LOWER(?)`,
-                    args: [username, `${username}%`]
-                });
+                // Extraer el ID del formato @[id:123]
+                const match = mencion.match(/@\[id:(\d+)\]/);
+                if (match && match[1]) {
+                    const userId = Number(match[1]);
+                    
+                    // Verificar que el usuario existe y es egresado
+                    const result = await db.execute({
+                        sql: `SELECT u.id FROM Usuario u 
+                              INNER JOIN Egresado e ON e.id = u.id
+                              WHERE u.id = ? AND u.tipo_usuario = 'Egresado'`,
+                        args: [userId]
+                    });
 
-                if (result.rows.length > 0) {
-                    usuariosMencionados.push(Number(result.rows[0].id));
+                    if (result.rows.length > 0) {
+                        usuariosIds.push(userId);
+                    }
                 }
             }
 
-            return [...new Set(usuariosMencionados)]; // Remover duplicados
+            return [...new Set(usuariosIds)]; // Remover duplicados
         } catch (error) {
             console.error('❌ Error al detectar menciones:', error);
             return [];
+        }
+    }
+
+    /**
+     * Notifica a un usuario cuando es mencionado
+     * @param {Object} datos - Datos de la mención
+     */
+    async notificarMencion({ usuarioMencionadoId, autorMencionId, contenido, publicacionId, comentarioId = null }) {
+        try {
+            // No notificar si el usuario se menciona a sí mismo
+            if (usuarioMencionadoId === autorMencionId) {
+                return;
+            }
+
+            const origenInfo = await this.obtenerInfoUsuario(autorMencionId);
+            const destinatarioInfo = await this.obtenerInfoUsuario(usuarioMencionadoId);
+
+            if (!destinatarioInfo) {
+                console.log('⚠️  Usuario mencionado no encontrado:', usuarioMencionadoId);
+                return;
+            }
+
+            const urlDestino = comentarioId 
+                ? `/?publicacion=${publicacionId}&comentario=${comentarioId}`
+                : `/?publicacion=${publicacionId}`;
+
+            const contexto = comentarioId ? 'un comentario' : 'una publicación';
+            const mensajeTexto = contenido.substring(0, 100);
+
+            // Crear notificación interna
+            const notifId = await this.crearNotificacion({
+                usuarioId: usuarioMencionadoId,
+                tipo: 'mencion',
+                titulo: `${origenInfo?.nombre || 'Alguien'} te mencionó`,
+                mensaje: `${origenInfo?.nombre || 'Alguien'} te mencionó en ${contexto}: "${mensajeTexto}${contenido.length > 100 ? '...' : ''}"`,
+                urlDestino,
+                origenUsuarioId: autorMencionId
+            });
+
+            // Verificar preferencias y enviar email
+            const preferencias = await this.obtenerPreferencias(usuarioMencionadoId);
+            if (preferencias?.email_menciones) {
+                const htmlContent = this.generarEmailHTML('mencion', {
+                    destinatarioNombre: destinatarioInfo.nombre,
+                    origenNombre: `${origenInfo?.nombre || ''} ${origenInfo?.apellido || ''}`.trim(),
+                    contenido: contenido,
+                    contexto,
+                    urlDestino
+                });
+
+                const emailEnviado = await this.enviarEmail(
+                    destinatarioInfo.email,
+                    `${origenInfo?.nombre} te mencionó - Egresados IES`,
+                    htmlContent
+                );
+
+                if (emailEnviado) {
+                    const db = database.getClient();
+                    await db.execute({
+                        sql: 'UPDATE Notificacion SET enviada_email = 1 WHERE id = ?',
+                        args: [notifId]
+                    });
+                }
+            }
+
+            console.log(`✅ Notificación de mención enviada - Usuario: ${usuarioMencionadoId}, Autor: ${autorMencionId}`);
+        } catch (error) {
+            console.error('❌ Error al notificar mención:', error);
         }
     }
 }

@@ -3,6 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import ComentariosModal from "../components/ComentariosModal.astro";
 import "../styles/index.css";
 import "../styles/publicaciones-imagenes.css";
+import "../styles/mentions.css";
 ---
 
 <!-- Cargar Cropper.js en el head para que esté disponible cuando se necesite -->
@@ -15,6 +16,9 @@ import "../styles/publicaciones-imagenes.css";
     is:inline
     src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"
 ></script>
+
+<!-- Cargar MentionSystem -->
+<script is:inline src="/js/mentionSystem.js"></script>
 
 <BaseLayout title="Inicio | Feed" hideAccederButton={false}>
     <div class="feed-page">
@@ -465,6 +469,9 @@ import "../styles/publicaciones-imagenes.css";
         let currentPublicacionId: number | null = null;
         let selectedImages: File[] = [];
         let eventListenersAdded = false; // Flag para evitar duplicación de event listeners
+        
+        // Almacén de comentarios y respuestas cargados (para acceder a datos del autor)
+        let comentariosData: any[] = [];
 
         // Variables para el modal de imágenes
         let modalImagenes: string[] = [];
@@ -898,10 +905,8 @@ import "../styles/publicaciones-imagenes.css";
             } = publicacion;
             const isOwner = currentUser && currentUser.id === autor.id;
 
-            // Escapar HTML para prevenir XSS
-            const contenidoEscapado = contenido
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;");
+            // El contenido ya viene con menciones convertidas a HTML desde convertirMencionesParaFrontend
+            // No escapar porque ya tiene los links HTML de menciones
             const nombreAutor = autor.nombre || "Usuario";
 
             const optionsHTML = isOwner
@@ -1006,7 +1011,7 @@ import "../styles/publicaciones-imagenes.css";
                         ${optionsHTML}
                     </header>
                     <div class="post-body">
-                        <p>${contenidoEscapado}</p>
+                        <p>${contenido}</p>
                         ${imagenesHTML}
                     </div>
                     <footer class="post-actions">
@@ -1044,7 +1049,7 @@ import "../styles/publicaciones-imagenes.css";
                 const cached = postsCache.get(cacheKey);
                 if (now - cached.timestamp < CACHE_DURATION) {
                     console.log("📦 Usando cache para publicaciones");
-                    renderPublicaciones(cached.data, page);
+                    await renderPublicaciones(cached.data, page);
                     return;
                 }
             }
@@ -1095,7 +1100,7 @@ import "../styles/publicaciones-imagenes.css";
                         });
                     }
 
-                    renderPublicaciones(result.data, page);
+                    await renderPublicaciones(result.data, page);
                 }
             } catch (error) {
                 if (error.name === "AbortError") {
@@ -1134,7 +1139,7 @@ import "../styles/publicaciones-imagenes.css";
         }
 
         // Función separada para renderizar publicaciones
-        function renderPublicaciones(data, page) {
+        async function renderPublicaciones(data, page) {
             const feedList = document.getElementById("feed-list");
             console.log(
                 "📄 Renderizando publicaciones:",
@@ -1182,11 +1187,22 @@ import "../styles/publicaciones-imagenes.css";
                 return;
             }
 
+            // Convertir menciones backend a formato visual en todas las publicaciones
+            const publicacionesConMenciones = await Promise.all(
+                data.publicaciones.map(async (publicacion) => {
+                    const contenidoConvertido = await window.convertirMencionesParaFrontend(publicacion.contenido);
+                    return {
+                        ...publicacion,
+                        contenido: contenidoConvertido
+                    };
+                })
+            );
+
             // Renderizar publicaciones con requestAnimationFrame para mejor rendimiento
             const fragment = document.createDocumentFragment();
             const tempContainer = document.createElement("div");
 
-            data.publicaciones.forEach((publicacion) => {
+            publicacionesConMenciones.forEach((publicacion) => {
                 const cardHTML = crearPostCard(
                     publicacion,
                     publicacion.userLiked || false,
@@ -1265,9 +1281,18 @@ import "../styles/publicaciones-imagenes.css";
             }
 
             try {
+                // Convertir menciones visibles a formato backend
+                const postTextarea = document.getElementById("post-content");
+                const contenidoParaBackend = postTextarea && window.convertirMencionesParaBackend
+                    ? window.convertirMencionesParaBackend(contenido, postTextarea)
+                    : contenido;
+
+                console.log('📝 Contenido original:', contenido);
+                console.log('📝 Contenido para backend:', contenidoParaBackend);
+
                 // Usar FormData para enviar archivos
                 const formData = new FormData();
-                formData.append("contenido", contenido);
+                formData.append("contenido", contenidoParaBackend);
 
                 // Agregar archivos de imagen
                 imageFiles.forEach((file) => {
@@ -1302,7 +1327,13 @@ import "../styles/publicaciones-imagenes.css";
                     const postImagesInput =
                         document.getElementById("post-images");
 
-                    if (postContent) postContent.value = "";
+                    if (postContent) {
+                        postContent.value = "";
+                        // Limpiar datos de menciones
+                        if (postContent.dataset.mentions) {
+                            delete postContent.dataset.mentions;
+                        }
+                    }
                     if (imagePreview) imagePreview.innerHTML = "";
                     if (postImagesInput) postImagesInput.value = ""; // Limpiar el input de archivos
                     selectedImages = []; // Limpiar el array de imágenes
@@ -1570,6 +1601,31 @@ import "../styles/publicaciones-imagenes.css";
                     comentariosList.setAttribute("data-publicacion-id", postId);
                 }
                 await cargarComentarios(postId);
+                
+                // Inicializar sistema de menciones (solo para usuarios autenticados)
+                console.log('🔍 Intentando inicializar sistema de menciones...');
+                console.log('Usuario autenticado:', !!currentUser);
+                console.log('MentionSystem disponible:', typeof window.MentionSystem);
+                
+                const comentarioInput = document.getElementById('comentario-input');
+                
+                if (comentarioInput && currentUser) {
+                    // Usuario autenticado = egresado: habilitar menciones
+                    comentarioInput.placeholder = 'Agregar comentario... (usa @ para mencionar)';
+                    
+                    if (typeof window.MentionSystem !== 'undefined' && !comentarioInput.dataset.mentionsInitialized) {
+                        try {
+                            const mentionSystemComentario = new window.MentionSystem('comentario-input');
+                            comentarioInput.dataset.mentionsInitialized = 'true';
+                            console.log('✅ Sistema de menciones inicializado para comentarios');
+                        } catch (error) {
+                            console.error('❌ Error al inicializar menciones:', error);
+                        }
+                    }
+                } else if (comentarioInput) {
+                    // Usuario no autenticado: placeholder sin menciones
+                    comentarioInput.placeholder = 'Agregar comentario...';
+                }
             }
         }
 
@@ -1638,7 +1694,22 @@ import "../styles/publicaciones-imagenes.css";
                     if (comentarios.length === 0) {
                         comentariosList.innerHTML =
                             '<p class="no-comentarios">No hay comentarios en esta publicación.</p>';
+                        comentariosData = []; // Limpiar datos
                     } else {
+                        // Guardar comentarios en variable global para acceso posterior
+                        comentariosData = comentarios;
+                        
+                        // Convertir menciones backend a formato visual en todos los comentarios
+                        const comentariosConMenciones = await Promise.all(
+                            comentarios.map(async (comentario) => {
+                                const contenidoConvertido = await window.convertirMencionesParaFrontend(comentario.contenido);
+                                return {
+                                    ...comentario,
+                                    contenido: contenidoConvertido
+                                };
+                            })
+                        );
+                        
                         // Limpiar contenedor
                         comentariosList.innerHTML = "";
                         
@@ -1646,7 +1717,7 @@ import "../styles/publicaciones-imagenes.css";
                         const fragment = document.createDocumentFragment();
                         const tempContainer = document.createElement('div');
                         
-                        comentarios.forEach((comentario) => {
+                        comentariosConMenciones.forEach((comentario) => {
                             const comentarioHTML = crearComentarioHTML(comentario);
                             tempContainer.innerHTML = comentarioHTML;
                             while (tempContainer.firstChild) {
@@ -1828,6 +1899,15 @@ import "../styles/publicaciones-imagenes.css";
             }
 
             try {
+                // Convertir menciones visibles a formato backend
+                const comentarioTextarea = document.getElementById("comentario-input");
+                const contenidoParaBackend = comentarioTextarea && window.convertirMencionesParaBackend
+                    ? window.convertirMencionesParaBackend(contenido, comentarioTextarea)
+                    : contenido;
+
+                console.log('💬 Comentario original:', contenido);
+                console.log('💬 Comentario para backend:', contenidoParaBackend);
+
                 const response = await fetch(`${API_URL}/comentarios`, {
                     method: "POST",
                     headers: {
@@ -1836,7 +1916,7 @@ import "../styles/publicaciones-imagenes.css";
                     },
                     body: JSON.stringify({
                         publicacionId: publicacionId,
-                        contenido: contenido,
+                        contenido: contenidoParaBackend,
                     }),
                 });
 
@@ -1865,9 +1945,14 @@ import "../styles/publicaciones-imagenes.css";
                         }
                     }
                     
-                    // Limpiar input
+                    // Limpiar input y datos de menciones
                     const input = document.getElementById("comentario-input");
-                    if (input) input.value = "";
+                    if (input) {
+                        input.value = "";
+                        if (input.dataset.mentions) {
+                            delete input.dataset.mentions;
+                        }
+                    }
                     
                     showNotification("Comentario publicado", "success");
                 } else {
@@ -2000,6 +2085,16 @@ import "../styles/publicaciones-imagenes.css";
             }
 
             try {
+                // Convertir menciones visibles a formato backend
+                // Buscar el textarea de respuesta correspondiente
+                const respuestaTextarea = document.querySelector(`[data-respuesta-id="${comentarioPadreId}"]`);
+                const contenidoParaBackend = respuestaTextarea && window.convertirMencionesParaBackend
+                    ? window.convertirMencionesParaBackend(contenido, respuestaTextarea)
+                    : contenido;
+
+                console.log('💬 Respuesta original:', contenido);
+                console.log('💬 Respuesta para backend:', contenidoParaBackend);
+
                 const response = await fetch(`${API_URL}/comentarios`, {
                     method: "POST",
                     headers: {
@@ -2008,7 +2103,7 @@ import "../styles/publicaciones-imagenes.css";
                     },
                     body: JSON.stringify({
                         publicacionId: currentPublicacionId,
-                        contenido: contenido,
+                        contenido: contenidoParaBackend,
                         comentarioPadreId: comentarioPadreId,
                     }),
                 });
@@ -2030,6 +2125,11 @@ import "../styles/publicaciones-imagenes.css";
                     // Actualizar contador en la card de la publicación (las respuestas también son comentarios)
                     const contadorActual = getContadorActualComentarios(currentPublicacionId);
                     actualizarContadorComentarios(currentPublicacionId, contadorActual + 1);
+                    
+                    // Limpiar datos de menciones del textarea
+                    if (respuestaTextarea && respuestaTextarea.dataset.mentions) {
+                        delete respuestaTextarea.dataset.mentions;
+                    }
                     
                     showNotification("Respuesta publicada", "success");
                     return result.data;
@@ -2080,6 +2180,12 @@ import "../styles/publicaciones-imagenes.css";
                 );
 
                 if (result.success && result.data) {
+                    // Agregar respuestas al almacén global de comentarios
+                    result.data.forEach(respuesta => {
+                        if (!comentariosData.find(c => c.id === respuesta.id)) {
+                            comentariosData.push(respuesta);
+                        }
+                    });
                     return result.data;
                 }
                 return [];
@@ -2308,8 +2414,19 @@ import "../styles/publicaciones-imagenes.css";
                     loadingMsg.remove();
 
                     if (respuestas.length > 0) {
+                        // Convertir menciones backend a formato visual en todas las respuestas
+                        const respuestasConMenciones = await Promise.all(
+                            respuestas.map(async (respuesta) => {
+                                const contenidoConvertido = await window.convertirMencionesParaFrontend(respuesta.contenido);
+                                return {
+                                    ...respuesta,
+                                    contenido: contenidoConvertido
+                                };
+                            })
+                        );
+                        
                         const token = getAuthToken();
-                        for (const respuesta of respuestas) {
+                        for (const respuesta of respuestasConMenciones) {
                             const respuestaHTML = crearRespuestaHTML(
                                 respuesta,
                                 nivelMaximo,
@@ -2887,6 +3004,25 @@ import "../styles/publicaciones-imagenes.css";
                         }
                     });
                 }
+
+                // Inicializar sistema de menciones (solo para usuarios autenticados)
+                const postTextarea = document.getElementById('post-content');
+                
+                if (postTextarea && currentUser) {
+                    // Usuario autenticado = egresado: habilitar menciones
+                    postTextarea.placeholder = '¿Qué quieres compartir con la comunidad de egresados? (usa @ para mencionar)';
+                    
+                    if (typeof window.MentionSystem !== 'undefined') {
+                        const mentionSystemPublicacion = new window.MentionSystem('post-content', {
+                            onSelect: (egresado) => {
+                                console.log('Egresado mencionado:', egresado.nombreCompleto);
+                            }
+                        });
+                        console.log('✅ Sistema de menciones inicializado para publicaciones');
+                    } else {
+                        console.error('❌ MentionSystem no está disponible');
+                    }
+                }
             }
 
             // ... (el resto de los event listeners que ya estaban)
@@ -3263,6 +3399,42 @@ import "../styles/publicaciones-imagenes.css";
                                 ".btn-responder-cancelar",
                             ) as HTMLButtonElement;
 
+                            // Obtener datos del autor del comentario al que se responde
+                            const autorNombre = comentarioItem.querySelector('.comentario-autor')?.textContent?.trim() || '';
+                            
+                            // Obtener el ID del autor desde los datos del comentario
+                            // Buscar en la lista de comentarios cargados
+                            let autorId = null;
+                            const comentarioData = comentariosData?.find(c => c.id === comentarioId);
+                            if (comentarioData && comentarioData.autor) {
+                                autorId = comentarioData.autor.id;
+                            }
+                            
+                            // Pre-llenar con mención del autor
+                            if (input && autorNombre) {
+                                input.value = `@${autorNombre} `;
+                                // Crear un ID único para este textarea de respuesta
+                                const textareaId = `respuesta-textarea-${comentarioId}-${Date.now()}`;
+                                input.id = textareaId;
+                                input.setAttribute('data-respuesta-id', comentarioId.toString());
+                                
+                                // Almacenar el mapeo de la mención inicial en dataset
+                                if (autorId) {
+                                    const mentionsData = [{
+                                        nombre: autorNombre,
+                                        id: autorId
+                                    }];
+                                    input.dataset.mentions = JSON.stringify(mentionsData);
+                                    console.log('📝 Mención inicial guardada:', mentionsData);
+                                }
+                                
+                                // Mover el cursor al final
+                                setTimeout(() => {
+                                    input.focus();
+                                    input.setSelectionRange(input.value.length, input.value.length);
+                                }, 50);
+                            }
+
                             // Insertar después del footer del comentario
                             const comentarioContent =
                                 comentarioItem.querySelector(
@@ -3282,8 +3454,15 @@ import "../styles/publicaciones-imagenes.css";
                                 );
                             }
 
-                            // Focus en el input
-                            if (input) input.focus();
+                            // Inicializar sistema de menciones para respuesta (usuario ya autenticado = egresado)
+                            if (input && input.id && window.MentionSystem) {
+                                console.log('🔧 Inicializando sistema de menciones para respuesta:', input.id);
+                                try {
+                                    new window.MentionSystem(input.id);
+                                } catch (error) {
+                                    console.error('Error al inicializar MentionSystem para respuesta:', error);
+                                }
+                            }
 
                             // Manejar envío de respuesta
                             if (form) {
@@ -3385,6 +3564,11 @@ import "../styles/publicaciones-imagenes.css";
                                                 respuestasContainer.querySelector(
                                                     ".respuestas-list",
                                                 ) as HTMLElement;
+                                        }
+
+                                        // Convertir menciones en la nueva respuesta antes de renderizar
+                                        if (nuevaRespuesta.contenido) {
+                                            nuevaRespuesta.contenido = await window.convertirMencionesParaFrontend(nuevaRespuesta.contenido);
                                         }
 
                                         // Agregar la nueva respuesta
@@ -3929,4 +4113,26 @@ import "../styles/publicaciones-imagenes.css";
             height: 18px;
         }
     </style>
+
+    <!-- Template para formulario de respuestas -->
+    <template id="respuesta-form-template">
+        <div class="respuesta-form-container" style="margin-top: 0.75rem; padding-left: 0;">
+            <form class="respuesta-form" style="display: flex; gap: 0.5rem; align-items: flex-start;">
+                <textarea 
+                    class="respuesta-input mention-enabled" 
+                    placeholder="Escribe tu respuesta..."
+                    rows="2"
+                    style="flex: 1; padding: 0.625rem; border: 1px solid #e5e7eb; border-radius: 8px; resize: vertical; font-size: 0.875rem; font-family: inherit;"
+                ></textarea>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button type="submit" class="btn-responder-enviar" style="padding: 0.625rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.875rem; font-weight: 500;">
+                        Responder
+                    </button>
+                    <button type="button" class="btn-responder-cancelar" style="padding: 0.625rem 1rem; background: #f3f4f6; color: #374151; border: none; border-radius: 8px; cursor: pointer; font-size: 0.875rem;">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </template>
 </BaseLayout>

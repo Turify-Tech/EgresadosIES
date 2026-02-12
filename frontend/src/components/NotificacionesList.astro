@@ -219,8 +219,18 @@ const { limit = 20, showFilters = true } = Astro.props;
                 return;
             }
 
+            // Convertir menciones en los mensajes antes de renderizar
+            const notificacionesConMenciones = await Promise.all(
+                notificaciones.map(async (notif) => {
+                    if (notif.mensaje && window.convertirMencionesParaFrontend) {
+                        notif.mensaje = await window.convertirMencionesParaFrontend(notif.mensaje);
+                    }
+                    return notif;
+                })
+            );
+
             // Renderizar notificaciones (append o replace)
-            renderizarNotificaciones(notificaciones, append);
+            renderizarNotificaciones(notificacionesConMenciones, append);
 
             // Actualizar estado
             hasMore = data.hasMore;
