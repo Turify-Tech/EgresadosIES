@@ -56,18 +56,53 @@
     line-height: 1.4;
 }
 
+/* Tecnicaturas seleccionables */
+.tecnicaturas-list {
+    list-style: none;
+    padding: 0 1.5rem 1.5rem 1.5rem;
+    margin: 0;
+}
+
+.tecnicatura-item {
+    padding: 0.5rem 0.75rem;
+    color: #333;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 0.25rem;
+}
+
+/* Tecnicatura destacada - Desarrollo de Software */
+.tecnicatura-destacada {
+    color: #1437C3 !important;
+    font-size: 1.05rem !important;
+    font-weight: 600 !important;
+    background: linear-gradient(135deg, #eef2ff 0%, #dbeafe 100%);
+    border-left: 3px solid #1437C3;
+    padding-left: 1.25rem !important;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.tecnicatura-destacada:hover {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    transform: translateX(2px);
+}
+
 /* Profile Card */
 .profile-card {
     background: white;
-    border-radius: 8px;
-    overflow: hidden;
+    border-radius: 12px;
+    overflow: visible;
     margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .profile-banner {
     width: 100%;
     height: 80px;
     overflow: hidden;
+    border-radius: 12px 12px 0 0;
 }
 
 .card-banner {
@@ -78,19 +113,23 @@
 }
 
 .profile-info {
-    padding: 1rem 1.5rem 1.5rem;
+    padding: 0 1rem 1rem;
+    background: white;
+    border-radius: 0 0 12px 12px;
 }
 
-.profile-header {
+.profile-header-row {
     display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-    margin-bottom: 1rem;
+    align-items: center;
+    gap: 0;
+    margin-top: -10px;
+    margin-bottom: 0.4rem;
 }
 
 .profile-avatar {
-    width: 60px;
-    height: 60px;
+    width: 65px;
+    height: 65px;
+    min-width: 65px;
     border-radius: 50%;
     background: #c7d2fe;
     flex-shrink: 0;
@@ -98,9 +137,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: -30px;
     border: 3px solid white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .profile-avatar img {
@@ -115,32 +153,38 @@
     height: 32px;
 }
 
-.profile-text {
-    flex: 1;
-}
-
-.profile-text h3 {
-    margin: 0 0 0.25rem 0;
-    font-size: 1.1rem;
+.profile-name {
+    margin: 0 !important;
+    font-size: 0.9rem;
     font-weight: 700;
     color: #1f2937;
+    line-height: 1.25;
+    padding-top: 15px !important;
+    display: block;
+}
+
+.profile-details {
+    text-align: left;
+    margin-bottom: 0.5rem;
 }
 
 .profile-subtitle {
-    margin: 0 0 0.15rem 0;
-    font-size: 0.85rem;
+    margin: 0 0 0.1rem 0;
+    font-size: 0.8rem;
     color: #6b7280;
+    line-height: 1.3;
 }
 
 .profile-career {
     margin: 0;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: #374151;
     font-weight: 500;
+    line-height: 1.3;
 }
 
 .profile-actions {
-    padding-top: 0.75rem;
+    padding-top: 0.6rem;
     border-top: 1px solid #f3f4f6;
 }
 
@@ -160,10 +204,11 @@
 }
 
 .profile-status span {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: #15803d;
     font-weight: 500;
 }
+
 
 /* Menu Card */
 .menu-card {
@@ -227,7 +272,7 @@
 
 /* Menu Mobile */
 .menu-mobile {
-    display: none !important;
+    display: none;
     background: white;
     border-radius: 8px;
     padding: 1rem;
@@ -293,6 +338,77 @@
     color: #6b7280;
 }
 
+/* Menu mobile - Profile header */
+.menu-mobile-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.menu-mobile-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1437C3, #0d2a9e);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.menu-mobile-avatar svg {
+    color: white;
+}
+
+.menu-mobile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.menu-mobile-profile-info {
+    padding: 0.75rem 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 0.5rem;
+}
+
+.menu-mobile-year,
+.menu-mobile-career {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.menu-mobile-year {
+    margin-bottom: 0.25rem;
+}
+
+.menu-mobile-career {
+    color: #1437C3;
+    font-weight: 500;
+}
+
+.menu-mobile-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    background: #f3f4f6;
+    border-radius: 6px;
+    width: fit-content;
+}
+
+.menu-mobile-status svg {
+    color: #6b7280;
+}
+
+.menu-mobile-status span {
+    font-size: 0.8rem;
+    color: #374151;
+}
+
 /* Main content */
 .feed-main {
     max-width: 680px;
@@ -308,7 +424,8 @@
     color: #000;
 }
 
-.page-header p {
+.page-header p,
+.welcome-subtitle {
     color: #666;
     margin: 0;
     line-height: 1.6;
@@ -740,6 +857,23 @@
     border-bottom: none;
 }
 
+/* Tecnicatura destacada en mobile */
+.tecnicaturas-mobile .tecnicatura-destacada {
+    color: #1437C3 !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    background: linear-gradient(135deg, #eef2ff 0%, #dbeafe 100%);
+    border-left: 3px solid #1437C3;
+    padding-left: 1rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.tecnicaturas-mobile .tecnicatura-destacada:hover {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+}
+
 /* Load more */
 .load-more {
     text-align: center;
@@ -887,14 +1021,21 @@
     }
 
     .sidebar-left {
-        display: none;
+        display: none !important;
     }
 
-    .menu-mobile {
+    /* El menu-mobile se muestra en móvil solo si está autenticado */
+    .menu-mobile.authenticated {
         display: block;
     }
-
-    .tecnicaturas-mobile {
+    
+    /* Ocultar tecnicaturas en móvil cuando está autenticado */
+    .tecnicaturas-mobile.authenticated {
+        display: none !important;
+    }
+    
+    /* Mostrar tecnicaturas en móvil cuando NO está autenticado */
+    .tecnicaturas-mobile:not(.authenticated) {
         display: block;
     }
 

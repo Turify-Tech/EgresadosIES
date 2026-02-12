@@ -36,7 +36,7 @@ import "../styles/mentions.css";
                         />
                     </div>
                     <div class="profile-info">
-                        <div class="profile-header">
+                        <div class="profile-header-row">
                             <div class="profile-avatar" id="profile-avatar">
                                 <svg
                                     width="40"
@@ -52,15 +52,12 @@ import "../styles/mentions.css";
                                     ></path>
                                 </svg>
                             </div>
-                            <div class="profile-text">
-                                <h3 id="profile-name">Julieta Sotelo</h3>
-                                <p class="profile-subtitle" id="profile-year">
-                                    Egresado en 2026
-                                </p>
-                                <p class="profile-career" id="profile-career">
-                                    Desarrollo Full stack
-                                </p>
-                            </div>
+                            <h3 class="profile-name" id="profile-name">Julieta Sotelo Anzorena</h3>
+                        </div>
+                        
+                        <div class="profile-details">
+                            <p class="profile-subtitle" id="profile-year">Egresado en 2026</p>
+                            <p class="profile-career" id="profile-career">Desarrollo Full stack</p>
                         </div>
 
                         <div class="profile-actions">
@@ -172,18 +169,18 @@ import "../styles/mentions.css";
                     class="sidebar-banner"
                 />
                 <h3>Tecnicaturas</h3>
-                <ul>
-                    <li>Administración de Empresas</li>
-                    <li>Análisis y Programación de Sistemas</li>
-                    <li>Computación y Redes</li>
-                    <li>Construcciones Livianas</li>
-                    <li>Desarrollo de Software</li>
-                    <li>Higiene y Seguridad Laboral</li>
-                    <li>Logística</li>
-                    <li>Obras Viales</li>
-                    <li>Redes y Ciberseguridad</li>
-                    <li>Recursos Humanos</li>
-                    <li>Tecnología Biomédica</li>
+                <ul class="tecnicaturas-list">
+                    <li class="tecnicatura-item">Administración de Empresas</li>
+                    <li class="tecnicatura-item">Análisis y Programación de Sistemas</li>
+                    <li class="tecnicatura-item">Computación y Redes</li>
+                    <li class="tecnicatura-item">Construcciones Livianas</li>
+                    <li class="tecnicatura-item tecnicatura-destacada">Desarrollo de Software</li>
+                    <li class="tecnicatura-item">Higiene y Seguridad Laboral</li>
+                    <li class="tecnicatura-item">Logística</li>
+                    <li class="tecnicatura-item">Obras Viales</li>
+                    <li class="tecnicatura-item">Redes y Ciberseguridad</li>
+                    <li class="tecnicatura-item">Recursos Humanos</li>
+                    <li class="tecnicatura-item">Tecnología Biomédica</li>
                 </ul>
             </aside>
 
@@ -196,6 +193,17 @@ import "../styles/mentions.css";
                 <!-- Desplegable de Menú de Usuario (solo móvil) -->
                 <details class="menu-mobile">
                     <summary>Menú de usuario</summary>
+                    <div class="menu-mobile-profile-info">
+                        <p class="menu-mobile-year" id="menu-mobile-year">Egresado en 2026</p>
+                        <p class="menu-mobile-career" id="menu-mobile-career">Desarrollo de Software</p>
+                        <div class="menu-mobile-status" id="menu-mobile-status">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                            </svg>
+                            <span id="menu-mobile-status-text">Sin especificar</span>
+                        </div>
+                    </div>
                     <ul>
                         <li>
                             <a href="/perfil/editar">
@@ -251,6 +259,24 @@ import "../styles/mentions.css";
                                 Mis publicaciones
                             </a>
                         </li>
+                    </ul>
+                </details>
+
+                <!-- Desplegable de Tecnicaturas (solo móvil) -->
+                <details class="tecnicaturas-mobile">
+                    <summary>Tecnicaturas</summary>
+                    <ul>
+                        <li>Administración de Empresas</li>
+                        <li>Análisis y Programación de Sistemas</li>
+                        <li>Computación y Redes</li>
+                        <li>Construcciones Livianas</li>
+                        <li class="tecnicatura-destacada">Desarrollo de Software</li>
+                        <li>Higiene y Seguridad Laboral</li>
+                        <li>Logística</li>
+                        <li>Obras Viales</li>
+                        <li>Redes y Ciberseguridad</li>
+                        <li>Recursos Humanos</li>
+                        <li>Tecnología Biomédica</li>
                     </ul>
                 </details>
 
@@ -315,40 +341,7 @@ import "../styles/mentions.css";
                 </form>
 
                 <div class="feed-intro">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <h2>Feed de la comunidad</h2>
-                        <button
-                            id="refresh-feed-btn"
-                            onclick="refreshFeed()"
-                            style="
-                                padding: 0.5rem 1rem; 
-                                background: #3b82f6; 
-                                color: white; 
-                                border: none; 
-                                border-radius: 6px; 
-                                cursor: pointer; 
-                                font-size: 0.9rem;
-                                display: flex;
-                                align-items: center;
-                                gap: 0.5rem;
-                            ">
-                            <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M23 4v6h-6"></path>
-                                <path d="M1 20v-6h6"></path>
-                                <path
-                                    d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
-                                ></path>
-                            </svg>
-                            Actualizar
-                        </button>
-                    </div>
+                    <h2>Feed de la comunidad</h2>
                 </div>
 
                 <!-- Feed de publicaciones -->
@@ -2832,11 +2825,11 @@ import "../styles/mentions.css";
                         }
                     }
 
-                    // Actualizar nombre
+                    // Actualizar nombre y apellido
                     const profileName = document.getElementById("profile-name");
                     if (profileName && data.usuario) {
-                        profileName.textContent =
-                            data.usuario.nombre || "Egresado";
+                        const nombreCompleto = `${data.usuario.nombre || ''} ${data.usuario.apellido || ''}`.trim();
+                        profileName.textContent = nombreCompleto || "Egresado";
                     }
 
                     // Actualizar año de egreso (de formacion academica)
@@ -2877,11 +2870,69 @@ import "../styles/mentions.css";
                         "profile-status-text",
                     );
                     if (profileStatusText) {
+                        console.log("🏢 Datos de situación laboral:", {
+                            perfilData: perfilData,
+                            situacionLaboral: perfilData?.situacionLaboral
+                        });
                         if (perfilData && perfilData.situacionLaboral) {
                             profileStatusText.textContent =
                                 perfilData.situacionLaboral;
                         } else {
                             profileStatusText.textContent = "Sin especificar";
+                        }
+                    }
+
+                    // Actualizar menú móvil con los mismos datos
+                    const menuMobileAvatar = document.getElementById("menu-mobile-avatar");
+                    const menuMobileName = document.getElementById("menu-mobile-name");
+                    const menuMobileYear = document.getElementById("menu-mobile-year");
+                    const menuMobileCareer = document.getElementById("menu-mobile-career");
+                    const menuMobileStatusText = document.getElementById("menu-mobile-status-text");
+
+                    // Avatar móvil
+                    if (menuMobileAvatar && perfilData && perfilData.urlFotoPerfil) {
+                        let fotoUrl = perfilData.urlFotoPerfil.startsWith("http")
+                            ? perfilData.urlFotoPerfil
+                            : `http://localhost:3000${perfilData.urlFotoPerfil}`;
+                        if (fotoUrl.includes("ik.imagekit.io")) {
+                            fotoUrl += "?tr=w-80,h-80,q-80,f-auto";
+                        }
+                        menuMobileAvatar.innerHTML = `<img src="${fotoUrl}" alt="Foto de perfil" loading="lazy" />`;
+                    }
+
+                    // Nombre móvil
+                    if (menuMobileName && data.usuario) {
+                        const nombreCompleto = `${data.usuario.nombre || ''} ${data.usuario.apellido || ''}`.trim();
+                        menuMobileName.textContent = nombreCompleto || "Mi Perfil";
+                    }
+
+                    // Año móvil
+                    if (menuMobileYear) {
+                        if (data.formacionAcademica && data.formacionAcademica.length > 0) {
+                            const formacionConAnio = data.formacionAcademica
+                                .filter((f) => f.anioFinalizacion)
+                                .sort((a, b) => b.anioFinalizacion - a.anioFinalizacion);
+                            if (formacionConAnio.length > 0) {
+                                menuMobileYear.textContent = `Egresado en ${formacionConAnio[0].anioFinalizacion}`;
+                            } else {
+                                menuMobileYear.textContent = "Estudiante actual";
+                            }
+                        } else {
+                            menuMobileYear.textContent = "Estudiante actual";
+                        }
+                    }
+
+                    // Carrera móvil
+                    if (menuMobileCareer && data.carrera) {
+                        menuMobileCareer.textContent = data.carrera.nombre;
+                    }
+
+                    // Situación laboral móvil
+                    if (menuMobileStatusText) {
+                        if (perfilData && perfilData.situacionLaboral) {
+                            menuMobileStatusText.textContent = perfilData.situacionLaboral;
+                        } else {
+                            menuMobileStatusText.textContent = "Sin especificar";
                         }
                     }
                 }
@@ -2906,6 +2957,7 @@ import "../styles/mentions.css";
             );
             const newPostForm = document.getElementById("crear-form");
             const menuMobile = document.querySelector(".menu-mobile");
+            const tecnicaturasMobile = document.querySelector(".tecnicaturas-mobile");
             const welcomeTitle = document.getElementById("welcome-title");
 
             if (isAuthenticated) {
@@ -2914,9 +2966,12 @@ import "../styles/mentions.css";
                 if (tecnicaturasSidebar)
                     tecnicaturasSidebar.style.display = "none";
 
-                // Mostrar formulario para crear posts y menú móvil
+                // Mostrar formulario para crear posts
                 if (newPostForm) newPostForm.style.display = "block";
-                if (menuMobile) menuMobile.style.display = "block";
+                
+                // En móvil: mostrar menú de usuario, ocultar tecnicaturas (controlado por CSS)
+                if (menuMobile) menuMobile.classList.add("authenticated");
+                if (tecnicaturasMobile) tecnicaturasMobile.classList.add("authenticated");
 
                 // Actualizar título de bienvenida
                 if (welcomeTitle) {
@@ -2949,18 +3004,34 @@ import "../styles/mentions.css";
                 if (tecnicaturasSidebar)
                     tecnicaturasSidebar.style.display = "block";
 
-                // Ocultar formulario para crear posts y menú móvil
+                // Ocultar formulario para crear posts
                 if (newPostForm) newPostForm.style.display = "none";
-                if (menuMobile) menuMobile.style.display = "none";
+                
+                // En móvil: mostrar tecnicaturas, ocultar menú usuario (controlado por CSS)
 
                 // Actualizar título de bienvenida
                 if (welcomeTitle) {
-                    welcomeTitle.innerHTML = `Publicaciones recientes`;
+                    welcomeTitle.innerHTML = `Perfiles Profesionales del IES`;
+                    
+                    // Agregar subtítulo
+                    const subtitulo = document.createElement('p');
+                    subtitulo.className = 'welcome-subtitle';
+                    subtitulo.innerHTML = 'El Instituto de Educación Superior N° 9-012 "San Rafael en Informática" es un establecimiento educativo técnico de nivel superior ubicado en San Rafael, Mendoza.';
+                    welcomeTitle.parentNode.appendChild(subtitulo);
                 }
             }
 
             // Cargar publicaciones
             await procesarNavegacionDesdeNotificaciones();
+
+            // ========================================
+            // Navegación a página de Desarrollo de Software
+            // ========================================
+            document.querySelectorAll(".tecnicatura-destacada").forEach((item) => {
+                item.addEventListener("click", () => {
+                    window.location.href = "/carreras/desarrollo-software";
+                });
+            });
 
             // Configurar botón de cargar más
             const loadMoreBtn = document.getElementById("load-more-btn");
