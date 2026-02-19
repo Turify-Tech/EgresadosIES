@@ -60,20 +60,22 @@ export async function obtenerInfoEgresados(ids) {
     try {
         const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
         console.log('🔍 Token encontrado:', token ? 'Sí' : 'No');
-        
-        if (!token) {
-            console.warn('⚠️ No hay token, no se puede obtener info de egresados');
-            return [];
-        }
 
         console.log('🔍 Haciendo petición a:', `${API_URL}/egresados/info`);
 
+        // Configurar headers dinámicamente
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+        
+        // Solo agregar Authorization si hay token
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
         const response = await fetch(`${API_URL}/egresados/info`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
+            headers,
             body: JSON.stringify({ ids })
         });
 
