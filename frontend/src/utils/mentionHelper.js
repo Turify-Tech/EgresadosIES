@@ -2,7 +2,7 @@
  * Utilidades para procesar y formatear menciones
  */
 
-const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3000';
+const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3000/api';
 
 /**
  * Procesa texto con menciones y las convierte a HTML
@@ -55,11 +55,20 @@ export function extraerMencionesIds(texto) {
 export async function obtenerInfoEgresados(ids) {
     if (!ids || ids.length === 0) return [];
     
+    console.log('🔍 obtenerInfoEgresados - IDs:', ids);
+    
     try {
-        const token = localStorage.getItem('token');
-        if (!token) return [];
+        const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
+        console.log('🔍 Token encontrado:', token ? 'Sí' : 'No');
+        
+        if (!token) {
+            console.warn('⚠️ No hay token, no se puede obtener info de egresados');
+            return [];
+        }
 
-        const response = await fetch(`${API_URL}/api/egresados/info`, {
+        console.log('🔍 Haciendo petición a:', `${API_URL}/egresados/info`);
+
+        const response = await fetch(`${API_URL}/egresados/info`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -68,13 +77,16 @@ export async function obtenerInfoEgresados(ids) {
             body: JSON.stringify({ ids })
         });
 
+        console.log('🔍 Response status:', response.status);
+
         if (!response.ok) {
             console.error('Error al obtener info de egresados:', response.status);
             return [];
         }
 
         const data = await response.json();
-        return data.egresados || [];
+        console.log('📝 Respuesta de /api/egresados/info:', data); // Debug
+        return data.data || data.egresados || [];
     } catch (error) {
         console.error('Error al obtener info de egresados:', error);
         return [];
@@ -89,7 +101,10 @@ export async function obtenerInfoEgresados(ids) {
 export async function procesarTextoConMenciones(texto) {
     if (!texto) return '';
     
+    console.log('🔍 procesarTextoConMenciones - Texto recibido:', texto);
+    
     const ids = extraerMencionesIds(texto);
+    console.log('🔍 IDs extraídos:', ids);
     
     if (ids.length === 0) {
         // No hay menciones, escapar HTML y retornar
@@ -97,7 +112,10 @@ export async function procesarTextoConMenciones(texto) {
     }
     
     const egresados = await obtenerInfoEgresados(ids);
+    console.log('🔍 Egresados obtenidos:', egresados);
+    
     const textoFormateado = formatearMenciones(texto, egresados);
+    console.log('🔍 Texto formateado:', textoFormateado);
     
     // Escapar HTML excepto las menciones y saltos de línea
     return textoFormateado.replace(/\n/g, '<br>');
