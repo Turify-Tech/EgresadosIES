@@ -273,9 +273,11 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
         }
 
         .profile-avatar img {
-            width: 100%;
-            height: 100%;
+            width: 100% !important;
+            height: 100% !important;
             object-fit: cover;
+            object-position: center;
+            border-radius: 50%;
         }
 
         .change-photo-btn {
@@ -555,6 +557,14 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                 height: 16px;
             }
 
+            .profile-avatar img {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: cover;
+                object-position: center;
+                border-radius: 50%;
+            }
+
             .profile-info {
                 text-align: center;
             }
@@ -717,8 +727,16 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
         /* Mejoras para tablets */
         @media (min-width: 769px) and (max-width: 1024px) {
             .profile-avatar {
-                width: 150px;
-                height: 150px;
+                width: 100px;
+                height: 100px;
+            }
+
+            .profile-avatar img {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: cover;
+                object-position: center;
+                border-radius: 50%;
             }
 
             .profile-name {
@@ -1263,7 +1281,7 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                 // Cargar imagen de perfil
                 if (avatarEl && perfil.urlFotoPerfil) {
                     // Reemplazar el SVG por la imagen
-                    avatarEl.innerHTML = `<img src="${perfil.urlFotoPerfil}" alt="Foto de perfil" />`;
+                    avatarEl.innerHTML = `<img src="${perfil.urlFotoPerfil}" alt="Foto de perfil" style="width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 50%;" />`;
                 }
             }
 
@@ -1292,7 +1310,7 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                     const previewUrl = await imageService.createPreview(file);
                     const avatarEl = document.getElementById("profile-avatar");
                     if (avatarEl) {
-                        avatarEl.innerHTML = `<img src="${previewUrl}" alt="Foto de perfil" style="opacity: 0.7;" />`;
+                        avatarEl.innerHTML = `<img src="${previewUrl}" alt="Foto de perfil" style="width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 50%; opacity: 0.7;" />`;
                     }
 
                     // Comprimir imagen si es muy grande
@@ -1322,7 +1340,7 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                         const imageUrl = uploadResult.url;
 
                         if (avatarEl) {
-                            avatarEl.innerHTML = `<img src="${imageUrl}" alt="Foto de perfil" />`;
+                            avatarEl.innerHTML = `<img src="${imageUrl}" alt="Foto de perfil" style="width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 50%;" />`;
                         }
 
                         // Guardar directamente la foto de perfil en la API
