@@ -4,7 +4,13 @@
  * Permite al usuario configurar qué notificaciones recibir por email
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { API_URL, API_BASE_URL } from '../../config/env.js';
 ---
+
+<script is:inline define:vars={{ API_URL, API_BASE_URL }}>
+    window.API_URL = API_URL;
+    window.API_BASE_URL = API_BASE_URL;
+</script>
 
 <BaseLayout title="Preferencias de Notificaciones | Egresados IES" hideAccederButton={true}>
     <div class="preferencias-page">

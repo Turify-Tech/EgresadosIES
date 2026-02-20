@@ -3,7 +3,7 @@
  * Gestiona el autocomplete de egresados al escribir @
  */
 
-const API_URL = 'http://localhost:3000';
+const API_URL = window.API_URL || 'http://localhost:3000/api';
 
 class MentionSystem {
     constructor(textareaId, options = {}) {
@@ -119,7 +119,7 @@ class MentionSystem {
                     return;
                 }
 
-                const url = `${API_URL}/api/egresados/buscar?query=${encodeURIComponent(query)}&limit=${this.options.maxResults}`;
+                const url = `${API_URL}/egresados/buscar?query=${encodeURIComponent(query)}&limit=${this.options.maxResults}`;
                 const response = await fetch(url, {
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -367,7 +367,7 @@ async function convertirMencionesParaFrontend(textoBackend) {
 
         console.log('📡 Fetching info with headers:', headers);
 
-        const response = await fetch(`${API_URL}/api/egresados/info`, {
+        const response = await fetch(`${API_URL}/egresados/info`, {
             method: 'POST',
             headers: headers,
             body: JSON.stringify({ ids: idsUnicos })
