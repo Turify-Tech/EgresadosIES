@@ -14,6 +14,7 @@ const {
 // Importar estilos CSS
 import "../styles/global.css";
 import "../styles/components.css";
+import "../styles/mentions.css";
 import { API_URL, API_BASE_URL } from "../config/env.js";
 import MensajesSidebar from "../components/mensajes/MensajesSidebar.astro";
 import NotificacionesModal from "../components/NotificacionesModal.astro";
@@ -576,14 +577,74 @@ import DynamicBackground from "../components/DynamicBackground.astro";
             </div>
         </footer>
 
+        <!-- Scripts -->
+        <!-- Cargar sistema de menciones globalmente ANTES del modal -->
+        <script src="/js/mentionSystem.js" is:inline></script>
+
         <!-- Modal de Notificaciones -->
         <NotificacionesModal />
-
-        <!-- Scripts -->
+        
         <!-- Inyectar variables de entorno -->
         <script is:inline define:vars={{ API_URL, API_BASE_URL }}>
             window.API_URL = API_URL;
             window.API_BASE_URL = API_BASE_URL;
+        </script>
+
+        <!-- Convertir menciones automáticamente en toda la página -->
+        <script is:inline>
+            document.addEventListener('DOMContentLoaded', async function() {
+                // Esperar a que convertirMencionesParaFrontend esté disponible
+                if (typeof window.convertirMencionesParaFrontend !== 'function') {
+                    console.warn('[MENCIONES] Función convertirMencionesParaFrontend no disponible');
+                    return;
+                }
+
+                // Selectores de elementos que pueden contener menciones
+                const selectores = [
+                    '.contenido',           // Comentarios
+                    '.content',             // Publicaciones
+                    '.mensaje-texto',       // Mensajes privados
+                    '.notification-message', // Notificaciones
+                    '.notificacion-mensaje', // Notificaciones en modal
+                    '.descripcion',         // Descripciones de perfil
+                    '[data-mention-content]' // Cualquier elemento marcado explícitamente
+                ];
+
+                // Convertir menciones en todos los elementos existentes
+                const elementos = document.querySelectorAll(selectores.join(', '));
+                for (const elemento of elementos) {
+                    if (elemento.textContent && elemento.textContent.includes('@[id:')) {
+                        const textoConvertido = await window.convertirMencionesParaFrontend(elemento.innerHTML);
+                        elemento.innerHTML = textoConvertido;
+                    }
+                }
+
+                // Observar cambios dinámicos en el DOM (para contenido cargado después)
+                const observer = new MutationObserver(async function(mutations) {
+                    for (const mutation of mutations) {
+                        for (const nodo of mutation.addedNodes) {
+                            if (nodo.nodeType === Node.ELEMENT_NODE) {
+                                const elementosNuevos = nodo.matches && nodo.matches(selectores.join(', '))
+                                    ? [nodo]
+                                    : nodo.querySelectorAll ? nodo.querySelectorAll(selectores.join(', ')) : [];
+                                
+                                for (const elemento of elementosNuevos) {
+                                    if (elemento.textContent && elemento.textContent.includes('@[id:')) {
+                                        const textoConvertido = await window.convertirMencionesParaFrontend(elemento.innerHTML);
+                                        elemento.innerHTML = textoConvertido;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Observar cambios en todo el documento
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            });
         </script>
 
         <script>

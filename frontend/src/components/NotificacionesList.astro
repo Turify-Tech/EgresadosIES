@@ -149,6 +149,76 @@ const { limit = 20, showFilters = true } = Astro.props;
         }
     }
     
+    // Función helper para esperar a que convertirMencionesParaFrontend esté disponible
+    async function esperarConvertirMenciones(timeout = 1000) {
+        const startTime = Date.now();
+        
+        while (!window.convertirMencionesParaFrontend) {
+            if (Date.now() - startTime > timeout) {
+                console.warn('[NOTIFICACIONES] convertirMencionesParaFrontend no disponible, usando fallback local');
+                return false;
+            }
+            await new Promise(resolve => setTimeout(resolve, 50));
+        }
+        
+        console.log('[NOTIFICACIONES] Usando convertirMencionesParaFrontend global ✓');
+        return true;
+    }
+    
+    // Función LOCAL de conversión de menciones (fallback)
+    async function convertirMencionesLocal(textoBackend) {
+        if (!textoBackend || typeof textoBackend !== 'string') return textoBackend;
+        
+        const mencionesMatch = textoBackend.match(/@\[id:\d+\]/g);
+        if (!mencionesMatch || mencionesMatch.length === 0) return textoBackend;
+
+        try {
+            const idsUnicos = [...new Set(
+                mencionesMatch.map(m => {
+                    const match = m.match(/@\[id:(\d+)\]/);
+                    return match ? match[1] : null;
+                }).filter(Boolean)
+            )];
+
+            const response = await fetch(`${API_URL}/egresados/info`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids: idsUnicos })
+            });
+
+            if (!response.ok) return textoBackend;
+
+            const result = await response.json();
+            if (!result.success || !result.data) return textoBackend;
+
+            const mapaUsuarios = {};
+            result.data.forEach(egresado => {
+                const nombreCompleto = egresado.apellido 
+                    ? `${egresado.nombre} ${egresado.apellido}` 
+                    : egresado.nombre;
+                mapaUsuarios[egresado.id] = { nombre: nombreCompleto, id: egresado.id };
+            });
+
+            let textoVisual = textoBackend;
+            mencionesMatch.forEach(mencion => {
+                const match = mencion.match(/@\[id:(\d+)\]/);
+                if (match && match[1]) {
+                    const userId = match[1];
+                    const usuario = mapaUsuarios[userId];
+                    if (usuario) {
+                        const linkMencion = `<a href="/perfil/${usuario.id}" class="mention-link" data-mention-id="${usuario.id}">@${usuario.nombre}</a>`;
+                        textoVisual = textoVisual.replace(mencion, linkMencion);
+                    }
+                }
+            });
+
+            return textoVisual;
+        } catch (error) {
+            console.error('Error al convertir menciones:', error);
+            return textoBackend;
+        }
+    }
+    
     // Estado de la lista
     let offset = 0;
     let currentFilter = 'todas';
@@ -220,10 +290,16 @@ const { limit = 20, showFilters = true } = Astro.props;
             }
 
             // Convertir menciones en los mensajes antes de renderizar
+            // Esperar a que convertirMencionesParaFrontend esté disponible
+            const convertirMencionesDisponible = await esperarConvertirMenciones();
+            
             const notificacionesConMenciones = await Promise.all(
                 notificaciones.map(async (notif) => {
-                    if (notif.mensaje && window.convertirMencionesParaFrontend) {
-                        notif.mensaje = await window.convertirMencionesParaFrontend(notif.mensaje);
+                    if (notif.mensaje) {
+                        // Usar función global si está disponible, sino usar fallback local
+                        notif.mensaje = convertirMencionesDisponible
+                            ? await window.convertirMencionesParaFrontend(notif.mensaje)
+                            : await convertirMencionesLocal(notif.mensaje);
                     }
                     return notif;
                 })
