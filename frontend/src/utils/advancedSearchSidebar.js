@@ -240,7 +240,18 @@ export class AdvancedSearchManagerSidebar {
 
     populateCarreraOptions(carreras) {
         const carreraGroup = document.getElementById("carrera-filter-group");
+        const carreraSection = document.getElementById("carrera-filter-section");
         if (!carreraGroup) return;
+
+        // Ocultar sección si hay una sola carrera o ninguna
+        if (carreraSection) {
+            if (carreras.length <= 1) {
+                carreraSection.style.display = "none";
+                return;
+            } else {
+                carreraSection.style.display = "block";
+            }
+        }
 
         // Limpiar checkboxes existentes (excepto "Todas")
         const existingCarreras = carreraGroup.querySelectorAll(
