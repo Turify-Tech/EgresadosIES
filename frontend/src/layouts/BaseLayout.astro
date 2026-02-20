@@ -578,17 +578,17 @@ import DynamicBackground from "../components/DynamicBackground.astro";
         </footer>
 
         <!-- Scripts -->
-        <!-- Cargar sistema de menciones globalmente ANTES del modal -->
-        <script src="/js/mentionSystem.js" is:inline></script>
-
-        <!-- Modal de Notificaciones -->
-        <NotificacionesModal />
-        
-        <!-- Inyectar variables de entorno -->
+        <!-- Inyectar variables de entorno PRIMERO -->
         <script is:inline define:vars={{ API_URL, API_BASE_URL }}>
             window.API_URL = API_URL;
             window.API_BASE_URL = API_BASE_URL;
         </script>
+        
+        <!-- Cargar sistema de menciones DESPUÉS de definir API_URL -->
+        <script src="/js/mentionSystem.js" is:inline></script>
+
+        <!-- Modal de Notificaciones -->
+        <NotificacionesModal />
 
         <!-- Convertir menciones automáticamente en toda la página -->
         <script is:inline>
