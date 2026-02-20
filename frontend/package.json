@@ -11,6 +11,7 @@
         "astro": "astro"
     },
     "dependencies": {
+        "@astrojs/vercel": "^9.0.4",
         "astro": "5.14.1",
         "html2canvas": "^1.4.1",
         "jspdf": "^4.1.0"
