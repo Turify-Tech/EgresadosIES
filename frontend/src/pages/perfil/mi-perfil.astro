@@ -28,7 +28,8 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
-                                stroke-width="1.5">
+                                stroke-width="1.5"
+                            >
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <circle cx="12" cy="10" r="3"></circle>
                                 <path
@@ -40,14 +41,16 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
                             class="btn-cambiar-foto"
                             id="btn-cambiar-foto"
                             style="display: none;"
-                            onclick="document.getElementById('input-foto-perfil').click()">
+                            onclick="document.getElementById('input-foto-perfil').click()"
+                        >
                             <svg
                                 width="18"
                                 height="18"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
-                                stroke-width="2">
+                                stroke-width="2"
+                            >
                                 <path
                                     d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
                                 ></path>
@@ -156,7 +159,8 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
                         <select
                             class="dato-input"
                             id="input-carrera"
-                            style="display: none;">
+                            style="display: none;"
+                        >
                             <option value="">Cargando carreras...</option>
                         </select>
                     </div>
@@ -183,7 +187,8 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
                         <select
                             class="dato-input"
                             id="input-situacion"
-                            style="display: none;">
+                            style="display: none;"
+                        >
                             <option value="">Selecciona una opción</option>
                             <option value="Trabajando">Trabajando</option>
                             <option value="Freelance">Freelance</option>
@@ -201,7 +206,8 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
                     <div
                         class="edit-actions"
                         id="edit-actions"
-                        style="display: none;">
+                        style="display: none;"
+                    >
                         <button class="btn-cancelar" onclick="cancelarEdicion()"
                             >Cancelar</button
                         >
@@ -212,7 +218,8 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
-                                stroke-width="2">
+                                stroke-width="2"
+                            >
                                 <path
                                     d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
                                 ></path>
@@ -257,7 +264,8 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
-                            stroke-width="2">
+                            stroke-width="2"
+                        >
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                         Aplicar recorte
@@ -721,12 +729,13 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 
     // API URLs
     const API_URL = (window as any).API_URL || "http://localhost:3000/api";
-    const API_BASE_URL = (window as any).API_BASE_URL || "http://localhost:3000";
+    const API_BASE_URL =
+        (window as any).API_BASE_URL || "http://localhost:3000";
 
     // Esperar a que el DOM esté listo
     document.addEventListener("DOMContentLoaded", async () => {
-        await cargarCarreras();
-        await cargarMiPerfil();
+        // Cargar carreras y perfil en paralelo (optimización #6)
+        await Promise.all([cargarCarreras(), cargarMiPerfil()]);
     });
 
     async function cargarCarreras() {
@@ -781,16 +790,13 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 
             // Llamar a la API
             console.log("📡 Llamando a la API /api/perfil/mi-perfil...");
-            const response = await fetch(
-                `${API_URL}/perfil/mi-perfil`,
-                {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
+            const response = await fetch(`${API_URL}/perfil/mi-perfil`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
                 },
-            );
+            });
 
             console.log("📥 Respuesta de la API:", {
                 status: response.status,
@@ -1112,17 +1118,14 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
                 document.getElementById("input-apellido"),
             );
 
-            const response = await fetch(
-                `${API_URL}/perfil/mi-perfil`,
-                {
-                    method: "PUT",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(formData),
+            const response = await fetch(`${API_URL}/perfil/mi-perfil`, {
+                method: "PUT",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
                 },
-            );
+                body: JSON.stringify(formData),
+            });
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -1331,7 +1334,10 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
             // Obtener token de autenticación
             const token = localStorage.getItem("auth_token");
             if (!token) {
-                showNotification("Por favor, inicia sesión nuevamente.", "error");
+                showNotification(
+                    "Por favor, inicia sesión nuevamente.",
+                    "error",
+                );
                 setTimeout(() => {
                     window.location.href = "/acceso";
                 }, 2000);
@@ -1342,53 +1348,56 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
             const response = await fetch(`${API_URL}/perfil/mi-cv`, {
                 method: "GET",
                 headers: {
-                    "Authorization": `Bearer ${token}`,
+                    Authorization: `Bearer ${token}`,
                 },
             });
 
             if (!response.ok) {
                 throw new Error(`Error al generar el CV: ${response.status}`);
             }
-            
+
             // Obtener el blob del PDF (archivo binario en memoria)
             const blob = await response.blob();
-            
+
             // Extraer el nombre del archivo del header Content-Disposition
             // El backend envía: Content-Disposition: attachment; filename="CV_NombreApellido.pdf"
-            const contentDisposition = response.headers.get('Content-Disposition');
-            let fileName = 'CV.pdf';
-            
+            const contentDisposition = response.headers.get(
+                "Content-Disposition",
+            );
+            let fileName = "CV.pdf";
+
             if (contentDisposition) {
-                const fileNameMatch = contentDisposition.match(/filename="?(.+)"?/);
+                const fileNameMatch =
+                    contentDisposition.match(/filename="?(.+)"?/);
                 if (fileNameMatch && fileNameMatch[1]) {
-                    fileName = fileNameMatch[1].replace(/"/g, '');
+                    fileName = fileNameMatch[1].replace(/"/g, "");
                 }
             }
-            
+
             // Crear una URL temporal que apunta al blob en memoria del navegador
             // Esta URL es del tipo: blob:http://localhost:4321/uuid-aleatorio
             const url = window.URL.createObjectURL(blob);
-            
+
             // Crear un elemento <a> temporal para simular la descarga
-            const link = document.createElement('a');
+            const link = document.createElement("a");
             link.href = url;
             link.download = fileName;
             document.body.appendChild(link);
-            
+
             // Simular click en el enlace para activar la descarga
             link.click();
-            
+
             // Limpiar: eliminar el enlace del DOM y liberar la memoria del blob
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
-            
+
             showNotification("✓ CV descargado correctamente", "success");
-            
         } catch (error) {
             console.error("❌ Error al descargar CV:", error);
             showNotification(
-                error.message || "Error al generar el CV. Por favor, intenta nuevamente.",
-                "error"
+                error.message ||
+                    "Error al generar el CV. Por favor, intenta nuevamente.",
+                "error",
             );
         }
     }

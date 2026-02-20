@@ -341,6 +341,14 @@ export const profileService = {
     },
 
     /**
+     * Guardar múltiples formaciones académicas en batch (crear y/o actualizar)
+     * @param {Array} formaciones - Array de objetos { id?, titulo, institucion, anioFinalizacion? }
+     */
+    async batchSaveFormaciones(formaciones) {
+        return apiClient.post("/perfil/formaciones-batch", { formaciones });
+    },
+
+    /**
      * Agregar curso
      */
     async addCurso(data) {
@@ -359,6 +367,14 @@ export const profileService = {
      */
     async deleteCurso(id) {
         return apiClient.delete(`/perfil/curso/${id}`);
+    },
+
+    /**
+     * Guardar múltiples cursos en batch (crear y/o actualizar)
+     * @param {Array} cursos - Array de objetos { id?, nombre, institucion?, horasDuracion? }
+     */
+    async batchSaveCursos(cursos) {
+        return apiClient.post("/perfil/cursos-batch", { cursos });
     },
 
     /**
