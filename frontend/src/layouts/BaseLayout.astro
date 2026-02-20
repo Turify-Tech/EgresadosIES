@@ -14,6 +14,7 @@ const {
 // Importar estilos CSS
 import "../styles/global.css";
 import "../styles/components.css";
+import { API_URL, API_BASE_URL } from "../config/env.js";
 import MensajesSidebar from "../components/mensajes/MensajesSidebar.astro";
 import NotificacionesModal from "../components/NotificacionesModal.astro";
 import SearchBar from "../components/busqueda/SearchBar.astro";
@@ -532,10 +533,16 @@ import DynamicBackground from "../components/DynamicBackground.astro";
         <NotificacionesModal />
 
         <!-- Scripts -->
+        <!-- Inyectar variables de entorno -->
+        <script is:inline define:vars={{ API_URL, API_BASE_URL }}>
+            window.API_URL = API_URL;
+            window.API_BASE_URL = API_BASE_URL;
+        </script>
+
         <script>
             document.addEventListener("DOMContentLoaded", () => {
                 // API URL
-                const API_URL = "http://localhost:3000/api";
+                const API_URL = window.API_URL || "http://localhost:3000/api";
 
                 // Actualizar año en el footer
                 const currentYearElement =
@@ -943,7 +950,7 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                         const token = localStorage.getItem("auth_token");
                         if (!token) return;
 
-                        const API_URL = "http://localhost:3000/api";
+                        const API_URL = window.API_URL || "http://localhost:3000/api";
                         const response = await fetch(
                             `${API_URL}/mensajes/no-leidos`,
                             {
