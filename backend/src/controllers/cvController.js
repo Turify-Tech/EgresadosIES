@@ -7,6 +7,23 @@ import PDFDocument from "pdfkit";
 import database from "../config/database.js";
 
 /**
+ * Descarga una imagen desde URL y retorna el buffer
+ * @param {string} url - URL de la imagen
+ * @returns {Promise<Buffer|null>} Buffer de la imagen o null si falla
+ */
+async function descargarImagen(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) return null;
+        const arrayBuffer = await response.arrayBuffer();
+        return Buffer.from(arrayBuffer);
+    } catch (error) {
+        console.error("Error descargando imagen:", error);
+        return null;
+    }
+}
+
+/**
  * Genera y descarga el CV del usuario en formato PDF
  * @param {Object} req - Request object
  * @param {Object} res - Response object
@@ -92,7 +109,7 @@ export async function downloadMiCV(req, res) {
         // Obtener habilidades
         let habilidades = [];
         const habilidadesResult = await client.execute({
-            sql: "SELECT * FROM Habilidades WHERE usuarioId = ? ORDER BY nombre ASC",
+            sql: "SELECT * FROM Habilidades WHERE usuarioId = ? ORDER BY tipo ASC, nombre ASC",
             args: [usuarioId],
         });
         habilidades = habilidadesResult.rows;
@@ -116,7 +133,7 @@ export async function downloadMiCV(req, res) {
         doc.pipe(res);
 
         // Generar contenido del PDF
-        generarContenidoPDF(doc, perfil, experiencias, formaciones, cursos, habilidades);
+        await generarContenidoPDF(doc, perfil, experiencias, formaciones, cursos, habilidades);
 
         // Finalizar el documento
         doc.end();
@@ -132,317 +149,472 @@ export async function downloadMiCV(req, res) {
 /**
  * Función auxiliar para generar el contenido del PDF
  */
-function generarContenidoPDF(doc, perfil, experiencias, formaciones, cursos, habilidades) {
+async function generarContenidoPDF(doc, perfil, experiencias, formaciones, cursos, habilidades) {
     const pageWidth = doc.page.width;
+    const pageHeight = doc.page.height;
     const margin = 50;
     const contentWidth = pageWidth - 2 * margin;
 
-    // Colores
-    const primaryColor = "#2563eb";
-    const secondaryColor = "#64748b";
-    const textColor = "#1e293b";
+    // Colores profesionales
+    const primaryColor = "#1a1a1a";  // Negro para nombre y títulos
+    const secondaryColor = "#666666"; // Gris para subtítulos
+    const lineColor = "#333333";      // Gris oscuro para líneas
+    const textColor = "#000000";      // Negro para texto
 
-    let yPosition = margin;
+    // Función helper para añadir nueva página
+    const nuevaPagina = () => {
+        doc.addPage();
+        return margin;
+    };
 
-    // HEADER - Información personal
+    // Función helper para verificar si necesitamos nueva página
+    const verificarEspacio = (alturaRequerida, yActual) => {
+        if (yActual + alturaRequerida > pageHeight - margin - 30) {
+            return nuevaPagina();
+        }
+        return yActual;
+    };
+
+    // Función helper para dibujar línea de sección (ancho completo)
+    const dibujarLineaSeccion = (y) => {
+        doc.strokeColor(lineColor)
+            .lineWidth(0.8)
+            .moveTo(margin, y)
+            .lineTo(pageWidth - margin, y)
+            .stroke();
+    };
+
+    let yPosition = 30; // Margen superior más pequeño para reducir espacio en blanco
+
+    // ========================================
+    // HEADER - Información personal compacta
+    // ========================================
+    
+    // Foto de perfil (si existe)
+    if (perfil.urlFotoPerfil) {
+        const imagenBuffer = await descargarImagen(perfil.urlFotoPerfil);
+        if (imagenBuffer) {
+            const fotoSize = 80; // Tamaño de la foto en puntos
+            const fotoX = (pageWidth - fotoSize) / 2; // Centrar horizontalmente
+            
+            doc.save();
+            // Crear círculo para recortar la imagen
+            doc.circle(fotoX + fotoSize / 2, yPosition + fotoSize / 2, fotoSize / 2)
+                .clip();
+            
+            // Insertar imagen
+            doc.image(imagenBuffer, fotoX, yPosition, {
+                width: fotoSize,
+                height: fotoSize,
+                fit: [fotoSize, fotoSize],
+                align: 'center',
+                valign: 'center'
+            });
+            doc.restore();
+            
+            yPosition += fotoSize + 10; // Espacio después de la foto
+        }
+    }
+    
+    // Nombre en MAYÚSCULAS
+    const nombreCompleto = `${perfil.nombre}${perfil.apellido ? " " + perfil.apellido : ""}`.toUpperCase();
     doc.fillColor(primaryColor)
         .fontSize(28)
         .font("Helvetica-Bold")
-        .text(
-            `${perfil.nombre}${perfil.apellido ? " " + perfil.apellido : ""}`,
-            margin,
-            yPosition
-        );
+        .text(nombreCompleto, margin, yPosition, {
+            align: "center",
+            width: contentWidth
+        });
 
-    yPosition += 40;
+    yPosition += 30;
 
+    // Carrera o título profesional
     if (perfil.carreraNombre) {
         doc.fillColor(secondaryColor)
-            .fontSize(16)
+            .fontSize(11)
             .font("Helvetica")
-            .text(perfil.carreraNombre, margin, yPosition);
-        yPosition += 25;
+            .text(perfil.carreraNombre, margin, yPosition, {
+                align: "center",
+                width: contentWidth
+            });
+        yPosition += 15;
     }
 
-    // Información de contacto
-    doc.fillColor(textColor).fontSize(12).font("Helvetica");
-
-    const contactInfo = [];
-    if (perfil.email) contactInfo.push(`Email: ${perfil.email}`);
-    if (perfil.telefono) contactInfo.push(`Teléfono: ${perfil.telefono}`);
-    if (perfil.dni) contactInfo.push(`DNI: ${perfil.dni}`);
+    // Información de contacto en una línea compacta (email | teléfono | ubicación)
+    const contactParts = [];
+    if (perfil.email) contactParts.push(perfil.email);
+    if (perfil.telefono) contactParts.push(perfil.telefono);
     if (perfil.ciudad) {
         let ubicacion = perfil.ciudad;
         if (perfil.provincia) ubicacion += `, ${perfil.provincia}`;
         if (perfil.pais) ubicacion += `, ${perfil.pais}`;
-        contactInfo.push(`Ubicación: ${ubicacion}`);
+        contactParts.push(ubicacion);
     }
-    if (perfil.urlPortfolio)
-        contactInfo.push(`Portfolio: ${perfil.urlPortfolio}`);
+    
+    if (contactParts.length > 0) {
+        doc.fillColor(textColor)
+            .fontSize(9)
+            .font("Helvetica")
+            .text(contactParts.join(" | "), margin, yPosition, {
+                align: "center",
+                width: contentWidth
+            });
+        yPosition += 12;
+    }
 
-    contactInfo.forEach((info) => {
-        doc.text(info, margin, yPosition);
-        yPosition += 18;
-    });
+    // Portfolio en línea separada si existe
+    if (perfil.urlPortfolio) {
+        doc.fillColor(secondaryColor)
+            .fontSize(8)
+            .font("Helvetica")
+            .text(`Portfolio: ${perfil.urlPortfolio}`, margin, yPosition, {
+                align: "center",
+                width: contentWidth
+            });
+        yPosition += 12;
+    }
 
-    yPosition += 10;
+    yPosition += 8;
 
-    // Línea separadora
-    doc.strokeColor(primaryColor)
-        .lineWidth(2)
-        .moveTo(margin, yPosition)
-        .lineTo(pageWidth - margin, yPosition)
-        .stroke();
-
-    yPosition += 25;
-
-    // RESUMEN PROFESIONAL
+    // ========================================
+    // PERFIL PROFESIONAL
+    // ========================================
     if (perfil.resumenProfesional) {
-        doc.fillColor(primaryColor)
-            .fontSize(16)
-            .font("Helvetica-Bold")
-            .text("RESUMEN PROFESIONAL", margin, yPosition);
-
-        yPosition += 25;
-
-        doc.fillColor(textColor)
-            .fontSize(11)
-            .font("Helvetica")
-            .text(perfil.resumenProfesional, margin, yPosition, {
-                width: contentWidth,
-                align: "justify",
-            });
-
-        yPosition +=
-            doc.heightOfString(perfil.resumenProfesional, {
-                width: contentWidth,
-                align: "justify",
-            }) + 20;
-    }
-
-    // Verificar si necesitamos nueva página
-    if (yPosition > doc.page.height - 200) {
-        doc.addPage();
-        yPosition = margin;
-    }
-
-    // EXPERIENCIA LABORAL
-    if (experiencias.length > 0) {
-        doc.fillColor(primaryColor)
-            .fontSize(16)
-            .font("Helvetica-Bold")
-            .text("EXPERIENCIA LABORAL", margin, yPosition);
-
-        yPosition += 25;
-
-        experiencias.forEach((exp, index) => {
-            // Verificar si necesitamos nueva página
-            if (yPosition > doc.page.height - 150) {
-                doc.addPage();
-                yPosition = margin;
-            }
-
-            // Puesto y empresa
-            doc.fillColor(textColor)
-                .fontSize(13)
-                .font("Helvetica-Bold")
-                .text(`${exp.puesto} - ${exp.empresa}`, margin, yPosition);
-
-            yPosition += 20;
-
-            // Fechas
-            if (exp.fechaInicio) {
-                const fechaInicio = new Date(
-                    exp.fechaInicio
-                ).toLocaleDateString("es-ES", {
-                    year: "numeric",
-                    month: "long",
-                });
-                const fechaFin = exp.fechaFin
-                    ? new Date(exp.fechaFin).toLocaleDateString("es-ES", {
-                          year: "numeric",
-                          month: "long",
-                      })
-                    : "Actualidad";
-
-                doc.fillColor(secondaryColor)
-                    .fontSize(11)
-                    .font("Helvetica-Oblique")
-                    .text(`${fechaInicio} - ${fechaFin}`, margin, yPosition);
-
-                yPosition += 18;
-            }
-
-            // Descripción
-            if (exp.descripcion) {
-                doc.fillColor(textColor)
-                    .fontSize(11)
-                    .font("Helvetica")
-                    .text(exp.descripcion, margin, yPosition, {
-                        width: contentWidth,
-                        align: "justify",
-                    });
-
-                yPosition +=
-                    doc.heightOfString(exp.descripcion, {
-                        width: contentWidth,
-                        align: "justify",
-                    }) + 15;
-            }
-
-            yPosition += 10;
-        });
-    }
-
-    // FORMACIÓN ACADÉMICA
-    if (formaciones.length > 0) {
-        // Verificar si necesitamos nueva página
-        if (yPosition > doc.page.height - 200) {
-            doc.addPage();
-            yPosition = margin;
-        }
-
-        doc.fillColor(primaryColor)
-            .fontSize(16)
-            .font("Helvetica-Bold")
-            .text("FORMACIÓN ACADÉMICA", margin, yPosition);
-
-        yPosition += 25;
-
-        formaciones.forEach((formacion) => {
-            // Verificar si necesitamos nueva página
-            if (yPosition > doc.page.height - 100) {
-                doc.addPage();
-                yPosition = margin;
-            }
-
-            doc.fillColor(textColor)
-                .fontSize(13)
-                .font("Helvetica-Bold")
-                .text(formacion.titulo, margin, yPosition);
-
-            yPosition += 18;
-
-            doc.fillColor(secondaryColor)
-                .fontSize(11)
-                .font("Helvetica")
-                .text(
-                    `${formacion.institucion}${
-                        formacion.anioFinalizacion
-                            ? ` - ${formacion.anioFinalizacion}`
-                            : ""
-                    }`,
-                    margin,
-                    yPosition
-                );
-
-            yPosition += 25;
-        });
-    }
-
-    // CURSOS Y CERTIFICACIONES
-    if (cursos.length > 0) {
-        // Verificar si necesitamos nueva página
-        if (yPosition > doc.page.height - 200) {
-            doc.addPage();
-            yPosition = margin;
-        }
-
-        doc.fillColor(primaryColor)
-            .fontSize(16)
-            .font("Helvetica-Bold")
-            .text("CURSOS Y CERTIFICACIONES", margin, yPosition);
-
-        yPosition += 25;
-
-        cursos.forEach((curso) => {
-            // Verificar si necesitamos nueva página
-            if (yPosition > doc.page.height - 80) {
-                doc.addPage();
-                yPosition = margin;
-            }
-
-            doc.fillColor(textColor)
-                .fontSize(12)
-                .font("Helvetica-Bold")
-                .text(curso.nombre, margin, yPosition);
-
-            yPosition += 16;
-
-            let detalleCurso = curso.institucion;
-            if (curso.horasDuracion) {
-                detalleCurso += ` - ${curso.horasDuracion} horas`;
-            }
-
-            doc.fillColor(secondaryColor)
-                .fontSize(10)
-                .font("Helvetica")
-                .text(detalleCurso, margin, yPosition);
-
-            yPosition += 20;
-        });
-    }
-
-    // HABILIDADES
-    if (habilidades.length > 0) {
-        // Verificar si necesitamos nueva página
-        if (yPosition > doc.page.height - 200) {
-            doc.addPage();
-            yPosition = margin;
-        }
-
-        doc.fillColor(primaryColor)
-            .fontSize(16)
-            .font("Helvetica-Bold")
-            .text("HABILIDADES", margin, yPosition);
-
-        yPosition += 25;
-
-        // Agrupar habilidades en columnas para mejor presentación
-        const habilidadesTexto = habilidades.map(h => h.nombre).join(" • ");
-        
-        doc.fillColor(textColor)
-            .fontSize(11)
-            .font("Helvetica")
-            .text(habilidadesTexto, margin, yPosition, {
-                width: contentWidth,
-                align: "left",
-            });
-
-        yPosition += doc.heightOfString(habilidadesTexto, {
-            width: contentWidth,
-            align: "left",
-        }) + 25;
-    }
-
-    // Footer con información adicional
-    if (perfil.situacionLaboral) {
-        yPosition += 20;
+        yPosition = verificarEspacio(60, yPosition);
 
         doc.fillColor(primaryColor)
             .fontSize(12)
             .font("Helvetica-Bold")
-            .text("SITUACIÓN LABORAL ACTUAL", margin, yPosition);
+            .text("Perfil Profesional", margin, yPosition, {
+                align: "center",
+                width: contentWidth
+            });
 
-        yPosition += 18;
+        yPosition += 13;
+        dibujarLineaSeccion(yPosition);
+        yPosition += 13;
 
         doc.fillColor(textColor)
-            .fontSize(11)
+            .fontSize(9)
+            .font("Helvetica")
+            .text(perfil.resumenProfesional, margin, yPosition, {
+                width: contentWidth,
+                align: "justify",
+                lineGap: 1
+            });
+
+        yPosition += doc.heightOfString(perfil.resumenProfesional, {
+            width: contentWidth,
+            align: "justify",
+            lineGap: 1
+        }) + 20;
+    }
+
+    // ========================================
+    // EXPERIENCIA LABORAL
+    // ========================================
+    if (experiencias.length > 0) {
+        yPosition = verificarEspacio(80, yPosition);
+
+        doc.fillColor(primaryColor)
+            .fontSize(12)
+            .font("Helvetica-Bold")
+            .text("Experiencia Laboral", margin, yPosition, {
+                align: "center",
+                width: contentWidth
+            });
+
+        yPosition += 13;
+        dibujarLineaSeccion(yPosition);
+        yPosition += 13;
+
+        experiencias.forEach((exp, index) => {
+            // Estimar altura necesaria para esta experiencia
+            const alturaEstimada = 50 + (exp.descripcion ? 30 : 0);
+            yPosition = verificarEspacio(alturaEstimada, yPosition);
+
+            // Guardar posición Y para la fecha
+            const yPuestoFecha = yPosition;
+
+            // Puesto en negrita
+            doc.fillColor(textColor)
+                .fontSize(10)
+                .font("Helvetica-Bold")
+                .text(exp.puesto, margin, yPosition, {
+                    width: contentWidth * 0.6
+                });
+
+            // Fechas en itálica - alineadas a la derecha
+            if (exp.fechaInicio) {
+                const fechaInicio = new Date(exp.fechaInicio).toLocaleDateString("es-ES", {
+                    year: "numeric",
+                    month: "short"
+                });
+                const fechaFin = exp.fechaFin
+                    ? new Date(exp.fechaFin).toLocaleDateString("es-ES", {
+                          year: "numeric",
+                          month: "short"
+                      })
+                    : "Presente";
+
+                doc.fillColor(secondaryColor)
+                    .fontSize(8)
+                    .font("Helvetica-Oblique")
+                    .text(`${fechaInicio} - ${fechaFin}`, margin, yPuestoFecha, {
+                        width: contentWidth,
+                        align: "right"
+                    });
+            }
+
+            yPosition += 12;
+
+            // Empresa y ubicación en gris
+            doc.fillColor(secondaryColor)
+                .fontSize(9)
+                .font("Helvetica")
+                .text(exp.empresa, margin, yPosition);
+
+            yPosition += 11;
+
+            // Descripción con viñetas si existe
+            if (exp.descripcion) {
+                // Dividir descripción en puntos si contiene saltos de línea o bullets
+                const puntos = exp.descripcion.split('\n').filter(p => p.trim());
+                
+                puntos.forEach(punto => {
+                    yPosition = verificarEspacio(18, yPosition);
+                    doc.fillColor(textColor)
+                        .fontSize(8)
+                        .font("Helvetica")
+                        .text(`• ${punto.trim()}`, margin + 8, yPosition, {
+                            width: contentWidth - 8,
+                            lineGap: 0.5
+                        });
+
+                    yPosition += doc.heightOfString(`• ${punto.trim()}`, {
+                        width: contentWidth - 8,
+                        lineGap: 0.5
+                    }) + 2;
+                });
+            }
+
+            yPosition += 8; // Espacio entre experiencias
+        });
+
+        yPosition += 18;
+    }
+
+    // ========================================
+    // FORMACIÓN ACADÉMICA
+    // ========================================
+    if (formaciones.length > 0) {
+        yPosition = verificarEspacio(60, yPosition);
+
+        doc.fillColor(primaryColor)
+            .fontSize(12)
+            .font("Helvetica-Bold")
+            .text("Formación Académica", margin, yPosition, {
+                align: "center",
+                width: contentWidth
+            });
+
+        yPosition += 13;
+        dibujarLineaSeccion(yPosition);
+        yPosition += 13;
+
+        formaciones.forEach((formacion) => {
+            yPosition = verificarEspacio(30, yPosition);
+
+            // Guardar posición Y para la fecha
+            const yTituloFecha = yPosition;
+
+            // Título en negrita
+            doc.fillColor(textColor)
+                .fontSize(10)
+                .font("Helvetica-Bold")
+                .text(formacion.titulo, margin, yPosition, {
+                    width: contentWidth * 0.6
+                });
+
+            // Año alineado a la derecha
+            if (formacion.anioFinalizacion) {
+                doc.fillColor(secondaryColor)
+                    .fontSize(8)
+                    .font("Helvetica-Oblique")
+                    .text(formacion.anioFinalizacion.toString(), margin, yTituloFecha, {
+                        width: contentWidth,
+                        align: "right"
+                    });
+            }
+
+            yPosition += 12;
+
+            // Institución
+            doc.fillColor(secondaryColor)
+                .fontSize(9)
+                .font("Helvetica")
+                .text(formacion.institucion, margin, yPosition);
+
+            yPosition += 13;
+        });
+
+        yPosition += 18;
+    }
+
+    // ========================================
+    // CURSOS Y CERTIFICACIONES (compacto)
+    // ========================================
+    if (cursos.length > 0) {
+        yPosition = verificarEspacio(50, yPosition);
+
+        doc.fillColor(primaryColor)
+            .fontSize(12)
+            .font("Helvetica-Bold")
+            .text("Certificaciones", margin, yPosition, {
+                align: "center",
+                width: contentWidth
+            });
+
+        yPosition += 13;
+        dibujarLineaSeccion(yPosition);
+        yPosition += 13;
+
+        cursos.forEach((curso) => {
+            yPosition = verificarEspacio(20, yPosition);
+
+            // Nombre del curso en negrita
+            doc.fillColor(textColor)
+                .fontSize(9)
+                .font("Helvetica-Bold")
+                .text(curso.nombre, margin, yPosition);
+
+            yPosition += 10;
+
+            // Institución y horas en la misma línea
+            let detalleCurso = curso.institucion;
+            if (curso.horasDuracion) {
+                detalleCurso += ` | ${curso.horasDuracion} horas`;
+            }
+
+            doc.fillColor(secondaryColor)
+                .fontSize(8)
+                .font("Helvetica")
+                .text(detalleCurso, margin, yPosition);
+
+            yPosition += 11;
+        });
+
+        yPosition += 18;
+    }
+
+    // ========================================
+    // HABILIDADES (divididas en técnicas y blandas)
+    // ========================================
+    if (habilidades.length > 0) {
+        yPosition = verificarEspacio(50, yPosition);
+
+        doc.fillColor(primaryColor)
+            .fontSize(12)
+            .font("Helvetica-Bold")
+            .text("Habilidades", margin, yPosition, {
+                align: "center",
+                width: contentWidth
+            });
+
+        yPosition += 13;
+        dibujarLineaSeccion(yPosition);
+        yPosition += 13;
+
+        // Separar habilidades por tipo
+        const habilidadesTecnicas = habilidades.filter(h => h.tipo === 'tecnica');
+        const habilidadesBlandas = habilidades.filter(h => h.tipo === 'blanda');
+        const idiomas = habilidades.filter(h => h.tipo === 'idioma');
+
+        // Habilidades Técnicas
+        if (habilidadesTecnicas.length > 0) {
+            doc.fillColor(textColor)
+                .fontSize(10)
+                .font("Helvetica-Bold")
+                .text("Técnicas: ", margin, yPosition, { continued: true })
+                .fontSize(9)
+                .font("Helvetica")
+                .text(habilidadesTecnicas.map(h => h.nombre).join(", "), {
+                    width: contentWidth - 60,
+                    lineGap: 1
+                });
+
+            yPosition += doc.heightOfString(habilidadesTecnicas.map(h => h.nombre).join(", "), {
+                width: contentWidth - 60
+            }) + 8;
+        }
+
+        // Habilidades Blandas
+        if (habilidadesBlandas.length > 0) {
+            yPosition = verificarEspacio(30, yPosition);
+            
+            doc.fillColor(textColor)
+                .fontSize(10)
+                .font("Helvetica-Bold")
+                .text("Blandas: ", margin, yPosition, { continued: true })
+                .fontSize(9)
+                .font("Helvetica")
+                .text(habilidadesBlandas.map(h => h.nombre).join(", "), {
+                    width: contentWidth - 60,
+                    lineGap: 1
+                });
+
+            yPosition += doc.heightOfString(habilidadesBlandas.map(h => h.nombre).join(", "), {
+                width: contentWidth - 60
+            }) + 8;
+        }
+
+        // Idiomas (si existen)
+        if (idiomas.length > 0) {
+            yPosition = verificarEspacio(30, yPosition);
+            
+            doc.fillColor(textColor)
+                .fontSize(10)
+                .font("Helvetica-Bold")
+                .text("Idiomas: ", margin, yPosition, { continued: true })
+                .fontSize(9)
+                .font("Helvetica")
+                .text(idiomas.map(h => h.nombre).join(", "), {
+                    width: contentWidth - 60,
+                    lineGap: 1
+                });
+
+            yPosition += doc.heightOfString(idiomas.map(h => h.nombre).join(", "), {
+                width: contentWidth - 60
+            }) + 8;
+
+            yPosition += 6;
+        }
+
+        yPosition += 18;
+    }
+
+    // ========================================
+    // SITUACIÓN LABORAL (si aplica)
+    // ========================================
+    if (perfil.situacionLaboral) {
+        yPosition = verificarEspacio(40, yPosition);
+
+        doc.fillColor(primaryColor)
+            .fontSize(12)
+            .font("Helvetica-Bold")
+            .text("Situación Laboral", margin, yPosition, {
+                align: "center",
+                width: contentWidth
+            });
+
+        yPosition += 13;
+        dibujarLineaSeccion(yPosition);
+        yPosition += 13;
+
+        doc.fillColor(textColor)
+            .fontSize(9)
             .font("Helvetica")
             .text(perfil.situacionLaboral, margin, yPosition);
     }
 
-    // Footer del documento
-    const footerY = doc.page.height - 50;
-    doc.fillColor(secondaryColor)
-        .fontSize(8)
-        .font("Helvetica")
-        .text(
-            `Generado desde Sistema de Egresados IES - ${new Date().toLocaleDateString(
-                "es-ES"
-            )}`,
-            margin,
-            footerY,
-            { align: "center", width: contentWidth }
-        );
 }
