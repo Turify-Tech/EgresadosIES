@@ -41,6 +41,9 @@ console.log("🔍 Environment Check:", {
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy - Necesario para Railway y otros servicios cloud
+app.set('trust proxy', 1);
+
 // Middleware de seguridad
 app.use(
     helmet({
