@@ -46,6 +46,53 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                 visibility: visible;
             }
 
+            /* CRÍTICO: Botón de filtros - estilos iniciales para evitar FOUC */
+            .toggle-filters-btn {
+                padding: 0.5rem 1rem !important;
+                background: #3b82f6 !important;
+                background-color: #3b82f6 !important;
+                color: #ffffff !important;
+                border: 1px solid #3b82f6 !important;
+                border-radius: 8px !important;
+                font-size: 0.875rem !important;
+                font-weight: 500 !important;
+                cursor: pointer !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 0.5rem !important;
+                min-width: 80px !important;
+                justify-content: center !important;
+                transition: all 0.2s !important;
+                text-decoration: none !important;
+                box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+            }
+
+            .toggle-filters-btn:hover {
+                background: #2563eb !important;
+                background-color: #2563eb !important;
+                border-color: #2563eb !important;
+            }
+
+            .toggle-filters-btn.active {
+                background: #1d4ed8 !important;
+                background-color: #1d4ed8 !important;
+                color: white !important;
+                border-color: #1d4ed8 !important;
+            }
+
+            /* Sidebar de filtros - oculto por defecto */
+            .filters-sidebar {
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+            }
+
+            .filters-sidebar.show {
+                opacity: 1;
+                visibility: visible;
+                pointer-events: auto;
+            }
+
             /* CRÍTICO: Dropdown del perfil debe estar oculto por defecto */
             #user-dropdown:not([style*="display: block"]):not([style*="display:block"]) {
                 display: none !important;

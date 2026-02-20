@@ -48,8 +48,8 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
                                     </div>
                                 </div>
 
-                                <!-- Filtro de Carrera -->
-                                <div class="filter-section">
+                                <!-- Filtro de Carrera (se oculta si hay una sola) -->
+                                <div class="filter-section" id="carrera-filter-section" style="display: none;">
                                     <label class="filter-label">Carrera</label>
                                     <div
                                         class="checkbox-group"
@@ -453,9 +453,9 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
     /* Botón de filtros */
     .toggle-filters-btn {
         padding: 0.5rem 1rem;
-        background: white;
-        color: var(--text-primary);
-        border: 1px solid var(--border-color);
+        background: #3b82f6;
+        color: #ffffff;
+        border: 1px solid #3b82f6;
         border-radius: var(--radius);
         font-size: 0.875rem;
         font-weight: 500;
@@ -469,14 +469,14 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
     }
 
     .toggle-filters-btn:hover {
-        background: var(--bg-gray);
-        border-color: var(--primary-color);
+        background: #2563eb;
+        border-color: #2563eb;
     }
 
     .toggle-filters-btn.active {
-        background: var(--primary-color);
+        background: #1d4ed8;
         color: white;
-        border-color: var(--primary-color);
+        border-color: #1d4ed8;
     }
 
     /* Título de página centrado */
