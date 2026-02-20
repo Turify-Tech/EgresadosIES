@@ -819,7 +819,7 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                                 let fotoUrl =
                                     perfilData.urlFotoPerfil.startsWith("http")
                                         ? perfilData.urlFotoPerfil
-                                        : `http://localhost:3000${perfilData.urlFotoPerfil}`;
+                                        : `${(window as any).API_BASE_URL}${perfilData.urlFotoPerfil}`;
 
                                 // Optimizar URL si es de ImageKit
                                 if (fotoUrl.includes("ik.imagekit.io")) {

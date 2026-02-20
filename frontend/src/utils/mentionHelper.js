@@ -2,7 +2,7 @@
  * Utilidades para procesar y formatear menciones
  */
 
-const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3000/api';
+import { API_URL } from '../config/env.js';
 
 /**
  * Procesa texto con menciones y las convierte a HTML

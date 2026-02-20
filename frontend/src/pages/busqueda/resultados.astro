@@ -463,7 +463,7 @@ const { query } = Astro.url.searchParams;
                 imagenes.map((img) =>
                     img.startsWith("http")
                         ? img
-                        : `http://localhost:3000${img}`,
+                        : `${API_BASE_URL}${img}`,
                 ),
             ).replace(/"/g, "&quot;");
 
@@ -475,7 +475,7 @@ const { query } = Astro.url.searchParams;
             for (let i = 0; i < maxDisplay; i++) {
                 let imgUrl = imagenes[i].startsWith("http")
                     ? imagenes[i]
-                    : `http://localhost:3000${imagenes[i]}`;
+                    : `${API_BASE_URL}${imagenes[i]}`;
 
                 if (imgUrl.includes("ik.imagekit.io")) {
                     imgUrl += "?tr=w-800,q-80,f-auto";
@@ -499,7 +499,7 @@ const { query } = Astro.url.searchParams;
         let fotoUrl = autor.urlFotoPerfil
             ? autor.urlFotoPerfil.startsWith("http")
                 ? autor.urlFotoPerfil
-                : `http://localhost:3000${autor.urlFotoPerfil}`
+                : `${API_BASE_URL}${autor.urlFotoPerfil}`
             : null;
 
         console.log("🖼️ Procesando avatar:", {

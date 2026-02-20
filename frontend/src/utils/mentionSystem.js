@@ -3,7 +3,7 @@
  * Gestiona el autocomplete de egresados al escribir @
  */
 
-const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3000';
+import { API_URL, API_BASE_URL } from '../config/env.js';
 
 class MentionSystem {
     constructor(textareaId, options = {}) {
@@ -116,7 +116,7 @@ class MentionSystem {
                     return;
                 }
 
-                const url = `${API_URL}/api/egresados/buscar?query=${encodeURIComponent(query)}&limit=${this.options.maxResults}`;
+                const url = `${API_URL}/egresados/buscar?query=${encodeURIComponent(query)}&limit=${this.options.maxResults}`;
                 const response = await fetch(url, {
                     headers: {
                         'Authorization': `Bearer ${token}`

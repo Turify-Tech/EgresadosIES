@@ -944,7 +944,7 @@ import "../styles/mentions.css";
                 for (let i = 0; i < maxDisplay; i++) {
                     let imgUrl = imagenes[i].startsWith("http")
                         ? imagenes[i]
-                        : `http://localhost:3000${imagenes[i]}`;
+                        : `${API_BASE_URL}${imagenes[i]}`;
 
                     // Optimizar URLs de ImageKit con parámetros de compresión más agresivos
                     if (imgUrl.includes("ik.imagekit.io")) {
@@ -980,7 +980,7 @@ import "../styles/mentions.css";
             let fotoUrl = autor.urlFotoPerfil
                 ? autor.urlFotoPerfil.startsWith("http")
                     ? autor.urlFotoPerfil
-                    : `http://localhost:3000${autor.urlFotoPerfil}`
+                    : `${API_BASE_URL}${autor.urlFotoPerfil}`
                 : null;
 
             // Optimizar URL si es de ImageKit
@@ -2811,7 +2811,7 @@ import "../styles/mentions.css";
                             "http",
                         )
                             ? perfilData.urlFotoPerfil
-                            : `http://localhost:3000${perfilData.urlFotoPerfil}`;
+                            : `${API_BASE_URL}${perfilData.urlFotoPerfil}`;
 
                         // Optimizar URL si es de ImageKit
                         if (fotoUrl.includes("ik.imagekit.io")) {
@@ -2901,7 +2901,7 @@ import "../styles/mentions.css";
                     if (menuMobileAvatar && perfilData && perfilData.urlFotoPerfil) {
                         let fotoUrl = perfilData.urlFotoPerfil.startsWith("http")
                             ? perfilData.urlFotoPerfil
-                            : `http://localhost:3000${perfilData.urlFotoPerfil}`;
+                            : `${API_BASE_URL}${perfilData.urlFotoPerfil}`;
                         if (fotoUrl.includes("ik.imagekit.io")) {
                             fotoUrl += "?tr=w-80,h-80,q-80,f-auto";
                         }

@@ -782,7 +782,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
             // Llamar a la API
             console.log("📡 Llamando a la API /api/perfil/mi-perfil...");
             const response = await fetch(
-                "http://localhost:3000/api/perfil/mi-perfil",
+                `${API_URL}/perfil/mi-perfil`,
                 {
                     method: "GET",
                     headers: {
@@ -1113,7 +1113,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
             );
 
             const response = await fetch(
-                "http://localhost:3000/api/perfil/mi-perfil",
+                `${API_URL}/perfil/mi-perfil`,
                 {
                     method: "PUT",
                     headers: {

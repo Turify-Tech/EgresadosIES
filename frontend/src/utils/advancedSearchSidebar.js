@@ -5,6 +5,7 @@
 
 import { searchService, publicProfilesService } from "./api.js";
 import { SearchBar } from "./searchBar.js";
+import { API_BASE_URL } from '../config/env.js';
 
 export class AdvancedSearchManagerSidebar {
     constructor(options = {}) {
@@ -373,7 +374,7 @@ export class AdvancedSearchManagerSidebar {
         const fotoUrl = perfil.urlFotoPerfil
             ? (perfil.urlFotoPerfil.startsWith('http') 
                 ? perfil.urlFotoPerfil 
-                : `http://localhost:3000${perfil.urlFotoPerfil}`)
+                : `${API_BASE_URL}${perfil.urlFotoPerfil}`)
             : null;
         
         const avatar = fotoUrl
