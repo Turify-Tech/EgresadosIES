@@ -215,7 +215,7 @@ import TablaDnis from "../../components/admin/TablaDnis.astro";
 </style>
 
 <script>
-    const API_URL = "http://localhost:3000/api";
+    const API_URL = window.API_URL || "http://localhost:3000/api";
 
     // Verificar que el usuario sea administrador
     async function verificarAdmin() {

@@ -12,7 +12,7 @@ export function getImageUrl(imageUrl) {
     }
     
     // Si es una ruta relativa, agregar el dominio del backend
-    const backendUrl = 'http://localhost:3000';
+    const backendUrl = (import.meta.env.PUBLIC_API_URL || 'http://localhost:3000').replace(/\/api$/, '');
     return `${backendUrl}${imageUrl}`;
 }
 
