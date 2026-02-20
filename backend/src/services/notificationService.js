@@ -29,10 +29,11 @@ class NotificationService {
             }
 
             // Configuración del transportador SMTP
+            const port = parseInt(process.env.SMTP_PORT) || 587;
             this.transporter = nodemailer.createTransport({
                 host: process.env.SMTP_HOST || 'smtp.gmail.com',
-                port: parseInt(process.env.SMTP_PORT) || 587,
-                secure: false, // true para puerto 465, false para otros
+                port: port,
+                secure: port === 465, // true para puerto 465 (SSL), false para 587 (TLS)
                 auth: {
                     user: process.env.SMTP_USER,
                     pass: process.env.SMTP_PASS,
