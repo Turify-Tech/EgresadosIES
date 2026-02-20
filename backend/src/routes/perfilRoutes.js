@@ -46,6 +46,10 @@ import {
     updateProyecto,
     deleteProyecto,
 } from "../controllers/proyectosController.js";
+import {
+    batchSaveFormaciones,
+    batchSaveCursos,
+} from "../controllers/formacionBatchController.js";
 import { downloadMiCV } from "../controllers/cvController.js";
 import {
     uploadFotoPerfil,
@@ -57,7 +61,7 @@ const router = express.Router();
 // Middleware global para todas las rutas del perfil
 router.use(authenticateToken); // Todas las rutas requieren autenticación
 router.use(requireUserType("Egresado")); // Solo egresados pueden gestionar perfiles
-router.use(userRateLimit(50, 15 * 60 * 1000)); // 50 requests por usuario cada 15 minutos
+router.use(userRateLimit(150, 15 * 60 * 1000)); // 150 requests por usuario cada 15 minutos
 router.use(sanitizeStrings); // Sanitizar strings automáticamente
 
 // ===============================================
@@ -163,6 +167,18 @@ router.post(
 );
 
 /**
+ * @route   POST /api/perfil/formaciones-batch
+ * @desc    Guarda múltiples formaciones académicas en una sola petición
+ * @access  Private (Egresado)
+ * @body    { formaciones: [{ id?, titulo, institucion, anioFinalizacion? }] }
+ */
+router.post(
+    "/formaciones-batch",
+    logValidation("Batch formaciones académicas"),
+    batchSaveFormaciones
+);
+
+/**
  * @route   PUT /api/perfil/formacion/:id
  * @desc    Actualiza una formación académica existente
  * @access  Private (Egresado - solo propias)
@@ -199,6 +215,18 @@ router.delete(
  * @body    { nombre, institucion, horasDuracion? }
  */
 router.post("/curso", logValidation("Agregar curso"), validateCurso, addCurso);
+
+/**
+ * @route   POST /api/perfil/cursos-batch
+ * @desc    Guarda múltiples cursos en una sola petición
+ * @access  Private (Egresado)
+ * @body    { cursos: [{ id?, nombre, institucion?, horasDuracion? }] }
+ */
+router.post(
+    "/cursos-batch",
+    logValidation("Batch cursos"),
+    batchSaveCursos
+);
 
 /**
  * @route   PUT /api/perfil/curso/:id
@@ -319,8 +347,7 @@ router.delete(
 // Manejador de errores específico para las rutas de perfil
 router.use((err, req, res, next) => {
     console.error(
-        `[PERFIL_ERROR] Usuario: ${req.user?.id || "unknown"}, Ruta: ${
-            req.path
+        `[PERFIL_ERROR] Usuario: ${req.user?.id || "unknown"}, Ruta: ${req.path
         }, Error:`,
         err
     );

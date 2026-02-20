@@ -1638,77 +1638,88 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
             // Métodos de guardado específicos para cada sección
             async saveFormaciones() {
                 try {
-                    console.log("💾 Guardando formaciones y cursos...");
+                    console.log("💾 Guardando formaciones y cursos (batch)...");
 
                     // Obtener datos del FormacionesManager
                     if (window.formacionesManager) {
                         const data = window.formacionesManager.getFormData();
                         console.log("Datos de formaciones:", data);
 
-                        // Guardar formaciones
-                        if (data.formaciones && data.formaciones.length > 0) {
-                            for (const formacion of data.formaciones) {
-                                // Solo guardar si tiene título e institución
-                                if (formacion.titulo && formacion.institucion) {
-                                    // Preparar datos limpios para la API
-                                    const formacionData = {
-                                        titulo: formacion.titulo,
-                                        institucion: formacion.institucion,
-                                        anioFinalizacion: formacion.anioFinalizacion || null,
-                                    };
+                        // Preparar promesas para ejecución en paralelo
+                        const promises = [];
 
-                                    if (formacion.id) {
-                                        // Actualizar formación existente
-                                        await profileService.updateFormacion(
-                                            formacion.id,
-                                            formacionData
-                                        );
-                                    } else {
-                                        // Crear nueva formación
-                                        const response = await profileService.addFormacion(
-                                            formacionData
-                                        );
-                                        if (response.success && response.data) {
-                                            // Actualizar el ID en el manager
-                                            formacion.id = response.data.id;
-                                        }
-                                    }
-                                }
+                        // Guardar formaciones en batch (1 sola petición)
+                        if (data.formaciones && data.formaciones.length > 0) {
+                            const formacionesValidas = data.formaciones
+                                .filter(f => f.titulo && f.institucion)
+                                .map(f => ({
+                                    id: f.id || undefined,
+                                    titulo: f.titulo,
+                                    institucion: f.institucion,
+                                    anioFinalizacion: f.anioFinalizacion || null,
+                                }));
+
+                            if (formacionesValidas.length > 0) {
+                                console.log(`📦 Enviando ${formacionesValidas.length} formación(es) en batch`);
+                                promises.push(
+                                    profileService.batchSaveFormaciones(formacionesValidas)
+                                        .then(response => {
+                                            // Actualizar IDs en el manager para formaciones nuevas
+                                            if (response.data && response.data.resultados) {
+                                                response.data.resultados.forEach(r => {
+                                                    if (r.action === "created" && data.formaciones[r.index]) {
+                                                        data.formaciones[r.index].id = r.id;
+                                                    }
+                                                });
+                                            }
+                                            return { type: 'formaciones', response };
+                                        })
+                                );
                             }
                         }
 
-                        // Guardar cursos
+                        // Guardar cursos en batch (1 sola petición)
                         if (data.cursos && data.cursos.length > 0) {
-                            for (const curso of data.cursos) {
-                                // Solo guardar si tiene nombre
-                                if (curso.nombre) {
-                                    // Preparar datos limpios para la API
-                                    const cursoData = {
-                                        nombre: curso.nombre,
-                                        institucion: curso.institucionCurso || null,
-                                        horasDuracion: curso.horasDuracion || null,
-                                        urlCertificado: curso.urlCertificado || null,
-                                        fechaFinalizacion: curso.fechaFinalizacion || null,
-                                        estado: curso.estado || null,
-                                    };
+                            const cursosValidos = data.cursos
+                                .filter(c => c.nombre)
+                                .map(c => ({
+                                    id: c.id || undefined,
+                                    nombre: c.nombre,
+                                    institucion: c.institucionCurso || null,
+                                    horasDuracion: c.horasDuracion || null,
+                                }));
 
-                                    if (curso.id) {
-                                        // Actualizar curso existente
-                                        await profileService.updateCurso(
-                                            curso.id,
-                                            cursoData
-                                        );
-                                    } else {
-                                        // Crear nuevo curso
-                                        const response = await profileService.addCurso(
-                                            cursoData
-                                        );
-                                        if (response.success && response.data) {
-                                            // Actualizar el ID en el manager
-                                            curso.id = response.data.id;
-                                        }
-                                    }
-                                }
+                            if (cursosValidos.length > 0) {
+                                console.log(`📦 Enviando ${cursosValidos.length} curso(s) en batch`);
+                                promises.push(
+                                    profileService.batchSaveCursos(cursosValidos)
+                                        .then(response => {
+                                            // Actualizar IDs en el manager para cursos nuevos
+                                            if (response.data && response.data.resultados) {
+                                                response.data.resultados.forEach(r => {
+                                                    if (r.action === "created" && data.cursos[r.index]) {
+                                                        data.cursos[r.index].id = r.id;
+                                                    }
+                                                });
+                                            }
+                                            return { type: 'cursos', response };
+                                        })
+                                );
+                            }
+                        }
+
+                        // Ejecutar ambos batch en paralelo
+                        if (promises.length > 0) {
+                            const results = await Promise.all(promises);
+                            console.log("✅ Batch completado:", results);
+
+                            // Verificar si hubo errores parciales
+                            const errores = results
+                                .filter(r => r.response.data?.errores)
+                                .flatMap(r => r.response.data.errores);
+
+                            if (errores.length > 0) {
+                                console.warn("⚠️ Algunos items tuvieron errores:", errores);
                             }
                         }
 
