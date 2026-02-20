@@ -1,47 +1,36 @@
-import nodemailer from 'nodemailer';
 import database from '../config/database.js';
 
 /**
  * Servicio de Notificaciones
  * Gestiona la creación de notificaciones internas y envío de emails
+ * Usa Brevo API para envío de emails (300/día gratis sin dominio verificado)
  */
 
 class NotificationService {
     constructor() {
-        this.transporter = null;
+        this.brevoApiKey = null;
         this.initialized = false;
     }
 
     /**
-     * Inicializa el transportador de nodemailer (lazy initialization)
+     * Inicializa el servicio de email con Brevo (lazy initialization)
      */
     initializeTransporter() {
         if (this.initialized) return;
         
         try {
-            // Verificar que las credenciales existan
-            if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-                console.log('⚠️  Variables SMTP no configuradas en .env');
-                console.log('SMTP_USER:', process.env.SMTP_USER ? '✓' : '✗');
-                console.log('SMTP_PASS:', process.env.SMTP_PASS ? '✓' : '✗');
+            // Verificar que la API key exista
+            if (!process.env.BREVO_API_KEY) {
+                console.log('⚠️  BREVO_API_KEY no configurada en .env');
                 this.initialized = true;
                 return;
             }
 
-            // Configuración del transportador SMTP
-            const port = parseInt(process.env.SMTP_PORT) || 587;
-            this.transporter = nodemailer.createTransport({
-                host: process.env.SMTP_HOST || 'smtp.gmail.com',
-                port: port,
-                secure: port === 465, // true para puerto 465 (SSL), false para 587 (TLS)
-                auth: {
-                    user: process.env.SMTP_USER,
-                    pass: process.env.SMTP_PASS,
-                },
-            });
+            this.brevoApiKey = process.env.BREVO_API_KEY;
 
-            console.log('📧 Servicio de email inicializado');
-            console.log('📧 SMTP configurado para:', process.env.SMTP_USER);
+            console.log('📧 Servicio de email inicializado con Brevo');
+            console.log('📧 Email FROM:', `${process.env.EMAIL_FROM_NAME} <${process.env.EMAIL_FROM_ADDRESS}>`);
+            console.log('📧 Límite: 300 emails/día');
             this.initialized = true;
         } catch (error) {
             console.error('❌ Error al inicializar servicio de email:', error);
@@ -135,32 +124,50 @@ class NotificationService {
     }
 
     /**
-     * Envía un email de notificación
+     * Envía un email de notificación usando Brevo API
      * @param {String} destinatarioEmail - Email del destinatario
      * @param {String} asunto - Asunto del email
      * @param {String} htmlContent - Contenido HTML del email
      * @returns {Promise<Boolean>} True si se envió correctamente
      */
     async enviarEmail(destinatarioEmail, asunto, htmlContent) {
-        // Inicializar transportador si no se ha hecho
+        // Inicializar servicio si no se ha hecho
         if (!this.initialized) {
             this.initializeTransporter();
         }
         
-        if (!this.transporter) {
-            console.log('⚠️  Transportador de email no configurado');
+        if (!this.brevoApiKey) {
+            console.log('⚠️  Brevo API no configurada');
             return false;
         }
 
         try {
-            const info = await this.transporter.sendMail({
-                from: `"Egresados IES" <${process.env.SMTP_USER}>`,
-                to: destinatarioEmail,
-                subject: asunto,
-                html: htmlContent,
+            const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json',
+                    'api-key': this.brevoApiKey,
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify({
+                    sender: {
+                        name: process.env.EMAIL_FROM_NAME || 'Egresados IES',
+                        email: process.env.EMAIL_FROM_ADDRESS || 'institutoies9012@gmail.com'
+                    },
+                    to: [{ email: destinatarioEmail }],
+                    subject: asunto,
+                    htmlContent: htmlContent
+                })
             });
 
-            console.log(`📧 Email enviado: ${info.messageId}`);
+            if (!response.ok) {
+                const error = await response.json();
+                console.error('❌ Error de Brevo:', error);
+                return false;
+            }
+
+            const data = await response.json();
+            console.log(`📧 Email enviado via Brevo: ${data.messageId}`);
             return true;
         } catch (error) {
             console.error('❌ Error al enviar email:', error);
