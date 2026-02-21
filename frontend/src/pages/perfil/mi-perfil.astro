@@ -828,10 +828,10 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                     method: "GET",
                     headers: {
                         Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                },
-            });
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
 
             console.log("📥 Respuesta de la API:", {
                 status: response.status,
@@ -881,8 +881,8 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                 loadingOverlay.classList.add("hidden");
             }
         }
+    
     }
-
     function actualizarInterfaz(perfil) {
         // Guardar datos globalmente para el modo edición
         window.perfilData = perfil;
@@ -1163,8 +1163,7 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                     },
                     body: JSON.stringify(formData),
                 },
-                body: JSON.stringify(formData),
-            });
+            );
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -1442,7 +1441,7 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
             }
 
             // Llamar al endpoint del backend que genera el PDF estructurado
-            const response = await fetch(`${API_URL}/perfil/mi-cv`, {
+            const response = await fetch(`${API_URL}/api/perfil/mi-cv`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,

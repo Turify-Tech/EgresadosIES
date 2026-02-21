@@ -2,6 +2,8 @@
 // Componente modal para comentarios
 import "../styles/comentarios-modal.css";
 import "../styles/mentions.css";
+
+const { soloLectura = false } = Astro.props;
 ---
 
 <div id="comentarios-modal" class="modal-overlay" style="display: none;">
@@ -19,15 +21,17 @@ import "../styles/mentions.css";
                 <p class="no-comentarios">No hay comentarios en esta publicación</p>
             </div>
 
-            <!-- Formulario para agregar comentario -->
-            <form id="comentario-form" class="comentario-form">
-                <textarea 
-                    id="comentario-input" 
-                    placeholder="Agregar comentario... (usa @ para mencionar)" 
-                    rows="2"
-                ></textarea>
-                <button type="submit" class="btn-publicar">Publicar</button>
-            </form>
+            <!-- Formulario para agregar comentario (solo si no es modo solo lectura) -->
+            {!soloLectura && (
+                <form id="comentario-form" class="comentario-form">
+                    <textarea 
+                        id="comentario-input" 
+                        placeholder="Agregar comentario... (usa @ para mencionar)" 
+                        rows="2"
+                    ></textarea>
+                    <button type="submit" class="btn-publicar">Publicar</button>
+                </form>
+            )}
         </div>
     </div>
 </div>

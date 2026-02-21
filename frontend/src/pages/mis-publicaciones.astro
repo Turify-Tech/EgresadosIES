@@ -27,8 +27,8 @@ import "../styles/publicaciones-imagenes.css";
         </div>
     </div>
 
-    <!-- Modal de comentarios -->
-    <ComentariosModal />
+    <!-- Modal de comentarios (solo lectura) -->
+    <ComentariosModal soloLectura={true} />
 
     <!-- Modal de visor de imágenes -->
     <div id="imagen-modal" class="imagen-modal">
@@ -522,6 +522,82 @@ import "../styles/publicaciones-imagenes.css";
                 day: "numeric",
                 month: "short",
             });
+        }
+
+        // Función para procesar texto con menciones
+        async function procesarTextoConMenciones(texto) {
+            if (!texto) return '';
+            
+            // Escapar HTML básico primero
+            let resultado = texto
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+            
+            // Buscar todas las menciones en formato @[id:numero]
+            const regexMenciones = /@\[id:(\d+)\]/g;
+            const menciones = [...resultado.matchAll(regexMenciones)];
+            
+            // Si no hay menciones, solo convertir saltos de línea y retornar
+            if (menciones.length === 0) {
+                return resultado.replace(/\n/g, '<br>');
+            }
+            
+            // Obtener información de todos los usuarios mencionados
+            const idsUnicos = [...new Set(menciones.map(m => m[1]))];
+            const cacheMenciones = {};
+            
+            try {
+                const token = localStorage.getItem('auth_token');
+                if (!token) {
+                    console.warn('No hay token para resolver menciones');
+                    return resultado.replace(/\n/g, '<br>');
+                }
+                
+                // Consultar información de cada usuario
+                for (const userId of idsUnicos) {
+                    try {
+                        const response = await fetch(`${API_URL}/perfiles/${userId}`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            const usuario = data.data || data;
+                            const nombreCompleto = usuario.apellido 
+                                ? `${usuario.nombre} ${usuario.apellido}`
+                                : usuario.nombre;
+                            cacheMenciones[userId] = nombreCompleto;
+                        } else {
+                            cacheMenciones[userId] = 'Usuario';
+                        }
+                    } catch (error) {
+                        console.error(`Error obteniendo usuario ${userId}:`, error);
+                        cacheMenciones[userId] = 'Usuario';
+                    }
+                }
+                
+                // Reemplazar las menciones con el formato del frontend
+                resultado = resultado.replace(
+                    regexMenciones,
+                    (match, userId) => {
+                        const nombreUsuario = cacheMenciones[userId] || 'Usuario';
+                        return `<span style="color: #5b7fdb; font-weight: 600; cursor: pointer;" onclick="window.location.href='/perfil/${userId}'">@${nombreUsuario}</span>`;
+                    }
+                );
+                
+            } catch (error) {
+                console.error('Error procesando menciones:', error);
+            }
+            
+            // Convertir saltos de línea a <br>
+            resultado = resultado.replace(/\n/g, '<br>');
+            
+            return resultado;
         }
 
         // Función para crear HTML de comentario
