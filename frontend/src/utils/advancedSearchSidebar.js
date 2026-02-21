@@ -719,13 +719,29 @@ export class AdvancedSearchManagerSidebar {
             this.elements.filtersSidebar.classList.add("show");
         }
 
-        // Mostrar overlay en móvil
-        if (this.elements.sidebarOverlay && window.innerWidth <= 768) {
+        // En móvil no mostrar overlay para poder seleccionar filtros
+        // El sidebar es un modal centrado
+        if (this.elements.sidebarOverlay && window.innerWidth > 768) {
             this.elements.sidebarOverlay.classList.add("show");
         }
 
         if (this.elements.toggleFiltersBtn) {
             this.elements.toggleFiltersBtn.classList.add("active");
+        }
+
+        // Agregar listener para cerrar al hacer clic fuera en móvil
+        if (window.innerWidth <= 768) {
+            setTimeout(() => {
+                this._outsideClickHandler = (e) => {
+                    if (this.elements.filtersSidebar && 
+                        this.elements.filtersSidebar.classList.contains("show") &&
+                        !this.elements.filtersSidebar.contains(e.target) &&
+                        !this.elements.toggleFiltersBtn.contains(e.target)) {
+                        this.hideFilters();
+                    }
+                };
+                document.addEventListener("click", this._outsideClickHandler);
+            }, 100);
         }
     }
 
@@ -741,6 +757,12 @@ export class AdvancedSearchManagerSidebar {
         
         if (this.elements.toggleFiltersBtn) {
             this.elements.toggleFiltersBtn.classList.remove("active");
+        }
+
+        // Remover listener de clic fuera
+        if (this._outsideClickHandler) {
+            document.removeEventListener("click", this._outsideClickHandler);
+            this._outsideClickHandler = null;
         }
     }
 }
