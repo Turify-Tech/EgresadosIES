@@ -380,11 +380,16 @@ export class AdvancedSearchManagerSidebar {
     }
 
     renderPerfilCard(perfil) {
+        // Helper para obtener URL base del backend
+        const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000'
+            : 'https://egresados-ies-api.vercel.app';
+        
         // Construir la URL completa para la foto de perfil si es una ruta relativa
         const fotoUrl = perfil.urlFotoPerfil
             ? (perfil.urlFotoPerfil.startsWith('http') 
                 ? perfil.urlFotoPerfil 
-                : `http://localhost:3000${perfil.urlFotoPerfil}`)
+                : `${backendUrl}${perfil.urlFotoPerfil}`)
             : null;
         
         const avatar = fotoUrl

@@ -454,7 +454,25 @@ import "../styles/mentions.css";
 
     <script>
         // @ts-nocheck
-        const API_URL = "http://localhost:3000/api";
+        // Función helper para obtener API URL según entorno
+        function getApiUrl() {
+            const hostname = window.location.hostname;
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                return 'http://localhost:3000/api';
+            }
+            return 'https://egresados-ies-api.vercel.app/api';
+        }
+        
+        // Función helper para obtener URL base del backend
+        function getBackendUrl() {
+            const hostname = window.location.hostname;
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                return 'http://localhost:3000';
+            }
+            return 'https://egresados-ies-api.vercel.app';
+        }
+        
+        const API_URL = getApiUrl();
         let currentPage = 1;
         let isLoading = false;
         let hasMorePages = true;
@@ -923,7 +941,7 @@ import "../styles/mentions.css";
                     imagenes.map((img) =>
                         img.startsWith("http")
                             ? img
-                            : `http://localhost:3000${img}`,
+                            : `${getBackendUrl()}${img}`,
                     ),
                 ).replace(/"/g, "&quot;");
 
@@ -936,7 +954,7 @@ import "../styles/mentions.css";
                 for (let i = 0; i < maxDisplay; i++) {
                     let imgUrl = imagenes[i].startsWith("http")
                         ? imagenes[i]
-                        : `http://localhost:3000${imagenes[i]}`;
+                        : `${getBackendUrl()}${imagenes[i]}`;
 
                     // Optimizar URLs de ImageKit con parámetros de compresión más agresivos
                     if (imgUrl.includes("ik.imagekit.io")) {
@@ -972,7 +990,7 @@ import "../styles/mentions.css";
             let fotoUrl = autor.urlFotoPerfil
                 ? autor.urlFotoPerfil.startsWith("http")
                     ? autor.urlFotoPerfil
-                    : `http://localhost:3000${autor.urlFotoPerfil}`
+                    : `${getBackendUrl()}${autor.urlFotoPerfil}`
                 : null;
 
             // Optimizar URL si es de ImageKit
@@ -2803,7 +2821,7 @@ import "../styles/mentions.css";
                             "http",
                         )
                             ? perfilData.urlFotoPerfil
-                            : `http://localhost:3000${perfilData.urlFotoPerfil}`;
+                            : `${getBackendUrl()}${perfilData.urlFotoPerfil}`;
 
                         // Optimizar URL si es de ImageKit
                         if (fotoUrl.includes("ik.imagekit.io")) {
@@ -2893,7 +2911,7 @@ import "../styles/mentions.css";
                     if (menuMobileAvatar && perfilData && perfilData.urlFotoPerfil) {
                         let fotoUrl = perfilData.urlFotoPerfil.startsWith("http")
                             ? perfilData.urlFotoPerfil
-                            : `http://localhost:3000${perfilData.urlFotoPerfil}`;
+                            : `${getBackendUrl()}${perfilData.urlFotoPerfil}`;
                         if (fotoUrl.includes("ik.imagekit.io")) {
                             fotoUrl += "?tr=w-80,h-80,q-80,f-auto";
                         }

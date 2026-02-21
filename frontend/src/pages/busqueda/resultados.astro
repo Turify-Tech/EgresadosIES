@@ -164,9 +164,15 @@ const { query } = Astro.url.searchParams;
 </BaseLayout>
 
 <script>
-    const API_BASE_URL = (
-        import.meta.env.PUBLIC_API_URL || "http://localhost:3000"
-    ).replace(/\/api$/, "");
+    // Función helper para obtener URL base del backend según entorno
+    function getBackendBaseUrl() {
+        const hostname = window.location.hostname;
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+            return 'http://localhost:3000';
+        }
+        return 'https://egresados-ies-api.vercel.app';
+    }
+    const API_BASE_URL = getBackendBaseUrl();
 
     // Funciones auxiliares
     function getAuthToken() {
@@ -458,7 +464,7 @@ const { query } = Astro.url.searchParams;
                 imagenes.map((img) =>
                     img.startsWith("http")
                         ? img
-                        : `http://localhost:3000${img}`,
+                        : `${API_BASE_URL}${img}`,
                 ),
             ).replace(/"/g, "&quot;");
 
@@ -470,7 +476,7 @@ const { query } = Astro.url.searchParams;
             for (let i = 0; i < maxDisplay; i++) {
                 let imgUrl = imagenes[i].startsWith("http")
                     ? imagenes[i]
-                    : `http://localhost:3000${imagenes[i]}`;
+                    : `${API_BASE_URL}${imagenes[i]}`;
 
                 if (imgUrl.includes("ik.imagekit.io")) {
                     imgUrl += "?tr=w-800,q-80,f-auto";
@@ -494,7 +500,7 @@ const { query } = Astro.url.searchParams;
         let fotoUrl = autor.urlFotoPerfil
             ? autor.urlFotoPerfil.startsWith("http")
                 ? autor.urlFotoPerfil
-                : `http://localhost:3000${autor.urlFotoPerfil}`
+                : `${API_BASE_URL}${autor.urlFotoPerfil}`
             : null;
 
         console.log("🖼️ Procesando avatar:", {

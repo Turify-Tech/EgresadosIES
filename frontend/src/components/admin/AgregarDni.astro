@@ -71,7 +71,15 @@
 </div>
 
 <script>
-    const API_URL = "http://localhost:3000/api";
+    // Función helper para obtener API URL según entorno
+    function getApiUrl() {
+        const hostname = window.location.hostname;
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+            return 'http://localhost:3000/api';
+        }
+        return 'https://egresados-ies-api.vercel.app/api';
+    }
+    const API_URL = getApiUrl();
 
     // Cargar carreras disponibles
     async function cargarCarreras() {
