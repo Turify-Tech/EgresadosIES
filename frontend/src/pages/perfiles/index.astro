@@ -866,6 +866,7 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
             transform: translate(-50%, -50%) scale(1);
             opacity: 1;
             visibility: visible;
+            pointer-events: auto;
         }
 
         /* Overlay para cerrar en móvil */
@@ -877,14 +878,27 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
+            z-index: 998;
             opacity: 0;
             transition: opacity 0.3s ease;
+            pointer-events: none;
         }
 
         .sidebar-overlay.show {
             display: block;
             opacity: 1;
+            pointer-events: none;
+        }
+
+        /* Asegurar que el sidebar esté por encima y reciba eventos */
+        .filters-sidebar {
+            z-index: 1002 !important;
+        }
+        
+        .filters-sidebar.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            visibility: visible;
         }
 
         .page-title {
@@ -898,13 +912,20 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
         .results-header {
             flex-direction: row;
             align-items: center;
+            justify-content: space-between;
             gap: 0.5rem;
             margin-bottom: 0.75rem;
+            padding: 0 0.5rem;
+        }
+
+        .header-right {
+            align-self: flex-end;
+            width: auto;
         }
 
         .toggle-filters-btn {
-            font-size: 0.8rem;
-            padding: 0.4rem 0.8rem;
+            width: auto;
+            justify-content: flex-end;
         }
 
         .perfiles-grid {
@@ -958,13 +979,13 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
         }
 
         .header-right {
-            align-self: flex-start;
-            width: 100%;
+            align-self: flex-end;
+            width: auto;
         }
 
         .toggle-filters-btn {
-            width: 100%;
-            justify-content: center;
+            width: auto;
+            justify-content: flex-end;
         }
 
         .filters-sidebar {
@@ -1237,8 +1258,8 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
                     console.log("[PERFILES] Token válido, abriendo sidebar de mensajes");
                     
                     // Abrir el sidebar de mensajes con el usuario específico
-                    if ((window as any).abrirChatConUsuario) {
-                        (window as any).abrirChatConUsuario(userId, userName);
+                    if (window.abrirChatConUsuario) {
+                        window.abrirChatConUsuario(userId, userName);
                     } else {
                         console.warn("[PERFILES] Función abrirChatConUsuario no disponible, redirigiendo a /mensajes");
                         sessionStorage.setItem('openConversationUserId', userId.toString());
