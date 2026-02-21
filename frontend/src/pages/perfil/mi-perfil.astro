@@ -34,7 +34,8 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
-                                stroke-width="1.5">
+                                stroke-width="1.5"
+                            >
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <circle cx="12" cy="10" r="3"></circle>
                                 <path
@@ -46,14 +47,16 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                             class="btn-cambiar-foto"
                             id="btn-cambiar-foto"
                             style="display: none;"
-                            onclick="document.getElementById('input-foto-perfil').click()">
+                            onclick="document.getElementById('input-foto-perfil').click()"
+                        >
                             <svg
                                 width="18"
                                 height="18"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
-                                stroke-width="2">
+                                stroke-width="2"
+                            >
                                 <path
                                     d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
                                 ></path>
@@ -162,7 +165,8 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                         <select
                             class="dato-input"
                             id="input-carrera"
-                            style="display: none;">
+                            style="display: none;"
+                        >
                             <option value="">Cargando carreras...</option>
                         </select>
                     </div>
@@ -189,7 +193,8 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                         <select
                             class="dato-input"
                             id="input-situacion"
-                            style="display: none;">
+                            style="display: none;"
+                        >
                             <option value="">Selecciona una opción</option>
                             <option value="Trabajando">Trabajando</option>
                             <option value="Freelance">Freelance</option>
@@ -207,7 +212,8 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                     <div
                         class="edit-actions"
                         id="edit-actions"
-                        style="display: none;">
+                        style="display: none;"
+                    >
                         <button class="btn-cancelar" onclick="cancelarEdicion()"
                             >Cancelar</button
                         >
@@ -218,7 +224,8 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
-                                stroke-width="2">
+                                stroke-width="2"
+                            >
                                 <path
                                     d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
                                 ></path>
@@ -267,7 +274,8 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
-                            stroke-width="2">
+                            stroke-width="2"
+                        >
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                         Aplicar recorte
@@ -756,10 +764,15 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
         }
     }
 
+    // API URLs
+    const API_URL = (window as any).API_URL || "http://localhost:3000/api";
+    const API_BASE_URL =
+        (window as any).API_BASE_URL || "http://localhost:3000";
+
     // Esperar a que el DOM esté listo
     document.addEventListener("DOMContentLoaded", async () => {
-        await cargarCarreras();
-        await cargarMiPerfil();
+        // Cargar carreras y perfil en paralelo (optimización #6)
+        await Promise.all([cargarCarreras(), cargarMiPerfil()]);
     });
 
     async function cargarCarreras() {
@@ -823,7 +836,7 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                         "Content-Type": "application/json",
                     },
                 },
-            );
+            });
 
             console.log("📥 Respuesta de la API:", {
                 status: response.status,
@@ -1155,7 +1168,8 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                     },
                     body: JSON.stringify(formData),
                 },
-            );
+                body: JSON.stringify(formData),
+            });
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -1410,157 +1424,76 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
         }, 4000);
     }
 
-    // Función para descargar el CV con autenticación
+    /**
+     * Función para descargar el CV en formato PDF profesional
+     * Utiliza el endpoint del backend que genera un PDF estructurado con PDFKit
+     * El PDF resultante tiene texto seleccionable y es compatible con sistemas ATS
+     */
     async function descargarCV() {
         try {
             showNotification("Preparando tu CV...", "info");
 
-            // Obtener ID del usuario desde los datos del perfil ya cargados
-            let usuarioId = null;
-
-            // Primero intentar desde los datos del perfil ya cargados
-            if (
-                window.perfilData &&
-                window.perfilData.usuario &&
-                window.perfilData.usuario.id
-            ) {
-                usuarioId = window.perfilData.usuario.id;
-            } else {
-                // Intentar desde localStorage
-                const currentUserStr = localStorage.getItem("currentUser");
-                if (currentUserStr) {
-                    try {
-                        const currentUser = JSON.parse(currentUserStr);
-                        usuarioId = currentUser.id || currentUser.userId;
-                    } catch (e) {
-                        console.error("Error parseando currentUser:", e);
-                    }
-                }
-            }
-
-            if (!usuarioId) {
+            // Obtener token de autenticación
+            const token = localStorage.getItem("auth_token");
+            if (!token) {
                 showNotification(
-                    "No se pudo obtener tu información de usuario. Por favor, recarga la página.",
+                    "Por favor, inicia sesión nuevamente.",
                     "error",
                 );
+                setTimeout(() => {
+                    window.location.href = "/acceso";
+                }, 2000);
                 return;
             }
 
-            console.log("ID de usuario para CV:", usuarioId);
+            // Llamar al endpoint del backend que genera el PDF estructurado
+            const response = await fetch(`${API_URL}/perfil/mi-cv`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
 
-            // Abrir el perfil en una nueva pestaña oculta para capturar el CV
-            const perfilUrl = `${window.location.origin}/perfil/${usuarioId}`;
-            const iframe = document.createElement("iframe");
-            iframe.style.position = "fixed";
-            iframe.style.top = "-10000px";
-            iframe.style.left = "-10000px";
-            iframe.style.width = "1200px";
-            iframe.style.height = "100vh";
-            document.body.appendChild(iframe);
+            if (!response.ok) {
+                throw new Error(`Error al generar el CV: ${response.status}`);
+            }
 
-            showNotification("Cargando información del CV...", "info");
+            // Obtener el blob del PDF (archivo binario en memoria)
+            const blob = await response.blob();
 
-            iframe.onload = async function () {
-                try {
-                    // Esperar a que cargue completamente
-                    await new Promise((resolve) => setTimeout(resolve, 2000));
+            // Extraer el nombre del archivo del header Content-Disposition
+            // El backend envía: Content-Disposition: attachment; filename="CV_NombreApellido.pdf"
+            const contentDisposition = response.headers.get(
+                "Content-Disposition",
+            );
+            let fileName = "CV.pdf";
 
-                    const iframeDoc =
-                        iframe.contentDocument || iframe.contentWindow.document;
-                    const cvElement = iframeDoc.querySelector(".perfil-wrap");
-
-                    if (!cvElement) {
-                        throw new Error(
-                            "No se pudo encontrar el contenido del CV",
-                        );
-                    }
-
-                    showNotification("Generando PDF...", "info");
-
-                    // Importar bibliotecas dinámicamente
-                    const html2canvas = (await import("html2canvas")).default;
-                    const { jsPDF } = await import("jspdf");
-
-                    // Capturar el CV como imagen
-                    const canvas = await html2canvas(cvElement, {
-                        scale: 2,
-                        useCORS: true,
-                        logging: false,
-                        backgroundColor: "#ffffff",
-                        windowWidth: 1200,
-                    });
-
-                    // Crear PDF
-                    const imgData = canvas.toDataURL("image/png");
-                    const pdf = new jsPDF({
-                        orientation: "portrait",
-                        unit: "mm",
-                        format: "a4",
-                    });
-
-                    const pageWidth = pdf.internal.pageSize.getWidth();
-                    const pageHeight = pdf.internal.pageSize.getHeight();
-                    const imgWidth = pageWidth;
-                    const imgHeight =
-                        (canvas.height * pageWidth) / canvas.width;
-
-                    let heightLeft = imgHeight;
-                    let position = 0;
-
-                    // Agregar primera página
-                    pdf.addImage(
-                        imgData,
-                        "PNG",
-                        0,
-                        position,
-                        imgWidth,
-                        imgHeight,
-                    );
-                    heightLeft -= pageHeight;
-
-                    // Agregar páginas adicionales si es necesario
-                    while (heightLeft > 0) {
-                        position = heightLeft - imgHeight;
-                        pdf.addPage();
-                        pdf.addImage(
-                            imgData,
-                            "PNG",
-                            0,
-                            position,
-                            imgWidth,
-                            imgHeight,
-                        );
-                        heightLeft -= pageHeight;
-                    }
-
-                    // Descargar PDF
-                    const fecha = new Date().toISOString().split("T")[0];
-                    const nombre =
-                        (window.perfilData &&
-                            window.perfilData.usuario &&
-                            window.perfilData.usuario.nombre) ||
-                        "CV";
-                    pdf.save(`CV_${nombre}_${fecha}.pdf`);
-
-                    // Limpiar
-                    document.body.removeChild(iframe);
-
-                    showNotification(
-                        "✓ CV descargado correctamente",
-                        "success",
-                    );
-                } catch (error) {
-                    document.body.removeChild(iframe);
-                    throw error;
+            if (contentDisposition) {
+                const fileNameMatch =
+                    contentDisposition.match(/filename="?(.+)"?/);
+                if (fileNameMatch && fileNameMatch[1]) {
+                    fileName = fileNameMatch[1].replace(/"/g, "");
                 }
-            };
+            }
 
-            iframe.onerror = function () {
-                document.body.removeChild(iframe);
-                throw new Error("Error al cargar el perfil");
-            };
+            // Crear una URL temporal que apunta al blob en memoria del navegador
+            // Esta URL es del tipo: blob:http://localhost:4321/uuid-aleatorio
+            const url = window.URL.createObjectURL(blob);
 
-            iframe.src = perfilUrl;
+            // Crear un elemento <a> temporal para simular la descarga
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+
+            // Simular click en el enlace para activar la descarga
+            link.click();
+
+            // Limpiar: eliminar el enlace del DOM y liberar la memoria del blob
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            showNotification("✓ CV descargado correctamente", "success");
         } catch (error) {
             console.error("❌ Error al descargar CV:", error);
             showNotification(

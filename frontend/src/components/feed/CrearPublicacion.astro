@@ -69,6 +69,9 @@ const { disabled = true } = Astro.props;
   <script>
     // Cliente: mostrar y habilitar el formulario SOLO si el usuario está autenticado y es Egresado
     (function(){
+      const API_URL = window.API_URL || 'http://localhost:3000/api';
+      const API_BASE_URL = window.API_BASE_URL || 'http://localhost:3000';
+      
       try {
         const token = localStorage.getItem('auth_token');
         const userData = localStorage.getItem('user_data');

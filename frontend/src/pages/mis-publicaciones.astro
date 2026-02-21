@@ -525,7 +525,7 @@ import "../styles/publicaciones-imagenes.css";
         }
 
         // Función para crear HTML de comentario
-        function crearComentarioHTML(comentario) {
+        async function crearComentarioHTML(comentario) {
             const {
                 id,
                 contenido,
@@ -540,6 +540,9 @@ import "../styles/publicaciones-imagenes.css";
                 : autor.nombre;
             const tituloCarrera = autor.tituloCarrera || "";
             const esPropio = currentUser && currentUser.id === autor.id;
+            
+            // Procesar menciones en el contenido
+            const contenidoFormateado = await procesarTextoConMenciones(contenido);
 
             return `
                 <div class="comentario-item" data-comentario-id="${id}" style="display: flex; gap: 0.75rem; padding: 1rem 0; border-bottom: 1px solid #f3f4f6;">
@@ -585,7 +588,7 @@ import "../styles/publicaciones-imagenes.css";
                                     : ""
                             }
                         </div>
-                        <p class="comentario-texto" data-comentario-id="${id}" style="color: #000 !important; margin: 0.5rem 0 0.625rem 0; font-size: 0.9375rem; line-height: 1.4;">${contenido}</p>
+                        <p class="comentario-texto" data-comentario-id="${id}" style="color: #000 !important; margin: 0.5rem 0 0.625rem 0; font-size: 0.9375rem; line-height: 1.4;">${contenidoFormateado}</p>
                         <div class="comentario-footer" style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
                             <span class="comentario-tiempo" style="color: #9ca3af; font-size: 0.8125rem;">${formatearTiempoRelativo(fechaCreacion)}</span>
                             <button class="btn-responder" data-comentario-id="${id}" style="background: none; border: none; color: #6b7280; font-size: 0.8125rem; font-weight: 500; cursor: pointer; padding: 0; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#6b7280'">Responder</button>
@@ -617,7 +620,7 @@ import "../styles/publicaciones-imagenes.css";
             `;
         }
 
-        function crearRespuestaHTML(respuesta, nivel = 1) {
+        async function crearRespuestaHTML(respuesta, nivel = 1) {
             const {
                 id,
                 contenido,
@@ -632,6 +635,9 @@ import "../styles/publicaciones-imagenes.css";
                 : autor.nombre;
             const tituloCarrera = autor.tituloCarrera || "";
             const esPropio = currentUser && currentUser.id === autor.id;
+
+            // Procesar menciones en el contenido
+            const contenidoFormateado = await procesarTextoConMenciones(contenido);
 
             // SIEMPRE limitar el nivel visual máximo a 2 (como Facebook)
             const nivelVisual = Math.min(nivel, 2);
@@ -672,7 +678,7 @@ import "../styles/publicaciones-imagenes.css";
                                     : ""
                             }
                         </div>
-                        <p class="comentario-texto" style="color: #000 !important; margin: 0.375rem 0; font-size: 0.875rem; line-height: 1.4;">${contenido}</p>
+                        <p class="comentario-texto" style="color: #000 !important; margin: 0.375rem 0; font-size: 0.875rem; line-height: 1.4;">${contenidoFormateado}</p>
                         <div class="comentario-footer" style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
                             <span class="comentario-tiempo" style="color: #9ca3af; font-size: 0.75rem;">${formatearTiempoRelativo(fechaCreacion)}</span>
                             <button class="btn-responder" data-comentario-id="${id}" style="background: none; border: none; color: #6b7280; font-size: 0.75rem; font-weight: 500; cursor: pointer; padding: 0; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#6b7280'">Responder</button>
@@ -814,7 +820,7 @@ import "../styles/publicaciones-imagenes.css";
                     if (respuestas.length > 0) {
                         const token = getAuthToken();
                         for (const respuesta of respuestas) {
-                            const respuestaHTML = crearRespuestaHTML(
+                            const respuestaHTML = await crearRespuestaHTML(
                                 respuesta,
                                 nivelMaximo,
                             );
@@ -1179,7 +1185,7 @@ import "../styles/publicaciones-imagenes.css";
                         const token = getAuthToken();
                         for (const comentario of comentarios) {
                             const comentarioHTML =
-                                crearComentarioHTML(comentario);
+                                await crearComentarioHTML(comentario);
                             comentariosList.insertAdjacentHTML(
                                 "beforeend",
                                 comentarioHTML,
@@ -1368,6 +1374,16 @@ import "../styles/publicaciones-imagenes.css";
             document.addEventListener("click", async (e) => {
                 const target = e.target;
 
+                // Clicks en menciones - redirigir al perfil
+                if (target.classList && target.classList.contains('mention')) {
+                    e.preventDefault();
+                    const userId = target.getAttribute('data-user-id');
+                    if (userId) {
+                        window.location.href = `/perfil/${userId}`;
+                    }
+                    return;
+                }
+
                 // Clicks en imágenes de publicaciones
                 const container = target.closest(".imagen-container");
                 if (container) {
@@ -1495,7 +1511,7 @@ import "../styles/publicaciones-imagenes.css";
                                         : 1;
                                 }
 
-                                const respuestaHTML = crearRespuestaHTML(
+                                const respuestaHTML = await crearRespuestaHTML(
                                     respuestaCreada,
                                     nivelPadre + 1,
                                 );

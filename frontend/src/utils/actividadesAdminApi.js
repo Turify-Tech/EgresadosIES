@@ -3,7 +3,7 @@
  * Proporciona métodos para consumir el endpoint de actividades recientes
  */
 
-const API_BASE_URL = import.meta.env.PUBLIC_API_URL || "http://localhost:3000/api";
+import { API_URL as API_BASE_URL } from '../config/env.js';
 
 /**
  * Obtiene las actividades recientes del administrador autenticado

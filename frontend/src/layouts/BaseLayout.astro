@@ -14,6 +14,8 @@ const {
 // Importar estilos CSS
 import "../styles/global.css";
 import "../styles/components.css";
+import "../styles/mentions.css";
+import { API_URL, API_BASE_URL } from "../config/env.js";
 import MensajesSidebar from "../components/mensajes/MensajesSidebar.astro";
 import NotificacionesModal from "../components/NotificacionesModal.astro";
 import SearchBar from "../components/busqueda/SearchBar.astro";
@@ -464,7 +466,7 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                             />
                             <span
                                 id="notificaciones-badge"
-                                style="display: none; position: absolute; top: -5px; right: -5px; background-color: #dc3545; color: white; border-radius: 50%; min-width: 16px; height: 16px; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"
+                                style="display: none; position: absolute; top: -5px; right: -5px; background-color: #dc3545; color: white; border-radius: 50%; min-width: 16px; height: 16px; font-size: 10px; font-weight: 700; align-items: center; justify-content: center; padding: 0 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"
                             ></span>
                         </div>
                         <span style="font-size: 0.85rem;">Notificaciones</span>
@@ -496,7 +498,6 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                             <span
                                 id="user-name-nav"
                                 style="font-family: 'Inter', sans-serif; font-weight: 500; color: #374151; font-size: 0.9rem;">
-                                Usuario
                             </span>
                             <svg
                                 width="12"
@@ -575,10 +576,76 @@ import DynamicBackground from "../components/DynamicBackground.astro";
             </div>
         </footer>
 
+        <!-- Scripts -->
+        <!-- Inyectar variables de entorno PRIMERO -->
+        <script is:inline define:vars={{ API_URL, API_BASE_URL }}>
+            window.API_URL = API_URL;
+            window.API_BASE_URL = API_BASE_URL;
+        </script>
+        
+        <!-- Cargar sistema de menciones DESPUÉS de definir API_URL -->
+        <script src="/js/mentionSystem.js" is:inline></script>
+
         <!-- Modal de Notificaciones -->
         <NotificacionesModal />
 
-        <!-- Scripts -->
+        <!-- Convertir menciones automáticamente en toda la página -->
+        <script is:inline>
+            document.addEventListener('DOMContentLoaded', async function() {
+                // Esperar a que convertirMencionesParaFrontend esté disponible
+                if (typeof window.convertirMencionesParaFrontend !== 'function') {
+                    console.warn('[MENCIONES] Función convertirMencionesParaFrontend no disponible');
+                    return;
+                }
+
+                // Selectores de elementos que pueden contener menciones
+                const selectores = [
+                    '.contenido',           // Comentarios
+                    '.content',             // Publicaciones
+                    '.mensaje-texto',       // Mensajes privados
+                    '.notification-message', // Notificaciones
+                    '.notificacion-mensaje', // Notificaciones en modal
+                    '.descripcion',         // Descripciones de perfil
+                    '[data-mention-content]' // Cualquier elemento marcado explícitamente
+                ];
+
+                // Convertir menciones en todos los elementos existentes
+                const elementos = document.querySelectorAll(selectores.join(', '));
+                for (const elemento of elementos) {
+                    if (elemento.textContent && elemento.textContent.includes('@[id:')) {
+                        const textoConvertido = await window.convertirMencionesParaFrontend(elemento.innerHTML);
+                        elemento.innerHTML = textoConvertido;
+                    }
+                }
+
+                // Observar cambios dinámicos en el DOM (para contenido cargado después)
+                const observer = new MutationObserver(async function(mutations) {
+                    for (const mutation of mutations) {
+                        for (const nodo of mutation.addedNodes) {
+                            if (nodo.nodeType === Node.ELEMENT_NODE) {
+                                const elementosNuevos = nodo.matches && nodo.matches(selectores.join(', '))
+                                    ? [nodo]
+                                    : nodo.querySelectorAll ? nodo.querySelectorAll(selectores.join(', ')) : [];
+                                
+                                for (const elemento of elementosNuevos) {
+                                    if (elemento.textContent && elemento.textContent.includes('@[id:')) {
+                                        const textoConvertido = await window.convertirMencionesParaFrontend(elemento.innerHTML);
+                                        elemento.innerHTML = textoConvertido;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Observar cambios en todo el documento
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            });
+        </script>
+
         <script>
             document.addEventListener("DOMContentLoaded", () => {
                 // Función helper para obtener API URL según entorno

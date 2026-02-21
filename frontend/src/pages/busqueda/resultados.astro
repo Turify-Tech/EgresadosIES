@@ -8,6 +8,7 @@ import ComentariosModal from "../../components/ComentariosModal.astro";
 import "../../styles/search-results.css";
 import "../../styles/index.css";
 import "../../styles/publicaciones-imagenes.css";
+import "../../styles/mentions.css";
 
 const { query } = Astro.url.searchParams;
 ---
@@ -402,7 +403,7 @@ const { query } = Astro.url.searchParams;
     }
 
     // Renderizar publicaciones (versión simplificada para búsqueda)
-    function renderPublicaciones(publicaciones: any[]) {
+    async function renderPublicaciones(publicaciones: any[]) {
         console.log(
             "🎨 Iniciando renderizado de publicaciones:",
             publicaciones,
@@ -442,6 +443,9 @@ const { query } = Astro.url.searchParams;
 
         console.log("✅ HTML de publicaciones generado");
 
+        // Procesar menciones después de renderizar
+        await procesarMencionesEnPublicaciones();
+
         const section = document.getElementById("publicaciones-results");
         if (section) section.style.display = "block";
     }
@@ -450,10 +454,8 @@ const { query } = Astro.url.searchParams;
     function crearPostCard(publicacion: Publicacion) {
         const { id, contenido, autor, fechaCreacion, imagenes } = publicacion;
 
-        // Escapar HTML para prevenir XSS
-        const contenidoEscapado = contenido
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
+        // El contenido ya viene con menciones convertidas a HTML desde el backend
+        // No escapar porque ya tiene los links HTML de menciones
         const nombreAutor = autor.nombre || "Usuario";
 
         // Renderizar imágenes
@@ -530,13 +532,33 @@ const { query } = Astro.url.searchParams;
                     </div>
                 </header>
                 <div class="post-body">
-                    <p>${contenidoEscapado}</p>
+                    <p>${contenido}</p>
                     ${imagenesHTML}
                 </div>
             </article>
         `;
     }
 
+    // Procesar menciones en todas las publicaciones renderizadas
+    async function procesarMencionesEnPublicaciones() {
+        const publicacionesCards = document.querySelectorAll('.post-card');
+        
+        for (const card of publicacionesCards) {
+            const contenidoElement = card.querySelector('.post-body p');
+            if (!contenidoElement) continue;
+            
+            const textoOriginal = contenidoElement.textContent;
+            if (!textoOriginal || !textoOriginal.includes('@[id:')) continue;
+            
+            try {
+                const textoFormateado = await procesarTextoConMenciones(textoOriginal);
+                contenidoElement.innerHTML = textoFormateado;
+            } catch (error) {
+                console.error('Error procesando menciones:', error);
+            }
+        }
+    }
+    
     // Renderizar estado vacío
     function renderEmptyState(containerId: string, mensaje: string) {
         const container = document.getElementById(containerId);

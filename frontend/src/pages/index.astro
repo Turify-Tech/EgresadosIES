@@ -1,10 +1,17 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ComentariosModal from "../components/ComentariosModal.astro";
+import { API_URL, API_BASE_URL } from "../config/env.js";
 import "../styles/index.css";
 import "../styles/publicaciones-imagenes.css";
 import "../styles/mentions.css";
 ---
+
+<!-- Inyectar variables de entorno para usar en scripts del cliente -->
+<script is:inline define:vars={{ API_URL, API_BASE_URL }}>
+    window.API_URL = API_URL;
+    window.API_BASE_URL = API_BASE_URL;
+</script>
 
 <!-- Cargar Cropper.js en el head para que esté disponible cuando se necesite -->
 <link
@@ -52,12 +59,12 @@ import "../styles/mentions.css";
                                     ></path>
                                 </svg>
                             </div>
-                            <h3 class="profile-name" id="profile-name">Julieta Sotelo Anzorena</h3>
+                            <h3 class="profile-name" id="profile-name"></h3>
                         </div>
                         
                         <div class="profile-details">
-                            <p class="profile-subtitle" id="profile-year">Egresado en 2026</p>
-                            <p class="profile-career" id="profile-career">Desarrollo Full stack</p>
+                            <p class="profile-subtitle" id="profile-year"></p>
+                            <p class="profile-career" id="profile-career"></p>
                         </div>
 
                         <div class="profile-actions">
@@ -81,7 +88,7 @@ import "../styles/mentions.css";
                                     ></path>
                                 </svg>
                                 <span id="profile-status-text"
-                                    >En búsqueda de trabajo</span
+                                    ></span
                                 >
                             </div>
                         </div>
@@ -194,14 +201,14 @@ import "../styles/mentions.css";
                 <details class="menu-mobile">
                     <summary>Menú de usuario</summary>
                     <div class="menu-mobile-profile-info">
-                        <p class="menu-mobile-year" id="menu-mobile-year">Egresado en 2026</p>
-                        <p class="menu-mobile-career" id="menu-mobile-career">Desarrollo de Software</p>
+                        <p class="menu-mobile-year" id="menu-mobile-year"></p>
+                        <p class="menu-mobile-career" id="menu-mobile-career"></p>
                         <div class="menu-mobile-status" id="menu-mobile-status">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
                                 <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
                             </svg>
-                            <span id="menu-mobile-status-text">Sin especificar</span>
+                            <span id="menu-mobile-status-text"></span>
                         </div>
                     </div>
                     <ul>

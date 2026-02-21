@@ -5,6 +5,7 @@
 
 import { searchService, publicProfilesService } from "./api.js";
 import { SearchBar } from "./searchBar.js";
+import { API_BASE_URL } from '../config/env.js';
 
 export class AdvancedSearchManagerSidebar {
     constructor(options = {}) {

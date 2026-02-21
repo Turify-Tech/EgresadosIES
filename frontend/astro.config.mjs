@@ -1,4 +1,5 @@
 import { defineConfig } from "astro/config";
+import vercel from "@astrojs/vercel/serverless";
 
 export default defineConfig({
     server: {
@@ -6,6 +7,7 @@ export default defineConfig({
         host: true,
     },
     output: "server",
+    adapter: vercel(),
     build: {
         assets: "assets",
     },

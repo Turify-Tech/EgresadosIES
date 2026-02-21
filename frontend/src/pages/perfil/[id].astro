@@ -896,6 +896,8 @@ export async function getStaticPaths() {
 <script type="module">
     // Client-side fetch and render
     const container = document.getElementById("perfil-container");
+    const API_URL = window.API_URL || 'http://localhost:3000/api';
+    const API_BASE_URL = window.API_BASE_URL || 'http://localhost:3000';
 
     function createIcon(type) {
         const icons = {
