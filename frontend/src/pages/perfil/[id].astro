@@ -925,6 +925,12 @@ export async function getStaticPaths() {
         console.log("resumenProfesional:", profile.resumenProfesional);
         console.log("situacionLaboral:", profile.situacionLaboral);
 
+        // Helper para obtener URL base del backend
+        const hostname = window.location.hostname;
+        const backendBaseUrl = (hostname === 'localhost' || hostname === '127.0.0.1')
+            ? 'http://localhost:3000'
+            : 'https://egresados-ies-api.vercel.app';
+
         wrap.innerHTML = `    
     <div class="profile-card">
       <div class="header-banner"></div>
@@ -934,7 +940,7 @@ export async function getStaticPaths() {
           <div class="avatar">
             ${
                 profile.urlFotoPerfil
-                    ? `<img src="${profile.urlFotoPerfil.startsWith('http') ? profile.urlFotoPerfil : API_BASE_URL + profile.urlFotoPerfil}" alt="${profile.nombre}">`
+                    ? `<img src="${profile.urlFotoPerfil.startsWith('http') ? profile.urlFotoPerfil : backendBaseUrl + profile.urlFotoPerfil}" alt="${profile.nombre}">`
                     : profile.nombre
                       ? profile.nombre.charAt(0).toUpperCase()
                       : "U"
@@ -1206,7 +1212,12 @@ export async function getStaticPaths() {
     // Fetch y render del perfil
     (async function () {
         try {
-            const res = await fetch(`${API_URL}/perfiles/${id}`);
+            // URL completa del backend - detección dinámica según entorno
+            const hostname = window.location.hostname;
+            const backendUrl = (hostname === 'localhost' || hostname === '127.0.0.1')
+                ? 'http://localhost:3000'
+                : 'https://egresados-ies-api.vercel.app';
+            const res = await fetch(`${backendUrl}/api/perfiles/${id}`);
             if (!res.ok) throw new Error("Perfil no encontrado");
             const json = await res.json();
             if (!json.success) throw new Error(json.message || "Error");

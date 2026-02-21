@@ -291,7 +291,16 @@ const { disabled = true } = Astro.props;
                 formData.append('imagenes', file);
               });
 
-              const response = await fetch(`${API_URL}/publicaciones`, {
+              // Determinar URL del API según el entorno
+              const getApiUrl = () => {
+                const hostname = window.location.hostname;
+                if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                  return 'http://localhost:3000';
+                }
+                return 'https://egresados-ies-api.vercel.app';
+              };
+
+              const response = await fetch(`${getApiUrl()}/api/publicaciones`, {
                 method: 'POST',
                 headers: {
                   'Authorization': `Bearer ${token}`

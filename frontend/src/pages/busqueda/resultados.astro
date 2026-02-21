@@ -165,12 +165,15 @@ const { query } = Astro.url.searchParams;
 </BaseLayout>
 
 <script>
-    // @ts-nocheck
-    import { procesarTextoConMenciones } from "../../utils/mentionHelper.js";
-    
-    const API_BASE_URL = (
-        import.meta.env.PUBLIC_API_URL || "http://localhost:3000"
-    ).replace(/\/api$/, "");
+    // Función helper para obtener URL base del backend según entorno
+    function getBackendBaseUrl() {
+        const hostname = window.location.hostname;
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+            return 'http://localhost:3000';
+        }
+        return 'https://egresados-ies-api.vercel.app';
+    }
+    const API_BASE_URL = getBackendBaseUrl();
 
     // Funciones auxiliares
     function getAuthToken() {

@@ -1,4 +1,21 @@
 /**
+ * Obtiene la URL del backend según el entorno
+ * @returns {string} - URL del backend
+ */
+function getBackendUrl() {
+    if (typeof window !== 'undefined') {
+        const hostname = window.location.hostname;
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+            return 'http://localhost:3000';
+        }
+        // En producción
+        return 'https://egresados-ies-api.vercel.app';
+    }
+    // SSR fallback
+    return 'http://localhost:3000';
+}
+
+/**
  * Construye la URL completa de una imagen desde el backend
  * @param {string} imageUrl - URL de la imagen (puede ser relativa o absoluta)
  * @returns {string} - URL completa de la imagen
@@ -12,7 +29,7 @@ export function getImageUrl(imageUrl) {
     }
     
     // Si es una ruta relativa, agregar el dominio del backend
-    const backendUrl = (import.meta.env.PUBLIC_API_URL || 'http://localhost:3000').replace(/\/api$/, '');
+    const backendUrl = getBackendUrl();
     return `${backendUrl}${imageUrl}`;
 }
 

@@ -1,45 +1,44 @@
 import multer from "multer";
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "../config/cloudinary.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+/**
+ * Configuración de Multer con Cloudinary Storage para fotos de perfil
+ * Las imágenes se suben directamente a Cloudinary para persistencia en producción
+ */
 
-// Crear directorio de uploads si no existe
-const uploadsDir = path.join(__dirname, "../../uploads/profiles");
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-// Configuración de multer
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadsDir);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-        const ext = path.extname(file.originalname);
-        cb(null, `perfil-${req.user.id}-${uniqueSuffix}${ext}`);
-    },
+// Configurar almacenamiento en Cloudinary para fotos de perfil
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'egresados-ies/perfiles',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+        transformation: [
+            { width: 400, height: 400, crop: 'fill', gravity: 'face' }, // Recorte centrado en cara
+            { quality: 'auto:good' }, // Calidad automática
+            { fetch_format: 'auto' } // Formato automático (WebP cuando sea posible)
+        ],
+        public_id: (req, file) => {
+            // Generar ID único: perfil-{userId}-{timestamp}
+            const uniqueId = `perfil-${req.user.id}-${Date.now()}`;
+            console.log(`📤 Subiendo foto de perfil a Cloudinary: ${file.originalname} → ${uniqueId}`);
+            return uniqueId;
+        }
+    }
 });
 
 // Filtro de archivos - solo imágenes
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif|webp/;
-    const extname = allowedTypes.test(
-        path.extname(file.originalname).toLowerCase()
-    );
-    const mimetype = allowedTypes.test(file.mimetype);
-
-    if (mimetype && extname) {
-        return cb(null, true);
+    const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    
+    if (allowedMimes.includes(file.mimetype)) {
+        cb(null, true);
     } else {
-        cb(new Error("Solo se permiten archivos de imagen"));
+        cb(new Error(`Tipo de archivo no permitido: ${file.mimetype}. Solo se permiten: JPG, PNG, GIF, WEBP`), false);
     }
 };
 
-// Configurar multer
+// Configurar multer con Cloudinary
 export const uploadFotoPerfil = multer({
     storage: storage,
     limits: {
@@ -50,6 +49,7 @@ export const uploadFotoPerfil = multer({
 
 /**
  * Controlador para subir foto de perfil
+ * La foto ya fue subida a Cloudinary por multer
  */
 export async function subirFotoPerfil(req, res) {
     try {
@@ -60,12 +60,12 @@ export async function subirFotoPerfil(req, res) {
             });
         }
 
-        // Construir URL de la foto
-        const fotoUrl = `/uploads/profiles/${req.file.filename}`;
+        // Cloudinary devuelve la URL en req.file.path
+        const fotoUrl = req.file.path;
 
-        console.log("📸 Foto de perfil subida:", {
+        console.log("📸 Foto de perfil subida a Cloudinary:", {
             usuario: req.user.id,
-            archivo: req.file.filename,
+            archivo: req.file.originalname,
             tamaño: `${(req.file.size / 1024).toFixed(2)} KB`,
             url: fotoUrl,
         });

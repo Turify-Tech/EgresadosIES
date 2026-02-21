@@ -648,8 +648,17 @@ import DynamicBackground from "../components/DynamicBackground.astro";
 
         <script>
             document.addEventListener("DOMContentLoaded", () => {
+                // Función helper para obtener API URL según entorno
+                function getApiUrl() {
+                    const hostname = window.location.hostname;
+                    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                        return 'http://localhost:3000/api';
+                    }
+                    return 'https://egresados-ies-api.vercel.app/api';
+                }
+                
                 // API URL
-                const API_URL = window.API_URL || "http://localhost:3000/api";
+                const API_URL = getApiUrl();
 
                 // Actualizar año en el footer
                 const currentYearElement =
@@ -923,10 +932,15 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                             const perfilData = result.data.perfil;
 
                             if (perfilData.urlFotoPerfil && userAvatar) {
+                                // Helper para obtener URL base del backend
+                                const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                                    ? 'http://localhost:3000'
+                                    : 'https://egresados-ies-api.vercel.app';
+                                
                                 let fotoUrl =
                                     perfilData.urlFotoPerfil.startsWith("http")
                                         ? perfilData.urlFotoPerfil
-                                        : `${(window as any).API_BASE_URL}${perfilData.urlFotoPerfil}`;
+                                        : `${backendUrl}${perfilData.urlFotoPerfil}`;
 
                                 // Optimizar URL si es de ImageKit
                                 if (fotoUrl.includes("ik.imagekit.io")) {
@@ -1057,7 +1071,7 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                         const token = localStorage.getItem("auth_token");
                         if (!token) return;
 
-                        const API_URL = window.API_URL || "http://localhost:3000/api";
+                        const API_URL = getApiUrl();
                         const response = await fetch(
                             `${API_URL}/mensajes/no-leidos`,
                             {

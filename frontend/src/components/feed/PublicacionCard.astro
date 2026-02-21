@@ -6,6 +6,9 @@ export interface Props {
 }
 
 const { post } = Astro.props;
+
+// Determinar URL base del backend según el entorno de build
+const BACKEND_URL = import.meta.env.PUBLIC_API_URL?.replace('/api', '') || 'https://egresados-ies-api.vercel.app';
 ---
 
 <article class="post-card" data-id={post?.id}>
@@ -25,7 +28,7 @@ const { post } = Astro.props;
         {post.imagenes.slice(0, 4).map((url, index) => (
           <div class="imagen-container">
             <img 
-              src={`${API_BASE_URL}${url}`} 
+              src={url.startsWith('http') ? url : `${BACKEND_URL}${url}`} 
               alt={`Imagen ${index + 1}`} 
               loading="lazy" 
             />
@@ -34,12 +37,12 @@ const { post } = Astro.props;
         {post.imagenes.length === 5 && (
           <div class="imagen-container">
             <img 
-              src={`${API_BASE_URL}${post.imagenes[4]}`} 
+              src={post.imagenes[4].startsWith('http') ? post.imagenes[4] : `${BACKEND_URL}${post.imagenes[4]}`} 
               alt="Imagen 5" 
               loading="lazy" 
             />
           </div>
-        )}
+        ))}
       </div>
     )}
   </div>
