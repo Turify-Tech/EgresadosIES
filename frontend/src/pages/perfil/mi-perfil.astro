@@ -746,11 +746,11 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
             return 'http://localhost:3000';
         }
         // En producción, usar el backend de producción
-        // El frontend está en egresados-ies.vercel.app, el backend en egresados-ies-api.vercel.app
         return 'https://egresados-ies-api.vercel.app';
     }
     
     const API_URL = getApiUrl();
+    const API_BASE_URL = API_URL;
 
     // Declaraciones de tipos para TypeScript
     declare global {
@@ -763,11 +763,6 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
             handleFotoChange: (event: Event) => void;
         }
     }
-
-    // API URLs
-    const API_URL = (window as any).API_URL || "http://localhost:3000/api";
-    const API_BASE_URL =
-        (window as any).API_BASE_URL || "http://localhost:3000";
 
     // Esperar a que el DOM esté listo
     document.addEventListener("DOMContentLoaded", async () => {
