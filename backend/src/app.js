@@ -51,12 +51,15 @@ app.use(
     })
 );
 
-// CORS
+// CORS - Configuración para desarrollo y producción
 const allowedOrigins = [
     process.env.FRONTEND_URL || "http://localhost:4321",
     "http://localhost:4321",
     "http://localhost:4322", // Puerto alternativo de Astro
     "http://localhost:4320",
+    // URLs de producción en Vercel (agregar tus URLs reales aquí)
+    "https://egresados-ies.vercel.app",
+    /\.vercel\.app$/, // Permitir todos los dominios de Vercel
 ];
 
 app.use(
@@ -65,7 +68,18 @@ app.use(
             // Permitir peticiones sin origin (como Postman o aplicaciones móviles)
             if (!origin) return callback(null, true);
             
-            if (allowedOrigins.indexOf(origin) !== -1) {
+            // Verificar si el origin está en la lista o coincide con algún patrón
+            const isAllowed = allowedOrigins.some(allowedOrigin => {
+                if (typeof allowedOrigin === 'string') {
+                    return allowedOrigin === origin;
+                }
+                if (allowedOrigin instanceof RegExp) {
+                    return allowedOrigin.test(origin);
+                }
+                return false;
+            });
+            
+            if (isAllowed) {
                 callback(null, true);
             } else {
                 console.warn(`⚠️  Origen bloqueado por CORS: ${origin}`);
