@@ -3,7 +3,16 @@
  * Gestiona el autocomplete de egresados al escribir @
  */
 
-const API_URL = window.API_URL || 'http://localhost:3000/api';
+// Detectar automáticamente el entorno
+function getApiUrl() {
+    const hostname = window.location.hostname;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return 'http://localhost:3000/api';
+    }
+    return 'https://egresados-ies-api.vercel.app/api';
+}
+
+const API_URL = getApiUrl();
 
 class MentionSystem {
     constructor(textareaId, options = {}) {

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ComentariosModal from "../components/ComentariosModal.astro";
+import ConfirmModal from "../components/ConfirmModal.astro";
 import { API_URL, API_BASE_URL } from "../config/env.js";
 import "../styles/index.css";
 import "../styles/publicaciones-imagenes.css";
@@ -921,6 +922,13 @@ import "../styles/mentions.css";
                 totalLikes = 0,
                 imagenes,
             } = publicacion;
+            
+            // Validar que el ID existe
+            if (!id) {
+                console.error('❌ Publicación sin ID:', publicacion);
+                return '';
+            }
+            
             const isOwner = currentUser && currentUser.id === autor.id;
 
             // El contenido ya viene con menciones convertidas a HTML desde convertirMencionesParaFrontend
@@ -929,7 +937,7 @@ import "../styles/mentions.css";
 
             const optionsHTML = isOwner
                 ? `
-                <button class="delete-btn" onclick="deletePost(${id})" title="Eliminar publicación">
+                <button class="delete-btn" data-post-id="${id}" title="Eliminar publicación">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="3 6 5 6 21 6"></polyline>
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -1225,8 +1233,10 @@ import "../styles/mentions.css";
                     publicacion,
                     publicacion.userLiked || false,
                 );
-                tempContainer.innerHTML = cardHTML;
-                fragment.appendChild(tempContainer.firstElementChild);
+                if (cardHTML) {
+                    tempContainer.innerHTML = cardHTML;
+                    fragment.appendChild(tempContainer.firstElementChild);
+                }
             });
 
             feedList.appendChild(fragment);
@@ -1476,11 +1486,12 @@ import "../styles/mentions.css";
 
         // Función para eliminar publicación
         async function deletePost(postId) {
-            if (
-                !confirm(
-                    "¿Estás seguro de que quieres eliminar esta publicación?",
-                )
-            ) {
+            const confirmed = await window.showConfirmModal(
+                '¿Eliminar publicación?',
+                'Esta acción no se puede deshacer. ¿Estás seguro de que quieres eliminar esta publicación?'
+            );
+            
+            if (!confirmed) {
                 return;
             }
 
@@ -4081,6 +4092,9 @@ import "../styles/mentions.css";
 
     <!-- Modal de comentarios -->
     <ComentariosModal />
+
+    <!-- Modal de confirmación -->
+    <ConfirmModal />
 
     <!-- Estilos para el modal de recorte -->
     <style>
