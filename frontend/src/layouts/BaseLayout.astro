@@ -312,22 +312,47 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                     display: none !important;
                 }
 
-                /* Ocultar barra de búsqueda en móvil para mantener el header limpio */
+                /* Mostrar barra de búsqueda en móvil con ancho controlado */
                 #search-bar-nav {
-                    display: none !important;
+                    display: block !important;
+                    flex: 0 1 auto !important;
+                    max-width: 250px !important;
+                    min-width: 150px !important;
                 }
 
                 /* Ajustar espaciado del header en mobile */
                 header > div {
                     gap: 0.5rem !important;
-                }
-
-                header > div > div:first-child {
-                    gap: 0.5rem !important;
+                    padding: 0 0.5rem !important;
                 }
 
                 header > div > div:last-child {
                     gap: 0.25rem !important;
+                }
+            }
+
+            /* Media query específico para móviles muy pequeños */
+            @media (max-width: 500px) {
+                /* Ocultar texto "EgresadosIES" solo en pantallas muy pequeñas */
+                header #logo-link h1 {
+                    display: none !important;
+                }
+
+                /* Reducir el gap del contenedor del logo */
+                header > div > div:first-child {
+                    gap: 0rem !important;
+                }
+
+                /* Ajustar el contenedor del logo image para que sea más compacto */
+                header > div > div:first-child > div {
+                    gap: 0rem !important;
+                }
+
+                /* Barra de búsqueda más pequeña en móviles pequeños */
+                #search-bar-nav {
+                    max-width: 110px !important;
+                    min-width: 90px !important;
+                }
                 }
             }
 
@@ -368,22 +393,20 @@ import DynamicBackground from "../components/DynamicBackground.astro";
             <div
                 style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
                 <div style="display: flex; align-items: center; gap: 2rem;">
-                    <div style="display: flex; align-items: center; gap: 1rem;">
+                    <a
+                        href="/"
+                        id="logo-link"
+                        style="text-decoration: none; display: flex; align-items: center; gap: 1rem;">
                         <img
                             src="/images/logo.png"
                             alt="Logo"
                             style="width: 50px; height: auto;"
                         />
-                        <a
-                            href="/"
-                            id="logo-link"
-                            style="text-decoration: none;">
-                            <h1
-                                style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.75rem; color: #0d0d0d;">
-                                EgresadosIES
-                            </h1>
-                        </a>
-                    </div>
+                        <h1
+                            style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.75rem; color: #0d0d0d;">
+                            EgresadosIES
+                        </h1>
+                    </a>
 
                     <!-- Navegación -->
                     <nav
