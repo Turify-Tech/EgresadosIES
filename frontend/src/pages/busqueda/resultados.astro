@@ -539,9 +539,30 @@ const { query } = Astro.url.searchParams;
         `;
     }
 
+    // Esperar a que convertirMencionesParaFrontend esté disponible
+    async function esperarConvertirMenciones(timeout = 5000) {
+        const startTime = Date.now();
+        while (!window.convertirMencionesParaFrontend) {
+            if (Date.now() - startTime > timeout) {
+                console.warn('⏱️ Timeout esperando convertirMencionesParaFrontend');
+                return false;
+            }
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        console.log('✅ convertirMencionesParaFrontend disponible');
+        return true;
+    }
+
     // Procesar menciones en todas las publicaciones renderizadas
     async function procesarMencionesEnPublicaciones() {
         const publicacionesCards = document.querySelectorAll('.post-card');
+        
+        // Esperar a que la función esté disponible
+        const disponible = await esperarConvertirMenciones();
+        if (!disponible) {
+            console.warn('⚠️ No se pudo cargar convertirMencionesParaFrontend');
+            return;
+        }
         
         for (const card of publicacionesCards) {
             const contenidoElement = card.querySelector('.post-body p');
@@ -551,7 +572,7 @@ const { query } = Astro.url.searchParams;
             if (!textoOriginal || !textoOriginal.includes('@[id:')) continue;
             
             try {
-                const textoFormateado = await procesarTextoConMenciones(textoOriginal);
+                const textoFormateado = await window.convertirMencionesParaFrontend(textoOriginal);
                 contenidoElement.innerHTML = textoFormateado;
             } catch (error) {
                 console.error('Error procesando menciones:', error);
