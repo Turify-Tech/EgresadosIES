@@ -343,18 +343,25 @@ import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
     function verificarConversacionPendiente() {
         const userId = sessionStorage.getItem('openConversationUserId');
         const userName = sessionStorage.getItem('openConversationUserName');
+        const previousPage = sessionStorage.getItem('chatPreviousPage');
         
         if (userId) {
-            console.log("[MENSAJES] Abriendo conversación pendiente:", { userId, userName });
+            console.log("[MENSAJES] Abriendo conversación pendiente:", { userId, userName, previousPage });
             
-            // Limpiar sessionStorage
+            // Ocultar panel de conversaciones inmediatamente para evitar parpadeo
+            if (elementos.panelConversaciones && elementos.panelChat) {
+                elementos.panelConversaciones.classList.add('oculto');
+                elementos.panelChat.classList.add('active');
+            }
+            
+            // Limpiar sessionStorage de conversación pero mantener página origen
             sessionStorage.removeItem('openConversationUserId');
             sessionStorage.removeItem('openConversationUserName');
             
             // Abrir la conversación después de un pequeño delay para asegurar que todo esté cargado
             setTimeout(() => {
                 abrirConversacion(parseInt(userId), userName);
-            }, 500);
+            }, 100);
         }
     }
 
@@ -982,9 +989,22 @@ import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
 
         // Volver en móvil
         elementos.btnVolverMovil?.addEventListener("click", () => {
-            elementos.panelConversaciones?.classList.remove("oculto");
-            elementos.panelChat?.classList.remove("active");
-            estado.conversacionActual = null;
+            const previousPage = sessionStorage.getItem('chatPreviousPage');
+            console.log('[MENSAJES] Click en volver, previousPage:', previousPage);
+            
+            if (previousPage && previousPage !== '/mensajes' && previousPage !== '') {
+                // Si vino de otra página, regresar allí
+                console.log('[MENSAJES] Redirigiendo a:', previousPage);
+                const targetPage = previousPage;
+                sessionStorage.removeItem('chatPreviousPage');
+                window.location.href = targetPage;
+            } else {
+                // Si está navegando dentro de /mensajes, mostrar lista de conversaciones
+                console.log('[MENSAJES] Mostrando lista de conversaciones');
+                elementos.panelConversaciones?.classList.remove("oculto");
+                elementos.panelChat?.classList.remove("active");
+                estado.conversacionActual = null;
+            }
         });
     }
 
