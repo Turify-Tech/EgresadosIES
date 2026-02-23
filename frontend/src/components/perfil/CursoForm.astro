@@ -148,7 +148,9 @@
         border-radius: 8px;
         padding: 2rem;
         max-width: 800px;
+        width: 100%;
         margin: 0 auto;
+        box-sizing: border-box;
     }
 
     .form-header {
@@ -359,6 +361,7 @@
         color: #1f2937;
         font-family: inherit;
         width: 100%;
+        box-sizing: border-box;
     }
 
     .form-input:focus,
@@ -411,7 +414,16 @@
     /* Responsive */
     @media (max-width: 720px) {
         .habilidades-form {
-            padding: 1rem 0.75rem;
+            padding: 0.75rem 0.5rem;
+            max-width: 100%;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .habilidades-form *,
+        .habilidades-form *::before,
+        .habilidades-form *::after {
+            box-sizing: border-box;
         }
 
         .form-header {
@@ -421,6 +433,17 @@
 
         .form-header h2 {
             font-size: 1.25rem;
+        }
+
+        .habilidades-section,
+        .blandas-section {
+            padding: 0.75rem;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .section-header {
+            max-width: 100%;
         }
 
         .section-header h3 {
