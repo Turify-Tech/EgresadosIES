@@ -399,8 +399,19 @@ import "../styles/publicaciones-imagenes.css";
                         return;
                     }
 
+                    // Convertir menciones backend a formato visual en todas las publicaciones
+                    const publicacionesConMenciones = await Promise.all(
+                        result.data.publicaciones.map(async (publicacion) => {
+                            const contenidoConvertido = await window.convertirMencionesParaFrontend(publicacion.contenido);
+                            return {
+                                ...publicacion,
+                                contenido: contenidoConvertido
+                            };
+                        })
+                    );
+
                     // Agregar las nuevas publicaciones
-                    result.data.publicaciones.forEach((publicacion) => {
+                    publicacionesConMenciones.forEach((publicacion) => {
                         const cardHTML = crearPostCard(publicacion);
                         feedList.insertAdjacentHTML("beforeend", cardHTML);
                     });
