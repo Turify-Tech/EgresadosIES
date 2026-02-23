@@ -106,6 +106,26 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 // Nota: Las imágenes se almacenan en Cloudinary, no en filesystem local
 
+// Ruta raíz - Bienvenida
+app.get("/", (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: "API del Sistema de Gestión de Egresados IES",
+        version: "1.0.0",
+        status: "online",
+        endpoints: {
+            health: "/api/health",
+            auth: "/api/auth",
+            perfil: "/api/perfil",
+            perfiles: "/api/perfiles",
+            publicaciones: "/api/publicaciones",
+            mensajes: "/api/mensajes",
+            notificaciones: "/api/notificaciones"
+        },
+        documentation: "Visita /api/health para verificar el estado del servicio"
+    });
+});
+
 // Health check endpoint
 app.get("/api/health", async (req, res) => {
     try {
