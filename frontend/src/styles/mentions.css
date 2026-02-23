@@ -145,7 +145,7 @@ textarea.mention-enabled {
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 720px) {
     .mention-autocomplete-container {
         max-height: 250px;
     }

@@ -214,7 +214,7 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 720px) {
     .search-bar-container {
         max-width: 100%;
     }

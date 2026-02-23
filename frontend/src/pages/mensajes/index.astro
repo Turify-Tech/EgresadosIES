@@ -5,7 +5,7 @@ import Chat from "../../components/mensajes/Chat.astro";
 import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
 ---
 
-<BaseLayout title="Mensajes" hideAccederButton={true}>
+<BaseLayout title="Mensajes" hideAccederButton={true} hideFooter={true}>
     <div class="mensajes-page">
         <!-- Panel izquierdo: Lista de conversaciones -->
         <aside id="panel-conversaciones" class="panel-conversaciones">
@@ -26,7 +26,7 @@ import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
     .mensajes-page {
         display: grid;
         grid-template-columns: 380px 1fr;
-        height: calc(100vh - 85px); /* Altura total menos navbar (ajustado para el navbar actual) */
+        height: calc(100vh - 85px); /* Altura total menos navbar */
         max-height: calc(100vh - 85px);
         overflow: hidden;
         background: transparent;
@@ -50,11 +50,11 @@ import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
         }
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 720px) {
         .mensajes-page {
             grid-template-columns: 1fr;
-            height: calc(100vh - 70px);
-            max-height: calc(100vh - 70px);
+            height: calc(100vh - 65px); /* Ajustado para mobile sin footer */
+            max-height: calc(100vh - 65px);
         }
 
         .panel-conversaciones {
@@ -67,7 +67,7 @@ import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
             top: 0;
             left: 0;
             right: 0;
-            bottom: 0;
+            bottom: 0; /* Usa toda la altura hasta abajo */
             z-index: 100;
         }
 
@@ -343,18 +343,25 @@ import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
     function verificarConversacionPendiente() {
         const userId = sessionStorage.getItem('openConversationUserId');
         const userName = sessionStorage.getItem('openConversationUserName');
+        const previousPage = sessionStorage.getItem('chatPreviousPage');
         
         if (userId) {
-            console.log("[MENSAJES] Abriendo conversación pendiente:", { userId, userName });
+            console.log("[MENSAJES] Abriendo conversación pendiente:", { userId, userName, previousPage });
             
-            // Limpiar sessionStorage
+            // Ocultar panel de conversaciones inmediatamente para evitar parpadeo
+            if (elementos.panelConversaciones && elementos.panelChat) {
+                elementos.panelConversaciones.classList.add('oculto');
+                elementos.panelChat.classList.add('active');
+            }
+            
+            // Limpiar sessionStorage de conversación pero mantener página origen
             sessionStorage.removeItem('openConversationUserId');
             sessionStorage.removeItem('openConversationUserName');
             
             // Abrir la conversación después de un pequeño delay para asegurar que todo esté cargado
             setTimeout(() => {
                 abrirConversacion(parseInt(userId), userName);
-            }, 500);
+            }, 100);
         }
     }
 
@@ -759,13 +766,17 @@ import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
             })
             .join("");
 
-        // Agregar event listeners
+        // Agregar event listeners solo al botón Mensaje
         elementos.listaUsuarios.querySelectorAll(".usuario-item").forEach((item) => {
-            item.addEventListener("click", () => {
-                const userId = parseInt((item as HTMLElement).dataset.userId!);
-                cerrarModalNuevaConversacion();
-                abrirConversacion(userId);
-            });
+            const btnMensaje = item.querySelector(".btn-mensaje");
+            if (btnMensaje) {
+                btnMensaje.addEventListener("click", (e) => {
+                    e.stopPropagation(); // Evitar propagación
+                    const userId = parseInt((item as HTMLElement).dataset.userId!);
+                    cerrarModalNuevaConversacion();
+                    abrirConversacion(userId);
+                });
+            }
         });
     }
 
@@ -978,9 +989,22 @@ import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
 
         // Volver en móvil
         elementos.btnVolverMovil?.addEventListener("click", () => {
-            elementos.panelConversaciones?.classList.remove("oculto");
-            elementos.panelChat?.classList.remove("active");
-            estado.conversacionActual = null;
+            const previousPage = sessionStorage.getItem('chatPreviousPage');
+            console.log('[MENSAJES] Click en volver, previousPage:', previousPage);
+            
+            if (previousPage && previousPage !== '/mensajes' && previousPage !== '') {
+                // Si vino de otra página, regresar allí
+                console.log('[MENSAJES] Redirigiendo a:', previousPage);
+                const targetPage = previousPage;
+                sessionStorage.removeItem('chatPreviousPage');
+                window.location.href = targetPage;
+            } else {
+                // Si está navegando dentro de /mensajes, mostrar lista de conversaciones
+                console.log('[MENSAJES] Mostrando lista de conversaciones');
+                elementos.panelConversaciones?.classList.remove("oculto");
+                elementos.panelChat?.classList.remove("active");
+                estado.conversacionActual = null;
+            }
         });
     }
 

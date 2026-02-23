@@ -1010,7 +1010,7 @@
     z-index: 10001;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 720px) {
     .feed-page {
         padding: 0.5rem;
     }

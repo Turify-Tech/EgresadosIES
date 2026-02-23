@@ -482,7 +482,7 @@
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 720px) {
     .admin-page,
     .dnis-page {
         padding: 1rem;
@@ -1215,7 +1215,7 @@
     border-color: #9CA3AF !important;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 720px) {
     .estadisticas-container {
         grid-template-columns: 1fr;
     }
@@ -1468,7 +1468,7 @@
 }
 
 /* Responsive Toast */
-@media (max-width: 768px) {
+@media (max-width: 720px) {
     .toast-container {
         top: 10px;
         right: 10px;

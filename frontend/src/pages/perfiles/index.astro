@@ -796,7 +796,7 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
     }
 
     /* Responsive */
-    @media (max-width: 768px) {
+    @media (max-width: 640px) {
         .filters-sidebar {
             position: fixed;
             left: -100%;
@@ -1256,6 +1256,9 @@ import BarraBusqueda from "../../components/busqueda/BarraBusqueda.astro";
                     }
                     
                     console.log("[PERFILES] Token válido, abriendo sidebar de mensajes");
+                    
+                    // Guardar página de origen para navegación del botón volver
+                    sessionStorage.setItem('chatPreviousPage', '/perfiles');
                     
                     // Abrir el sidebar de mensajes con el usuario específico
                     if (window.abrirChatConUsuario) {
