@@ -311,7 +311,7 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 720px) {
     .mis-publicaciones-page {
         padding: 1rem 0.5rem;
     }

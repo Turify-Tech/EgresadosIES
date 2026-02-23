@@ -595,7 +595,9 @@
         border-top: 1px solid #e5e7eb;
         background: white;
         padding: 1rem 1.5rem;
-        position: relative;
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
     }
 
     .chat-form {
@@ -767,7 +769,7 @@
     }
 
     /* Responsive */
-    @media (max-width: 768px) {
+    @media (max-width: 720px) {
         .btn-volver-movil {
             display: block;
         }
@@ -778,14 +780,21 @@
 
         .chat-mensajes {
             padding: 1rem;
+            /* Ajustar altura para mobile sin footer */
+            max-height: calc(100vh - 65px - 60px - 80px); /* vh - header - chat-header - form */
         }
 
-        .mensaje {
+        :global(.mensaje) {
             max-width: 85%;
         }
 
         .chat-form-container {
             padding: 0.875rem 1rem;
+            /* Fijar al fondo sin que nada lo superponga */
+            position: sticky;
+            bottom: 0;
+            background: white;
+            z-index: 10;
         }
 
         .btn-emoji {

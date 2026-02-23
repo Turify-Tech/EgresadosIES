@@ -89,7 +89,7 @@
 }
 
 /* Responsive */
-@media (max-width: 640px) {
+@media (max-width: 720px) {
     .imagenes-preview {
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
         gap: 0.5rem;
@@ -233,7 +233,7 @@
 }
 
 /* Responsive */
-@media (max-width: 640px) {
+@media (max-width: 720px) {
     .publicacion-imagenes.imagenes-1 {
         max-height: 350px;
     }
@@ -440,7 +440,7 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 720px) {
     .imagen-modal-content {
         padding: 80px 20px 20px 20px;
     }

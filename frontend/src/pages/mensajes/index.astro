@@ -5,7 +5,7 @@ import Chat from "../../components/mensajes/Chat.astro";
 import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
 ---
 
-<BaseLayout title="Mensajes" hideAccederButton={true}>
+<BaseLayout title="Mensajes" hideAccederButton={true} hideFooter={true}>
     <div class="mensajes-page">
         <!-- Panel izquierdo: Lista de conversaciones -->
         <aside id="panel-conversaciones" class="panel-conversaciones">
@@ -26,7 +26,7 @@ import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
     .mensajes-page {
         display: grid;
         grid-template-columns: 380px 1fr;
-        height: calc(100vh - 85px); /* Altura total menos navbar (ajustado para el navbar actual) */
+        height: calc(100vh - 85px); /* Altura total menos navbar */
         max-height: calc(100vh - 85px);
         overflow: hidden;
         background: transparent;
@@ -50,11 +50,11 @@ import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
         }
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 720px) {
         .mensajes-page {
             grid-template-columns: 1fr;
-            height: calc(100vh - 70px);
-            max-height: calc(100vh - 70px);
+            height: calc(100vh - 65px); /* Ajustado para mobile sin footer */
+            max-height: calc(100vh - 65px);
         }
 
         .panel-conversaciones {
@@ -67,7 +67,7 @@ import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
             top: 0;
             left: 0;
             right: 0;
-            bottom: 0;
+            bottom: 0; /* Usa toda la altura hasta abajo */
             z-index: 100;
         }
 

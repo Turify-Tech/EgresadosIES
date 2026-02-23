@@ -358,7 +358,7 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 720px) {
     .modal-overlay {
         padding: 1rem;
         align-items: flex-end;
