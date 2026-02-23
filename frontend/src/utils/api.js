@@ -3,9 +3,22 @@
  * Sistema de Gestión de Egresados IES
  */
 
+// Detectar automáticamente el entorno
+function getApiUrl() {
+    if (typeof window !== 'undefined') {
+        const hostname = window.location.hostname;
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+            return 'http://localhost:3000/api';
+        }
+        return 'https://egresados-ies-api.vercel.app/api';
+    }
+    // Fallback para SSR
+    return import.meta.env.PUBLIC_API_URL || 'http://localhost:3000/api';
+}
+
 // Configuración base de la API
 const API_CONFIG = {
-    baseURL: import.meta.env.PUBLIC_API_URL || "http://localhost:3000",
+    baseURL: getApiUrl(),
     timeout: 10000,
     headers: {
         "Content-Type": "application/json",
