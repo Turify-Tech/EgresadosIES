@@ -759,13 +759,17 @@ import BuscarUsuario from "../../components/mensajes/BuscarUsuario.astro";
             })
             .join("");
 
-        // Agregar event listeners
+        // Agregar event listeners solo al botón Mensaje
         elementos.listaUsuarios.querySelectorAll(".usuario-item").forEach((item) => {
-            item.addEventListener("click", () => {
-                const userId = parseInt((item as HTMLElement).dataset.userId!);
-                cerrarModalNuevaConversacion();
-                abrirConversacion(userId);
-            });
+            const btnMensaje = item.querySelector(".btn-mensaje");
+            if (btnMensaje) {
+                btnMensaje.addEventListener("click", (e) => {
+                    e.stopPropagation(); // Evitar propagación
+                    const userId = parseInt((item as HTMLElement).dataset.userId!);
+                    cerrarModalNuevaConversacion();
+                    abrirConversacion(userId);
+                });
+            }
         });
     }
 
