@@ -1,0 +1,237 @@
+---
+/**
+ * Modal de Confirmación Personalizado
+ * Modal elegante para confirmar acciones críticas como eliminar publicaciones
+ */
+---
+
+<div class="confirm-modal-overlay" id="confirm-modal-overlay">
+    <div class="confirm-modal">
+        <div class="confirm-modal-header">
+            <svg class="confirm-icon-warning" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <circle cx="12" cy="17" r="0.5" fill="currentColor"></circle>
+            </svg>
+        </div>
+        
+        <div class="confirm-modal-body">
+            <h3 id="confirm-modal-title">¿Estás seguro?</h3>
+            <p id="confirm-modal-message">Esta acción no se puede deshacer.</p>
+        </div>
+        
+        <div class="confirm-modal-actions">
+            <button class="btn-cancel" id="confirm-modal-cancel">
+                Cancelar
+            </button>
+            <button class="btn-confirm" id="confirm-modal-confirm">
+                Eliminar
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .confirm-modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        z-index: 10000;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.2s ease;
+    }
+
+    .confirm-modal-overlay.active {
+        display: flex;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .confirm-modal {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        max-width: 420px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease;
+    }
+
+    .confirm-modal-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .confirm-icon-warning {
+        color: #f59e0b;
+        stroke-width: 2;
+    }
+
+    .confirm-modal-body {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .confirm-modal-body h3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .confirm-modal-body p {
+        font-size: 1rem;
+        color: #6b7280;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    .confirm-modal-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .confirm-modal-actions button {
+        flex: 1;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-cancel {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    .btn-cancel:hover {
+        background: #e5e7eb;
+    }
+
+    .btn-confirm {
+        background: #ef4444;
+        color: white;
+    }
+
+    .btn-confirm:hover {
+        background: #dc2626;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-confirm:active {
+        transform: translateY(0);
+    }
+
+    @media (max-width: 640px) {
+        .confirm-modal {
+            padding: 1.5rem;
+        }
+
+        .confirm-modal-body h3 {
+            font-size: 1.25rem;
+        }
+
+        .confirm-modal-body p {
+            font-size: 0.9rem;
+        }
+
+        .confirm-modal-actions {
+            flex-direction: column-reverse;
+        }
+    }
+</style>
+
+<script is:inline>
+    (function() {
+        let confirmResolve = null;
+
+        // Función global para mostrar modal de confirmación
+        window.showConfirmModal = function(title, message) {
+            return new Promise((resolve) => {
+                confirmResolve = resolve;
+                
+                const overlay = document.getElementById('confirm-modal-overlay');
+                const titleEl = document.getElementById('confirm-modal-title');
+                const messageEl = document.getElementById('confirm-modal-message');
+                
+                if (titleEl) titleEl.textContent = title;
+                if (messageEl) messageEl.textContent = message;
+                
+                if (overlay) {
+                    overlay.classList.add('active');
+                }
+            });
+        };
+
+        // Cerrar modal
+        function closeConfirmModal(confirmed) {
+            const overlay = document.getElementById('confirm-modal-overlay');
+            if (overlay) {
+                overlay.classList.remove('active');
+            }
+            if (confirmResolve) {
+                confirmResolve(confirmed);
+                confirmResolve = null;
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const cancelBtn = document.getElementById('confirm-modal-cancel');
+            const confirmBtn = document.getElementById('confirm-modal-confirm');
+            const overlay = document.getElementById('confirm-modal-overlay');
+
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', () => closeConfirmModal(false));
+            }
+
+            if (confirmBtn) {
+                confirmBtn.addEventListener('click', () => closeConfirmModal(true));
+            }
+
+            // Cerrar al hacer clic fuera del modal
+            if (overlay) {
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) {
+                        closeConfirmModal(false);
+                    }
+                });
+            }
+
+            // Cerrar con tecla Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && overlay && overlay.classList.contains('active')) {
+                    closeConfirmModal(false);
+                }
+            });
+        });
+    })();
+</script>

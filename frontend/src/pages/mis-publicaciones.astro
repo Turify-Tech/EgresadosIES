@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ComentariosModal from "../components/ComentariosModal.astro";
+import ConfirmModal from "../components/ConfirmModal.astro";
 import "../styles/mis-publicaciones.css";
 import "../styles/publicaciones-imagenes.css";
 ---
@@ -29,6 +30,9 @@ import "../styles/publicaciones-imagenes.css";
 
     <!-- Modal de comentarios (solo lectura) -->
     <ComentariosModal soloLectura={true} />
+
+    <!-- Modal de confirmación -->
+    <ConfirmModal />
 
     <!-- Modal de visor de imágenes -->
     <div id="imagen-modal" class="imagen-modal">
@@ -437,11 +441,12 @@ import "../styles/publicaciones-imagenes.css";
 
         // Función para eliminar publicación
         async function eliminarPublicacion(publicacionId) {
-            if (
-                !confirm(
-                    "¿Estás seguro de que quieres eliminar esta publicación?",
-                )
-            ) {
+            const confirmed = await window.showConfirmModal(
+                '¿Eliminar publicación?',
+                'Esta acción no se puede deshacer. ¿Estás seguro de que quieres eliminar esta publicación?'
+            );
+            
+            if (!confirmed) {
                 return;
             }
 
