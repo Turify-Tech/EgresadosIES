@@ -34,8 +34,7 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
-                                stroke-width="1.5"
-                            >
+                                stroke-width="1.5">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <circle cx="12" cy="10" r="3"></circle>
                                 <path
@@ -47,16 +46,14 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                             class="btn-cambiar-foto"
                             id="btn-cambiar-foto"
                             style="display: none;"
-                            onclick="document.getElementById('input-foto-perfil').click()"
-                        >
+                            onclick="document.getElementById('input-foto-perfil').click()">
                             <svg
                                 width="18"
                                 height="18"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
-                                stroke-width="2"
-                            >
+                                stroke-width="2">
                                 <path
                                     d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
                                 ></path>
@@ -94,9 +91,11 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                         onclick="window.location.href='/mis-publicaciones'"
                         >Mis Publicaciones</button
                     >
+                    <!-- 
                     <button class="btn-action" onclick="descargarCV()"
                         >Descargar CV en PDF</button
                     >
+                    -->
                 </div>
             </div>
 
@@ -165,8 +164,7 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                         <select
                             class="dato-input"
                             id="input-carrera"
-                            style="display: none;"
-                        >
+                            style="display: none;">
                             <option value="">Cargando carreras...</option>
                         </select>
                     </div>
@@ -193,8 +191,7 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                         <select
                             class="dato-input"
                             id="input-situacion"
-                            style="display: none;"
-                        >
+                            style="display: none;">
                             <option value="">Selecciona una opción</option>
                             <option value="Trabajando">Trabajando</option>
                             <option value="Freelance">Freelance</option>
@@ -212,8 +209,7 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                     <div
                         class="edit-actions"
                         id="edit-actions"
-                        style="display: none;"
-                    >
+                        style="display: none;">
                         <button class="btn-cancelar" onclick="cancelarEdicion()"
                             >Cancelar</button
                         >
@@ -224,8 +220,7 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
-                                stroke-width="2"
-                            >
+                                stroke-width="2">
                                 <path
                                     d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
                                 ></path>
@@ -258,7 +253,8 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                 </div>
                 <!-- Cartel de recomendaciones -->
                 <div class="foto-recomendaciones">
-                    <span>Recomendado: 400x400 px, JPG/PNG/WebP, máx. 5 MB</span>
+                    <span>Recomendado: 400x400 px, JPG/PNG/WebP, máx. 5 MB</span
+                    >
                 </div>
                 <div class="crop-container">
                     <img id="image-to-crop" src="" alt="Imagen para recortar" />
@@ -274,8 +270,7 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
-                            stroke-width="2"
-                        >
+                            stroke-width="2">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                         Aplicar recorte
@@ -742,13 +737,13 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
     function getApiUrl() {
         const hostname = window.location.hostname;
         // Si estamos en localhost, usar el backend local
-        if (hostname === 'localhost' || hostname === '127.0.0.1') {
-            return 'http://localhost:3000';
+        if (hostname === "localhost" || hostname === "127.0.0.1") {
+            return "http://localhost:3000";
         }
         // En producción, usar el backend de producción
-        return 'https://egresados-ies-api.vercel.app';
+        return "https://egresados-ies-api.vercel.app";
     }
-    
+
     const API_URL = getApiUrl();
     const API_BASE_URL = API_URL;
 
@@ -822,16 +817,13 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
 
             // Llamar a la API
             console.log("📡 Llamando a la API /api/perfil/mi-perfil...");
-            const response = await fetch(
-                `${API_URL}/api/perfil/mi-perfil`,
-                {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json"
-                    }
-                }
-            );
+            const response = await fetch(`${API_URL}/api/perfil/mi-perfil`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
 
             console.log("📥 Respuesta de la API:", {
                 status: response.status,
@@ -881,7 +873,6 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                 loadingOverlay.classList.add("hidden");
             }
         }
-    
     }
     function actualizarInterfaz(perfil) {
         // Guardar datos globalmente para el modo edición
@@ -894,12 +885,13 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
         console.log("Email:", perfil.usuario.email);
 
         // Avatar
+        const imgWidth = window.innerWidth <= 700 ? 120 : 200;
         const avatarEl = document.getElementById("profile-avatar");
         if (perfil.perfil?.urlFotoPerfil && avatarEl) {
             const fotoUrl = perfil.perfil.urlFotoPerfil.startsWith("http")
                 ? perfil.perfil.urlFotoPerfil
                 : `${API_URL}${perfil.perfil.urlFotoPerfil}`;
-            avatarEl.innerHTML = `<img style="width: 200px;" src="${fotoUrl}" alt="Foto de perfil" />`;
+            avatarEl.innerHTML = `<img style="width: ${imgWidth}px;" src="${fotoUrl}" alt="Foto de perfil" />`;
         }
 
         // Banner
@@ -1153,17 +1145,14 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                 document.getElementById("input-apellido"),
             );
 
-            const response = await fetch(
-                `${API_URL}/api/perfil/mi-perfil`,
-                {
-                    method: "PUT",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(formData),
+            const response = await fetch(`${API_URL}/api/perfil/mi-perfil`, {
+                method: "PUT",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
                 },
-            );
+                body: JSON.stringify(formData),
+            });
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -1205,20 +1194,35 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
         if (!file) return;
 
         // Tipos de archivo permitidos
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/bmp'];
-        const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp'];
-        const fileExtension = file.name.split('.').pop()?.toLowerCase();
+        const allowedTypes = [
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+            "image/gif",
+            "image/bmp",
+        ];
+        const allowedExtensions = ["jpg", "jpeg", "png", "webp", "gif", "bmp"];
+        const fileExtension = file.name.split(".").pop()?.toLowerCase();
 
         // Validar tipo de archivo
         if (!file.type.startsWith("image/")) {
-            showNotification("❌ Por favor selecciona una imagen válida (JPG, PNG, WebP, GIF o BMP)", "error");
-            target.value = '';
+            showNotification(
+                "❌ Por favor selecciona una imagen válida (JPG, PNG, WebP, GIF o BMP)",
+                "error",
+            );
+            target.value = "";
             return;
         }
 
-        if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension || '')) {
-            showNotification(`❌ Formato no soportado. Usa JPG, PNG o WebP para mejor calidad.`, "error");
-            target.value = '';
+        if (
+            !allowedTypes.includes(file.type) &&
+            !allowedExtensions.includes(fileExtension || "")
+        ) {
+            showNotification(
+                `❌ Formato no soportado. Usa JPG, PNG o WebP para mejor calidad.`,
+                "error",
+            );
+            target.value = "";
             return;
         }
 
@@ -1226,25 +1230,34 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
         const maxSize = 5 * 1024 * 1024;
         if (file.size > maxSize) {
             const sizeMB = (file.size / 1024 / 1024).toFixed(1);
-            showNotification(`❌ La imagen pesa ${sizeMB}MB. Máximo permitido: 5MB. Comprime la imagen o usa una más pequeña.`, "error");
-            target.value = '';
+            showNotification(
+                `❌ La imagen pesa ${sizeMB}MB. Máximo permitido: 5MB. Comprime la imagen o usa una más pequeña.`,
+                "error",
+            );
+            target.value = "";
             return;
         }
 
         // Validar dimensiones mínimas
         const img = new Image();
-        img.onload = function() {
+        img.onload = function () {
             URL.revokeObjectURL(img.src);
-            
+
             if (img.width < 50 || img.height < 50) {
-                showNotification(`❌ La imagen es muy pequeña (${img.width}x${img.height}px). Mínimo: 50x50px`, "error");
-                target.value = '';
+                showNotification(
+                    `❌ La imagen es muy pequeña (${img.width}x${img.height}px). Mínimo: 50x50px`,
+                    "error",
+                );
+                target.value = "";
                 return;
             }
 
             // Advertencia si la imagen es pequeña
             if (img.width < 400 || img.height < 400) {
-                showNotification(`⚠️ Imagen de ${img.width}x${img.height}px. Para mejor calidad usa 400x400px o mayor.`, "warning");
+                showNotification(
+                    `⚠️ Imagen de ${img.width}x${img.height}px. Para mejor calidad usa 400x400px o mayor.`,
+                    "warning",
+                );
             }
 
             // Leer archivo y abrir modal de recorte
@@ -1257,9 +1270,12 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
             reader.readAsDataURL(file);
         };
 
-        img.onerror = function() {
-            showNotification("❌ No se pudo leer la imagen. Intenta con otro archivo.", "error");
-            target.value = '';
+        img.onerror = function () {
+            showNotification(
+                "❌ No se pudo leer la imagen. Intenta con otro archivo.",
+                "error",
+            );
+            target.value = "";
         };
 
         img.src = URL.createObjectURL(file);
@@ -1336,12 +1352,15 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
         // Verificar el tamaño resultante
         const resultWidth = croppedCanvas.width;
         const resultHeight = croppedCanvas.height;
-        
+
         console.log(`📐 Tamaño del recorte: ${resultWidth}x${resultHeight}px`);
 
         // Advertir si es muy pequeño
         if (resultWidth < 100 || resultHeight < 100) {
-            showNotification(`⚠️ El recorte es pequeño (${resultWidth}x${resultHeight}px). Para mejor calidad, selecciona un área más grande.`, "warning");
+            showNotification(
+                `⚠️ El recorte es pequeño (${resultWidth}x${resultHeight}px). Para mejor calidad, selecciona un área más grande.`,
+                "warning",
+            );
         }
 
         // Convertir a blob
@@ -1359,8 +1378,7 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
                     );
 
                     // Mostrar vista previa en el avatar
-                    const avatarEl =
-                        document.getElementById("profile-avatar");
+                    const avatarEl = document.getElementById("profile-avatar");
                     if (avatarEl) {
                         const previewUrl = URL.createObjectURL(blob);
                         avatarEl.innerHTML = `<img src="${previewUrl}" alt="Vista previa" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />`;
@@ -1381,8 +1399,10 @@ const API_URL = API_BASE.replace(/\/api\/?$/, "");
     function showNotification(message, type = "info") {
         // Determinar el color según el tipo
         let bgColor = "#3b82f6"; // info (azul)
-        if (type === "success") bgColor = "#10b981"; // verde
-        else if (type === "error") bgColor = "#dc2626"; // rojo
+        if (type === "success")
+            bgColor = "#10b981"; // verde
+        else if (type === "error")
+            bgColor = "#dc2626"; // rojo
         else if (type === "warning") bgColor = "#f59e0b"; // amarillo/naranja
 
         const notification = document.createElement("div");

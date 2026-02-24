@@ -2,6 +2,7 @@
 export interface Props {
     title: string;
     description?: string;
+    ogImage?: string;
     hideAccederButton?: boolean;
     hideFooter?: boolean;
     hideSearchBar?: boolean;
@@ -10,12 +11,15 @@ export interface Props {
 const {
     title,
     description = "Sistema de Gestión de Egresados del IES",
+    ogImage = "/images/logo.png",
     hideAccederButton = false,
     hideFooter = false,
     hideSearchBar = false,
 } = Astro.props;
 
-// Importar estilos CSS
+const siteUrl = "https://egresados-ies.vercel.app";
+const fullOgImage = ogImage.startsWith("http") ? ogImage : ogImage;
+
 import "../styles/global.css";
 import "../styles/components.css";
 import "../styles/mentions.css";
@@ -32,8 +36,23 @@ import DynamicBackground from "../components/DynamicBackground.astro";
         <meta charset="UTF-8" />
         <meta name="description" content={description} />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" type="image/svg+xml" href="/images/logo.png" />
         <title>{title} | IES Egresados</title>
+
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`${siteUrl}${Astro.url.pathname}`} />
+        <meta property="og:title" content={`${title} | IES Egresados`} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={fullOgImage} />
+        <meta property="og:site_name" content="IES Egresados" />
+        <meta property="og:locale" content="es_AR" />
+
+        <!-- Twitter -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${title} | IES Egresados`} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={fullOgImage} />
 
         <!-- Fuentes y estilos -->
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -109,10 +128,12 @@ import DynamicBackground from "../components/DynamicBackground.astro";
             }
 
             /* CRÍTICO: Dropdown del perfil debe estar oculto por defecto */
-            #user-dropdown:not([style*="display: block"]):not([style*="display:block"]) {
+            #user-dropdown:not([style*="display: block"]):not(
+                    [style*="display:block"]
+                ) {
                 display: none !important;
             }
-            
+
             /* Solo mostrar cuando JavaScript lo active explícitamente */
             #user-dropdown[style*="display: block"],
             #user-dropdown[style*="display:block"] {
@@ -304,9 +325,12 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                     background-color: white !important;
                     border: 1px solid #e5e7eb !important;
                 }
-                
+
                 /* ASEGURAR que cuando NO está visible, esté oculto */
-                header #user-dropdown:not([style*="display: block"]):not([style*="display:block"]) {
+                header
+                    #user-dropdown:not([style*="display: block"]):not(
+                        [style*="display:block"]
+                    ) {
                     display: none !important;
                     visibility: hidden !important;
                     opacity: 0 !important;
@@ -554,17 +578,22 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                         <div
                             id="user-dropdown"
                             style="display: none; position: absolute; top: 100%; right: 0; margin-top: 0.5rem; background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); min-width: 160px; z-index: 1000;">
-                            
                             <!-- Botón cerrar (solo visible en móvil) -->
                             <button
                                 id="dropdown-close-btn"
                                 style="display: none; position: absolute; top: 15px; right: 15px; background: none; border: none; cursor: pointer; padding: 0.5rem; color: #6b7280;">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <svg
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2">
                                     <line x1="18" y1="6" x2="6" y2="18"></line>
                                     <line x1="6" y1="6" x2="18" y2="18"></line>
                                 </svg>
                             </button>
-                            
+
                             <a
                                 id="mi-perfil-link"
                                 href="/perfil/mi-perfil"
@@ -597,28 +626,28 @@ import DynamicBackground from "../components/DynamicBackground.astro";
         </main>
 
         <!-- Footer - Ocultar en ciertas páginas (ej: chat) -->
-        {!hideFooter && (
-            <footer
-                style="color: var(--color-white); margin-top: auto; padding: 1.5rem 0;">
-                <div class="container" style="padding: 0 2rem;">
-                    <div class="text-center">
-                        <h3
-                            style="font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem;">
-                            Instituto de Educación Superior
-                        </h3>
-                        <p
-                            style="color: var(--color-gray-300); margin-bottom: 0.5rem; font-size: 0.875rem;">
-                            Sistema de Egresados - Conectando nuestra comunidad
-                            educativa
-                        </p>
-                        <p style="color: var(--color-gray-400); font-size: 0.8rem;">
-                            &copy; <span id="current-year"></span> Instituto de Educación
-                            Superior. Todos los derechos reservados.
-                        </p>
+        {
+            !hideFooter && (
+                <footer style="color: var(--color-white); margin-top: auto; padding: 1.5rem 0;">
+                    <div class="container" style="padding: 0 2rem;">
+                        <div class="text-center">
+                            <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem;">
+                                Instituto de Educación Superior
+                            </h3>
+                            <p style="color: var(--color-gray-300); margin-bottom: 0.5rem; font-size: 0.875rem;">
+                                Sistema de Egresados - Conectando nuestra
+                                comunidad educativa
+                            </p>
+                            <p style="color: var(--color-gray-400); font-size: 0.8rem;">
+                                &copy; <span id="current-year" /> Instituto de
+                                Educación Superior. Todos los derechos
+                                reservados.
+                            </p>
+                        </div>
                     </div>
-                </div>
-            </footer>
-        )}
+                </footer>
+            )
+        }
 
         <!-- Scripts -->
         <!-- Inyectar variables de entorno PRIMERO -->
@@ -626,7 +655,7 @@ import DynamicBackground from "../components/DynamicBackground.astro";
             window.API_URL = API_URL;
             window.API_BASE_URL = API_BASE_URL;
         </script>
-        
+
         <!-- Cargar sistema de menciones DESPUÉS de definir API_URL -->
         <script src="/js/mentionSystem.js" is:inline></script>
 
@@ -635,45 +664,71 @@ import DynamicBackground from "../components/DynamicBackground.astro";
 
         <!-- Convertir menciones automáticamente en toda la página -->
         <script is:inline>
-            document.addEventListener('DOMContentLoaded', async function() {
+            document.addEventListener("DOMContentLoaded", async function () {
                 // Esperar a que convertirMencionesParaFrontend esté disponible
-                if (typeof window.convertirMencionesParaFrontend !== 'function') {
-                    console.warn('[MENCIONES] Función convertirMencionesParaFrontend no disponible');
+                if (
+                    typeof window.convertirMencionesParaFrontend !== "function"
+                ) {
+                    console.warn(
+                        "[MENCIONES] Función convertirMencionesParaFrontend no disponible",
+                    );
                     return;
                 }
 
                 // Selectores de elementos que pueden contener menciones
                 const selectores = [
-                    '.contenido',           // Comentarios
-                    '.content',             // Publicaciones
-                    '.mensaje-texto',       // Mensajes privados
-                    '.notification-message', // Notificaciones
-                    '.notificacion-mensaje', // Notificaciones en modal
-                    '.descripcion',         // Descripciones de perfil
-                    '[data-mention-content]' // Cualquier elemento marcado explícitamente
+                    ".contenido", // Comentarios
+                    ".content", // Publicaciones
+                    ".mensaje-texto", // Mensajes privados
+                    ".notification-message", // Notificaciones
+                    ".notificacion-mensaje", // Notificaciones en modal
+                    ".descripcion", // Descripciones de perfil
+                    "[data-mention-content]", // Cualquier elemento marcado explícitamente
                 ];
 
                 // Convertir menciones en todos los elementos existentes
-                const elementos = document.querySelectorAll(selectores.join(', '));
+                const elementos = document.querySelectorAll(
+                    selectores.join(", "),
+                );
                 for (const elemento of elementos) {
-                    if (elemento.textContent && elemento.textContent.includes('@[id:')) {
-                        const textoConvertido = await window.convertirMencionesParaFrontend(elemento.innerHTML);
+                    if (
+                        elemento.textContent &&
+                        elemento.textContent.includes("@[id:")
+                    ) {
+                        const textoConvertido =
+                            await window.convertirMencionesParaFrontend(
+                                elemento.innerHTML,
+                            );
                         elemento.innerHTML = textoConvertido;
                     }
                 }
 
                 // Observar cambios dinámicos en el DOM (para contenido cargado después)
-                const observer = new MutationObserver(async function(mutations) {
+                const observer = new MutationObserver(async function (
+                    mutations,
+                ) {
                     for (const mutation of mutations) {
                         for (const nodo of mutation.addedNodes) {
                             if (nodo.nodeType === Node.ELEMENT_NODE) {
-                                const elementosNuevos = nodo.matches && nodo.matches(selectores.join(', '))
-                                    ? [nodo]
-                                    : nodo.querySelectorAll ? nodo.querySelectorAll(selectores.join(', ')) : [];
-                                
+                                const elementosNuevos =
+                                    nodo.matches &&
+                                    nodo.matches(selectores.join(", "))
+                                        ? [nodo]
+                                        : nodo.querySelectorAll
+                                          ? nodo.querySelectorAll(
+                                                selectores.join(", "),
+                                            )
+                                          : [];
+
                                 for (const elemento of elementosNuevos) {
-                                    if (elemento.textContent && elemento.textContent.includes('@[id:')) {
-                                        const textoConvertido = await window.convertirMencionesParaFrontend(elemento.innerHTML);
+                                    if (
+                                        elemento.textContent &&
+                                        elemento.textContent.includes("@[id:")
+                                    ) {
+                                        const textoConvertido =
+                                            await window.convertirMencionesParaFrontend(
+                                                elemento.innerHTML,
+                                            );
                                         elemento.innerHTML = textoConvertido;
                                     }
                                 }
@@ -685,7 +740,7 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                 // Observar cambios en todo el documento
                 observer.observe(document.body, {
                     childList: true,
-                    subtree: true
+                    subtree: true,
                 });
             });
         </script>
@@ -695,12 +750,12 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                 // Función helper para obtener API URL según entorno
                 function getApiUrl() {
                     const hostname = window.location.hostname;
-                    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-                        return 'http://localhost:3000/api';
+                    if (hostname === "localhost" || hostname === "127.0.0.1") {
+                        return "http://localhost:3000/api";
                     }
-                    return 'https://egresados-ies-api.vercel.app/api';
+                    return "https://egresados-ies-api.vercel.app/api";
                 }
-                
+
                 // API URL
                 const API_URL = getApiUrl();
 
@@ -737,9 +792,18 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                 console.log("🔍 [DROPDOWN DEBUG] Estado inicial:");
                 console.log("  - Elemento encontrado:", !!userDropdown);
                 if (userDropdown) {
-                    console.log("  - Display inicial:", userDropdown.style.display);
-                    console.log("  - Computed display:", window.getComputedStyle(userDropdown).display);
-                    console.log("  - Inline styles:", userDropdown.getAttribute("style"));
+                    console.log(
+                        "  - Display inicial:",
+                        userDropdown.style.display,
+                    );
+                    console.log(
+                        "  - Computed display:",
+                        window.getComputedStyle(userDropdown).display,
+                    );
+                    console.log(
+                        "  - Inline styles:",
+                        userDropdown.getAttribute("style"),
+                    );
                 }
 
                 // Enlaces de navegación
@@ -802,8 +866,10 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                 });
 
                 function setupAuthenticatedUI(user) {
-                    console.log("🔍 [DROPDOWN DEBUG] setupAuthenticatedUI iniciado");
-                    
+                    console.log(
+                        "🔍 [DROPDOWN DEBUG] setupAuthenticatedUI iniciado",
+                    );
+
                     // Ocultar botón de acceder
                     if (accederBtn) {
                         accederBtn.style.display = "none";
@@ -812,7 +878,9 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                     // Mostrar perfil de usuario
                     if (userProfile) {
                         userProfile.style.display = "block";
-                        console.log("🔍 [DROPDOWN DEBUG] User profile mostrado");
+                        console.log(
+                            "🔍 [DROPDOWN DEBUG] User profile mostrado",
+                        );
 
                         // Configure user info
                         if (userNameNav) {
@@ -830,9 +898,14 @@ import DynamicBackground from "../components/DynamicBackground.astro";
 
                     // 🔍 DEBUG: Verificar estado del dropdown antes de mostrar elementos
                     if (userDropdown) {
-                        console.log("🔍 [DROPDOWN DEBUG] Antes de mostrar elementos del dropdown:");
+                        console.log(
+                            "🔍 [DROPDOWN DEBUG] Antes de mostrar elementos del dropdown:",
+                        );
                         console.log("  - Display:", userDropdown.style.display);
-                        console.log("  - Computed:", window.getComputedStyle(userDropdown).display);
+                        console.log(
+                            "  - Computed:",
+                            window.getComputedStyle(userDropdown).display,
+                        );
                     }
 
                     // Referencias a elementos del dropdown
@@ -845,7 +918,7 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                     if (user.tipo_usuario === "Egresado") {
                         // Ocultar enlace de admin para egresados
                         if (adminLink) adminLink.style.display = "none";
-                        
+
                         if (mensajesLink) {
                             mensajesLink.style.display = "flex";
                             // Redirigir a /mensajes (no abrir sidebar)
@@ -884,10 +957,23 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                             miPerfilDivider.style.display = "block";
 
                         // 🔍 DEBUG: Después de mostrar elementos internos
-                        console.log("🔍 [DROPDOWN DEBUG] Después de mostrar Mi Perfil:");
-                        console.log("  - miPerfilLink display:", miPerfilLink?.style.display);
-                        console.log("  - Dropdown display:", userDropdown?.style.display);
-                        console.log("  - Dropdown computed:", userDropdown ? window.getComputedStyle(userDropdown).display : "N/A");
+                        console.log(
+                            "🔍 [DROPDOWN DEBUG] Después de mostrar Mi Perfil:",
+                        );
+                        console.log(
+                            "  - miPerfilLink display:",
+                            miPerfilLink?.style.display,
+                        );
+                        console.log(
+                            "  - Dropdown display:",
+                            userDropdown?.style.display,
+                        );
+                        console.log(
+                            "  - Dropdown computed:",
+                            userDropdown
+                                ? window.getComputedStyle(userDropdown).display
+                                : "N/A",
+                        );
 
                         // Iniciar actualización de mensajes no leídos
                         iniciarActualizacionMensajes();
@@ -977,10 +1063,12 @@ import DynamicBackground from "../components/DynamicBackground.astro";
 
                             if (perfilData.urlFotoPerfil && userAvatar) {
                                 // Helper para obtener URL base del backend
-                                const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                                    ? 'http://localhost:3000'
-                                    : 'https://egresados-ies-api.vercel.app';
-                                
+                                const backendUrl =
+                                    window.location.hostname === "localhost" ||
+                                    window.location.hostname === "127.0.0.1"
+                                        ? "http://localhost:3000"
+                                        : "https://egresados-ies-api.vercel.app";
+
                                 let fotoUrl =
                                     perfilData.urlFotoPerfil.startsWith("http")
                                         ? perfilData.urlFotoPerfil
@@ -1045,31 +1133,54 @@ import DynamicBackground from "../components/DynamicBackground.astro";
                     console.log("🔍 [DROPDOWN DEBUG] setupDropdown iniciado");
                     console.log("  - userProfile existe:", !!userProfile);
                     console.log("  - userDropdown existe:", !!userDropdown);
-                    
+
                     if (!userProfile || !userDropdown) {
-                        console.log("❌ [DROPDOWN DEBUG] No se puede configurar dropdown - elementos faltantes");
+                        console.log(
+                            "❌ [DROPDOWN DEBUG] No se puede configurar dropdown - elementos faltantes",
+                        );
                         return;
                     }
 
                     // 🔍 DEBUG: Asegurar que dropdown esté oculto al inicio
-                    console.log("🔍 [DROPDOWN DEBUG] Forzando dropdown a display: none");
+                    console.log(
+                        "🔍 [DROPDOWN DEBUG] Forzando dropdown a display: none",
+                    );
                     userDropdown.style.display = "none";
-                    console.log("  - Display después de forzar:", userDropdown.style.display);
-                    console.log("  - Computed después de forzar:", window.getComputedStyle(userDropdown).display);
+                    console.log(
+                        "  - Display después de forzar:",
+                        userDropdown.style.display,
+                    );
+                    console.log(
+                        "  - Computed después de forzar:",
+                        window.getComputedStyle(userDropdown).display,
+                    );
 
                     // Toggle dropdown
                     userProfile.addEventListener("click", (e) => {
-                        console.log("🔍 [DROPDOWN DEBUG] Click en perfil detectado");
+                        console.log(
+                            "🔍 [DROPDOWN DEBUG] Click en perfil detectado",
+                        );
                         e.stopPropagation();
-                        const isVisible = userDropdown.style.display === "block";
-                        console.log("  - Estado actual (isVisible):", isVisible);
-                        userDropdown.style.display = isVisible ? "none" : "block";
-                        console.log("  - Nuevo estado:", userDropdown.style.display);
+                        const isVisible =
+                            userDropdown.style.display === "block";
+                        console.log(
+                            "  - Estado actual (isVisible):",
+                            isVisible,
+                        );
+                        userDropdown.style.display = isVisible
+                            ? "none"
+                            : "block";
+                        console.log(
+                            "  - Nuevo estado:",
+                            userDropdown.style.display,
+                        );
                     });
 
                     // Close dropdown when clicking outside
                     document.addEventListener("click", () => {
-                        console.log("🔍 [DROPDOWN DEBUG] Click fuera detectado - cerrando dropdown");
+                        console.log(
+                            "🔍 [DROPDOWN DEBUG] Click fuera detectado - cerrando dropdown",
+                        );
                         userDropdown.style.display = "none";
                     });
 

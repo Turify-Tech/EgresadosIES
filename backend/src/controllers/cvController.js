@@ -24,6 +24,146 @@ async function descargarImagen(url) {
 }
 
 /**
+ * Genera y descarga el CV de un egresado específico por su ID (público)
+ * @param {Object} req - Request object
+ * @param {Object} res - Response object
+ */
+export async function downloadCVPublico(req, res) {
+    try {
+        const { id } = req.params;
+        const usuarioId = parseInt(id);
+
+        if (!id || isNaN(usuarioId)) {
+            return res.status(400).json({
+                success: false,
+                error: "ID de egresado inválido",
+            });
+        }
+
+        const client = database.getClient();
+
+        // Verificar que el egresado existe y tiene perfil
+        const verifyQuery = `
+            SELECT 
+                u.id as userId,
+                u.nombre,
+                u.apellido,
+                u.email,
+                e.dni,
+                e.telefono,
+                p.id as perfilId,
+                p.resumenProfesional,
+                p.urlPortfolio,
+                p.situacionLaboral,
+                p.urlFotoPerfil,
+                p.fechaNacimiento,
+                p.direccion,
+                p.ciudad,
+                p.provincia,
+                p.pais,
+                c.id as carreraId,
+                c.nombre as carreraNombre
+            FROM Usuario u
+            INNER JOIN Egresado e ON u.id = e.id
+            LEFT JOIN Perfil p ON e.perfilId = p.id
+            LEFT JOIN Carrera c ON e.carreraId = c.id
+            WHERE u.id = ?
+        `;
+
+        const perfilResult = await client.execute({
+            sql: verifyQuery,
+            args: [usuarioId],
+        });
+
+        if (perfilResult.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: "Egresado no encontrado",
+            });
+        }
+
+        const perfil = perfilResult.rows[0];
+        const perfilId = perfil.perfilId;
+
+        // Si no tiene "Acerca de mí" (resumenProfesional), no puede descargar CV
+        if (!perfil.resumenProfesional) {
+            return res.status(400).json({
+                success: false,
+                error: "El egresado no tiene cargado su perfil profesional",
+            });
+        }
+
+        // Obtener experiencias laborales
+        let experiencias = [];
+        if (perfilId) {
+            const experienciasResult = await client.execute({
+                sql: "SELECT * FROM ExperienciaLaboral WHERE perfilId = ? ORDER BY fechaInicio DESC",
+                args: [perfilId],
+            });
+            experiencias = experienciasResult.rows;
+        }
+
+        // Obtener formación académica
+        let formaciones = [];
+        if (perfilId) {
+            const formacionResult = await client.execute({
+                sql: "SELECT * FROM FormacionAcademica WHERE perfilId = ? ORDER BY anioFinalizacion DESC",
+                args: [perfilId],
+            });
+            formaciones = formacionResult.rows;
+        }
+
+        // Obtener cursos
+        let cursos = [];
+        if (perfilId) {
+            const cursosResult = await client.execute({
+                sql: "SELECT * FROM Curso WHERE perfilId = ? ORDER BY nombre ASC",
+                args: [perfilId],
+            });
+            cursos = cursosResult.rows;
+        }
+
+        // Obtener habilidades
+        let habilidades = [];
+        const habilidadesResult = await client.execute({
+            sql: "SELECT * FROM Habilidades WHERE usuarioId = ? ORDER BY tipo ASC, nombre ASC",
+            args: [usuarioId],
+        });
+        habilidades = habilidadesResult.rows;
+
+        // Generar PDF
+        const doc = new PDFDocument();
+
+        // Configurar headers para descarga
+        const nombreCompleto = `${perfil.nombre}${
+            perfil.apellido ? " " + perfil.apellido : ""
+        }`;
+        const fileName = `CV_${nombreCompleto.replace(/\s+/g, "_")}.pdf`;
+
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader(
+            "Content-Disposition",
+            `attachment; filename="${fileName}"`
+        );
+
+        // Pipe del PDF a la respuesta
+        doc.pipe(res);
+
+        // Generar contenido del PDF
+        await generarContenidoPDF(doc, perfil, experiencias, formaciones, cursos, habilidades);
+
+        // Finalizar el documento
+        doc.end();
+    } catch (error) {
+        console.error("❌ Error generando CV público:", error);
+        res.status(500).json({
+            success: false,
+            error: "Error interno del servidor al generar el CV",
+        });
+    }
+}
+
+/**
  * Genera y descarga el CV del usuario en formato PDF
  * @param {Object} req - Request object
  * @param {Object} res - Response object

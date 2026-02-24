@@ -66,7 +66,7 @@ export async function getStaticPaths() {
 
     .header-banner {
         height: 200px;
-        background: url('/images/Fondo Azul card.jpg') center/cover no-repeat;
+        background: url("/images/Fondo Azul card.jpg") center/cover no-repeat;
         position: relative;
     }
 
@@ -139,7 +139,7 @@ export async function getStaticPaths() {
     }
 
     .info-card-content {
-        background: #5B7FDB;
+        background: #5b7fdb;
         border-radius: 12px;
         padding: 1.5rem 2rem;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -188,7 +188,7 @@ export async function getStaticPaths() {
         gap: 0.5rem;
         padding: 0.75rem 1.5rem;
         background: white;
-        color: #5B7FDB;
+        color: #5b7fdb;
         border: none;
         border-radius: 8px;
         font-size: 0.875rem;
@@ -204,7 +204,7 @@ export async function getStaticPaths() {
         background: #f0f4ff;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        color: #4A6BC9;
+        color: #4a6bc9;
     }
 
     .btn-contactar svg,
@@ -275,15 +275,15 @@ export async function getStaticPaths() {
     }
 
     .info-row-icon.location-icon {
-        color: #EF4444;
+        color: #ef4444;
     }
 
     .info-row-icon.email-icon {
-        color: #3B82F6;
+        color: #3b82f6;
     }
 
     .info-row-icon.phone-icon {
-        color: #10B981;
+        color: #10b981;
     }
 
     .info-row-icon.work-icon {
@@ -291,11 +291,11 @@ export async function getStaticPaths() {
     }
 
     .info-row-icon.briefcase-icon {
-        color: #B45309;
+        color: #b45309;
     }
 
     .info-row-icon.user-icon {
-        color: #F59E0B;
+        color: #f59e0b;
     }
 
     .info-row-text {
@@ -356,7 +356,7 @@ export async function getStaticPaths() {
     }
 
     .section-card-icon.exp-icon {
-        color: #B45309;
+        color: #b45309;
     }
 
     .section-card-icon.edu-icon {
@@ -364,7 +364,7 @@ export async function getStaticPaths() {
     }
 
     .section-card-icon.course-icon {
-        color: #5B7FDB;
+        color: #5b7fdb;
     }
 
     .exp-item,
@@ -442,18 +442,18 @@ export async function getStaticPaths() {
     }
 
     .status-completado {
-        background: #D1FAE5;
-        color: #065F46;
+        background: #d1fae5;
+        color: #065f46;
     }
 
     .status-en_proceso {
-        background: #DBEAFE;
-        color: #1E40AF;
+        background: #dbeafe;
+        color: #1e40af;
     }
 
     .status-pausado {
-        background: #FEE2E2;
-        color: #991B1B;
+        background: #fee2e2;
+        color: #991b1b;
     }
 
     .course-details {
@@ -480,7 +480,7 @@ export async function getStaticPaths() {
     }
 
     .course-link {
-        color: #5B7FDB;
+        color: #5b7fdb;
         text-decoration: none;
         font-size: 0.9rem;
         display: inline-flex;
@@ -520,11 +520,11 @@ export async function getStaticPaths() {
     }
 
     .skills-icon {
-        color: #10B981;
+        color: #10b981;
     }
 
     .projects-icon {
-        color: #8B5CF6;
+        color: #8b5cf6;
     }
 
     .skills-description {
@@ -533,7 +533,7 @@ export async function getStaticPaths() {
         line-height: 1.7;
         margin-bottom: 1rem;
         padding: 0.75rem;
-        background: #F3F4F6;
+        background: #f3f4f6;
         border-radius: 8px;
     }
 
@@ -649,7 +649,7 @@ export async function getStaticPaths() {
     }
 
     .project-url {
-        color: #5B7FDB;
+        color: #5b7fdb;
         text-decoration: none;
         font-size: 0.9rem;
     }
@@ -896,8 +896,8 @@ export async function getStaticPaths() {
 <script type="module">
     // Client-side fetch and render
     const container = document.getElementById("perfil-container");
-    const API_URL = window.API_URL || 'http://localhost:3000/api';
-    const API_BASE_URL = window.API_BASE_URL || 'http://localhost:3000';
+    const API_URL = window.API_URL || "http://localhost:3000/api";
+    const API_BASE_URL = window.API_BASE_URL || "http://localhost:3000";
 
     function createIcon(type) {
         const icons = {
@@ -927,9 +927,10 @@ export async function getStaticPaths() {
 
         // Helper para obtener URL base del backend
         const hostname = window.location.hostname;
-        const backendBaseUrl = (hostname === 'localhost' || hostname === '127.0.0.1')
-            ? 'http://localhost:3000'
-            : 'https://egresados-ies-api.vercel.app';
+        const backendBaseUrl =
+            hostname === "localhost" || hostname === "127.0.0.1"
+                ? "http://localhost:3000"
+                : "https://egresados-ies-api.vercel.app";
 
         wrap.innerHTML = `    
     <div class="profile-card">
@@ -940,7 +941,7 @@ export async function getStaticPaths() {
           <div class="avatar">
             ${
                 profile.urlFotoPerfil
-                    ? `<img src="${profile.urlFotoPerfil.startsWith('http') ? profile.urlFotoPerfil : backendBaseUrl + profile.urlFotoPerfil}" alt="${profile.nombre}">`
+                    ? `<img src="${profile.urlFotoPerfil.startsWith("http") ? profile.urlFotoPerfil : backendBaseUrl + profile.urlFotoPerfil}" alt="${profile.nombre}">`
                     : profile.nombre
                       ? profile.nombre.charAt(0).toUpperCase()
                       : "U"
@@ -962,7 +963,9 @@ export async function getStaticPaths() {
           </div>
           
           <div class="info-buttons">
-            ${profile.urlPortfolio ? `
+            ${
+                profile.urlPortfolio
+                    ? `
             <a href="${profile.urlPortfolio}" target="_blank" rel="noopener noreferrer" class="btn-portfolio">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
@@ -970,9 +973,13 @@ export async function getStaticPaths() {
               </svg>
               Portfolio
             </a>
-            ` : ''}
-            ${profile.email ? `
-            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=${profile.email}&su=${encodeURIComponent('Contacto desde Portal de Egresados')}&body=${encodeURIComponent('Hola ' + (profile.nombre || '') + ',\n\n')}" 
+            `
+                    : ""
+            }
+            ${
+                profile.email
+                    ? `
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=${profile.email}&su=${encodeURIComponent("Contacto desde Portal de Egresados")}&body=${encodeURIComponent("Hola " + (profile.nombre || "") + ",\n\n")}" 
                target="_blank" 
                rel="noopener noreferrer" 
                class="btn-contactar">
@@ -981,7 +988,22 @@ export async function getStaticPaths() {
               </svg>
               Contactar por Gmail
             </a>
-            ` : ''}
+            `
+                    : ""
+            }
+            ${
+                profile.resumenProfesional
+                    ? `
+            <a href="${backendBaseUrl}/api/perfiles/${profile.id}/cv" target="_blank" rel="noopener noreferrer" class="btn-portfolio">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              Curriculum
+            </a>
+            `
+                    : ""
+            }
           </div>
         </div>
       </div>
@@ -1041,15 +1063,20 @@ export async function getStaticPaths() {
               Experiencias
             </h3>
             ${
-                profile.experienciasLaborales && profile.experienciasLaborales.length > 0
-                    ? profile.experienciasLaborales.map(exp => `
+                profile.experienciasLaborales &&
+                profile.experienciasLaborales.length > 0
+                    ? profile.experienciasLaborales
+                          .map(
+                              (exp) => `
                 <div class="exp-item">
                   <div class="exp-title">${exp.empresa || "Sin empresa"}</div>
                   <div class="exp-subtitle">${exp.puesto || "Sin puesto"}</div>
                   <div class="exp-dates">${exp.fechaInicio || ""} - ${exp.fechaFin || "Actual"}</div>
                   ${exp.descripcion ? `<div class="exp-description">${exp.descripcion}</div>` : ""}
                 </div>
-              `).join("")
+              `,
+                          )
+                          .join("")
                     : `<div class="empty-state">No hay experiencias registradas</div>`
             }
           </div>
@@ -1061,14 +1088,19 @@ export async function getStaticPaths() {
               Formación
             </h3>
             ${
-                profile.formacionAcademica && profile.formacionAcademica.length > 0
-                    ? profile.formacionAcademica.map(edu => `
+                profile.formacionAcademica &&
+                profile.formacionAcademica.length > 0
+                    ? profile.formacionAcademica
+                          .map(
+                              (edu) => `
                 <div class="edu-item">
                   <div class="edu-title">${edu.institucion || "Sin institución"}</div>
                   <div class="edu-subtitle">${edu.titulo || ""}</div>
                   <div class="edu-dates">${edu.anioInicio || ""} - ${edu.anioFinalizacion || ""}</div>
                 </div>
-              `).join("")
+              `,
+                          )
+                          .join("")
                     : `<div class="empty-state">No hay formación registrada</div>`
             }
           </div>
@@ -1082,11 +1114,13 @@ export async function getStaticPaths() {
           </h3>
           ${
               profile.cursos && profile.cursos.length > 0
-                  ? profile.cursos.map(curso => `
+                  ? profile.cursos
+                        .map(
+                            (curso) => `
             <div class="course-item">
               <div class="course-header">
                 <div class="course-name">${curso.nombre || "Sin nombre"}</div>
-                ${curso.estado ? `<span class="course-status status-${curso.estado}">${curso.estado === 'completado' ? 'Completado' : curso.estado === 'en_proceso' ? 'En proceso' : 'Pausado'}</span>` : ''}
+                ${curso.estado ? `<span class="course-status status-${curso.estado}">${curso.estado === "completado" ? "Completado" : curso.estado === "en_proceso" ? "En proceso" : "Pausado"}</span>` : ""}
               </div>
               <div class="course-details">
                 ${curso.institucion ? `<div class="course-institution">${curso.institucion}</div>` : ""}
@@ -1097,7 +1131,9 @@ export async function getStaticPaths() {
                 ${curso.urlCertificado ? `<a href="${curso.urlCertificado}" target="_blank" class="course-link">Ver Certificado →</a>` : ""}
               </div>
             </div>
-          `).join("")
+          `,
+                        )
+                        .join("")
                   : `<div class="empty-state">No hay cursos registrados</div>`
           }
         </div>
@@ -1111,61 +1147,69 @@ export async function getStaticPaths() {
           ${
               profile.habilidades && profile.habilidades.length > 0
                   ? (() => {
-                      const tecnicas = profile.habilidades.filter(h => h.tipo === 'tecnica');
-                      const blandas = profile.habilidades.filter(h => h.tipo === 'blanda');
-                      const idiomas = profile.habilidades.filter(h => h.tipo === 'idioma');
-                      
-                      let html = '';
-                      
-                      // Agrupar técnicas por categoría
-                      const categoriaMap = {
-                          'lenguajes': 'Lenguajes de Programación',
-                          'frameworks': 'Frameworks',
-                          'bases_datos': 'Bases de Datos',
-                          'herramientas': 'Herramientas',
-                          'metodologias': 'Metodologías'
-                      };
-                      
-                      const tecnicasPorCategoria = {};
-                      const otrasHabilidades = [];
-                      
-                      tecnicas.forEach(h => {
-                          const cat = h.categoria || 'otras';
-                          if (cat === 'otras') {
-                              otrasHabilidades.push(h.nombre);
-                          } else {
-                              if (!tecnicasPorCategoria[cat]) {
-                                  tecnicasPorCategoria[cat] = [];
-                              }
-                              tecnicasPorCategoria[cat].push(h.nombre + (h.nivel ? ` (${h.nivel})` : ''));
-                          }
-                      });
-                      
-                      if (blandas.length > 0) {
-                          html += `<div class="skills-description"><strong>Habilidades Blandas:</strong> ${blandas.map(h => h.nombre).join(', ')}</div>`;
-                      }
-                      
-                      if (otrasHabilidades.length > 0) {
-                          html += `<div class="skills-description"><strong>Habilidades Técnicas:</strong> ${otrasHabilidades.join(', ')}</div>`;
-                      }
-                      
-                      html += '<div class="skills-categories">';
-                      
-                      // Mostrar técnicas por categoría específica
-                      Object.keys(tecnicasPorCategoria).forEach(cat => {
-                          const nombreCategoria = categoriaMap[cat];
-                          if (nombreCategoria) {
-                              html += `<div class="skill-category"><strong>${nombreCategoria}:</strong> ${tecnicasPorCategoria[cat].join(', ')}</div>`;
-                          }
-                      });
-                      
-                      if (idiomas.length > 0) {
-                          html += `<div class="skill-category"><strong>Idiomas:</strong> ${idiomas.map(h => h.nombre + (h.nivel ? ' (' + h.nivel + ')' : '')).join(', ')}</div>`;
-                      }
-                      
-                      html += '</div>';
-                      return html;
-                  })()
+                        const tecnicas = profile.habilidades.filter(
+                            (h) => h.tipo === "tecnica",
+                        );
+                        const blandas = profile.habilidades.filter(
+                            (h) => h.tipo === "blanda",
+                        );
+                        const idiomas = profile.habilidades.filter(
+                            (h) => h.tipo === "idioma",
+                        );
+
+                        let html = "";
+
+                        // Agrupar técnicas por categoría
+                        const categoriaMap = {
+                            lenguajes: "Lenguajes de Programación",
+                            frameworks: "Frameworks",
+                            bases_datos: "Bases de Datos",
+                            herramientas: "Herramientas",
+                            metodologias: "Metodologías",
+                        };
+
+                        const tecnicasPorCategoria = {};
+                        const otrasHabilidades = [];
+
+                        tecnicas.forEach((h) => {
+                            const cat = h.categoria || "otras";
+                            if (cat === "otras") {
+                                otrasHabilidades.push(h.nombre);
+                            } else {
+                                if (!tecnicasPorCategoria[cat]) {
+                                    tecnicasPorCategoria[cat] = [];
+                                }
+                                tecnicasPorCategoria[cat].push(
+                                    h.nombre + (h.nivel ? ` (${h.nivel})` : ""),
+                                );
+                            }
+                        });
+
+                        if (blandas.length > 0) {
+                            html += `<div class="skills-description"><strong>Habilidades Blandas:</strong> ${blandas.map((h) => h.nombre).join(", ")}</div>`;
+                        }
+
+                        if (otrasHabilidades.length > 0) {
+                            html += `<div class="skills-description"><strong>Habilidades Técnicas:</strong> ${otrasHabilidades.join(", ")}</div>`;
+                        }
+
+                        html += '<div class="skills-categories">';
+
+                        // Mostrar técnicas por categoría específica
+                        Object.keys(tecnicasPorCategoria).forEach((cat) => {
+                            const nombreCategoria = categoriaMap[cat];
+                            if (nombreCategoria) {
+                                html += `<div class="skill-category"><strong>${nombreCategoria}:</strong> ${tecnicasPorCategoria[cat].join(", ")}</div>`;
+                            }
+                        });
+
+                        if (idiomas.length > 0) {
+                            html += `<div class="skill-category"><strong>Idiomas:</strong> ${idiomas.map((h) => h.nombre + (h.nivel ? " (" + h.nivel + ")" : "")).join(", ")}</div>`;
+                        }
+
+                        html += "</div>";
+                        return html;
+                    })()
                   : `<div class="empty-state">No hay habilidades registradas</div>`
           }
         </div>
@@ -1178,14 +1222,20 @@ export async function getStaticPaths() {
           </h3>
           ${
               profile.proyectos && profile.proyectos.length > 0
-                  ? profile.proyectos.map(proyecto => `
+                  ? profile.proyectos
+                        .map(
+                            (proyecto) => `
             <div class="project-item-large">
               <div class="project-image">
-                ${(proyecto.imagen || proyecto.imagenUrl) ? `<img src="${proyecto.imagen || proyecto.imagenUrl}" alt="${proyecto.nombre}">` : `
+                ${
+                    proyecto.imagen || proyecto.imagenUrl
+                        ? `<img src="${proyecto.imagen || proyecto.imagenUrl}" alt="${proyecto.nombre}">`
+                        : `
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                   </svg>
-                `}
+                `
+                }
               </div>
               <div class="project-content">
                 <div class="project-name">${proyecto.nombre || "Sin nombre"}</div>
@@ -1193,7 +1243,9 @@ export async function getStaticPaths() {
                 ${proyecto.enlace ? `<a href="${proyecto.enlace}" target="_blank" class="project-url">${proyecto.enlace}</a>` : ""}
               </div>
             </div>
-          `).join("")
+          `,
+                        )
+                        .join("")
                   : `<div class="empty-state">No hay proyectos registrados</div>`
           }
         </div>
@@ -1214,9 +1266,10 @@ export async function getStaticPaths() {
         try {
             // URL completa del backend - detección dinámica según entorno
             const hostname = window.location.hostname;
-            const backendUrl = (hostname === 'localhost' || hostname === '127.0.0.1')
-                ? 'http://localhost:3000'
-                : 'https://egresados-ies-api.vercel.app';
+            const backendUrl =
+                hostname === "localhost" || hostname === "127.0.0.1"
+                    ? "http://localhost:3000"
+                    : "https://egresados-ies-api.vercel.app";
             const res = await fetch(`${backendUrl}/api/perfiles/${id}`);
             if (!res.ok) throw new Error("Perfil no encontrado");
             const json = await res.json();

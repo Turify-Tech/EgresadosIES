@@ -1,6 +1,7 @@
 import express from "express";
 import rateLimit from "express-rate-limit";
 import PerfilesController from "../controllers/perfilesController.js";
+import { downloadCVPublico } from "../controllers/cvController.js";
 
 const router = express.Router();
 
@@ -36,5 +37,13 @@ router.get("/", PerfilesController.getPerfilesPublicos);
  * @param {number} id - ID del egresado
  */
 router.get("/:id", PerfilesController.getPerfilPublico);
+
+/**
+ * @route GET /api/perfiles/:id/cv
+ * @desc Descarga el CV del egresado en formato PDF (público)
+ * @access Público
+ * @param {number} id - ID del egresado
+ */
+router.get("/:id/cv", downloadCVPublico);
 
 export default router;
