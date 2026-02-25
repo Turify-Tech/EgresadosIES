@@ -26,6 +26,7 @@ import "../styles/mentions.css";
 import { API_URL, API_BASE_URL } from "../config/env.js";
 import MensajesSidebar from "../components/mensajes/MensajesSidebar.astro";
 import NotificacionesModal from "../components/NotificacionesModal.astro";
+import ConfirmModal from "../components/ConfirmModal.astro";
 import SearchBar from "../components/busqueda/SearchBar.astro";
 import DynamicBackground from "../components/DynamicBackground.astro";
 ---
@@ -1320,5 +1321,8 @@ import DynamicBackground from "../components/DynamicBackground.astro";
 
         <!-- Sidebar de Mensajes Global -->
         <MensajesSidebar />
+
+        <!-- Modal de Confirmación Global -->
+        <ConfirmModal />
     </body>
 </html>

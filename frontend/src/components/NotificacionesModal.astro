@@ -112,9 +112,18 @@ import '../styles/notificaciones.css';
 
         // Limpiar notificaciones leídas
         btnLimpiar?.addEventListener('click', async () => {
-            if (!confirm('¿Estás seguro de que deseas eliminar todas las notificaciones leídas?')) {
-                return;
-            }
+            // Cerrar modal de notificaciones antes de abrir el de confirmación
+            overlay.classList.remove('show');
+            
+            const confirmed = await window.showConfirmModal(
+                'Limpiar notificaciones',
+                '¿Estás seguro de que deseas eliminar todas las notificaciones leídas?'
+            );
+            
+            // Reabrir modal de notificaciones
+            overlay.classList.add('show');
+            
+            if (!confirmed) return;
 
             try {
                 const token = localStorage.getItem('auth_token');

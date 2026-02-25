@@ -456,9 +456,26 @@ const { limit = 20, showFilters = true } = Astro.props;
             btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
                 const id = btn.dataset.id;
-                if (confirm('¿Estás seguro de eliminar esta notificación?')) {
+                
+                // Cerrar modal de notificaciones antes de abrir el de confirmación
+                const notificacionesOverlay = document.getElementById('notificaciones-modal-overlay');
+                if (notificacionesOverlay) {
+                    notificacionesOverlay.classList.remove('show');
+                }
+                
+                const confirmed = await window.showConfirmModal(
+                    'Eliminar notificación',
+                    '¿Estás seguro de que deseas eliminar esta notificación?'
+                );
+                
+                if (confirmed) {
                     await eliminarNotificacion(id);
                     await cargarNotificaciones();
+                }
+                
+                // Reabrir modal de notificaciones
+                if (notificacionesOverlay) {
+                    notificacionesOverlay.classList.add('show');
                 }
             });
         });
