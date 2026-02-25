@@ -717,6 +717,8 @@
     color: #1f2937;
     font-size: 0.95rem;
     line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 .post-images {
