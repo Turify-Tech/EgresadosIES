@@ -535,6 +535,7 @@
             this.isInitialized = false;
             this.habilidadesTecnicas = [];
             this.habilidadesBlandas = [];
+            this.habilidadesEliminadas = []; // Array para rastrear IDs de habilidades eliminadas
             this.init();
         }
 
@@ -729,8 +730,20 @@
 
         removeHabilidad(tipo, index) {
             if (tipo === "tecnica") {
+                const habilidad = this.habilidadesTecnicas[index];
+                // Si tiene ID, significa que existe en BD y debe ser eliminada
+                if (habilidad.id) {
+                    this.habilidadesEliminadas.push(habilidad.id);
+                    console.log(`🗑️ Habilidad marcada para eliminar - ID: ${habilidad.id}`);
+                }
                 this.habilidadesTecnicas.splice(index, 1);
             } else {
+                const habilidad = this.habilidadesBlandas[index];
+                // Si tiene ID, significa que existe en BD y debe ser eliminada
+                if (habilidad.id) {
+                    this.habilidadesEliminadas.push(habilidad.id);
+                    console.log(`🗑️ Habilidad marcada para eliminar - ID: ${habilidad.id}`);
+                }
                 this.habilidadesBlandas.splice(index, 1);
             }
             this.renderHabilidades();
@@ -859,6 +872,7 @@
             return {
                 habilidadesTecnicas: this.habilidadesTecnicas,
                 habilidadesBlandas: this.habilidadesBlandas,
+                habilidadesEliminadas: this.habilidadesEliminadas, // IDs a eliminar
                 // Compatibilidad con campos de string
                 habilidadesTecnicasString: this.habilidadesTecnicas
                     .map((h) => h.nombre)

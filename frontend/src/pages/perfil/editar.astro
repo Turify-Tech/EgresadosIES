@@ -1892,6 +1892,25 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                         const data = window.habilidadesManager.getFormData();
                         console.log("Datos de habilidades:", data);
 
+                        // PASO 1: Eliminar habilidades marcadas para borrar
+                        if (data.habilidadesEliminadas && data.habilidadesEliminadas.length > 0) {
+                            console.log(`🗑️ Eliminando ${data.habilidadesEliminadas.length} habilidad(es)...`);
+                            
+                            for (const id of data.habilidadesEliminadas) {
+                                try {
+                                    await profileService.deleteHabilidad(id);
+                                    console.log(`✅ Habilidad ${id} eliminada de BD`);
+                                } catch (error) {
+                                    console.error(`❌ Error eliminando habilidad ${id}:`, error);
+                                    // Continuar con las demás eliminaciones
+                                }
+                            }
+                            
+                            // Limpiar array después de procesar eliminaciones
+                            window.habilidadesManager.habilidadesEliminadas = [];
+                        }
+
+                        // PASO 2: Guardar/actualizar habilidades existentes
                         const todasHabilidades = [
                             ...(data.habilidadesTecnicas || []),
                             ...(data.habilidadesBlandas || []),
