@@ -1050,13 +1050,15 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                                 }
 
                                 // Si hay siguiente sección, navegar
+                                // Dar un pequeño delay para que el usuario vea la notificación
                                 if (nextSection) {
                                     console.log(
                                         `Navigating to: ${nextSection}`
                                     );
+                                    // Delay de 500ms para asegurar que loadUserProfile completó
                                     setTimeout(() => {
                                         this.switchSection(nextSection);
-                                    }, 300);
+                                    }, 500);
                                 } else {
                                     // Última sección - mostrar mensaje final adicional
                                     setTimeout(() => {
@@ -1519,6 +1521,10 @@ import ProyectoForm from "../../components/perfil/ProyectoForm.astro";
                     console.log("Respuesta del guardado:", response);
 
                     this.hasUnsavedChanges = false;
+
+                    // Recargar datos después del guardado exitoso
+                    console.log("✅ Datos personales guardados, recargando datos...");
+                    await this.loadUserProfile();
 
                     return true; // Indicar éxito
                 } catch (error) {
