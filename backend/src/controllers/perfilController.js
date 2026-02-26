@@ -166,6 +166,7 @@ export async function getMiPerfil(req, res) {
                 resumenProfesional: perfil.resumenProfesional,
                 urlPortfolio: perfil.urlPortfolio,
                 situacionLaboral: perfil.situacionLaboral,
+                ciudad: perfil.ciudad,
                 urlFotoPerfil: perfil.urlFotoPerfil,
                 urlBanner: perfil.urlBanner,
             },
