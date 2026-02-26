@@ -893,7 +893,15 @@ import "../styles/mentions.css";
 
         // Función para formatear fecha relativa
         function formatearFechaRelativa(fechaString) {
-            const fecha = new Date(fechaString);
+            // Parsear fecha - manejar diferentes formatos
+            let fecha;
+            if (fechaString.includes('T') || fechaString.includes('Z')) {
+                fecha = new Date(fechaString);
+            } else {
+                // Si el formato es "YYYY-MM-DD HH:MM:SS", convertir a ISO
+                fecha = new Date(fechaString.replace(' ', 'T') + 'Z');
+            }
+            
             const ahora = new Date();
             const diffMs = ahora.getTime() - fecha.getTime();
             const diffMins = Math.floor(diffMs / 60000);
@@ -1032,7 +1040,7 @@ import "../styles/mentions.css";
                         ${avatarHTML}
                         <div class="post-meta">
                             <strong>${nombreAutor}</strong>
-                            <time>${formatearFechaRelativa(fechaCreacion)}</time>
+                            <time class="tiempo-relativo" data-fecha="${fechaCreacion}">${formatearFechaRelativa(fechaCreacion)}</time>
                         </div>
                         ${optionsHTML}
                     </header>
@@ -1344,6 +1352,9 @@ import "../styles/mentions.css";
                 const result = await response.json();
 
                 if (result.success) {
+                    // Limpiar cache antes de recargar el feed
+                    postsCache.clear();
+                    
                     // Recargar el feed
                     currentPage = 1;
                     await cargarPublicaciones(1);
@@ -1855,7 +1866,7 @@ import "../styles/mentions.css";
                         </div>
                         <p class="comentario-texto" data-comentario-id="${id}" style="color: #000 !important; margin: 0.5rem 0 0.625rem 0; font-size: 0.9375rem; line-height: 1.4;">${contenido}</p>
                         <div class="comentario-footer" style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
-                            <span class="comentario-tiempo" style="color: #9ca3af; font-size: 0.8125rem;">${formatearTiempoRelativo(fechaCreacion)}</span>
+                            <span class="comentario-tiempo tiempo-relativo" style="color: #9ca3af; font-size: 0.8125rem;" data-fecha="${fechaCreacion}">${formatearTiempoRelativo(fechaCreacion)}</span>
                             <button class="btn-responder" data-comentario-id="${id}" style="background: none; border: none; color: #6b7280; font-size: 0.8125rem; font-weight: 500; cursor: pointer; padding: 0; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#6b7280'">Responder</button>
                             ${
                                 totalRespuestas > 0
@@ -1887,13 +1898,16 @@ import "../styles/mentions.css";
 
         function formatearTiempoRelativo(fechaISO) {
             const ahora = new Date();
-            // Si la fecha no tiene 'Z' al final, agregarla para indicar UTC
-            const fechaFormateada = fechaISO.includes("Z")
-                ? fechaISO
-                : fechaISO.replace(" ", "T") + "Z";
-            const fecha = new Date(fechaFormateada);
+            // Manejar diferentes formatos de fecha
+            let fecha;
+            if (fechaISO.includes('T') || fechaISO.includes('Z')) {
+                fecha = new Date(fechaISO);
+            } else {
+                // Si el formato es "YYYY-MM-DD HH:MM:SS", convertir a ISO
+                fecha = new Date(fechaISO.replace(' ', 'T') + 'Z');
+            }
 
-            const diffMs = ahora - fecha;
+            const diffMs = ahora.getTime() - fecha.getTime();
 
             const diffMinutos = Math.floor(diffMs / (1000 * 60));
             const diffHoras = Math.floor(diffMs / (1000 * 60 * 60));
@@ -2289,7 +2303,7 @@ import "../styles/mentions.css";
                         </div>
                         <p class="comentario-texto" style="color: #000 !important; margin: 0.375rem 0; font-size: 0.875rem; line-height: 1.4;">${contenido}</p>
                         <div class="comentario-footer" style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
-                            <span class="comentario-tiempo" style="color: #9ca3af; font-size: 0.75rem;">${formatearTiempoRelativo(fechaCreacion)}</span>
+                            <span class="comentario-tiempo tiempo-relativo" style="color: #9ca3af; font-size: 0.75rem;" data-fecha="${fechaCreacion}">${formatearTiempoRelativo(fechaCreacion)}</span>
                             <button class="btn-responder" data-comentario-id="${id}" style="background: none; border: none; color: #6b7280; font-size: 0.75rem; font-weight: 500; cursor: pointer; padding: 0; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#6b7280'">Responder</button>
                             ${
                                 totalRespuestas > 0
@@ -4081,6 +4095,34 @@ import "../styles/mentions.css";
                     }
                 }
             });
+
+            // ========================================
+            // Actualización automática de tiempos relativos
+            // ========================================
+            function actualizarTiemposRelativos() {
+                const elementos = document.querySelectorAll('.tiempo-relativo[data-fecha]');
+                
+                elementos.forEach((elemento) => {
+                    const fecha = elemento.getAttribute('data-fecha');
+                    if (fecha) {
+                        // Determinar si es publicación o comentario basado en contexto
+                        const esComentario = elemento.classList.contains('comentario-tiempo');
+                        const tiempoActualizado = esComentario 
+                            ? formatearTiempoRelativo(fecha)
+                            : formatearFechaRelativa(fecha);
+                        
+                        if (elemento.textContent !== tiempoActualizado) {
+                            elemento.textContent = tiempoActualizado;
+                        }
+                    }
+                });
+            }
+
+            // Ejecutar una vez al cargar
+            setTimeout(actualizarTiemposRelativos, 2000);
+            
+            // Actualizar tiempos cada 30 segundos
+            setInterval(actualizarTiemposRelativos, 30000);
         });
 
         // Exponer funciones globalmente
